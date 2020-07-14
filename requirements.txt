@@ -1,0 +1,6 @@
+gym==0.17.1
+matplotlib==3.2.0
+numpy==1.18.2
+tensorboard==2.1.1
+tensorflow==2.1.0
+tensorflow-estimator==2.1.0

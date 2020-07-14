@@ -1,0 +1,139 @@
+{
+    "description": "Hyper params for Multiple Knapsack problem",
+
+    "dpc": {
+        "description": "Double Pointer Critic algorithm configs.",
+        "agent_config": {
+
+            "gamma": 0.999,
+            "entropy_coefficient": 0.00001,
+            "stochastic_action_selection": true,
+
+            "actor": {
+                "SOS_CODE": -1,
+                "learning_rate": 0.0001,
+
+                "encoder_embedding_size": 256,
+                "encoder_embedding_time_distributed": true,
+                "encoder_lstm_units": 256,
+
+                "attention_dense_units": 256
+            },
+
+            "critic": {
+                "learning_rate": 0.0001,
+
+                "encoder_embedding_size": 256,
+                "encoder_embedding_time_distributed": true,
+                "encoder_lstm_units": 256,
+
+                "processing_lstm_units": 256,
+                "processing_dense_units": 256,
+
+                "decoder_units": 256,
+                "decoder_activation": "linear"
+            }
+        },
+
+        "trainer_config": {
+            "n_iterations": 6000
+        },
+        "env_config": {
+            "load_from_file": false,
+            "location": "./environment/custom/knapsack/problem.json",
+
+            "num_items": 2,
+            "num_backpacks": 2,
+            "new_items_on_reset": false,
+            "shuffle_on_reset": false,
+            
+            "sampling_mode": false,
+            "sample_size": 1,
+
+            "normalization_factor": 1,
+
+            "min_item_value": 1,
+            "max_item_value": 100,
+            "min_item_weight": 1,
+            "max_item_weight": 20,
+
+            "min_backpack_capacity": 1,
+            "max_backpack_capacity": 100
+        }
+    },
+
+    "tpc": {
+        "description": "Double Transformer Pointer Critic algorithm configs.",
+        "agent_config": {
+
+            "gamma": 0.999,
+            "entropy_coefficient": 0.00001,
+            "stochastic_action_selection": true,
+
+            "actor": {
+                "positional_encoding": true,
+                "num_heads": 8,
+                "dim_model": 256,
+                "inner_layer_dim": 256,
+                "num_layers": 1,
+                "dropout_rate": 0.01,
+
+                "SOS_CODE": -1,
+                "learning_rate": 0.0001,
+
+                "encoder_embedding_size": 256,
+                "encoder_embedding_time_distributed": true,
+                "encoder_lstm_units": 256,
+
+                "attention_dense_units": 256
+            },
+
+            "critic": {
+                "positional_encoding": true,
+                "num_layers": 1,
+                "num_heads": 8,
+                "dim_model": 256,
+                "inner_layer_dim": 256,
+                "dropout_rate": 0.01,
+
+                "learning_rate": 0.0001,
+
+                "encoder_embedding_size": 256,
+                "encoder_embedding_time_distributed": true,
+                
+                "encoder_lstm_units": 256,
+                "processing_lstm_units": 256,
+                "processing_dense_units": 256,
+
+                "decoder_units": 256,
+                "decoder_activation": "linear"
+            }
+        },
+
+        "trainer_config": {
+            "n_iterations": 1000
+        },
+        "env_config": {
+            "load_from_file": false,
+            "location": "./environment/custom/knapsack/problem.json",
+
+            "num_items": 20,
+            "num_backpacks": 10,
+            "new_items_on_reset": false,
+            "shuffle_on_reset": false,
+            
+            "sampling_mode": false,
+            "sample_size": 1,
+
+            "normalization_factor": 1,
+
+            "min_item_value": 1,
+            "max_item_value": 100,
+            "min_item_weight": 1,
+            "max_item_weight": 20,
+
+            "min_backpack_capacity": 1,
+            "max_backpack_capacity": 100
+        }
+    }
+}

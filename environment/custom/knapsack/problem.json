@@ -1,0 +1,161 @@
+{
+    "backpacks": {
+        "0": {
+            "id": 0,
+            "type": "eos",
+            "capacity": 0.0
+        },
+        "1": {
+            "id": 1,
+            "type": "normal",
+            "capacity": 51.0
+        },
+        "2": {
+            "id": 2,
+            "type": "normal",
+            "capacity": 52.0
+        },
+        "3": {
+            "id": 3,
+            "type": "normal",
+            "capacity": 86.0
+        },
+        "4": {
+            "id": 4,
+            "type": "normal",
+            "capacity": 14.0
+        },
+        "5": {
+            "id": 5,
+            "type": "normal",
+            "capacity": 10.0
+        },
+        "6": {
+            "id": 6,
+            "type": "normal",
+            "capacity": 88.0
+        },
+        "7": {
+            "id": 7,
+            "type": "normal",
+            "capacity": 41.0
+        },
+        "8": {
+            "id": 8,
+            "type": "normal",
+            "capacity": 2.0
+        },
+        "9": {
+            "id": 9,
+            "type": "normal",
+            "capacity": 21.0
+        },
+        "10": {
+            "id": 10,
+            "type": "normal",
+            "capacity": 10.0
+        }
+    },
+    "items": {
+        "11": {
+            "id": 11,
+            "weight": 20.0,
+            "value": 85.0
+        },
+        "12": {
+            "id": 12,
+            "weight": 19.0,
+            "value": 51.0
+        },
+        "13": {
+            "id": 13,
+            "weight": 20.0,
+            "value": 20.0
+        },
+        "14": {
+            "id": 14,
+            "weight": 11.0,
+            "value": 85.0
+        },
+        "15": {
+            "id": 15,
+            "weight": 7.0,
+            "value": 18.0
+        },
+        "16": {
+            "id": 16,
+            "weight": 1.0,
+            "value": 78.0
+        },
+        "17": {
+            "id": 17,
+            "weight": 20.0,
+            "value": 85.0
+        },
+        "18": {
+            "id": 18,
+            "weight": 11.0,
+            "value": 85.0
+        },
+        "19": {
+            "id": 19,
+            "weight": 1.0,
+            "value": 39.0
+        },
+        "20": {
+            "id": 20,
+            "weight": 9.0,
+            "value": 9.0
+        },
+        "21": {
+            "id": 21,
+            "weight": 17.0,
+            "value": 66.0
+        },
+        "22": {
+            "id": 22,
+            "weight": 12.0,
+            "value": 91.0
+        },
+        "23": {
+            "id": 23,
+            "weight": 1.0,
+            "value": 78.0
+        },
+        "24": {
+            "id": 24,
+            "weight": 12.0,
+            "value": 34.0
+        },
+        "25": {
+            "id": 25,
+            "weight": 1.0,
+            "value": 39.0
+        },
+        "26": {
+            "id": 26,
+            "weight": 12.0,
+            "value": 76.0
+        },
+        "27": {
+            "id": 27,
+            "weight": 7.0,
+            "value": 74.0
+        },
+        "28": {
+            "id": 28,
+            "weight": 13.0,
+            "value": 25.0
+        },
+        "29": {
+            "id": 29,
+            "weight": 3.0,
+            "value": 86.0
+        },
+        "30": {
+            "id": 30,
+            "weight": 9.0,
+            "value": 32.0
+        }
+    }
+}
