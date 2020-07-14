@@ -111,7 +111,7 @@
         },
 
         "trainer_config": {
-            "n_iterations": 1000
+            "n_iterations": 10
         },
         "env_config": {
             "load_from_file": false,

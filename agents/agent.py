@@ -1,8 +1,8 @@
+# 
+# from agents.transformer_pointer_critic.model.critic.model import CriticTransformer
+# from agents.transformer_pointer_critic.model.actor.model import ActorTransformer
 
-from agents.base.base import BaseAgent
-
-from agents.transformer_pointer_critic.model.critic.model import CriticTransformer
-from agents.transformer_pointer_critic.model.actor.model import ActorTransformer
+from agents.models.model_factory import model_factory
 
 ##
 import tensorflow_probability as tfp
@@ -10,93 +10,33 @@ import tensorflow as tf
 import numpy as np
 
 
-class TransfomerPointerCritic(BaseAgent):
+class Agent():
     def __init__(self, name, opts):
-        super(TransfomerPointerCritic, self).__init__(name, opts)
+        super(Agent, self).__init__()
+
+        self.name = name
 
         self.num_items = opts['num_items']
         self.num_backpacks = opts['num_backpacks']
         self.tensor_size = opts['tensor_size']
         self.vocab_size = opts['vocab_size']
-        
+        self.SOS_CODE = opts['actor']['SOS_CODE']
+
         self.gamma = opts['gamma'] # Discount factor
         self.entropy_coefficient = opts['entropy_coefficient']
         self.stochastic_action_selection = opts['stochastic_action_selection']
 
-        ### Critic Net Configs
+        ### Optimizers ###
         self.critic_learning_rate = opts['critic']['learning_rate']
         self.critic_opt = tf.keras.optimizers.Adam(learning_rate=self.critic_learning_rate)
-
-        self.critic_encoder_embedding_size = opts['critic']['encoder_embedding_size']
-        self.critic_encoder_embedding_time_distributed = opts['critic']['encoder_embedding_time_distributed']
-        self.critic_encoder_lstm_units = opts['critic']['encoder_lstm_units']
-        self.critic_processing_lstm_units = opts['critic']['processing_lstm_units']
-        self.critic_processing_dense_units = opts['critic']['processing_dense_units']
-        self.critic_decoder_units = opts['critic']['decoder_units']
-        self.critic_decoder_activation = opts['critic']['decoder_activation']
-
-        self.critic_positional_encoding = opts['critic']['positional_encoding']
-        self.critic_num_layers = opts['critic']['num_layers']
-        self.critic_num_heads = opts['critic']['num_heads']
-        self.critic_dim_model = opts['critic']['dim_model']
-        self.critic_inner_layer_dim = opts['critic']['inner_layer_dim']
-        self.critic_dropout_rate = opts['critic']['dropout_rate']
-
-        self.critic = CriticTransformer(
-            self.critic_num_layers,
-            self.critic_dim_model,
-            self.critic_num_heads,
-            self.critic_inner_layer_dim,
-            self.vocab_size,
-            self.vocab_size,
-            self.critic_encoder_embedding_time_distributed,
-            self.critic_dropout_rate
-        )
-
-        ### Pointer Net Configs
-        self.SOS_CODE = opts['actor']['SOS_CODE']
-
+        
         self.actor_learning_rate = opts['actor']['learning_rate']
         self.pointer_opt = tf.keras.optimizers.Adam(learning_rate=self.actor_learning_rate)
 
-        self.actor_encoder_embedding_size = opts['actor']['encoder_embedding_size']
-        self.actor_encoder_embedding_time_distributed = opts['actor']['encoder_embedding_time_distributed']
-        self.actor_encoder_lstm_units = opts['actor']['encoder_lstm_units']
-        self.actor_attention_dense_units = opts['actor']['attention_dense_units']
-
-        self.actor_positional_encoding = opts['actor']['positional_encoding']
-        self.actor_num_layers = opts['actor']['num_layers']
-        self.actor_num_heads = opts['actor']['num_heads']
-        self.actor_dim_model = opts['actor']['dim_model']
-        self.actor_inner_layer_dim = opts['actor']['inner_layer_dim']
-        self.actor_dropout_rate = opts['actor']['dropout_rate']
-
-        self.backpack_actor = ActorTransformer(
-            self.actor_num_layers,
-            self.actor_dim_model,
-            self.actor_num_heads,
-            self.actor_inner_layer_dim,
-            self.vocab_size,
-            self.vocab_size,
-            self.SOS_CODE,
-            self.vocab_size,
-            self.vocab_size,
-            self.actor_encoder_embedding_time_distributed,
-            self.actor_dropout_rate
-        )
-
-        self.item_actor = ActorTransformer(
-            self.actor_num_layers,
-            self.actor_dim_model,
-            self.actor_num_heads,
-            self.actor_inner_layer_dim,
-            self.vocab_size,
-            self.vocab_size,
-            self.SOS_CODE,
-            self.vocab_size,
-            self.vocab_size,
-            self.actor_encoder_embedding_time_distributed,
-            self.actor_dropout_rate
+        ### Load the models
+        self.item_actor, self.backpack_actor, self.critic = model_factory(
+            name,
+            opts
         )
 
         # Init memory

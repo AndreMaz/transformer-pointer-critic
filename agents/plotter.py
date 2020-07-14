@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import os
 
 # Import Google OR Tools Solver
-from agents.double_pointer_critic.optimum_solver import solver
+from agents.optimum_solver import solver
 
 
 def plotter(data, env, agent, agent_config, blockPlot=False):
@@ -13,7 +13,7 @@ def plotter(data, env, agent, agent_config, blockPlot=False):
     optimum_value = solver(input_solver)
     opt_values = [optimum_value for i in range(len(data))]
 
-    agent_name = agent.agent_name
+    agent_name = agent.name
     env_name = env.name
 
     x_values = [i for i in range(len(data))]

@@ -2,10 +2,10 @@ import tensorflow as tf
 from tensorflow.keras.layers import TimeDistributed, Dense
 import numpy as np
 
-from agents.transformer_pointer_critic.model.actor.decoder_layer import DecoderLayer
-from agents.transformer_pointer_critic.model.common.utils import positional_encoding
+from agents.models.transformer.actor.decoder_layer import DecoderLayer
+from agents.models.transformer.common.utils import positional_encoding
 
-from agents.transformer_pointer_critic.model.actor.last_decoder_layer import LastDecoderLayer
+from agents.models.transformer.actor.last_decoder_layer import LastDecoderLayer
 
 class Decoder(tf.keras.layers.Layer):
   def __init__(self,
@@ -13,9 +13,9 @@ class Decoder(tf.keras.layers.Layer):
                d_model,
                num_heads,
                dff,
+               use_positional_encoding,
                SOS_CODE,
-               target_vocab_size,
-               maximum_position_encoding,
+               vocab_size,
                embedding_time_distributed: bool,
                rate=0.1):
     super(Decoder, self).__init__()
@@ -23,7 +23,8 @@ class Decoder(tf.keras.layers.Layer):
     self.d_model = d_model
     self.num_layers = num_layers
     self.embedding_time_distributed = embedding_time_distributed
-    self.vocab_size = target_vocab_size
+    self.vocab_size = vocab_size
+    self.use_positional_encoding = use_positional_encoding
 
     self.SOS_CODE = SOS_CODE
 
@@ -43,7 +44,7 @@ class Decoder(tf.keras.layers.Layer):
       )
 
 
-    self.pos_encoding = positional_encoding(maximum_position_encoding, d_model)
+    self.pos_encoding = positional_encoding(self.vocab_size, d_model)
     
     self.dec_layers = [DecoderLayer(d_model, num_heads, dff, rate) 
                        for _ in range(num_layers)]

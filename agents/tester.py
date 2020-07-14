@@ -1,4 +1,4 @@
-from agents.double_pointer_critic.optimum_solver import solver
+from agents.optimum_solver import solver
 
 def test(env, agent):
     data = env.convert_to_ortools_input()

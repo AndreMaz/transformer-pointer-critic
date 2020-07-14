@@ -1,4 +1,8 @@
-from agents.agent_factory import agent_factory
+from agents.agent import Agent
+from agents.tester import test as tester
+from agents.plotter import plotter
+from agents.trainer import trainer
+
 from environment.env_factory import env_factory
 from configs.configs import get_configs
 # For params tunning
@@ -14,9 +18,11 @@ def runner(env_type="custom", env_name='Knapsack', agent_name="tpc"):
     
     # Add info about the environment
     agent_config = env.add_stats_to_agent_config(agent_config)
+    
+    agent = Agent('transformer', agent_config)
 
-    # Load agent alongside with it's trainer, plotter and tester functions
-    agent, trainer, tester, plotter = agent_factory(agent_name, agent_config)
+    # # Load agent alongside with it's trainer, plotter and tester functions
+    # agent, trainer, tester, plotter = agent_factory(agent_name, agent_config)
 
     # Train
     print('Training...')

@@ -1,14 +1,14 @@
 import tensorflow as tf
-from agents.transformer_pointer_critic.model.common.encoder import Encoder
+from agents.models.transformer.common.encoder import Encoder
 
 class CriticTransformer(tf.keras.Model):
     def __init__(self,
                  num_layers,
                  d_model,
                  num_heads,
+                 positional_encoding,
                  dff,
-                 input_vocab_size,
-                 pe_input,
+                 vocab_size,
                  embedding_time_distributed,
                  dropout_rate=0.1
                  ):
@@ -19,8 +19,8 @@ class CriticTransformer(tf.keras.Model):
         self.d_model = d_model
         self.num_heads = num_heads
         self.dff = dff
-        self.input_vocab_size = input_vocab_size
-        self.pe_input = pe_input # Positional encoding input size
+        self.vocab_size = vocab_size
+        self.positional_encoding = positional_encoding
         self.embedding_time_distributed = embedding_time_distributed
         self.dropout_rate = dropout_rate
 
@@ -28,8 +28,8 @@ class CriticTransformer(tf.keras.Model):
                                self.d_model,
                                self.num_heads,
                                self.dff,
-                               self.input_vocab_size,
-                               self.pe_input,
+                               self.positional_encoding,
+                               self.vocab_size,
                                self.embedding_time_distributed,
                                self.dropout_rate
                                )

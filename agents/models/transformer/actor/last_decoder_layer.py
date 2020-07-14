@@ -1,9 +1,9 @@
 import tensorflow as tf
-from agents.transformer_pointer_critic.model.common.attention import MultiHeadAttention
-from agents.transformer_pointer_critic.model.common.utils import point_wise_feed_forward_network
+from agents.models.transformer.common.attention import MultiHeadAttention
+from agents.models.transformer.common.utils import point_wise_feed_forward_network
 
 # from agents.transformer_pointer_critic.model.actor.custom_attention import PointerMultiHeadAttention
-from agents.transformer_pointer_critic.model.actor.pointer_attention import PointerAttention
+from agents.models.transformer.actor.pointer_attention import PointerAttention
 
 class LastDecoderLayer(tf.keras.layers.Layer):
   def __init__(self, d_model, num_heads, dff, rate=0.1):

@@ -1,9 +1,9 @@
-from agents.transformer_pointer_critic.agent import TransfomerPointerCritic
+from agents.agent import Agent
 from environment.custom.knapsack.env import Knapsack
 import tensorflow as tf
 
 
-def trainer(env: Knapsack, agent: TransfomerPointerCritic, opts: dict):
+def trainer(env: Knapsack, agent: Agent, opts: dict):
 
     training = True
     n_iterations: int = opts['n_iterations']

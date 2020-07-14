@@ -1,6 +1,6 @@
 import tensorflow as tf
-from agents.transformer_pointer_critic.model.actor.decoder import Decoder
-from agents.transformer_pointer_critic.model.common.encoder import Encoder
+from agents.models.transformer.actor.decoder import Decoder
+from agents.models.transformer.common.encoder import Encoder
 
 class ActorTransformer(tf.keras.Model):
   def __init__(self,
@@ -8,11 +8,9 @@ class ActorTransformer(tf.keras.Model):
                d_model,
                num_heads,
                dff,
-               input_vocab_size,
-               target_vocab_size,
+               positional_encoding: bool,
+               vocab_size,
                SOS_CODE,
-               pe_input,
-               pe_target,
                encoder_embedding_time_distributed,
                rate=0.1
                ):
@@ -23,8 +21,8 @@ class ActorTransformer(tf.keras.Model):
                            d_model,
                            num_heads,
                            dff,
-                           input_vocab_size,
-                           pe_input,
+                           positional_encoding,
+                           vocab_size,
                            encoder_embedding_time_distributed,
                            rate)
 
@@ -32,9 +30,9 @@ class ActorTransformer(tf.keras.Model):
                            d_model,
                            num_heads,
                            dff,
+                           positional_encoding,
                            SOS_CODE,
-                           target_vocab_size,
-                           pe_target,
+                           vocab_size,
                            encoder_embedding_time_distributed,
                            rate)
 
