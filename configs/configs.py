@@ -7,6 +7,6 @@ def get_configs(env_name, agent_name):
             params = json.load(json_file)
 
         # Return the agent's hyper params and training configs
-        return params[agent_name]["agent_config"], params[agent_name]["trainer_config"], params[agent_name]["env_config"]
+        return params[agent_name]["agent_config"], params["trainer_config"], params["env_config"]
     except KeyError:
         print("Can't find agent_config/trainer_config/env_config combo for the current problem! Check JSON file in configs dir!")
