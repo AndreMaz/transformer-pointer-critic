@@ -22,8 +22,7 @@ class PointerAttention(Layer):
            add_time_dim=False):
     batch_size = enc_input.shape[0]
     # Create a tensor with the batch indices
-    batch_indices = tf.convert_to_tensor(
-            list(range(batch_size)), dtype='int32')
+    batch_indices = tf.range(batch_size, dtype='int32')
 
     # To performs ops between them we need to reshape the decoder_prev_hidden into [batch_size, 1, features]
     if add_time_dim:

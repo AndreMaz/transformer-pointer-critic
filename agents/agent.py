@@ -170,10 +170,10 @@ class Agent():
         return total_loss, dec_output
     
     train_step_signature = [
-        tf.TensorSpec(shape=(None, None, None), dtype=tf.float32),
-        tf.TensorSpec(shape=(None, None, None), dtype=tf.float32),
-        tf.TensorSpec(shape=(None, None), dtype=tf.float16),
-        tf.TensorSpec(shape=(None, None), dtype=tf.float16),
+        tf.TensorSpec(shape=(None, 21, 2), dtype=tf.float32),
+        tf.TensorSpec(shape=(None, 21, 2), dtype=tf.float32),
+        tf.TensorSpec(shape=(None, 1), dtype=tf.float16),
+        tf.TensorSpec(shape=(None, 1), dtype=tf.float16),
     ]
 
     # @tf.function(input_signature=train_step_signature)

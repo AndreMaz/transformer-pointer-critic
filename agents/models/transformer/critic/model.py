@@ -10,6 +10,7 @@ class CriticTransformer(tf.keras.Model):
                  positional_encoding,
                  vocab_size,
                  embedding_time_distributed,
+                 last_layer_activation,
                  dropout_rate=0.1
                  ):
         super(CriticTransformer, self).__init__()
@@ -36,7 +37,7 @@ class CriticTransformer(tf.keras.Model):
         
         self.flat_layer = tf.keras.layers.Flatten()
 
-        self.final_layer = tf.keras.layers.Dense(1)
+        self.final_layer = tf.keras.layers.Dense(1, activation=last_layer_activation)
 
     def call(self,
              encoder_input,

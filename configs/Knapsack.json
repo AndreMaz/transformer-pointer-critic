@@ -12,8 +12,8 @@
         "load_from_file": false,
         "location": "./environment/custom/knapsack/problem.json",
 
-        "num_items": 50,
-        "num_backpacks": 15,
+        "num_items": 10,
+        "num_backpacks": 10,
         "new_items_on_reset": false,
         "shuffle_on_reset": false,
         
@@ -95,6 +95,7 @@
                 "positional_encoding": true,
                 "inner_layer_dim": 128,
                 "encoder_embedding_time_distributed": true,
+                "last_layer_activation": "linear",
                 "dropout_rate": 0.01,
 
                 "learning_rate": 0.0001
