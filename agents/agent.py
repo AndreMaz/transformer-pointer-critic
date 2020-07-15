@@ -168,15 +168,7 @@ class Agent():
         total_loss = tf.reduce_mean(policy_loss)
 
         return total_loss, dec_output
-    
-    train_step_signature = [
-        tf.TensorSpec(shape=(None, 21, 2), dtype=tf.float32),
-        tf.TensorSpec(shape=(None, 21, 2), dtype=tf.float32),
-        tf.TensorSpec(shape=(None, 1), dtype=tf.float16),
-        tf.TensorSpec(shape=(None, 1), dtype=tf.float16),
-    ]
 
-    # @tf.function(input_signature=train_step_signature)
     def act(self, state, dec_input, backpacks_mask, items_mask):
         #########################################
         ############ SELECT AN ITEM ############
