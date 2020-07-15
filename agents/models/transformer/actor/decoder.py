@@ -21,16 +21,16 @@ class Decoder(tf.keras.layers.Layer):
                rate=0.1):
     super(Decoder, self).__init__()
 
-    self.d_model = d_model
-    self.num_layers = num_layers
-    self.embedding_time_distributed = embedding_time_distributed
-    self.vocab_size = vocab_size
-    self.use_positional_encoding = use_positional_encoding
+    self.d_model: int = d_model
+    self.num_layers: int = num_layers
+    self.embedding_time_distributed: bool = embedding_time_distributed
+    self.vocab_size: int = vocab_size
+    self.use_positional_encoding: bool = use_positional_encoding
 
     self.SOS_CODE = SOS_CODE
 
-    self.d_model = d_model
-    self.num_layers = num_layers
+    self.d_model: int = d_model
+    self.num_layers: int = num_layers
     
     # self.embedding = tf.keras.layers.Embedding(target_vocab_size, d_model)
     if self.embedding_time_distributed:
@@ -44,8 +44,8 @@ class Decoder(tf.keras.layers.Layer):
           self.d_model
       )
 
-
-    self.pos_encoding = positional_encoding(self.vocab_size, d_model)
+    if self.use_positional_encoding:
+      self.pos_encoding = positional_encoding(self.vocab_size, d_model)
     
     self.dec_layers = [DecoderLayer(d_model, num_heads, dff, rate) 
                        for _ in range(num_layers)]
@@ -71,8 +71,10 @@ class Decoder(tf.keras.layers.Layer):
     attention_weights = {}
     
     dec_input = self.embedding(dec_input)  # (batch_size, target_seq_len, d_model)
-    dec_input *= tf.math.sqrt(tf.cast(self.d_model, tf.float32))
-    dec_input += self.pos_encoding[:, :seq_len, :]
+
+    if self.use_positional_encoding:
+      dec_input *= tf.math.sqrt(tf.cast(self.d_model, tf.float32))
+      dec_input += self.pos_encoding[:, :seq_len, :]
     
     dec_input = self.dropout(dec_input, training=training)
 

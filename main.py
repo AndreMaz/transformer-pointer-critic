@@ -19,10 +19,8 @@ def runner(env_type="custom", env_name='Knapsack', agent_name="tpc"):
     # Add info about the environment
     agent_config = env.add_stats_to_agent_config(agent_config)
     
+    # Create the agent
     agent = Agent('transformer', agent_config)
-
-    # # Load agent alongside with it's trainer, plotter and tester functions
-    # agent, trainer, tester, plotter = agent_factory(agent_name, agent_config)
 
     # Train
     print('Training...')

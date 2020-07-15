@@ -11,7 +11,8 @@
 
         "load_from_file": false,
         "location": "./environment/custom/knapsack/problem.json",
-
+        
+        "batch_size": 1,
         "num_items": 10,
         "num_backpacks": 10,
         "new_items_on_reset": false,
@@ -79,7 +80,7 @@
                 "dim_model": 128,
                 "num_heads": 8,
                 "inner_layer_dim": 128,
-                "positional_encoding": true,
+                "positional_encoding": false,
                 "SOS_CODE": -1,
                 "encoder_embedding_time_distributed": true,
                 "attention_dense_units": 128,
@@ -92,7 +93,7 @@
                 "num_layers": 1,
                 "dim_model": 128,
                 "num_heads": 8,
-                "positional_encoding": true,
+                "positional_encoding": false,
                 "inner_layer_dim": 128,
                 "encoder_embedding_time_distributed": true,
                 "last_layer_activation": "linear",

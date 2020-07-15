@@ -33,10 +33,10 @@ class Encoder(tf.keras.layers.Layer):
       self.embedding = Dense(
           self.d_model
       )
-        
-    # Shape is (1, vocab_size, d_model)
-    self.pos_encoding = positional_encoding(self.vocab_size, self.d_model)
     
+    if use_positional_encoding:
+    # Shape is (1, vocab_size, d_model)
+      self.pos_encoding = positional_encoding(self.vocab_size, self.d_model)
     
     self.enc_layers = [EncoderLayer(d_model, num_heads, dff, dropout_rate) 
                        for _ in range(num_layers)]
@@ -49,9 +49,11 @@ class Encoder(tf.keras.layers.Layer):
     
     # adding embedding and position encoding.
     x = self.embedding(x)  # (batch_size, input_seq_len, d_model)
-    x *= tf.math.sqrt(tf.cast(self.d_model, tf.float32))
-    # Add positional encoding
-    x += self.pos_encoding[:, :seq_len, :]
+
+    if self.use_positional_encoding:
+      x *= tf.math.sqrt(tf.cast(self.d_model, tf.float32))
+      # Add positional encoding
+      x += self.pos_encoding[:, :seq_len, :]
 
     x = self.dropout(x, training=training)
     

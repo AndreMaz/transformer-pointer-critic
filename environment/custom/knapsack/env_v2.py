@@ -5,14 +5,14 @@ from environment.base.base import BaseEnvironment
 from environment.custom.knapsack.item import Item
 from environment.custom.knapsack.backpack import Backpack, EOS_BACKPACK, NORMAL_BACKPACK
 
-class Knapsack(BaseEnvironment):
+class KnapsackV2(BaseEnvironment):
     def __init__(self, name: str, opts: dict):
-        super(Knapsack, self).__init__(name)
+        super(KnapsackV2, self).__init__(name)
 
         self.load_from_file = opts['load_from_file']
         self.location = opts['location']
 
-        self.batch_dim = 1
+        self.batch_dim = opts['batch_size']
 
         self.normalization_factor = opts['normalization_factor']
 

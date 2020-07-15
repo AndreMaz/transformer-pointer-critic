@@ -1,12 +1,10 @@
 from environment.gym.env import GymEnvironment
-from environment.custom.fill_the_cells.fill_the_cells import FillTheCells
-from environment.custom.sorting_numbers.sorting import SortingEnvironment
 from environment.custom.knapsack.env import Knapsack
+from environment.custom.knapsack.env_v2 import KnapsackV2
 
 custom_envs = {
-    "Fill-The-Cells": FillTheCells,
-    "Sorting-Numbers": SortingEnvironment,
-    "Knapsack": Knapsack
+    "Knapsack": Knapsack,
+    "KnapsackV2": KnapsackV2,
 }
 
 def env_factory(type, name, opts):
