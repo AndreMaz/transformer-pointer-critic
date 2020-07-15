@@ -4,11 +4,12 @@
 
 from agents.models.model_factory import model_factory
 
-##
 import tensorflow_probability as tfp
 import tensorflow as tf
 import numpy as np
 
+TRANSFORMER = 'transformer'
+LSTM = 'lstm'
 
 class Agent():
     def __init__(self, name, opts):
@@ -214,3 +215,10 @@ class Agent():
         return backpack_id, \
                item_id, \
                decoded_item
+
+    def set_training_mode(self, mode: bool):
+        # Only used by transformer model
+        if self.name == TRANSFORMER:
+            self.item_actor.training = mode
+            self.backpack_actor.training = mode
+            self.critic = mode

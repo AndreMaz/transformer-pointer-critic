@@ -6,13 +6,17 @@ from agents.models.transformer.common.utils import point_wise_feed_forward_netwo
 from agents.models.transformer.actor.pointer_attention import PointerAttention
 
 class LastDecoderLayer(tf.keras.layers.Layer):
-  def __init__(self, d_model, num_heads, dff, rate=0.1):
+  def __init__(self,
+               d_model,
+               num_heads,
+               dff,
+               attention_dense_units,
+               rate=0.1):
     super(LastDecoderLayer, self).__init__()
 
     self.mha1 = MultiHeadAttention(d_model, num_heads)
-    # self.mha2 = PointerMultiHeadAttention(d_model, num_heads)
 
-    self.pointer_attention = PointerAttention(d_model)
+    self.pointer_attention = PointerAttention(attention_dense_units)
 
     self.layernorm1 = tf.keras.layers.LayerNormalization(epsilon=1e-6)
     

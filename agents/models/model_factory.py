@@ -12,6 +12,7 @@ def model_factory(type, opts):
             opts['vocab_size'],
             opts['actor']['SOS_CODE'],
             opts['actor']['encoder_embedding_time_distributed'],
+            opts['actor']['attention_dense_units'],
             opts['actor']['dropout_rate']
         )
         allocator_actor = ActorTransformer(
@@ -23,6 +24,7 @@ def model_factory(type, opts):
             opts['vocab_size'],
             opts['actor']['SOS_CODE'],
             opts['actor']['encoder_embedding_time_distributed'],
+            opts['actor']['attention_dense_units'],
             opts['actor']['dropout_rate']
         )
         critic = CriticTransformer(

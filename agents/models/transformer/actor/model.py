@@ -12,10 +12,14 @@ class ActorTransformer(tf.keras.Model):
                vocab_size,
                SOS_CODE,
                encoder_embedding_time_distributed,
+               attention_dense_units,
                rate=0.1
                ):
 
     super(ActorTransformer, self).__init__()
+
+    # By default init in training mode
+    self.training = True
 
     self.encoder = Encoder(num_layers,
                            d_model,
@@ -34,6 +38,7 @@ class ActorTransformer(tf.keras.Model):
                            SOS_CODE,
                            vocab_size,
                            encoder_embedding_time_distributed,
+                           attention_dense_units,
                            rate)
 
     # self.final_layer = tf.keras.layers.Dense(target_vocab_size)

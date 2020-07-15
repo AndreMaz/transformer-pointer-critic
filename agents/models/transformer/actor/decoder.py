@@ -17,6 +17,7 @@ class Decoder(tf.keras.layers.Layer):
                SOS_CODE,
                vocab_size,
                embedding_time_distributed: bool,
+               attention_dense_units,
                rate=0.1):
     super(Decoder, self).__init__()
 
@@ -49,7 +50,11 @@ class Decoder(tf.keras.layers.Layer):
     self.dec_layers = [DecoderLayer(d_model, num_heads, dff, rate) 
                        for _ in range(num_layers)]
 
-    self.last_decoder_layer = LastDecoderLayer(d_model, num_heads, dff, rate)
+    self.last_decoder_layer = LastDecoderLayer(d_model,
+                                               num_heads,
+                                               dff,
+                                               attention_dense_units,
+                                               rate)
 
     self.dropout = tf.keras.layers.Dropout(rate)
     
