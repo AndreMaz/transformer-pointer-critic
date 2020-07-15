@@ -75,32 +75,29 @@
             "stochastic_action_selection": true,
 
             "actor": {
-                "positional_encoding": true,
-                "num_heads": 8,
-                "dim_model": 128,
-                "inner_layer_dim": 128,
                 "num_layers": 1,
+                "dim_model": 128,
+                "num_heads": 8,
+                "inner_layer_dim": 128,
+                "positional_encoding": true,
+                "SOS_CODE": -1,
+                "encoder_embedding_time_distributed": true,
+                "attention_dense_units": 128,
                 "dropout_rate": 0.01,
 
-                "SOS_CODE": -1,
-                "learning_rate": 0.0001,
-
-                "encoder_embedding_time_distributed": true,
-
-                "attention_dense_units": 128
+                "learning_rate": 0.0001
             },
 
             "critic": {
-                "positional_encoding": true,
                 "num_layers": 1,
-                "num_heads": 8,
                 "dim_model": 128,
+                "num_heads": 8,
+                "positional_encoding": true,
                 "inner_layer_dim": 128,
+                "encoder_embedding_time_distributed": true,
                 "dropout_rate": 0.01,
 
-                "learning_rate": 0.0005,
-
-                "encoder_embedding_time_distributed": true
+                "learning_rate": 0.0005
             }
         }
     }

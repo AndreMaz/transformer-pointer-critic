@@ -6,8 +6,8 @@ class CriticTransformer(tf.keras.Model):
                  num_layers,
                  d_model,
                  num_heads,
-                 positional_encoding,
                  dff,
+                 positional_encoding,
                  vocab_size,
                  embedding_time_distributed,
                  dropout_rate=0.1

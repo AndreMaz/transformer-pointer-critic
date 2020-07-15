@@ -32,7 +32,7 @@ def model_factory(type, opts):
             opts['critic']['dim_model'],
             opts['critic']['num_heads'],
             opts['critic']['inner_layer_dim'],
-            opts['actor']['positional_encoding'],
+            opts['critic']['positional_encoding'],
             opts['vocab_size'],
             opts['critic']['encoder_embedding_time_distributed'],
             opts['critic']['dropout_rate']
