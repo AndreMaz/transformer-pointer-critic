@@ -142,8 +142,8 @@ class Agent():
         pointer_logits, pointers_probs, point_index, dec_output = model(
             state,
             dec_input,
-            training,
-            mask
+            mask,
+            training
         )
 
         # One hot actions that we took during an episode
@@ -175,8 +175,8 @@ class Agent():
         items_logits, items_probs, item_id, decoded_item = self.item_actor(
             state,
             dec_input,
-            training,
-            items_mask
+            items_mask,
+            training
         )
 
         if self.stochastic_action_selection:
@@ -198,8 +198,8 @@ class Agent():
         backpacks_logits, backpacks_probs, backpack_id, decoded_backpack = self.backpack_actor(
             state,
             decoded_item, # Pass decoded item to backpack decoder
-            training,
-            backpacks_mask
+            backpacks_mask,
+            training
         )
 
         if self.stochastic_action_selection:

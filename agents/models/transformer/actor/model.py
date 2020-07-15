@@ -46,8 +46,8 @@ class ActorTransformer(tf.keras.Model):
   def call(self,
            enc_input,
            dec_input,
-           training: bool,
            attention_mask,
+           training: bool,
            enc_padding_mask = None,
            look_ahead_mask = None,
            dec_padding_mask = None,
@@ -58,11 +58,16 @@ class ActorTransformer(tf.keras.Model):
                               training,
                               enc_padding_mask)
     
+    # Compute a single pointer
+    # p_logits.shape = (batch_size, inp_seq_len)
+    # p_probs.shape = (batch_size, inp_seq_len)
+    # p_index = int
+    # p_value.shape = (batch_size, 2)
     p_logits, p_probs, p_index, p_value = self.decoder(dec_input,
                                                        enc_input,
                                                        enc_output,
-                                                       training,
                                                        attention_mask,
+                                                       training,
                                                        look_ahead_mask,
                                                        dec_padding_mask)
 

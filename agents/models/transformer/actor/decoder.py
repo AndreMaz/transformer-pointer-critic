@@ -62,8 +62,8 @@ class Decoder(tf.keras.layers.Layer):
            dec_input,
            enc_input,
            enc_output,
-           training,
            attention_mask,
+           training,
            look_ahead_mask,
            padding_mask):
 

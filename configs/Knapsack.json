@@ -98,7 +98,7 @@
                 "inner_layer_dim": 128,
                 "dropout_rate": 0.01,
 
-                "learning_rate": 0.0001,
+                "learning_rate": 0.0005,
 
                 "encoder_embedding_time_distributed": true
             }
