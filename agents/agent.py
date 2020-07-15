@@ -17,6 +17,9 @@ class Agent():
 
         self.name = name
 
+        # Default training mode
+        self.training = True
+
         self.num_items = opts['num_items']
         self.num_backpacks = opts['num_backpacks']
         self.tensor_size = opts['tensor_size']
@@ -166,9 +169,16 @@ class Agent():
         total_loss = tf.reduce_mean(policy_loss)
 
         return total_loss, dec_output
+    
+    train_step_signature = [
+        tf.TensorSpec(shape=(None, None, None), dtype=tf.float32),
+        tf.TensorSpec(shape=(None, None, None), dtype=tf.float32),
+        tf.TensorSpec(shape=(None, None), dtype=tf.float16),
+        tf.TensorSpec(shape=(None, None), dtype=tf.float16),
+    ]
 
-    def act(self, state, dec_input, backpacks_mask, items_mask, training: bool):
-        
+    # @tf.function(input_signature=train_step_signature)
+    def act(self, state, dec_input, backpacks_mask, items_mask):
         #########################################
         ############ SELECT AN ITEM ############
         #########################################
@@ -176,7 +186,7 @@ class Agent():
             state,
             dec_input,
             items_mask,
-            training
+            self.training
         )
 
         if self.stochastic_action_selection:

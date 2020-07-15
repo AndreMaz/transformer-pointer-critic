@@ -1,4 +1,4 @@
-from agents.agent import Agent
+from agents.agent import Agent, TRANSFORMER
 from environment.custom.knapsack.env import Knapsack
 import tensorflow as tf
 
@@ -24,8 +24,7 @@ def trainer(env: Knapsack, agent: Agent, opts: dict):
                 current_state,
                 dec_input,
                 backpack_net_mask,
-                item_net_mask,
-                training
+                item_net_mask
             )
 
             # Play one step

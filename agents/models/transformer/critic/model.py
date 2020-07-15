@@ -14,9 +14,6 @@ class CriticTransformer(tf.keras.Model):
                  ):
         super(CriticTransformer, self).__init__()
 
-        # By default init in training mode
-        self.training = True
-
         # Store the values
         self.num_layers = num_heads
         self.d_model = d_model

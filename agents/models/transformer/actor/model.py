@@ -18,9 +18,6 @@ class ActorTransformer(tf.keras.Model):
 
     super(ActorTransformer, self).__init__()
 
-    # By default init in training mode
-    self.training = True
-
     self.encoder = Encoder(num_layers,
                            d_model,
                            num_heads,
