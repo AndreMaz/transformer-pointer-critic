@@ -73,8 +73,7 @@ def trainer(env: Knapsack, agent: Agent, opts: dict):
         ### Update Critic ###
         with tf.GradientTape() as tape:
             value_loss, state_values = agent.compute_value_loss(
-                discounted_rewards,
-                training
+                discounted_rewards
             )
 
         critic_grads = tape.gradient(
@@ -89,8 +88,7 @@ def trainer(env: Knapsack, agent: Agent, opts: dict):
                 agent.items,
                 agent.decoded_items,
                 discounted_rewards,
-                state_values,
-                training
+                state_values
             )
         
         item_grads = tape.gradient(
@@ -108,8 +106,7 @@ def trainer(env: Knapsack, agent: Agent, opts: dict):
                 agent.backpacks,
                 decoded_items,
                 discounted_rewards,
-                state_values,
-                training
+                state_values
             )
         
         backpack_grads = tape.gradient(

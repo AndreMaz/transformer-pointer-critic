@@ -110,12 +110,12 @@ class Agent():
 
         return discounted_rewards
 
-    def compute_value_loss(self, discounted_rewards, training: bool):
+    def compute_value_loss(self, discounted_rewards):
 
         # Get state_values
         state_values = self.critic(
             tf.convert_to_tensor(self.states, dtype="float32"),
-            training
+            self.training
         )
 
         value_loss = tf.keras.losses.mean_absolute_error(
@@ -131,8 +131,7 @@ class Agent():
                            actions,
                            decoder_inputs,
                            discounted_rewards,
-                           state_values,
-                           training: bool
+                           state_values
                            ):
         
         advantages = discounted_rewards - state_values
@@ -146,7 +145,7 @@ class Agent():
             state,
             dec_input,
             mask,
-            training
+            self.training
         )
 
         # One hot actions that we took during an episode
@@ -209,7 +208,7 @@ class Agent():
             state,
             decoded_item, # Pass decoded item to backpack decoder
             backpacks_mask,
-            training
+            self.training
         )
 
         if self.stochastic_action_selection:

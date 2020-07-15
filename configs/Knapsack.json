@@ -97,7 +97,7 @@
                 "encoder_embedding_time_distributed": true,
                 "dropout_rate": 0.01,
 
-                "learning_rate": 0.0005
+                "learning_rate": 0.0001
             }
         }
     }
