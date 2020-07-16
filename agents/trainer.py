@@ -18,13 +18,16 @@ def trainer(env: Knapsack, agent: Agent, opts: dict):
         # SOS input for Item Ptr Net
         dec_input = agent.generate_decoder_input(current_state)
 
+        training_step = 0
+
         while not isDone:
             # Select an action
-            backpack_id, item_id, decoded_item = agent.act(
+            backpack_id, item_id, decoded_item, backpack_net_mask = agent.act(
                 current_state,
                 dec_input,
                 backpack_net_mask,
-                item_net_mask
+                item_net_mask,
+                env.build_feasible_mask
             )
 
             # Play one step
@@ -34,7 +37,7 @@ def trainer(env: Knapsack, agent: Agent, opts: dict):
             )
             
             # Episode increment rewards
-            episode_reward += reward
+            episode_reward += tf.reduce_mean(reward).numpy()
 
             # Store in memory
             agent.store(
@@ -44,7 +47,8 @@ def trainer(env: Knapsack, agent: Agent, opts: dict):
                 item_net_mask,
                 item_id,
                 backpack_id,
-                reward
+                reward,
+                training_step
             )
 
             # Update for next iteration
@@ -52,6 +56,8 @@ def trainer(env: Knapsack, agent: Agent, opts: dict):
             current_state = next_state
             backpack_net_mask = info['backpack_net_mask']
             item_net_mask = info['item_net_mask']
+
+            training_step += 1
 
             # Prep the vars for the next training round
             if isDone:

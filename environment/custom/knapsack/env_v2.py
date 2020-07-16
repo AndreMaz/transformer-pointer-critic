@@ -2,6 +2,7 @@ import sys
 
 from numpy.core.numeric import inf
 from numpy.lib.function_base import _create_arrays
+from tensorflow.python.keras.backend import dtype
 sys.path.append('.')
 
 import json
@@ -83,7 +84,8 @@ class KnapsackV2(BaseEnvironment):
             self.item_net_mask.copy()
 
     def step(self, backpack_ids: list, item_ids: list):
-        rewards = []
+        # rewards = []
+        rewards = np.zeros((self.batch_size, 1), dtype="float32")
 
         # Default is not done
         isDone = False
@@ -125,7 +127,7 @@ class KnapsackV2(BaseEnvironment):
             else:
                 reward = item_value
 
-            rewards.append(reward)
+            rewards[batch_id][0] = reward
 
         info = {
              'backpack_net_mask': self.backpack_net_mask.copy(),
@@ -223,28 +225,39 @@ class KnapsackV2(BaseEnvironment):
             for bp in self.history[batch_id]:
                 bp.print()
             print('_________________________________')
-
-def mask_for_the_item(state, items, backpack_net_mask):
     
-    batch = state.shape[0]
+    def add_stats_to_agent_config(self, agent_config):
+        agent_config['num_items'] = self.num_items
+        agent_config['num_backpacks'] = self.num_backpacks
+        agent_config['tensor_size'] = self.num_backpacks + self.item_sample_size
+        agent_config['num_items'] = self.item_sample_size
+        agent_config['batch_size'] = self.batch_size
 
-    # Extract weights
-    # Reshape into (batch, 1)
-    item_weight = np.reshape(items[:, 0], (batch, 1))
+        agent_config['vocab_size'] = len(self.total_backpacks) + len(self.total_items)
+    
+        return agent_config
 
-    backpack_capacity = state[:, :, 0]
-    backpack_current_load = state[:, :, 1]
+    def build_feasible_mask(self, state, items, backpack_net_mask):
+        
+        batch = state.shape[0]
 
-    totals = backpack_capacity - (backpack_current_load + item_weight)
-    # EOS is always unmasked
-    totals[:,0] = 0
+        # Extract weights
+        # Reshape into (batch, 1)
+        item_weight = np.reshape(items[:, 0], (batch, 1))
 
-    binary_masks = tf.round(tf.nn.sigmoid(-1*totals))
+        backpack_capacity = state[:, :, 0]
+        backpack_current_load = state[:, :, 1]
 
-    # Merge the masks
-    mask = tf.maximum(binary_masks, backpack_net_mask)
+        totals = backpack_capacity - (backpack_current_load + item_weight)
+        # EOS is always unmasked
+        totals[:,0] = 0
 
-    return mask
+        binary_masks = tf.round(tf.nn.sigmoid(-1*totals))
+
+        # Merge the masks
+        mask = tf.maximum(binary_masks, backpack_net_mask)
+
+        return tf.cast(mask, dtype="float32")
 
 if __name__ == "__main__":
     env_name = 'Knapsack'
@@ -271,4 +284,4 @@ if __name__ == "__main__":
     items = state[[0,1], [3,4]]
     items[0][0] = 999
 
-    mask_for_the_item(state, items, backpack_net_mask)
+    env.build_feasible_mask(state, items, backpack_net_mask)

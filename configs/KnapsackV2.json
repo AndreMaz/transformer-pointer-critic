@@ -1,0 +1,105 @@
+{
+    "description": "Hyper params for Multiple Knapsack problem",
+    
+    "trainer_config": {
+        "description": "Trainer function configs.",
+        "n_iterations": 1000
+    },
+
+    "env_config": {
+        "description": "Environment configs.",
+
+        "load_from_file": false,
+        "location": "./environment/custom/knapsack/problem.json",
+        
+        "batch_size": 2,
+        "num_items": 10,
+        "num_backpacks": 2,
+        "EOS_CODE": -2,
+
+        "sampling_mode": false,
+        "item_sample_size": 2,
+
+        "normalization_factor": 1,
+
+        "min_item_value": 1,
+        "max_item_value": 100,
+        "min_item_weight": 1,
+        "max_item_weight": 20,
+
+        "min_backpack_capacity": 1,
+        "max_backpack_capacity": 100
+    },
+
+    "dpc": {
+        "description": "Double Pointer Critic Agent configs.",
+        "agent_config": {
+
+            "gamma": 0.999,
+            "entropy_coefficient": 0.00001,
+            "stochastic_action_selection": true,
+
+            "actor": {
+                "SOS_CODE": -1,
+                "learning_rate": 0.0001,
+
+                "encoder_embedding_size": 256,
+                "encoder_embedding_time_distributed": true,
+                "encoder_lstm_units": 256,
+
+                "attention_dense_units": 256
+            },
+
+            "critic": {
+                "learning_rate": 0.0001,
+
+                "encoder_embedding_size": 256,
+                "encoder_embedding_time_distributed": true,
+                "encoder_lstm_units": 256,
+
+                "processing_lstm_units": 256,
+                "processing_dense_units": 256,
+
+                "decoder_units": 256,
+                "decoder_activation": "linear"
+            }
+        }
+    },
+
+    "tpc": {
+        "description": "Double Transformer Pointer Critic Agent configs.",
+        "agent_config": {
+
+            "gamma": 0.999,
+            "entropy_coefficient": 0.00001,
+            "stochastic_action_selection": true,
+
+            "actor": {
+                "num_layers": 1,
+                "dim_model": 128,
+                "num_heads": 8,
+                "inner_layer_dim": 128,
+                "positional_encoding": false,
+                "SOS_CODE": -1,
+                "encoder_embedding_time_distributed": true,
+                "attention_dense_units": 128,
+                "dropout_rate": 0.01,
+
+                "learning_rate": 0.0001
+            },
+
+            "critic": {
+                "num_layers": 1,
+                "dim_model": 128,
+                "num_heads": 8,
+                "positional_encoding": false,
+                "inner_layer_dim": 128,
+                "encoder_embedding_time_distributed": true,
+                "last_layer_activation": "linear",
+                "dropout_rate": 0.01,
+
+                "learning_rate": 0.0001
+            }
+        }
+    }
+}
