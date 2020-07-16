@@ -6,6 +6,7 @@ sys.path.append('.')
 
 import json
 import numpy as np
+import tensorflow as tf
 from random import randint
 
 from environment.base.base import BaseEnvironment
@@ -72,6 +73,8 @@ class KnapsackV2(BaseEnvironment):
         self.backpack_net_mask, self.item_net_mask = self.generate_masks()
 
         self.history = self.create_history()
+
+        return self.state()
 
     def state(self):
 
@@ -221,6 +224,28 @@ class KnapsackV2(BaseEnvironment):
                 bp.print()
             print('_________________________________')
 
+    def mask_for_the_item(self, state, items, backpack_net_mask):
+        
+        batch = state.shape[0]
+    
+        # Extract weights
+        # Reshape into (batch, 1)
+        item_weight = np.reshape(items[:, 0], (batch, 1))
+
+        backpack_capacity = state[:, :, 0]
+        backpack_current_load = state[:, :, 1]
+
+        totals = backpack_capacity - (backpack_current_load + item_weight)
+        # EOS is always unmasked
+        totals[:,0] = 0
+
+        binary_masks = tf.round(tf.nn.sigmoid(-1*totals))
+
+        # Merge the masks
+        mask = tf.maximum(binary_masks, backpack_net_mask)
+
+        return mask
+
 if __name__ == "__main__":
     env_name = 'Knapsack'
 
@@ -235,8 +260,15 @@ if __name__ == "__main__":
     env.generate_batch()
     env.generate_masks()
 
-    backpack_ids = [0 , 1]
-    item_ids = [3, 4]
+    # backpack_ids = [0 , 1]
+    # item_ids = [3, 4]
 
-    next_step, rewards, isDone, info = env.step(backpack_ids, item_ids)
-    env.print_history()
+    # next_step, rewards, isDone, info = env.step(backpack_ids, item_ids)
+    # env.print_history()
+
+    state, backpack_net_mask, item_net_mask = env.reset()
+
+    items = state[[0,1], [3,4]]
+    items[0][0] = 999
+
+    env.mask_for_the_item(state, items, backpack_net_mask)
