@@ -224,27 +224,27 @@ class KnapsackV2(BaseEnvironment):
                 bp.print()
             print('_________________________________')
 
-    def mask_for_the_item(self, state, items, backpack_net_mask):
-        
-        batch = state.shape[0]
+def mask_for_the_item(state, items, backpack_net_mask):
     
-        # Extract weights
-        # Reshape into (batch, 1)
-        item_weight = np.reshape(items[:, 0], (batch, 1))
+    batch = state.shape[0]
 
-        backpack_capacity = state[:, :, 0]
-        backpack_current_load = state[:, :, 1]
+    # Extract weights
+    # Reshape into (batch, 1)
+    item_weight = np.reshape(items[:, 0], (batch, 1))
 
-        totals = backpack_capacity - (backpack_current_load + item_weight)
-        # EOS is always unmasked
-        totals[:,0] = 0
+    backpack_capacity = state[:, :, 0]
+    backpack_current_load = state[:, :, 1]
 
-        binary_masks = tf.round(tf.nn.sigmoid(-1*totals))
+    totals = backpack_capacity - (backpack_current_load + item_weight)
+    # EOS is always unmasked
+    totals[:,0] = 0
 
-        # Merge the masks
-        mask = tf.maximum(binary_masks, backpack_net_mask)
+    binary_masks = tf.round(tf.nn.sigmoid(-1*totals))
 
-        return mask
+    # Merge the masks
+    mask = tf.maximum(binary_masks, backpack_net_mask)
+
+    return mask
 
 if __name__ == "__main__":
     env_name = 'Knapsack'
@@ -271,4 +271,4 @@ if __name__ == "__main__":
     items = state[[0,1], [3,4]]
     items[0][0] = 999
 
-    env.mask_for_the_item(state, items, backpack_net_mask)
+    mask_for_the_item(state, items, backpack_net_mask)
