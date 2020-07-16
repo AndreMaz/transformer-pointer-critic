@@ -9,7 +9,7 @@ from configs.configs import get_configs
 import numpy as np
 import math
 
-def runner(env_type="custom", env_name='Knapsack', agent_name="tpc"):
+def runner(env_type="custom", env_name='KnapsackV2', agent_name="tpc"):
     # Read the configs
     agent_config, trainer_config, env_config = get_configs(env_name, agent_name)
 
