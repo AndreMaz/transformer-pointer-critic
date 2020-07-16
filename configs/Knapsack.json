@@ -15,7 +15,7 @@
         "batch_size": 2,
         "num_items": 10,
         "num_backpacks": 2,
-        "EOS_CODE": 0,
+        "EOS_CODE": -2,
 
         "sampling_mode": false,
         "item_sample_size": 2,
