@@ -97,31 +97,33 @@ class Agent():
         return dec_input
 
     def compute_discounted_rewards(self, bootstrap_state_value):
-        # print(bootstrap_state_value)
-        bootstrap_state_value = bootstrap_state_value[0]
+        bootstrap_state_value = tf.reshape(bootstrap_state_value, [bootstrap_state_value.shape[0]])
+
+        # self.rewards = np.ones((2, 10), dtype='float32')
 
         # Discounted rewards
-        discounted_rewards = []
-        for reward in reversed(self.rewards):
-            estimate_value = reward + self.gamma * bootstrap_state_value
-            discounted_rewards.append(estimate_value)
+        discounted_rewards = np.zeros_like(self.rewards)
+        for step in reversed(range(self.rewards.shape[1])):
+            estimate_value = self.rewards[:, step] + self.gamma * bootstrap_state_value
+            discounted_rewards[:, step] = estimate_value
+
             # Update bootstrap value for next iteration
             bootstrap_state_value = estimate_value
-
-        # Reverse the discounted list
-        discounted_rewards.reverse()
-        discounted_rewards = tf.convert_to_tensor(discounted_rewards)
-        discounted_rewards = tf.expand_dims(discounted_rewards, axis=1)
 
         return discounted_rewards
 
     def compute_value_loss(self, discounted_rewards):
+        # Reshape data into a single forward pass format
+        states = tf.convert_to_tensor(self.states, dtype="float32")
+        batch, dec_steps, elem, features = states.shape
+        states = tf.reshape(states, [batch*dec_steps, elem, features])
 
         # Get state_values
-        state_values = self.critic(
-            tf.convert_to_tensor(self.states, dtype="float32"),
-            self.training
-        )
+        state_values = self.critic(states,self.training)
+
+        # Reshape the rewards bach into [batch, dec_step] form
+        state_values = tf.reshape(state_values, [batch, dec_steps])
+        state_values = tf.transpose(state_values, [1, 0])
 
         value_loss = tf.keras.losses.mean_absolute_error(
             discounted_rewards,
@@ -141,13 +143,19 @@ class Agent():
         
         advantages = discounted_rewards - state_values
 
-        state = tf.convert_to_tensor(self.states, dtype='float32')
+        states = tf.convert_to_tensor(self.states, dtype='float32')
+        batch, dec_steps, elem, features = states.shape
+        states = tf.reshape(states, [batch*dec_steps, elem, features])
+
         mask = tf.convert_to_tensor(masks, dtype='float32')
+        mask = tf.reshape(mask, [batch*dec_steps, elem])
+
         dec_input = tf.convert_to_tensor(decoder_inputs, dtype='float32')
+        dec_input = tf.reshape(dec_input, [batch*dec_steps, 1, features])
 
         # Get logits, policy probabilities and actions
         pointer_logits, pointers_probs, point_index, dec_output = model(
-            state,
+            states,
             dec_input,
             mask,
             self.training
@@ -157,9 +165,14 @@ class Agent():
         actions_one_hot = tf.one_hot(
             actions, self.tensor_size, dtype="float32")
 
+        actions_one_hot = tf.reshape(actions_one_hot, [batch*dec_steps, elem])
+
         # Compute the policy loss
         policy_loss = tf.nn.softmax_cross_entropy_with_logits(
             labels=actions_one_hot, logits=pointer_logits)
+
+        policy_loss = tf.reshape(policy_loss, [batch, dec_steps])
+        policy_loss = tf.transpose(policy_loss, [1, 0])
 
         # Cross Entropy: Sum (Predicted_Prob_i * log(Predicted_Prob_i))
         # This improves exploration by discouraging premature converge to suboptimal deterministic policies
@@ -167,6 +180,9 @@ class Agent():
         entropy = tf.reduce_sum(
             pointers_probs * tf.math.log(pointers_probs + 1e-20), axis=1
         )
+
+        entropy = tf.reshape(entropy, [batch, dec_steps])
+        entropy = tf.transpose(entropy, [1, 0])
 
         policy_loss *= advantages
         policy_loss -= self.entropy_coefficient * entropy
@@ -200,9 +216,15 @@ class Agent():
         # Decode the items
         decoded_items = state[batch_indices, item_ids]
 
+       # print('________________________________')
+        #print(backpacks_mask)
+
         # Update the masks for the backpack
         # This will only allow to point to feasible solutions
         backpacks_mask = build_feasible_mask(state, decoded_items, backpacks_mask)
+
+        #print(backpacks_mask)
+       # print('________________________________')
 
         # Add time step dim
         decoded_items = tf.expand_dims(decoded_items, axis = 1)

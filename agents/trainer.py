@@ -1,7 +1,7 @@
 from agents.agent import Agent, TRANSFORMER
 from environment.custom.knapsack.env import Knapsack
 import tensorflow as tf
-
+import numpy as np
 
 def trainer(env: Knapsack, agent: Agent, opts: dict):
 
@@ -11,6 +11,7 @@ def trainer(env: Knapsack, agent: Agent, opts: dict):
     rewards_buffer = [0.0]
     for iteration in range(n_iterations):
         
+        revs = np.zeros((agent.batch_size, agent.num_items), dtype="float32")
         episode_reward = 0
         isDone = False
         current_state, backpack_net_mask, item_net_mask = env.reset()
@@ -37,7 +38,10 @@ def trainer(env: Knapsack, agent: Agent, opts: dict):
             )
             
             # Episode increment rewards
-            episode_reward += tf.reduce_mean(reward).numpy()
+            
+            revs[:, training_step] = reward[:, 0]
+            # print(revs)
+            # episode_reward += tf.reduce_mean(reward).numpy()
 
             # Store in memory
             agent.store(
@@ -61,18 +65,19 @@ def trainer(env: Knapsack, agent: Agent, opts: dict):
 
             # Prep the vars for the next training round
             if isDone:
-                rewards_buffer.append(episode_reward)
+                average_per_problem = np.average(revs, axis=-1)
+                batch_average = np.average(average_per_problem, axis=-1)
+                rewards_buffer.append(batch_average)
                 current_state, backpack_net_mask, item_net_mask = env.reset()
         
-        print(f"\rIteration: {iteration}. Reward {episode_reward}", end="\n")
+        print(f"\rIteration: {iteration}. Average Reward {batch_average}", end="\n")
 
         if isDone == True:
             # We are done. So the state_value is 0
-            bootstrap_state_value = tf.convert_to_tensor([0], dtype="float32")
+            bootstrap_state_value = tf.zeros([agent.batch_size, 1],dtype="float32")
         else:
             # Not done. Ask model to generate the state value
-            backpack_id, item_id, bootstrap_state_value = agent.act(
-                current_state)
+            bootstrap_state_value = agent.critic(current_state, agent.training)
 
         discounted_rewards = agent.compute_discounted_rewards(bootstrap_state_value)
         
