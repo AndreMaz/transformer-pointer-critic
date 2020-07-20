@@ -13,9 +13,9 @@
         "location": "./environment/custom/knapsack/problem.json",
         
         "batch_size": 2,
-        "num_items": 10,
+        "num_items": 2,
         "num_backpacks": 2,
-        "EOS_CODE": -2,
+        "EOS_CODE": 0,
 
         "sampling_mode": false,
         "item_sample_size": 2,

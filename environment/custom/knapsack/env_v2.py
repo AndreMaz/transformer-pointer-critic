@@ -27,7 +27,7 @@ class KnapsackV2(BaseEnvironment):
         self.num_items: int = opts['num_items']
         self.item_sample_size = opts['item_sample_size']
         
-        assert self.num_items > self.item_sample_size, 'Item sample size should be less than total number of items'
+        assert self.num_items >= self.item_sample_size, 'Item sample size should be less than total number of items'
 
         self.num_backpacks: int = opts['num_backpacks'] + 1 # EOS backpack
 
@@ -258,7 +258,7 @@ class KnapsackV2(BaseEnvironment):
         totals *= item_net_mask
 
         binary_masks = tf.cast(
-            tf.math.less(totals, 0), tf.float16
+            tf.math.less(totals, 0), tf.float32
         )
 
         # Merge the masks

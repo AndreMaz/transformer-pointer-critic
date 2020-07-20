@@ -130,6 +130,8 @@ class Agent():
             state_values
         )
 
+        value_loss = value_loss / self.batch_size
+
         return value_loss, state_values
 
     def compute_actor_loss(self,
@@ -187,6 +189,8 @@ class Agent():
         policy_loss *= advantages
         policy_loss -= self.entropy_coefficient * entropy
         total_loss = tf.reduce_mean(policy_loss)
+
+        total_loss = total_loss / self.batch_size
 
         return total_loss, dec_output
 
