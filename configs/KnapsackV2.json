@@ -28,7 +28,7 @@
         "max_item_weight": 20,
 
         "min_backpack_capacity": 1,
-        "max_backpack_capacity": 100
+        "max_backpack_capacity": 20
     },
 
     "dpc": {

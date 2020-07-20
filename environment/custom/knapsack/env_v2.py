@@ -104,16 +104,16 @@ class KnapsackV2(BaseEnvironment):
             backpack_capacity = backpack[0]
             backpack_load = backpack[1]
 
+            # Update the backpack entry
+            if (backpack_id != 0):                
+                assert backpack_load + item_weight <= backpack_capacity ,\
+                f'Backpack {backpack_id} is overloaded. Maximum capacity: {backpack_capacity} || Current load: {backpack_load} || Item Weight: {item_weight}'
+
+                self.batch[batch_id, backpack_id, 1] = backpack_load + item_weight
+
             # Add to history
             history_entry: History = self.history[batch_id][backpack_id]
             history_entry.add_item(item_id, item_weight, item_value)
-
-            # Update the backpack entry
-            if (backpack_id != 0):
-                assert backpack_capacity >= backpack_load + item_weight,\
-                f'Batch {batch_id}: Backpack {backpack_id} is overloaded'
-
-                self.batch[batch_id, backpack_id, 1] = backpack_load + item_weight
 
             # Update the masks
             # Item taken mask it
@@ -241,6 +241,9 @@ class KnapsackV2(BaseEnvironment):
         
         batch = state.shape[0]
 
+        item_net_mask = np.ones_like(backpack_net_mask)
+        item_net_mask -= backpack_net_mask
+
         # Extract weights
         # Reshape into (batch, 1)
         item_weight = np.reshape(items[:, 0], (batch, 1))
@@ -249,10 +252,14 @@ class KnapsackV2(BaseEnvironment):
         backpack_current_load = state[:, :, 1]
 
         totals = backpack_capacity - (backpack_current_load + item_weight)
-        # EOS is always unmasked
+        # EOS is always available for poiting
         totals[:,0] = 0
+        # Can't point to items positions
+        totals *= item_net_mask
 
-        binary_masks = tf.round(tf.nn.sigmoid(-1*totals))
+        binary_masks = tf.cast(
+            tf.math.less(totals, 0), tf.float16
+        )
 
         # Merge the masks
         mask = tf.maximum(binary_masks, backpack_net_mask)
@@ -262,7 +269,7 @@ class KnapsackV2(BaseEnvironment):
 if __name__ == "__main__":
     env_name = 'Knapsack'
 
-    with open(f"configs/Knapsack.json") as json_file:
+    with open(f"configs/KnapsackV2.json") as json_file:
         params = json.load(json_file)
 
     env_config = params['env_config']
@@ -279,9 +286,32 @@ if __name__ == "__main__":
     # next_step, rewards, isDone, info = env.step(backpack_ids, item_ids)
     # env.print_history()
 
-    state, backpack_net_mask, item_net_mask = env.reset()
+    # state, backpack_net_mask, item_net_mask = env.reset()
 
-    items = state[[0,1], [3,4]]
-    items[0][0] = 999
+    # items = state[[0,1], [3,4]]
+    # items[0][0] = 999
+    
+    state = np.array(
+        [[[-2, -2],
+          [14,  0],
+          [39,  1],
+          [19, 60],
+          [ 1, 13]]],
+          dtype='float16' 
+    )
+    
+    items = np.array(
+        [[19, 60]],
+        dtype='float16'
+        )
+    items_mask = np.array(
+        [[1., 1., 1., 0., 1.]],
+        dtype='float16'
+        )
+    bp_mask = np.array(
+        [[0., 0., 0., 1., 1.]],
+        dtype='float16'
+    )
 
-    env.build_feasible_mask(state, items, backpack_net_mask)
+    new_mask = env.build_feasible_mask(state, items, bp_mask)
+    print(new_mask)

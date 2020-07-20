@@ -66,11 +66,11 @@ def trainer(env: Knapsack, agent: Agent, opts: dict):
             # Prep the vars for the next training round
             if isDone:
                 average_per_problem = np.average(revs, axis=-1)
-                batch_average = np.average(average_per_problem, axis=-1)
-                rewards_buffer.append(batch_average)
+                episode_reward = np.average(average_per_problem, axis=-1)
+                rewards_buffer.append(episode_reward)
                 current_state, backpack_net_mask, item_net_mask = env.reset()
         
-        print(f"\rIteration: {iteration}. Average Reward {batch_average}", end="\n")
+        print(f"\rIteration: {iteration}. Average Reward {episode_reward}", end="\n")
 
         if isDone == True:
             # We are done. So the state_value is 0

@@ -216,15 +216,18 @@ class Agent():
         # Decode the items
         decoded_items = state[batch_indices, item_ids]
 
-       # print('________________________________')
-        #print(backpacks_mask)
+        # print('________________________________')
+        # print(backpacks_mask)
 
         # Update the masks for the backpack
         # This will only allow to point to feasible solutions
-        backpacks_mask = build_feasible_mask(state, decoded_items, backpacks_mask)
+        backpacks_mask = build_feasible_mask(state,
+                                             decoded_items,
+                                             backpacks_mask
+                                             )
 
-        #print(backpacks_mask)
-       # print('________________________________')
+        # print(backpacks_mask)
+        # print('________________________________')
 
         # Add time step dim
         decoded_items = tf.expand_dims(decoded_items, axis = 1)
@@ -243,7 +246,7 @@ class Agent():
             backpack_ids = []
             for batch_id in range(batch_size):
                 # Stochastic backpack selection
-                dist_backpack = tfp.distributions.Categorical(probs = backpacks_probs[0])
+                dist_backpack = tfp.distributions.Categorical(probs = backpacks_probs[batch_id])
                 backpack_ids.append(dist_backpack.sample().numpy())
 
         # Decode the backpack
