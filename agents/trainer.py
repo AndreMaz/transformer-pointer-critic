@@ -65,7 +65,7 @@ def trainer(env: Knapsack, agent: Agent, opts: dict):
 
             # Prep the vars for the next training round
             if isDone:
-                average_per_problem = np.average(revs, axis=-1)
+                average_per_problem = np.sum(revs, axis=-1)
                 episode_reward = np.average(average_per_problem, axis=-1)
                 rewards_buffer.append(episode_reward)
                 current_state, backpack_net_mask, item_net_mask = env.reset()

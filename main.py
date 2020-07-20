@@ -9,8 +9,8 @@ from configs.configs import get_configs
 import numpy as np
 import math
 
-import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+# import os
+# os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
 def runner(env_type="custom", env_name='KnapsackV2', agent_name="tpc"):
     # Read the configs

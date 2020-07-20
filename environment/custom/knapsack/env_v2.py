@@ -266,6 +266,29 @@ class KnapsackV2(BaseEnvironment):
 
         return tf.cast(mask, dtype="float32")
 
+    def convert_to_ortools_input(self):
+        data = {}
+
+        weights = []
+        values = []
+        for item in self.total_items:
+            weights.append(int(item[0]))
+            values.append(int(item[1]))
+
+        data['weights'] = weights
+        data['values'] = values
+        data['items'] = list(range(len(weights)))
+        data['num_items'] = len(weights)
+
+        backpacks = []
+        for backpack in self.total_backpacks:
+            backpacks.append(int(backpack[0]))
+        
+        data['bin_capacities'] = backpacks
+        data['bins'] = list(range(len(backpacks)))
+
+        return data
+
 if __name__ == "__main__":
     env_name = 'Knapsack'
 
@@ -315,3 +338,5 @@ if __name__ == "__main__":
 
     new_mask = env.build_feasible_mask(state, items, bp_mask)
     print(new_mask)
+
+    env.convert_to_ortools_input()
