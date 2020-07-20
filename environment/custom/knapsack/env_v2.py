@@ -43,7 +43,7 @@ class KnapsackV2(BaseEnvironment):
         self.min_backpack_capacity: int = opts['min_backpack_capacity']
         self.max_backpack_capacity: int = opts['max_backpack_capacity']
         
-        self.EOS_BACKPACK = np.array((self.EOS_CODE, self.EOS_CODE), dtype='float16')
+        self.EOS_BACKPACK = np.array((self.EOS_CODE, self.EOS_CODE), dtype='float32')
         self.backpackIDS = list(range(0, self.num_backpacks))
         self.itemIDS = list(range(0, self.num_items))
 
@@ -142,7 +142,7 @@ class KnapsackV2(BaseEnvironment):
 
     def generate_dataset(self):
         # Num backpacks + 1 for EOS
-        backpacks = np.zeros((self.num_backpacks, 2), dtype='float16')
+        backpacks = np.zeros((self.num_backpacks, 2), dtype='float32')
         
         # Skip the first EOS backpack
         backpacks[0] = self.EOS_BACKPACK
@@ -154,7 +154,7 @@ class KnapsackV2(BaseEnvironment):
             
             backpacks[i, 1] = 0 # Current load
 
-        items = np.zeros((self.num_items, 2), dtype='float16')
+        items = np.zeros((self.num_items, 2), dtype='float32')
 
         for i in range(self.num_items):
             items[i, 0] = randint(
@@ -173,7 +173,7 @@ class KnapsackV2(BaseEnvironment):
         elem_size = self.num_backpacks + self.item_sample_size
 
         # Init empty batch
-        batch = np.zeros((self.batch_size, elem_size, 2), dtype='float16')
+        batch = np.zeros((self.batch_size, elem_size, 2), dtype='float32')
 
         for batch_id in range(self.batch_size):
             # Set the EOS backpack
@@ -204,10 +204,10 @@ class KnapsackV2(BaseEnvironment):
         elem_size = self.num_backpacks + self.item_sample_size
 
         # Represents positions marked as "0" where item Ptr Net can point
-        item_net_mask = np.zeros((self.batch_size, elem_size), dtype='float16')
+        item_net_mask = np.zeros((self.batch_size, elem_size), dtype='float32')
         # Represents positions marked as "0" where backpack Ptr Net can point
         backpack_net_mask = np.ones(
-            (self.batch_size, elem_size), dtype='float16')
+            (self.batch_size, elem_size), dtype='float32')
 
         # Default mask for items
         for batch_id in range(self.batch_size):
@@ -297,20 +297,20 @@ if __name__ == "__main__":
           [39,  1],
           [19, 60],
           [ 1, 13]]],
-          dtype='float16' 
+          dtype='float32' 
     )
     
     items = np.array(
         [[19, 60]],
-        dtype='float16'
+        dtype='float32'
         )
     items_mask = np.array(
         [[1., 1., 1., 0., 1.]],
-        dtype='float16'
+        dtype='float32'
         )
     bp_mask = np.array(
         [[0., 0., 0., 1., 1.]],
-        dtype='float16'
+        dtype='float32'
     )
 
     new_mask = env.build_feasible_mask(state, items, bp_mask)
