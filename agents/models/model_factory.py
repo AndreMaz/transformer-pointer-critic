@@ -35,6 +35,7 @@ def model_factory(type, opts):
             opts['critic']['positional_encoding'],
             opts['vocab_size'],
             opts['critic']['encoder_embedding_time_distributed'],
+            opts['critic']['last_layer_units'],
             opts['critic']['last_layer_activation'],
             opts['critic']['dropout_rate']
         )

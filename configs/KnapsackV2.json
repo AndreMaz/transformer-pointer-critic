@@ -3,7 +3,7 @@
     
     "trainer_config": {
         "description": "Trainer function configs.",
-        "n_iterations": 5
+        "n_iterations": 1000
     },
 
     "env_config": {
@@ -95,6 +95,7 @@
                 "positional_encoding": false,
                 "inner_layer_dim": 128,
                 "encoder_embedding_time_distributed": true,
+                "last_layer_units": 128,
                 "last_layer_activation": "linear",
                 "dropout_rate": 0.01,
 

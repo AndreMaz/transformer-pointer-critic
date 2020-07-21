@@ -2,13 +2,14 @@ from agents.agent import Agent, TRANSFORMER
 from environment.custom.knapsack.env import Knapsack
 import tensorflow as tf
 import numpy as np
+import time
 
 def trainer(env: Knapsack, agent: Agent, opts: dict):
 
     training = True
     n_iterations: int = opts['n_iterations']
     
-    rewards_buffer = [0.0]
+    rewards_buffer = []
     for iteration in range(n_iterations):
         
         revs = np.zeros((agent.batch_size, agent.num_items), dtype="float32")
@@ -20,6 +21,7 @@ def trainer(env: Knapsack, agent: Agent, opts: dict):
         dec_input = agent.generate_decoder_input(current_state)
 
         training_step = 0
+        start = time.time()
 
         while not isDone:
             # Select an action
@@ -70,8 +72,6 @@ def trainer(env: Knapsack, agent: Agent, opts: dict):
                 rewards_buffer.append(episode_reward)
                 current_state, backpack_net_mask, item_net_mask = env.reset()
         
-        print(f"\rIteration: {iteration}. Average Reward {episode_reward}", end="\n")
-
         if isDone == True:
             # We are done. So the state_value is 0
             bootstrap_state_value = tf.zeros([agent.batch_size, 1],dtype="float32")
@@ -147,6 +147,7 @@ def trainer(env: Knapsack, agent: Agent, opts: dict):
             )
         )
 
+        print(f"\rIteration: {iteration} took {time.time() - start} seconds. Average Reward {episode_reward}", end="\n")
         # Iteration complete. Clear agent's memory
         agent.clear_memory()
 
