@@ -51,7 +51,9 @@ class KnapsackV2(BaseEnvironment):
         self.batch = self.generate_batch()
         # Default masks
         # Will be updated during step
-        self.backpack_net_mask, self.item_net_mask = self.generate_masks()
+        self.backpack_net_mask,\
+            self.item_net_mask,\
+            self.mha_used_mask = self.generate_masks()
         
         # History
         # Will store (backpack_id, item_id) tuples
@@ -71,7 +73,9 @@ class KnapsackV2(BaseEnvironment):
 
     def reset(self):
         self.batch = self.generate_batch()
-        self.backpack_net_mask, self.item_net_mask = self.generate_masks()
+        self.backpack_net_mask,\
+            self.item_net_mask,\
+            self.mha_used_mask = self.generate_masks()
 
         self.history = self.create_history()
 
@@ -81,7 +85,8 @@ class KnapsackV2(BaseEnvironment):
 
         return self.batch.copy(),\
             self.backpack_net_mask.copy(),\
-            self.item_net_mask.copy()
+            self.item_net_mask.copy(),\
+            self.mha_used_mask.copy()
 
     def step(self, backpack_ids: list, item_ids: list):
         # rewards = []
@@ -118,9 +123,12 @@ class KnapsackV2(BaseEnvironment):
             # Update the masks
             # Item taken mask it
             self.item_net_mask[batch_id, item_id] = 1
+            self.mha_used_mask[batch_id, item_id] = 1
+
             # Mask the backpack if it's full
             if (backpack_capacity == backpack_load + item_weight):
                 self.backpack_net_mask[batch_id, backpack_id] = 1
+                self.mha_used_mask[batch_id, backpack_id] = 1
 
             if (backpack_id == 0):
                 reward = 0 # No reward. Placed at EOS backpack
@@ -132,6 +140,7 @@ class KnapsackV2(BaseEnvironment):
         info = {
              'backpack_net_mask': self.backpack_net_mask.copy(),
              'item_net_mask': self.item_net_mask.copy(),
+             'mha_used_mask': self.mha_used_mask.copy(),
              'num_items_to_place': self.num_items
         }
 
@@ -217,7 +226,10 @@ class KnapsackV2(BaseEnvironment):
         # Default mask for backpack
         backpack_net_mask = backpack_net_mask - item_net_mask
 
-        return backpack_net_mask, item_net_mask
+        # For Transformer's multi head attention
+        mha_used_mask = np.zeros_like(item_net_mask)
+
+        return backpack_net_mask, item_net_mask, mha_used_mask
 
     def print_history(self):
         for batch_id in range(self.batch_size):

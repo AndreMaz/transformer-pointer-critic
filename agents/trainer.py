@@ -12,10 +12,10 @@ def trainer(env: Knapsack, agent: Agent, opts: dict):
     rewards_buffer = []
     for iteration in range(n_iterations):
         
-        revs = np.zeros((agent.batch_size, agent.num_items), dtype="float32")
-        episode_reward = 0
+        episode_rewards = np.zeros((agent.batch_size, agent.num_items), dtype="float32")
+        # episode_reward = 0
         isDone = False
-        current_state, backpack_net_mask, item_net_mask = env.reset()
+        current_state, backpack_net_mask, item_net_mask, mha_used_mask = env.reset()
 
         # SOS input for Item Ptr Net
         dec_input = agent.generate_decoder_input(current_state)
@@ -39,11 +39,8 @@ def trainer(env: Knapsack, agent: Agent, opts: dict):
                 item_id
             )
             
-            # Episode increment rewards
-            
-            revs[:, training_step] = reward[:, 0]
-            # print(revs)
-            # episode_reward += tf.reduce_mean(reward).numpy()
+            # Store episode rewards
+            episode_rewards[:, training_step] = reward[:, 0]
 
             # Store in memory
             agent.store(
@@ -62,15 +59,16 @@ def trainer(env: Knapsack, agent: Agent, opts: dict):
             current_state = next_state
             backpack_net_mask = info['backpack_net_mask']
             item_net_mask = info['item_net_mask']
+            mha_used_mask = info['mha_used_mask']
 
             training_step += 1
 
             # Prep the vars for the next training round
             if isDone:
-                average_per_problem = np.sum(revs, axis=-1)
+                average_per_problem = np.sum(episode_rewards, axis=-1)
                 episode_reward = np.average(average_per_problem, axis=-1)
                 rewards_buffer.append(episode_reward)
-                current_state, backpack_net_mask, item_net_mask = env.reset()
+                current_state, backpack_net_mask, item_net_mask, mha_used_mask = env.reset()
         
         if isDone == True:
             # We are done. So the state_value is 0
