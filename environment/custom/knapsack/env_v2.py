@@ -42,12 +42,18 @@ class KnapsackV2(BaseEnvironment):
 
         self.min_backpack_capacity: int = opts['min_backpack_capacity']
         self.max_backpack_capacity: int = opts['max_backpack_capacity']
+
+        self.compute_mha_mask: bool = opts['compute_mha_mask']
         
         self.EOS_BACKPACK = np.array((self.EOS_CODE, self.EOS_CODE), dtype='float32')
         self.backpackIDS = list(range(0, self.num_backpacks))
         self.itemIDS = list(range(0, self.num_items))
+        
+        if self.load_from_file:
+            self.total_backpacks, self.total_items = self.load_problem()
+        else:
+            self.total_backpacks, self.total_items = self.generate_dataset()
 
-        self.total_backpacks, self.total_items = self.generate_dataset()
         self.batch = self.generate_batch()
         # Default masks
         # Will be updated during step
@@ -82,11 +88,15 @@ class KnapsackV2(BaseEnvironment):
         return self.state()
 
     def state(self):
+        if self.compute_mha_mask:
+            mha_mask = self.mha_used_mask.copy()
+        else:
+            mha_mask = None
 
         return self.batch.copy(),\
             self.backpack_net_mask.copy(),\
             self.item_net_mask.copy(),\
-            self.mha_used_mask.copy()
+            mha_mask
 
     def step(self, backpack_ids: list, item_ids: list):
         # rewards = []
@@ -123,12 +133,14 @@ class KnapsackV2(BaseEnvironment):
             # Update the masks
             # Item taken mask it
             self.item_net_mask[batch_id, item_id] = 1
-            self.mha_used_mask[batch_id, 0, 0, item_id] = 1
+            if self.compute_mha_mask:
+                self.mha_used_mask[batch_id, :, :, item_id] = 1
 
             # Mask the backpack if it's full
             if (backpack_capacity == backpack_load + item_weight):
                 self.backpack_net_mask[batch_id, backpack_id] = 1
-                self.mha_used_mask[batch_id, 0, 0, backpack_id] = 1
+                if self.compute_mha_mask:
+                    self.mha_used_mask[batch_id, :, :, backpack_id] = 1
 
             if (backpack_id == 0):
                 reward = 0 # No reward. Placed at EOS backpack
@@ -137,10 +149,15 @@ class KnapsackV2(BaseEnvironment):
 
             rewards[batch_id][0] = reward
 
+        if self.compute_mha_mask:
+            mha_mask = self.mha_used_mask.copy()
+        else:
+            mha_mask = None
+
         info = {
              'backpack_net_mask': self.backpack_net_mask.copy(),
              'item_net_mask': self.item_net_mask.copy(),
-             'mha_used_mask': self.mha_used_mask.copy(),
+             'mha_used_mask': mha_mask,
              'num_items_to_place': self.num_items
         }
 
@@ -227,8 +244,11 @@ class KnapsackV2(BaseEnvironment):
         backpack_net_mask = backpack_net_mask - item_net_mask
 
         # For Transformer's multi head attention
-        mha_used_mask = np.zeros_like(item_net_mask)
-        mha_used_mask = mha_used_mask[:, np.newaxis, np.newaxis, :]
+        if self.compute_mha_mask:
+            mha_used_mask = np.zeros_like(item_net_mask)
+            mha_used_mask = mha_used_mask[:, np.newaxis, np.newaxis, :]
+        else:
+            mha_used_mask = None
 
         return backpack_net_mask, item_net_mask, mha_used_mask
 
@@ -301,6 +321,51 @@ class KnapsackV2(BaseEnvironment):
         data['bins'] = list(range(len(backpacks)))
 
         return data
+    
+    def save_problem(self):
+        backpacks = {}
+        for i, backpack in enumerate(self.total_backpacks):
+            backpacks[f'{i}'] = {}
+            backpacks[f'{i}']['capacity'] = float(backpack[0])
+
+        items = {}
+        for i, item in enumerate(self.total_items):
+            items[f'{i}'] = {}
+            items[f'{i}']['weight'] = float(item[0])
+            items[f'{i}']['value'] = float(item[1])
+
+        problem = {
+            "backpacks": backpacks,
+            "items": items
+        }
+
+        with open(self.location, 'w') as fp:
+            json.dump(problem, fp, indent=4)
+
+    def load_problem(self):
+        with open(self.location) as json_file:
+            problem = json.load(json_file)
+
+        backpacks_dict: dict = problem['backpacks']
+        backpacks = np.zeros((self.num_backpacks, 2), dtype='float32')
+
+        for id, backpack in enumerate(backpacks_dict.values()):
+            backpacks[id, 0] = backpack['capacity']
+            
+            # EOS has the save value
+            if (id == 0): 
+                backpacks[id, 1] = backpack['capacity']
+            else:
+                backpacks[id, 1] = 0
+
+        items_dict = problem['items']
+        items = np.zeros((self.num_items, 2), dtype='float32')
+
+        for id, item in enumerate(items_dict.values()):
+            items[id, 0] = item['weight']
+            items[id, 1] = item['value']
+    
+        return backpacks, items
 
 if __name__ == "__main__":
     env_name = 'Knapsack'

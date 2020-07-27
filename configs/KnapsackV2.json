@@ -9,7 +9,7 @@
     "env_config": {
         "description": "Environment configs.",
 
-        "load_from_file": false,
+        "load_from_file": true,
         "location": "./environment/custom/knapsack/problem.json",
         
         "batch_size": 32,
@@ -28,7 +28,9 @@
         "max_item_weight": 20,
 
         "min_backpack_capacity": 1,
-        "max_backpack_capacity": 20
+        "max_backpack_capacity": 20,
+
+        "compute_mha_mask": true
     },
 
     "dpc": {
@@ -71,7 +73,7 @@
         "agent_config": {
 
             "gamma": 0.999,
-            "entropy_coefficient": 0.00001,
+            "entropy_coefficient": 0.0001,
             "stochastic_action_selection": true,
 
             "actor": {
