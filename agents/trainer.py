@@ -30,6 +30,7 @@ def trainer(env: Knapsack, agent: Agent, opts: dict):
                 dec_input,
                 backpack_net_mask,
                 item_net_mask,
+                mha_used_mask,
                 env.build_feasible_mask
             )
 

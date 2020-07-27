@@ -123,12 +123,12 @@ class KnapsackV2(BaseEnvironment):
             # Update the masks
             # Item taken mask it
             self.item_net_mask[batch_id, item_id] = 1
-            self.mha_used_mask[batch_id, item_id] = 1
+            self.mha_used_mask[batch_id, 0, 0, item_id] = 1
 
             # Mask the backpack if it's full
             if (backpack_capacity == backpack_load + item_weight):
                 self.backpack_net_mask[batch_id, backpack_id] = 1
-                self.mha_used_mask[batch_id, backpack_id] = 1
+                self.mha_used_mask[batch_id, 0, 0, backpack_id] = 1
 
             if (backpack_id == 0):
                 reward = 0 # No reward. Placed at EOS backpack
@@ -228,6 +228,7 @@ class KnapsackV2(BaseEnvironment):
 
         # For Transformer's multi head attention
         mha_used_mask = np.zeros_like(item_net_mask)
+        mha_used_mask = mha_used_mask[:, np.newaxis, np.newaxis, :]
 
         return backpack_net_mask, item_net_mask, mha_used_mask
 

@@ -194,7 +194,14 @@ class Agent():
 
         return total_loss, dec_output
 
-    def act(self, state, dec_input, backpacks_mask, items_mask, build_feasible_mask):
+    def act(self,
+            state,
+            dec_input,
+            backpacks_mask,
+            items_mask,
+            mha_used_mask,
+            build_feasible_mask
+        ):
         batch_size = state.shape[0]
         # Create a tensor with the batch indices
         batch_indices = tf.range(batch_size, dtype='int32')
@@ -206,7 +213,9 @@ class Agent():
             state,
             dec_input,
             items_mask,
-            self.training
+            self.training,
+            enc_padding_mask = mha_used_mask,
+            dec_padding_mask = mha_used_mask
         )
 
         if self.stochastic_action_selection:
@@ -243,7 +252,9 @@ class Agent():
             state,
             decoded_items, # Pass decoded item to backpack decoder
             backpacks_mask,
-            self.training
+            self.training,
+            enc_padding_mask = mha_used_mask,
+            dec_padding_mask = mha_used_mask
         )
 
         if self.stochastic_action_selection:
