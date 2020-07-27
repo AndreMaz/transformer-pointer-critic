@@ -3,7 +3,7 @@
     
     "trainer_config": {
         "description": "Trainer function configs.",
-        "n_iterations": 5
+        "n_iterations": 1000
     },
 
     "env_config": {
@@ -73,7 +73,7 @@
         "agent_config": {
 
             "gamma": 0.999,
-            "entropy_coefficient": 0.0001,
+            "entropy_coefficient": 0.00001,
             "stochastic_action_selection": true,
 
             "actor": {
@@ -98,7 +98,7 @@
                 "inner_layer_dim": 128,
                 "encoder_embedding_time_distributed": true,
                 "last_layer_units": 128,
-                "last_layer_activation": "linear",
+                "last_layer_activation": "relu",
                 "dropout_rate": 0.01,
 
                 "learning_rate": 0.0001

@@ -32,7 +32,7 @@ def runner(env_type="custom", env_name='KnapsackV2', agent_name="tpc"):
 
     # Create the environment
     env = env_factory(env_type, env_name, env_config)
-    
+
     # Add info about the environment
     agent_config = env.add_stats_to_agent_config(agent_config)
     
@@ -52,7 +52,7 @@ def runner(env_type="custom", env_name='KnapsackV2', agent_name="tpc"):
     tester(env, agent)
     print('End... Goodbye!')
 
-def tuner(env_type="custom", env_name='Knapsack', agent_name="dpc"):
+def tuner(env_type="custom", env_name='KnapsackV2', agent_name="tpc"):
     # Read the configs
     agent_config, trainer_config, env_config = get_configs(env_name, agent_name)
     
@@ -62,41 +62,46 @@ def tuner(env_type="custom", env_name='Knapsack', agent_name="dpc"):
     # Add info about the environmanet
     agent_config: dict = env.add_stats_to_agent_config(agent_config)
 
-    # Load agent alongside with it's trainer, plotter and tester functions
-    agent, trainer, tester, plotter = agent_factory(agent_name, agent_config)
-
-
     entropy_coefficient = [ 0.00001, 0.0001, 0.001 ]
-    actor_learning_rate = [ 0.00001, 0.0001, 0.0005, 0.005 ]
-    critic_learning_rate = [ 0.00001, 0.0001, 0.0005, 0.005 ]
-    gamma = [ 0.999, 0.99, 0.95 ]
-    time_distributed = [True, False]
+    actor_learning_rate = [ 0.00001, 0.0001, 0.0005 ]
+    critic_learning_rate = [ 0.00001, 0.0001, 0.0005 ]
+    mha_mask = [ True, False ]
+    time_distributed = [
+        True,
+        # False
+    ]
 
-    for g in gamma:
-            for entropy in entropy_coefficient:
-                for actor_lr in actor_learning_rate:
-                    for critic_lr in critic_learning_rate:
-                        for td in time_distributed:
+    for entropy in entropy_coefficient:
+        for actor_lr in actor_learning_rate:
+            for critic_lr in critic_learning_rate:
+                for td in time_distributed:
+                    for use_mask in mha_mask:
+                    
+                        # Swap between using and not using the MHA mask
+                        env.compute_mha_mask = use_mask
 
-                            config = agent_config.copy()
+                        config = agent_config.copy()
 
-                            config['gamma'] = g
-                            config['entropy_coefficient'] = entropy
+                        config['entropy_coefficient'] = entropy
 
-                            config['actor']['learning_rate'] = actor_lr
-                            config['actor']['encoder_embedding_time_distributed'] = td
+                        config['actor']['learning_rate'] = actor_lr
+                        config['actor']['encoder_embedding_time_distributed'] = td
 
-                            config['critic']['learning_rate'] = critic_lr
-                            config['critic']['encoder_embedding_time_distributed'] = td
+                        config['critic']['learning_rate'] = critic_lr
+                        config['critic']['encoder_embedding_time_distributed'] = td
 
-                            agent, trainer, tester, plotter = agent_factory(agent_name, config)
-                            
-                            training_history = trainer(env, agent, trainer_config)
+                        config['mha_mask'] = use_mask
 
-                            plotter(training_history, env, agent, agent_config, False)
+                        agent = Agent('transformer', config)
 
-    return None
+                        training_history = trainer(
+                            env, agent, trainer_config)
+
+                        plotter(training_history, env,
+                                agent, config, False)
+
+
 
 if __name__ == "__main__":
-    # tuner()
-    runner()
+    tuner()
+    # runner()

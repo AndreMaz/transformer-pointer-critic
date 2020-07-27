@@ -48,7 +48,7 @@ class KnapsackV2(BaseEnvironment):
         self.EOS_BACKPACK = np.array((self.EOS_CODE, self.EOS_CODE), dtype='float32')
         self.backpackIDS = list(range(0, self.num_backpacks))
         self.itemIDS = list(range(0, self.num_items))
-        
+
         if self.load_from_file:
             self.total_backpacks, self.total_items = self.load_problem()
         else:
@@ -265,6 +265,7 @@ class KnapsackV2(BaseEnvironment):
         agent_config['tensor_size'] = self.num_backpacks + self.item_sample_size
         agent_config['num_items'] = self.item_sample_size
         agent_config['batch_size'] = self.batch_size
+        agent_config['compute_mha_mask'] = self.compute_mha_mask
 
         agent_config['vocab_size'] = len(self.total_backpacks) + len(self.total_items)
     
