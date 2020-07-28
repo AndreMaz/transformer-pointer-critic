@@ -53,6 +53,7 @@ class Agent():
         self.backpacks = []
         self.backpack_masks = []
         self.item_masks = []
+        self.mha_masks = [] # <= ToDo
         self.rewards = np.zeros((self.batch_size, self.num_items), dtype="float32")
     
     def store(self,
@@ -60,31 +61,37 @@ class Agent():
               decoded_item,
               backpack_mask,
               items_masks,
+              mha_mask,
               item,
               backpack,
               reward,
               training_step
             ):
 
-        self.states.append(state) # Remove batch dim
+        self.states.append(state)
         
         self.decoded_items.append(decoded_item)
 
-        self.backpack_masks.append(backpack_mask) # Remove batch dim
-        self.item_masks.append(items_masks) # Remove batch dim
+        self.backpack_masks.append(backpack_mask)
+        self.item_masks.append(items_masks)
+        self.mha_masks.append(mha_mask)
 
         self.items.append(item)
         self.backpacks.append(backpack)
-        # self.rewards.append(reward)
+        
         self.rewards[:, training_step] = reward[:, 0]
 
     def clear_memory(self):
         self.states = []
         self.decoded_items = []
-        self.items = []
+        
         self.backpack_masks = []
         self.item_masks = []
+        self.mha_masks = []
+
+        self.items = []
         self.backpacks = []
+
         self.rewards = np.zeros((self.batch_size, self.num_items), dtype="float32")
 
     def generate_decoder_input(self, state):
@@ -229,18 +236,12 @@ class Agent():
         # Decode the items
         decoded_items = state[batch_indices, item_ids]
 
-        # print('________________________________')
-        # print(backpacks_mask)
-
         # Update the masks for the backpack
         # This will only allow to point to feasible solutions
         backpacks_mask = build_feasible_mask(state,
                                              decoded_items,
                                              backpacks_mask
                                              )
-
-        # print(backpacks_mask)
-        # print('________________________________')
 
         # Add time step dim
         decoded_items = tf.expand_dims(decoded_items, axis = 1)
