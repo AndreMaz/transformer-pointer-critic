@@ -25,7 +25,7 @@ def plotter(data, env, agent, agent_config, blockPlot=False):
     plt.xlabel('Episode')
 
     gamma = agent_config['gamma']
-    mha_mask = agent_config['mha_mask']
+    mha_mask = agent_config['use_mha_mask']
     entropy = agent_config['entropy_coefficient']
     td = agent_config['actor']['encoder_embedding_time_distributed']
 

@@ -90,7 +90,7 @@ def tuner(env_type="custom", env_name='KnapsackV2', agent_name="tpc"):
                         config['critic']['learning_rate'] = critic_lr
                         config['critic']['encoder_embedding_time_distributed'] = td
 
-                        config['mha_mask'] = use_mask
+                        config['use_mha_mask'] = use_mask
 
                         agent = Agent('transformer', config)
 
