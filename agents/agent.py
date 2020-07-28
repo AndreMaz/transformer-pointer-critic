@@ -125,8 +125,15 @@ class Agent():
         batch, dec_steps, elem, features = states.shape
         states = tf.reshape(states, [batch*dec_steps, elem, features])
 
+        mha_mask = tf.convert_to_tensor(self.mha_masks, dtype='float32')
+        mha_mask = tf.reshape(mha_mask, [batch*dec_steps, 1, 1, elem])
+
         # Get state_values
-        state_values = self.critic(states,self.training)
+        state_values = self.critic(
+            states,
+            self.training,
+            enc_padding_mask = mha_mask
+        )
 
         # Reshape the rewards bach into [batch, dec_step] form
         state_values = tf.reshape(state_values, [batch, dec_steps])
@@ -156,8 +163,11 @@ class Agent():
         batch, dec_steps, elem, features = states.shape
         states = tf.reshape(states, [batch*dec_steps, elem, features])
 
-        mask = tf.convert_to_tensor(masks, dtype='float32')
-        mask = tf.reshape(mask, [batch*dec_steps, elem])
+        attention_mask = tf.convert_to_tensor(masks, dtype='float32')
+        attention_mask = tf.reshape(attention_mask, [batch*dec_steps, elem])
+
+        mha_mask = tf.convert_to_tensor(self.mha_masks, dtype='float32')
+        mha_mask = tf.reshape(mha_mask, [batch*dec_steps, 1, 1, elem])
 
         dec_input = tf.convert_to_tensor(decoder_inputs, dtype='float32')
         dec_input = tf.reshape(dec_input, [batch*dec_steps, 1, features])
@@ -166,8 +176,10 @@ class Agent():
         pointer_logits, pointers_probs, point_index, dec_output = model(
             states,
             dec_input,
-            mask,
-            self.training
+            attention_mask,
+            self.training,
+            enc_padding_mask = mha_mask,
+            dec_padding_mask = mha_mask
         )
 
         # One hot actions that we took during an episode

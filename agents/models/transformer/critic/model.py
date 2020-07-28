@@ -46,11 +46,16 @@ class CriticTransformer(tf.keras.Model):
     def call(self,
              encoder_input,
              training: bool,
+             enc_padding_mask
              ):
 
         # Encode the input state
         # enc_output.shape = (batch_size, inp_seq_len, d_model)
-        enc_output = self.encoder(encoder_input, training)
+        enc_output = self.encoder(
+            encoder_input,
+            training,
+            enc_padding_mask = enc_padding_mask
+        )
 
         # Pass trough first dense layer
         final_out = self.final_layer0(enc_output)
