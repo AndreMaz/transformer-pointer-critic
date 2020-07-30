@@ -63,8 +63,16 @@ def tuner(env_type="custom", env_name='KnapsackV2', agent_name="tpc"):
     agent_config: dict = env.add_stats_to_agent_config(agent_config)
 
     entropy_coefficient = [ 0.00001, 0.0001, 0.001 ]
-    actor_learning_rate = [ 0.00001, 0.0001, 0.0005 ]
-    critic_learning_rate = [ 0.00001, 0.0001, 0.0005 ]
+    actor_learning_rate = [
+        # 0.00001,
+        0.0001,
+        0.0005
+    ]
+    critic_learning_rate = [ 
+        # 0.00001,
+        0.0001,
+        0.0005
+    ]
     mha_mask = [ True, False ]
     time_distributed = [
         True,
