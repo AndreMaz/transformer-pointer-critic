@@ -300,12 +300,20 @@ class KnapsackV2(BaseEnvironment):
 
         return tf.cast(mask, dtype="float32")
 
-    def convert_to_ortools_input(self):
+    def convert_to_ortools_input(self, problem_id = 0):
+
+        assert problem_id < self.batch_size, f'Problem ID is out of bounds. Must be less than {self.batch_size}'
+
+        # Select by ID from the batch
+        problem = self.batch[problem_id]
+        p_bps = problem[:self.num_backpacks]
+        p_items = problem[self.num_backpacks:]
+
         data = {}
 
         weights = []
         values = []
-        for item in self.total_items:
+        for item in p_items:
             weights.append(int(item[0]))
             values.append(int(item[1]))
 
@@ -315,7 +323,7 @@ class KnapsackV2(BaseEnvironment):
         data['num_items'] = len(weights)
 
         backpacks = []
-        for backpack in self.total_backpacks:
+        for backpack in p_bps:
             backpacks.append(int(backpack[0]))
         
         data['bin_capacities'] = backpacks

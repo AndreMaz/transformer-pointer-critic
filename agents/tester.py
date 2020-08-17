@@ -1,10 +1,10 @@
-import imp
+from environment.custom.knapsack.env_v2 import KnapsackV2
+from agents.agent import Agent
 
-from tensorflow.python.ops.gen_data_flow_ops import PriorityQueue
 from agents.optimum_solver import solver
 import numpy as np
 
-def test(env, agent):
+def test(env: KnapsackV2, agent: Agent):
     data = env.convert_to_ortools_input()
     solver(data, False)
     

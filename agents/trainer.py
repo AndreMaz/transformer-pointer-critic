@@ -1,4 +1,3 @@
-from environment.custom.knapsack.env_v2 import KnapsackV2
 from agents.agent import Agent, TRANSFORMER
 from environment.custom.knapsack.env_v2 import KnapsackV2
 import tensorflow as tf
