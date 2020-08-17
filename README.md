@@ -1,5 +1,12 @@
-# Deep Reinforcement Learning
+# Double Transformer Pointer-Critic
 
+## Architecture Details
+
+**Simple Overview**
+![simple_arch](./media/simple_arch.jpg)
+
+**Detailed Overview**
+![detailed_arch](./media/detailed_arch.jpg)
 
 ## Setting the environment and installing the dependencies
 Follow Tensorflow's [installation guide](https://www.tensorflow.org/install/pip) to set the environment and get things ready.
