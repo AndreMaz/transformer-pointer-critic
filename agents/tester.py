@@ -5,9 +5,13 @@ from agents.optimum_solver import solver
 import numpy as np
 
 def test(env: KnapsackV2, agent: Agent):
-    data = env.convert_to_ortools_input()
-    solver(data, False)
-    
+    # Compute optimal values
+    optimal_values = []
+    for i in range(env.batch_size):
+        data = env.convert_to_ortools_input(i)
+        optimal_values.append(solver(data, False))
+
+    # Test the nets
     training_step = 0
     isDone = False
 
@@ -42,9 +46,11 @@ def test(env: KnapsackV2, agent: Agent):
         item_net_mask = info['item_net_mask']
         mha_used_mask = info['mha_used_mask']
 
-
-    average_per_problem = np.sum(episode_rewards, axis=-1)
-    episode_reward = np.average(average_per_problem, axis=-1)
+    episode_rewards = np.sum(episode_rewards, axis=-1)
     
-    print(f'Average Reward: {episode_reward}')
-    print(f'Detailed View: {average_per_problem}')
+    stats = zip(optimal_values, episode_rewards)
+    
+    for s in stats:
+        d_from_opt = 100 - (s[1] * 100 / s[0])
+        print(f'Optimal {s[0]} | Net {s[1]} \t| Distance from Optimal {d_from_opt:.2f}')
+    
