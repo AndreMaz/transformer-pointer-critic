@@ -111,5 +111,5 @@ def tuner(env_type="custom", env_name='KnapsackV2', agent_name="tpc"):
 
 
 if __name__ == "__main__":
-    tuner()
-    # runner()
+    runner()
+    # tuner()
