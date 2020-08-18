@@ -7,11 +7,15 @@ import numpy as np
 def test(env: KnapsackV2, agent: Agent):
     # Compute optimal values
     optimal_values = []
-    for i in range(env.batch_size):
-        data = env.convert_to_ortools_input(i)
+    for index in range(env.batch_size):
+        data = env.convert_to_ortools_input(index)
         optimal_values.append(solver(data, False))
 
-    # Test the nets
+    # Test the net
+    # Set the agent to testing mode
+    agent.training = False
+    agent.stochastic_action_selection = False
+
     training_step = 0
     isDone = False
 
@@ -32,10 +36,10 @@ def test(env: KnapsackV2, agent: Agent):
 
         # Play one step
         next_state, reward, isDone, info = env.step(
-                backpack_id,
-                item_id
-            )
-
+            backpack_id,
+            item_id
+        )
+        
         # Store episode rewards
         episode_rewards[:, training_step] = reward[:, 0]
 
@@ -45,7 +49,10 @@ def test(env: KnapsackV2, agent: Agent):
         backpack_net_mask = info['backpack_net_mask']
         item_net_mask = info['item_net_mask']
         mha_used_mask = info['mha_used_mask']
+        
+        training_step += 1
 
+    # print(episode_rewards)
     episode_rewards = np.sum(episode_rewards, axis=-1)
     
     stats = zip(optimal_values, episode_rewards)
