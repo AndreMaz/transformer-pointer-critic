@@ -3,8 +3,8 @@
     
     "trainer_config": {
         "description": "Trainer function configs.",
-        "n_iterations": 5,
-        "n_steps_to_update": 10
+        "n_iterations": 1,
+        "n_steps_to_update": 20
     },
 
     "env_config": {
@@ -14,7 +14,7 @@
         "location": "./environment/custom/knapsack/problem.json",
         
         "batch_size": 32,
-        "num_items": 20,
+        "num_items": 100,
         "num_backpacks": 10,
         "EOS_CODE": 0,
 

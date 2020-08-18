@@ -46,13 +46,14 @@ class KnapsackV2(BaseEnvironment):
         self.compute_mha_mask: bool = opts['compute_mha_mask']
         
         self.EOS_BACKPACK = np.array((self.EOS_CODE, self.EOS_CODE), dtype='float32')
-        self.backpackIDS = list(range(0, self.num_backpacks))
-        self.itemIDS = list(range(0, self.num_items))
 
         if self.load_from_file:
             self.total_backpacks, self.total_items = self.load_problem()
         else:
             self.total_backpacks, self.total_items = self.generate_dataset()
+
+        self.backpackIDS = list(range(0, self.num_backpacks))
+        self.itemIDS = list(range(0, self.num_items))
 
         self.batch = self.generate_batch()
         # Default masks
@@ -356,6 +357,7 @@ class KnapsackV2(BaseEnvironment):
             problem = json.load(json_file)
 
         backpacks_dict: dict = problem['backpacks']
+        self.num_backpacks = len(backpacks_dict)
         backpacks = np.zeros((self.num_backpacks, 2), dtype='float32')
 
         for id, backpack in enumerate(backpacks_dict.values()):
@@ -367,13 +369,14 @@ class KnapsackV2(BaseEnvironment):
             else:
                 backpacks[id, 1] = 0
 
-        items_dict = problem['items']
+        items_dict: dict = problem['items']
+        self.num_items = len(items_dict)
         items = np.zeros((self.num_items, 2), dtype='float32')
 
         for id, item in enumerate(items_dict.values()):
             items[id, 0] = item['weight']
             items[id, 1] = item['value']
-    
+
         return backpacks, items
 
 if __name__ == "__main__":
