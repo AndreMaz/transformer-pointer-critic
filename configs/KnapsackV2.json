@@ -3,14 +3,14 @@
     
     "trainer_config": {
         "description": "Trainer function configs.",
-        "n_iterations": 1,
+        "n_iterations": 100,
         "n_steps_to_update": 20
     },
 
     "env_config": {
         "description": "Environment configs.",
 
-        "load_from_file": true,
+        "load_from_file": false,
         "location": "./environment/custom/knapsack/problem.json",
         
         "batch_size": 32,
