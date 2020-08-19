@@ -32,7 +32,7 @@ def test(env: KnapsackV2, agent: Agent):
         print(f'Solving {index} of {env.batch_size}', end='\r')
         data = env.convert_to_ortools_input(index)
         optimal_values.append(solver(data, False))
-    print(f'Done! Optimal Solutions found in {time.time() - start}')
+    print(f'Done! Optimal Solutions found in {time.time() - start:.2f} seconds')
 
     print('Solving with nets...')
     start = time.time()
@@ -65,7 +65,7 @@ def test(env: KnapsackV2, agent: Agent):
         mha_used_mask = info['mha_used_mask']
         
         training_step += 1
-    print(f'Done! Net solutions found in {time.time() - start}')
+    print(f'Done! Net solutions found in {time.time() - start:.2f} seconds')
 
     # print(episode_rewards)
     episode_rewards = np.sum(episode_rewards, axis=-1)

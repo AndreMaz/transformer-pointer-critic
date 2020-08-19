@@ -19,26 +19,26 @@ class Agent():
 
         # Default training mode
         self.training = True
-        self.use_mha_mask = opts['use_mha_mask']
+        self.use_mha_mask: bool = opts['use_mha_mask']
 
-        self.batch_size = opts['batch_size']
-        self.num_items = opts['num_items']
+        self.batch_size: int = opts['batch_size']
+        self.num_items: int = opts['num_items']
 
-        self.num_items = opts['num_items']
-        self.num_backpacks = opts['num_backpacks']
-        self.tensor_size = opts['tensor_size']
-        self.vocab_size = opts['vocab_size']
-        self.SOS_CODE = opts['actor']['SOS_CODE']
+        self.num_items: int = opts['num_items']
+        self.num_backpacks: int = opts['num_backpacks']
+        self.tensor_size: int = opts['tensor_size']
+        self.vocab_size: int = opts['vocab_size']
+        self.SOS_CODE: int = opts['actor']['SOS_CODE']
 
-        self.gamma = opts['gamma'] # Discount factor
-        self.entropy_coefficient = opts['entropy_coefficient']
-        self.stochastic_action_selection = opts['stochastic_action_selection']
+        self.gamma: float = opts['gamma'] # Discount factor
+        self.entropy_coefficient: float = opts['entropy_coefficient']
+        self.stochastic_action_selection: bool = opts['stochastic_action_selection']
 
         ### Optimizers ###
-        self.critic_learning_rate = opts['critic']['learning_rate']
+        self.critic_learning_rate: float = opts['critic']['learning_rate']
         self.critic_opt = tf.keras.optimizers.Adam(learning_rate=self.critic_learning_rate)
         
-        self.actor_learning_rate = opts['actor']['learning_rate']
+        self.actor_learning_rate: float = opts['actor']['learning_rate']
         self.pointer_opt = tf.keras.optimizers.Adam(learning_rate=self.actor_learning_rate)
 
         ### Load the models
