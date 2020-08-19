@@ -26,11 +26,11 @@
 
         "min_item_value": 1,
         "max_item_value": 100,
-        "min_item_weight": 1,
-        "max_item_weight": 20,
+        "min_item_weight": 7,
+        "max_item_weight": 7,
 
-        "min_backpack_capacity": 10,
-        "max_backpack_capacity": 20,
+        "min_backpack_capacity": 7,
+        "max_backpack_capacity": 12,
 
         "compute_mha_mask": true
     },
