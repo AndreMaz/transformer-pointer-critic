@@ -5,6 +5,7 @@ import numpy as np
 import time
 
 def trainer(env: KnapsackV2, agent: Agent, opts: dict):
+    print(f'Training with {env.item_sample_size} items')
 
     training = True
     # General training vars

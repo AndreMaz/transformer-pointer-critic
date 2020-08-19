@@ -71,5 +71,5 @@ def test(env: KnapsackV2, agent: Agent):
     
     for s in stats:
         d_from_opt = 100 - (s[1] * 100 / s[0])
-        print(f'Optimal {s[0]} \t| Net {s[1]} \t| Distance from Optimal {d_from_opt:.2f}')
+        print(f'Optimal {s[0]} \t| Net {s[1]} \t| % from Optimal {d_from_opt:.2f}')
     
