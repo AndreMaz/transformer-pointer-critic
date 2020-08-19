@@ -3,11 +3,16 @@ from agents.agent import Agent
 
 from agents.optimum_solver import solver
 import numpy as np
+import time
 
 def test(env: KnapsackV2, agent: Agent):
     # Set the agent to testing mode
     agent.training = False
     agent.stochastic_action_selection = False
+    
+    # Increase the number for items during testing
+    env.item_sample_size = 30
+    agent.num_items = 30
 
     training_step = 0
     isDone = False
@@ -18,12 +23,18 @@ def test(env: KnapsackV2, agent: Agent):
 
     # Compute optimal values
     optimal_values = []
+    print('Looking for Optimal Solutions...')
+    start = time.time()
     for index in range(env.batch_size):
+        print(f'Solving {index} of {env.batch_size}', end='\r')
         data = env.convert_to_ortools_input(index)
         optimal_values.append(solver(data, False))
+    print(f'Done! Optimal Solutions found in {time.time() - start}')
 
-
+    print('Solving with nets...')
+    start = time.time()
     while not isDone:
+        print(f'Placing step {training_step} of {agent.num_items}', end='\r')
         # Select an action
         backpack_id, item_id, decoded_item, backpack_net_mask = agent.act(
             current_state,
@@ -51,6 +62,7 @@ def test(env: KnapsackV2, agent: Agent):
         mha_used_mask = info['mha_used_mask']
         
         training_step += 1
+    print(f'Done! Net solutions found in {time.time() - start}')
 
     # print(episode_rewards)
     episode_rewards = np.sum(episode_rewards, axis=-1)
