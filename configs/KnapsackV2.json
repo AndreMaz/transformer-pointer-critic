@@ -3,7 +3,7 @@
     
     "trainer_config": {
         "description": "Trainer function configs.",
-        "n_iterations": 2,
+        "n_iterations": 100,
         "n_steps_to_update": 20
     },
 
@@ -20,6 +20,7 @@
 
         "sampling_mode": false,
         "item_sample_size": 20,
+        "backpack_sample_size": 5,
 
         "normalization_factor": 1,
 
