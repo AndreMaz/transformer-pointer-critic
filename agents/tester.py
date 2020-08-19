@@ -14,6 +14,9 @@ def test(env: KnapsackV2, agent: Agent):
     env.item_sample_size = 30
     agent.num_items = 30
 
+    # Increase the number of backpacks during testing
+    env.backpack_sample_size = 10
+
     training_step = 0
     isDone = False
 

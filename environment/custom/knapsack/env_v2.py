@@ -60,7 +60,7 @@ class KnapsackV2(BaseEnvironment):
         self.itemIDS = list(range(0, self.num_items))
 
         # Problem batch
-        self.batch = self.generate_batch()
+        self.batch, self.history = self.generate_batch()
         # Default masks
         # Will be updated during at each step() call
         self.backpack_net_mask,\
@@ -69,7 +69,7 @@ class KnapsackV2(BaseEnvironment):
         
         # History
         # Will store (backpack_id, item_id) tuples
-        self.history = self.create_history()
+        # self.history = self.create_history()
 
     def create_history(self):
         history = []
@@ -84,12 +84,12 @@ class KnapsackV2(BaseEnvironment):
         return history
 
     def reset(self):
-        self.batch = self.generate_batch()
+        self.batch, self.history = self.generate_batch()
         self.backpack_net_mask,\
             self.item_net_mask,\
             self.mha_used_mask = self.generate_masks()
 
-        self.history = self.create_history()
+        # self.history = self.create_history()
 
         return self.state()
 
@@ -132,9 +132,11 @@ class KnapsackV2(BaseEnvironment):
 
                 self.batch[batch_id, backpack_id, 1] = backpack_load + item_weight
 
+            # print(f'Batch {batch_id} Backpack {backpack_id} || Maximum capacity: {backpack_capacity} || Current load: {backpack_load} || Item Weight: {item_weight}')
+
             # Add to history
-            # history_entry: History = self.history[batch_id][backpack_id]
-            # history_entry.add_item(item_id, item_weight, item_value)
+            history_entry: History = self.history[batch_id][backpack_id]
+            history_entry.add_item(item_id, item_weight, item_value)
 
             # Update the masks
             # Item taken mask it
@@ -202,24 +204,32 @@ class KnapsackV2(BaseEnvironment):
         return backpacks, items
 
     def generate_batch(self):
+        history = [] # For info and stats
+
         elem_size = self.backpack_sample_size + self.item_sample_size
 
         # Init empty batch
         batch = np.zeros((self.batch_size, elem_size, 2), dtype='float32')
 
         for batch_id in range(self.batch_size):
+            problem = []
+
             # Set the EOS backpack
             batch[batch_id, 0] = self.EOS_BACKPACK
             
+            problem.append(History(0, 0)) # EOS backpack is always empty
+
             # Shuffle the backpacks and select a sample
             np.random.shuffle(self.backpackIDS)
-            backpacks_sample_ids = self.backpackIDS[:self.backpack_sample_size]
+            backpacks_sample_ids = self.backpackIDS[:self.backpack_sample_size - 1]
 
             for i in range(1, self.backpack_sample_size):
                 # Pop the ID
                 id = backpacks_sample_ids.pop(0)
                 # Get the backpack by ID
                 backpack = self.total_backpacks[id]
+
+                problem.append(History(i, backpack[0]))
 
                 batch[batch_id, i, 0] = backpack[0] # Set total capacity
                 batch[batch_id, i, 1] = backpack[1] # Set current load = 0
@@ -238,7 +248,9 @@ class KnapsackV2(BaseEnvironment):
                 batch[batch_id, i, 0] = item[0] # Set weight
                 batch[batch_id, i, 1] = item[1] # Set value
 
-        return batch
+            history.append(problem)
+
+        return batch, history
 
     def generate_masks(self):
         
@@ -274,7 +286,7 @@ class KnapsackV2(BaseEnvironment):
                 bp.print()
             print('_________________________________')
     
-    def add_stats_to_agent_config(self, agent_config):
+    def add_stats_to_agent_config(self, agent_config: dict):
         agent_config['num_items'] = self.num_items
         agent_config['num_backpacks'] = self.backpack_sample_size
         agent_config['tensor_size'] = self.backpack_sample_size + self.item_sample_size

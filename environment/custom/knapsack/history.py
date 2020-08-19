@@ -18,7 +18,7 @@ class History():
         
         if (self.id != 0):
             assert self.capacity >= self.current_load + weight,\
-                f'Backpack {id} is overloaded. Maximum capacity: {self.capacity} || Item Weight: {weight}'
+                f'Backpack {self.id} is overloaded. Maximum capacity: {self.capacity} || Item Weight: {weight}'
 
             self.current_load = self.current_load + weight
             self.current_value = self.current_value + value
