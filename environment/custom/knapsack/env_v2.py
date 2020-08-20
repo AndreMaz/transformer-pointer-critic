@@ -66,30 +66,12 @@ class KnapsackV2(BaseEnvironment):
         self.backpack_net_mask,\
             self.item_net_mask,\
             self.mha_used_mask = self.generate_masks()
-        
-        # History
-        # Will store (backpack_id, item_id) tuples
-        # self.history = self.create_history()
-
-    def create_history(self):
-        history = []
-        for _ in range(self.batch_size):
-            problem = []
-            for id, bp in enumerate(self.total_backpacks):
-                backpack = History(id, bp[0])
-                problem.append(backpack)
-
-            history.append(problem)
-        
-        return history
 
     def reset(self):
         self.batch, self.history = self.generate_batch()
         self.backpack_net_mask,\
             self.item_net_mask,\
             self.mha_used_mask = self.generate_masks()
-
-        # self.history = self.create_history()
 
         return self.state()
 
@@ -131,8 +113,6 @@ class KnapsackV2(BaseEnvironment):
                 f'Backpack {backpack_id} is overloaded. Maximum capacity: {backpack_capacity} || Current load: {backpack_load} || Item Weight: {item_weight}'
 
                 self.batch[batch_id, backpack_id, 1] = backpack_load + item_weight
-
-            # print(f'Batch {batch_id} Backpack {backpack_id} || Maximum capacity: {backpack_capacity} || Current load: {backpack_load} || Item Weight: {item_weight}')
 
             # Add to history
             history_entry: History = self.history[batch_id][backpack_id]
@@ -292,7 +272,6 @@ class KnapsackV2(BaseEnvironment):
         agent_config['tensor_size'] = self.backpack_sample_size + self.item_sample_size
         agent_config['num_items'] = self.item_sample_size
         agent_config['batch_size'] = self.batch_size
-        agent_config['compute_mha_mask'] = self.compute_mha_mask
 
         agent_config['vocab_size'] = len(self.total_backpacks) + len(self.total_items)
     

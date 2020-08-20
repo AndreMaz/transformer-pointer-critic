@@ -3,7 +3,7 @@
     
     "trainer_config": {
         "description": "Trainer function configs.",
-        "n_iterations": 100,
+        "n_iterations": 1,
         "n_steps_to_update": 20
     },
 
@@ -26,11 +26,11 @@
 
         "min_item_value": 1,
         "max_item_value": 100,
-        "min_item_weight": 7,
-        "max_item_weight": 7,
+        "min_item_weight": 5,
+        "max_item_weight": 10,
 
-        "min_backpack_capacity": 7,
-        "max_backpack_capacity": 12,
+        "min_backpack_capacity": 20,
+        "max_backpack_capacity": 40,
 
         "compute_mha_mask": true
     },

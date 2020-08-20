@@ -11,11 +11,11 @@ def test(env: KnapsackV2, agent: Agent):
     agent.stochastic_action_selection = False
     
     # Increase the number for items during testing
-    env.item_sample_size = 30
-    agent.num_items = 30
+    env.item_sample_size = 20
+    agent.num_items = 20
 
     # Increase the number of backpacks during testing
-    env.backpack_sample_size = 10 + 1 # Because of the EOS
+    env.backpack_sample_size = 5 + 1 # Because of the EOS
 
     training_step = 0
     isDone = False
@@ -24,7 +24,7 @@ def test(env: KnapsackV2, agent: Agent):
     current_state, backpack_net_mask, item_net_mask, mha_used_mask = env.reset()
     dec_input = agent.generate_decoder_input(current_state)
     
-    print(f'Training with {agent.num_items} items and {env.backpack_sample_size} backpacks')
+    print(f'Testing with {agent.num_items} items and {env.backpack_sample_size} backpacks')
 
     # Compute optimal values
     optimal_values = []
