@@ -161,7 +161,7 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict):
         )
 
         if isDone:
-            print(f"\rEpisode: {episode_count} took {time.time() - start} seconds. Average Reward {episode_reward}", end="\n")
+            print(f"\rEpisode: {episode_count} took {time.time() - start:.2f} seconds. Average Reward: {episode_reward:.3f}", end="\n")
 
         # Iteration complete. Clear agent's memory
         agent.clear_memory()

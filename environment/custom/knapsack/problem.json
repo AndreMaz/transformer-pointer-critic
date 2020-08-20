@@ -4,116 +4,436 @@
             "capacity": 0.0
         },
         "1": {
-            "capacity": 19.0
+            "capacity": 25.0
         },
         "2": {
-            "capacity": 1.0
+            "capacity": 30.0
         },
         "3": {
-            "capacity": 10.0
+            "capacity": 35.0
         },
         "4": {
-            "capacity": 19.0
+            "capacity": 22.0
         },
         "5": {
-            "capacity": 2.0
+            "capacity": 38.0
         },
         "6": {
-            "capacity": 19.0
+            "capacity": 24.0
         },
         "7": {
-            "capacity": 5.0
+            "capacity": 33.0
         },
         "8": {
-            "capacity": 13.0
+            "capacity": 33.0
         },
         "9": {
-            "capacity": 13.0
+            "capacity": 21.0
         },
         "10": {
-            "capacity": 8.0
+            "capacity": 40.0
         }
     },
     "items": {
         "0": {
-            "weight": 20.0,
-            "value": 84.0
+            "weight": 5.0,
+            "value": 12.0
         },
         "1": {
-            "weight": 15.0,
-            "value": 65.0
+            "weight": 7.0,
+            "value": 37.0
         },
         "2": {
-            "weight": 12.0,
-            "value": 98.0
+            "weight": 5.0,
+            "value": 96.0
         },
         "3": {
-            "weight": 19.0,
-            "value": 98.0
+            "weight": 10.0,
+            "value": 49.0
         },
         "4": {
-            "weight": 9.0,
-            "value": 53.0
+            "weight": 6.0,
+            "value": 90.0
         },
         "5": {
-            "weight": 16.0,
-            "value": 91.0
+            "weight": 9.0,
+            "value": 93.0
         },
         "6": {
-            "weight": 10.0,
-            "value": 4.0
+            "weight": 8.0,
+            "value": 42.0
         },
         "7": {
-            "weight": 17.0,
-            "value": 26.0
+            "weight": 6.0,
+            "value": 4.0
         },
         "8": {
-            "weight": 13.0,
-            "value": 64.0
+            "weight": 6.0,
+            "value": 97.0
         },
         "9": {
-            "weight": 18.0,
-            "value": 89.0
+            "weight": 8.0,
+            "value": 93.0
         },
         "10": {
-            "weight": 11.0,
-            "value": 6.0
+            "weight": 5.0,
+            "value": 66.0
         },
         "11": {
-            "weight": 3.0,
-            "value": 19.0
+            "weight": 6.0,
+            "value": 11.0
         },
         "12": {
-            "weight": 15.0,
-            "value": 89.0
+            "weight": 10.0,
+            "value": 42.0
         },
         "13": {
-            "weight": 15.0,
-            "value": 52.0
+            "weight": 5.0,
+            "value": 75.0
         },
         "14": {
-            "weight": 4.0,
-            "value": 10.0
+            "weight": 7.0,
+            "value": 41.0
         },
         "15": {
-            "weight": 7.0,
-            "value": 85.0
+            "weight": 6.0,
+            "value": 58.0
         },
         "16": {
-            "weight": 10.0,
-            "value": 99.0
+            "weight": 7.0,
+            "value": 35.0
         },
         "17": {
-            "weight": 18.0,
-            "value": 86.0
+            "weight": 10.0,
+            "value": 45.0
         },
         "18": {
-            "weight": 1.0,
-            "value": 55.0
+            "weight": 8.0,
+            "value": 79.0
         },
         "19": {
-            "weight": 20.0,
+            "weight": 5.0,
+            "value": 53.0
+        },
+        "20": {
+            "weight": 9.0,
+            "value": 67.0
+        },
+        "21": {
+            "weight": 8.0,
+            "value": 14.0
+        },
+        "22": {
+            "weight": 6.0,
+            "value": 46.0
+        },
+        "23": {
+            "weight": 5.0,
+            "value": 86.0
+        },
+        "24": {
+            "weight": 6.0,
+            "value": 19.0
+        },
+        "25": {
+            "weight": 10.0,
+            "value": 32.0
+        },
+        "26": {
+            "weight": 7.0,
+            "value": 48.0
+        },
+        "27": {
+            "weight": 9.0,
+            "value": 12.0
+        },
+        "28": {
+            "weight": 6.0,
+            "value": 18.0
+        },
+        "29": {
+            "weight": 5.0,
+            "value": 16.0
+        },
+        "30": {
+            "weight": 8.0,
+            "value": 72.0
+        },
+        "31": {
+            "weight": 9.0,
+            "value": 100.0
+        },
+        "32": {
+            "weight": 8.0,
             "value": 54.0
+        },
+        "33": {
+            "weight": 7.0,
+            "value": 100.0
+        },
+        "34": {
+            "weight": 6.0,
+            "value": 72.0
+        },
+        "35": {
+            "weight": 6.0,
+            "value": 26.0
+        },
+        "36": {
+            "weight": 8.0,
+            "value": 64.0
+        },
+        "37": {
+            "weight": 9.0,
+            "value": 94.0
+        },
+        "38": {
+            "weight": 5.0,
+            "value": 48.0
+        },
+        "39": {
+            "weight": 9.0,
+            "value": 54.0
+        },
+        "40": {
+            "weight": 9.0,
+            "value": 10.0
+        },
+        "41": {
+            "weight": 10.0,
+            "value": 68.0
+        },
+        "42": {
+            "weight": 9.0,
+            "value": 4.0
+        },
+        "43": {
+            "weight": 10.0,
+            "value": 59.0
+        },
+        "44": {
+            "weight": 5.0,
+            "value": 18.0
+        },
+        "45": {
+            "weight": 5.0,
+            "value": 35.0
+        },
+        "46": {
+            "weight": 10.0,
+            "value": 65.0
+        },
+        "47": {
+            "weight": 8.0,
+            "value": 56.0
+        },
+        "48": {
+            "weight": 8.0,
+            "value": 72.0
+        },
+        "49": {
+            "weight": 8.0,
+            "value": 53.0
+        },
+        "50": {
+            "weight": 6.0,
+            "value": 7.0
+        },
+        "51": {
+            "weight": 5.0,
+            "value": 28.0
+        },
+        "52": {
+            "weight": 8.0,
+            "value": 46.0
+        },
+        "53": {
+            "weight": 6.0,
+            "value": 6.0
+        },
+        "54": {
+            "weight": 5.0,
+            "value": 50.0
+        },
+        "55": {
+            "weight": 7.0,
+            "value": 67.0
+        },
+        "56": {
+            "weight": 9.0,
+            "value": 86.0
+        },
+        "57": {
+            "weight": 7.0,
+            "value": 77.0
+        },
+        "58": {
+            "weight": 8.0,
+            "value": 89.0
+        },
+        "59": {
+            "weight": 7.0,
+            "value": 34.0
+        },
+        "60": {
+            "weight": 10.0,
+            "value": 38.0
+        },
+        "61": {
+            "weight": 10.0,
+            "value": 26.0
+        },
+        "62": {
+            "weight": 9.0,
+            "value": 6.0
+        },
+        "63": {
+            "weight": 6.0,
+            "value": 22.0
+        },
+        "64": {
+            "weight": 6.0,
+            "value": 19.0
+        },
+        "65": {
+            "weight": 6.0,
+            "value": 95.0
+        },
+        "66": {
+            "weight": 6.0,
+            "value": 52.0
+        },
+        "67": {
+            "weight": 10.0,
+            "value": 83.0
+        },
+        "68": {
+            "weight": 7.0,
+            "value": 11.0
+        },
+        "69": {
+            "weight": 5.0,
+            "value": 90.0
+        },
+        "70": {
+            "weight": 6.0,
+            "value": 95.0
+        },
+        "71": {
+            "weight": 6.0,
+            "value": 31.0
+        },
+        "72": {
+            "weight": 8.0,
+            "value": 19.0
+        },
+        "73": {
+            "weight": 8.0,
+            "value": 93.0
+        },
+        "74": {
+            "weight": 6.0,
+            "value": 78.0
+        },
+        "75": {
+            "weight": 8.0,
+            "value": 45.0
+        },
+        "76": {
+            "weight": 7.0,
+            "value": 5.0
+        },
+        "77": {
+            "weight": 9.0,
+            "value": 34.0
+        },
+        "78": {
+            "weight": 6.0,
+            "value": 4.0
+        },
+        "79": {
+            "weight": 10.0,
+            "value": 19.0
+        },
+        "80": {
+            "weight": 6.0,
+            "value": 12.0
+        },
+        "81": {
+            "weight": 7.0,
+            "value": 73.0
+        },
+        "82": {
+            "weight": 8.0,
+            "value": 38.0
+        },
+        "83": {
+            "weight": 7.0,
+            "value": 24.0
+        },
+        "84": {
+            "weight": 7.0,
+            "value": 37.0
+        },
+        "85": {
+            "weight": 5.0,
+            "value": 100.0
+        },
+        "86": {
+            "weight": 8.0,
+            "value": 17.0
+        },
+        "87": {
+            "weight": 6.0,
+            "value": 47.0
+        },
+        "88": {
+            "weight": 7.0,
+            "value": 88.0
+        },
+        "89": {
+            "weight": 10.0,
+            "value": 88.0
+        },
+        "90": {
+            "weight": 7.0,
+            "value": 99.0
+        },
+        "91": {
+            "weight": 10.0,
+            "value": 13.0
+        },
+        "92": {
+            "weight": 8.0,
+            "value": 73.0
+        },
+        "93": {
+            "weight": 7.0,
+            "value": 54.0
+        },
+        "94": {
+            "weight": 5.0,
+            "value": 73.0
+        },
+        "95": {
+            "weight": 7.0,
+            "value": 12.0
+        },
+        "96": {
+            "weight": 7.0,
+            "value": 31.0
+        },
+        "97": {
+            "weight": 6.0,
+            "value": 97.0
+        },
+        "98": {
+            "weight": 8.0,
+            "value": 52.0
+        },
+        "99": {
+            "weight": 9.0,
+            "value": 51.0
         }
     }
 }
