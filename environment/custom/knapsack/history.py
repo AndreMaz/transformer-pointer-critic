@@ -36,3 +36,16 @@ class History():
         if len(self.items) == 0: print('<Empty>')
         for item in self.items:
             print(f'ID: {item["id"]} | Weight {item["weight"]} | Value {item["value"]}')
+    
+    def is_valid(self):
+        total_load = 0
+        for i in self.items:
+            total_load += i['weight']
+
+        if (self.id != 0):
+            assert total_load == self.current_load, 'Total weight of items is different from current load of backpack'
+
+            if total_load > self.capacity:
+                return False
+        
+        return True

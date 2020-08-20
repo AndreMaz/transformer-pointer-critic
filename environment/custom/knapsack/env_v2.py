@@ -1,8 +1,5 @@
 import sys
 
-from numpy.core.numeric import inf
-from numpy.lib.function_base import _create_arrays
-from tensorflow.python.keras.backend import dtype
 sys.path.append('.')
 
 import json
@@ -366,6 +363,15 @@ class KnapsackV2(BaseEnvironment):
             items[id, 1] = item['value']
 
         return backpacks, items
+
+
+    def validate_history(self):
+        for problem in self.history:
+            for backpack in problem:
+                if backpack.is_valid() == False:
+                    return False
+
+        return True
 
 if __name__ == "__main__":
     env_name = 'Knapsack'

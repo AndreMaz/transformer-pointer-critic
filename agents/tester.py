@@ -67,6 +67,12 @@ def test(env: KnapsackV2, agent: Agent):
         mha_used_mask = info['mha_used_mask']
         
         training_step += 1
+
+    if env.validate_history() == True:
+        print('All solutions are valid!')
+    else:
+        print('Ups! Network generated invalid solutions')
+
     print(f'Done! Net solutions found in {time.time() - start:.2f} seconds')
 
     # print(episode_rewards)
