@@ -19,7 +19,6 @@ class Agent():
 
         # Default training mode
         self.training = True
-        self.use_mha_mask: bool = opts['use_mha_mask']
 
         self.batch_size: int = opts['batch_size']
         self.num_items: int = opts['num_items']
@@ -126,11 +125,8 @@ class Agent():
         batch, dec_steps, elem, features = states.shape
         states = tf.reshape(states, [batch*dec_steps, elem, features])
 
-        if self.use_mha_mask:
-            mha_mask = tf.convert_to_tensor(self.mha_masks, dtype='float32')
-            mha_mask = tf.reshape(mha_mask, [batch*dec_steps, 1, 1, elem])
-        else:
-            mha_mask = None
+        mha_mask = tf.convert_to_tensor(self.mha_masks, dtype='float32')
+        mha_mask = tf.reshape(mha_mask, [batch*dec_steps, 1, 1, elem])        
 
         # Get state_values
         state_values = self.critic(
@@ -170,12 +166,9 @@ class Agent():
         attention_mask = tf.convert_to_tensor(masks, dtype='float32')
         attention_mask = tf.reshape(attention_mask, [batch*dec_steps, elem])
 
-        if self.use_mha_mask:
-            mha_mask = tf.convert_to_tensor(self.mha_masks, dtype='float32')
-            mha_mask = tf.reshape(mha_mask, [batch*dec_steps, 1, 1, elem])
-        else:
-            mha_mask = None
-
+        mha_mask = tf.convert_to_tensor(self.mha_masks, dtype='float32')
+        mha_mask = tf.reshape(mha_mask, [batch*dec_steps, 1, 1, elem])
+        
         dec_input = tf.convert_to_tensor(decoder_inputs, dtype='float32')
         dec_input = tf.reshape(dec_input, [batch*dec_steps, 1, features])
 
