@@ -5,7 +5,10 @@ from agents.agent import Agent
 import numpy as np
 import time
 
-def test(env: KnapsackV2, agent: Agent, opt_solver, heuristic_solver):
+OPTIMAL = 'Optimal'
+HEURISTIC = 'Heuristic'
+
+def test(env: KnapsackV2, agent: Agent, opt_solver, heuristic_solver, look_for_opt: bool = False):
     # Set the agent to testing mode
     agent.training = False
     agent.stochastic_action_selection = False
@@ -28,14 +31,15 @@ def test(env: KnapsackV2, agent: Agent, opt_solver, heuristic_solver):
 
     # Compute optimal values
     optimal_values = []
-    print('Looking for Optimal Solutions...')
-    start = time.time()
-    for index in range(env.batch_size):
-        print(f'Solving {index} of {env.batch_size}', end='\r')
-        data = env.convert_to_ortools_input(index)
-        optimal_values.append(opt_solver(data, False))
-    print(f'Done! Optimal Solutions found in {time.time() - start:.2f} seconds')
-    
+    if look_for_opt:
+        print('Looking for Optimal Solutions...')
+        start = time.time()
+        for index in range(env.batch_size):
+            print(f'Solving {index} of {env.batch_size}', end='\r')
+            data = env.convert_to_ortools_input(index)
+            optimal_values.append(opt_solver(data, False))
+        print(f'Done! Optimal Solutions found in {time.time() - start:.2f} seconds')
+
     heuristic_values = []
     print('Looking for Heuristic Solutions...')
     start = time.time()
@@ -87,13 +91,22 @@ def test(env: KnapsackV2, agent: Agent, opt_solver, heuristic_solver):
     # print(episode_rewards)
     episode_rewards = np.sum(episode_rewards, axis=-1)
     
+    
+    if not look_for_opt:
+        optimal_values = len(episode_rewards) * [0]
+
     stats = zip(optimal_values, episode_rewards, heuristic_values)
     
-    for s in stats:
-        # Net distance
-        d_from_opt_net = 100 - (s[1] * 100 / s[0])
-        # Heuristic distance
-        d_from_opt_heu = 100 - (s[2] * 100 / s[0])
+    for opt_val, net_val, heu_val in stats:
+        if look_for_opt:
+            # Net to Opt distance
+            d_from_opt_net = 100 - (net_val * 100 / opt_val)
+            # Heuristic to Opt distance
+            d_from_opt_heu = 100 - (heu_val * 100 / opt_val)
 
-        print(f'Opt {s[0]} \t| Net {s[1]} \t| % from Opt {d_from_opt_net:.2f} \t || Heu {s[2]} \t| % from Opt {d_from_opt_heu:.2f}')
-    
+            print(f'Opt {opt_val} \t| Net {net_val} \t| % from Opt {d_from_opt_net:.2f} \t || Heuristic {heu_val} \t| % from Opt {d_from_opt_heu:.2f}')
+        else:
+            # Net to Heuristic Distance
+            d_from_opt = 100 - (net_val * 100 / heu_val)
+
+            print(f'Net {net_val} \t| Heuristic {heu_val} \t| % from Heuristic {d_from_opt:.2f}')

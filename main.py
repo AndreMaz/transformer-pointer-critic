@@ -41,11 +41,11 @@ def runner(env_type="custom", env_name='KnapsackV2', agent_name="tpc"):
 
     # Train
     print('Training...')
-    # training_history = trainer(env, agent, trainer_config)
+    training_history = trainer(env, agent, trainer_config)
     
     # Plot the learning curve
     print('\nPlotting Results...')
-    # plotter(training_history, env, agent, agent_config, opt_solver, False)
+    plotter(training_history, env, agent, agent_config, opt_solver, False)
 
     # Test the agent
     print("\nTesting...")
