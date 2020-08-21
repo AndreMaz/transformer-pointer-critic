@@ -8,9 +8,7 @@ import tensorflow as tf
 from random import randint
 
 from environment.base.base import BaseEnvironment
-from environment.custom.knapsack.history import History
-# from environment.custom.knapsack.item import Item
-# from environment.custom.knapsack.backpack import Backpack, EOS_BACKPACK, NORMAL_BACKPACK
+from environment.custom.knapsack.backpack import Backpack as History
 
 class KnapsackV2(BaseEnvironment):
     def __init__(self, name: str, opts: dict):
