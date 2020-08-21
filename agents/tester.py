@@ -14,11 +14,11 @@ def test(env: KnapsackV2, agent: Agent, opt_solver, heuristic_solver, look_for_o
     agent.stochastic_action_selection = False
     
     # Increase the number for items during testing
-    env.item_sample_size = 30
-    agent.num_items = 30
+    env.item_sample_size = 50
+    agent.num_items = 50
 
     # Increase the number of backpacks during testing
-    env.backpack_sample_size = 5 + 1 # Because of the EOS
+    env.backpack_sample_size = 10 + 1 # Because of the EOS
 
     training_step = 0
     isDone = False
