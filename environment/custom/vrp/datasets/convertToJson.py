@@ -36,7 +36,7 @@ def parse_solution(dir_path, sol_name):
             for node_id in line[2:]:
                 route.append(int(node_id)) 
             route_list.append(route)
-        if line[0] == "cost":
+        if line[0].lower() == "cost":
             cost = int(line[-1])
 
     solution = {
@@ -60,7 +60,8 @@ def parse_problem(dir_path, prob_name):
     edge_weight_type = ''
     nodes = []
     vehicle_capacity = -1 # Will be filled during parsing
-    
+    total_demand = 0
+
     for line in file:
         line = line.split()
         if line[-1] == 'EOF':
@@ -111,7 +112,9 @@ def parse_problem(dir_path, prob_name):
         if DEMAND_SEC:
             id = int(line[0])
             node = nodes[id - 1] # In the datasets the indexes start at 1 in
-            node['demand'] = int(line[1])
+            demand = int(line[1])
+            total_demand += demand
+            node['demand'] = demand
         
         if DEPOT_SEC:
             if (line[0] != -1): # -1 is the EOL of depot section
@@ -127,6 +130,7 @@ def parse_problem(dir_path, prob_name):
         "dimension": dimension,
         "edge_weight_type": edge_weight_type,
         "capacity": vehicle_capacity,
+        "total_demand": total_demand,
         "nodes": nodes,
     }
 

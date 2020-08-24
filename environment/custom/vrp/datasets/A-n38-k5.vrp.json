@@ -6,6 +6,7 @@
         "dimension": 38,
         "edge_weight_type": "EUC_2D",
         "capacity": 100,
+        "total_demand": 481,
         "nodes": [
             {
                 "id": 1,
