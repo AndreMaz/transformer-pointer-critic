@@ -1,0 +1,523 @@
+{
+    "problem": {
+        "name": "A-n61-k9",
+        "comment": "(Augerat et al, Min no of trucks: 9, Best value: 1035)",
+        "type": "CVRP",
+        "dimension": 61,
+        "edge_weight_type": "EUC_2D",
+        "capacity": 100,
+        "nodes": [
+            {
+                "id": 1,
+                "x": 61,
+                "y": 37,
+                "demand": 0,
+                "type": "depot"
+            },
+            {
+                "id": 2,
+                "x": 93,
+                "y": 57,
+                "demand": 23,
+                "type": "node"
+            },
+            {
+                "id": 3,
+                "x": 15,
+                "y": 67,
+                "demand": 17,
+                "type": "node"
+            },
+            {
+                "id": 4,
+                "x": 23,
+                "y": 43,
+                "demand": 12,
+                "type": "node"
+            },
+            {
+                "id": 5,
+                "x": 53,
+                "y": 5,
+                "demand": 6,
+                "type": "node"
+            },
+            {
+                "id": 6,
+                "x": 13,
+                "y": 75,
+                "demand": 22,
+                "type": "node"
+            },
+            {
+                "id": 7,
+                "x": 29,
+                "y": 73,
+                "demand": 3,
+                "type": "node"
+            },
+            {
+                "id": 8,
+                "x": 47,
+                "y": 37,
+                "demand": 24,
+                "type": "node"
+            },
+            {
+                "id": 9,
+                "x": 23,
+                "y": 71,
+                "demand": 24,
+                "type": "node"
+            },
+            {
+                "id": 10,
+                "x": 67,
+                "y": 45,
+                "demand": 11,
+                "type": "node"
+            },
+            {
+                "id": 11,
+                "x": 21,
+                "y": 49,
+                "demand": 7,
+                "type": "node"
+            },
+            {
+                "id": 12,
+                "x": 93,
+                "y": 43,
+                "demand": 12,
+                "type": "node"
+            },
+            {
+                "id": 13,
+                "x": 67,
+                "y": 13,
+                "demand": 8,
+                "type": "node"
+            },
+            {
+                "id": 14,
+                "x": 69,
+                "y": 25,
+                "demand": 14,
+                "type": "node"
+            },
+            {
+                "id": 15,
+                "x": 53,
+                "y": 35,
+                "demand": 20,
+                "type": "node"
+            },
+            {
+                "id": 16,
+                "x": 25,
+                "y": 39,
+                "demand": 16,
+                "type": "node"
+            },
+            {
+                "id": 17,
+                "x": 85,
+                "y": 69,
+                "demand": 16,
+                "type": "node"
+            },
+            {
+                "id": 18,
+                "x": 81,
+                "y": 27,
+                "demand": 4,
+                "type": "node"
+            },
+            {
+                "id": 19,
+                "x": 77,
+                "y": 79,
+                "demand": 9,
+                "type": "node"
+            },
+            {
+                "id": 20,
+                "x": 45,
+                "y": 43,
+                "demand": 18,
+                "type": "node"
+            },
+            {
+                "id": 21,
+                "x": 31,
+                "y": 75,
+                "demand": 14,
+                "type": "node"
+            },
+            {
+                "id": 22,
+                "x": 49,
+                "y": 99,
+                "demand": 10,
+                "type": "node"
+            },
+            {
+                "id": 23,
+                "x": 63,
+                "y": 9,
+                "demand": 19,
+                "type": "node"
+            },
+            {
+                "id": 24,
+                "x": 47,
+                "y": 37,
+                "demand": 22,
+                "type": "node"
+            },
+            {
+                "id": 25,
+                "x": 33,
+                "y": 47,
+                "demand": 19,
+                "type": "node"
+            },
+            {
+                "id": 26,
+                "x": 39,
+                "y": 69,
+                "demand": 9,
+                "type": "node"
+            },
+            {
+                "id": 27,
+                "x": 49,
+                "y": 3,
+                "demand": 18,
+                "type": "node"
+            },
+            {
+                "id": 28,
+                "x": 49,
+                "y": 87,
+                "demand": 2,
+                "type": "node"
+            },
+            {
+                "id": 29,
+                "x": 87,
+                "y": 39,
+                "demand": 18,
+                "type": "node"
+            },
+            {
+                "id": 30,
+                "x": 37,
+                "y": 91,
+                "demand": 11,
+                "type": "node"
+            },
+            {
+                "id": 31,
+                "x": 19,
+                "y": 33,
+                "demand": 19,
+                "type": "node"
+            },
+            {
+                "id": 32,
+                "x": 97,
+                "y": 35,
+                "demand": 18,
+                "type": "node"
+            },
+            {
+                "id": 33,
+                "x": 31,
+                "y": 5,
+                "demand": 15,
+                "type": "node"
+            },
+            {
+                "id": 34,
+                "x": 35,
+                "y": 25,
+                "demand": 4,
+                "type": "node"
+            },
+            {
+                "id": 35,
+                "x": 79,
+                "y": 61,
+                "demand": 12,
+                "type": "node"
+            },
+            {
+                "id": 36,
+                "x": 73,
+                "y": 73,
+                "demand": 8,
+                "type": "node"
+            },
+            {
+                "id": 37,
+                "x": 35,
+                "y": 95,
+                "demand": 18,
+                "type": "node"
+            },
+            {
+                "id": 38,
+                "x": 5,
+                "y": 43,
+                "demand": 12,
+                "type": "node"
+            },
+            {
+                "id": 39,
+                "x": 19,
+                "y": 45,
+                "demand": 72,
+                "type": "node"
+            },
+            {
+                "id": 40,
+                "x": 71,
+                "y": 39,
+                "demand": 2,
+                "type": "node"
+            },
+            {
+                "id": 41,
+                "x": 35,
+                "y": 63,
+                "demand": 5,
+                "type": "node"
+            },
+            {
+                "id": 42,
+                "x": 27,
+                "y": 73,
+                "demand": 14,
+                "type": "node"
+            },
+            {
+                "id": 43,
+                "x": 31,
+                "y": 21,
+                "demand": 11,
+                "type": "node"
+            },
+            {
+                "id": 44,
+                "x": 47,
+                "y": 9,
+                "demand": 19,
+                "type": "node"
+            },
+            {
+                "id": 45,
+                "x": 87,
+                "y": 45,
+                "demand": 16,
+                "type": "node"
+            },
+            {
+                "id": 46,
+                "x": 1,
+                "y": 49,
+                "demand": 19,
+                "type": "node"
+            },
+            {
+                "id": 47,
+                "x": 1,
+                "y": 77,
+                "demand": 3,
+                "type": "node"
+            },
+            {
+                "id": 48,
+                "x": 63,
+                "y": 73,
+                "demand": 12,
+                "type": "node"
+            },
+            {
+                "id": 49,
+                "x": 79,
+                "y": 71,
+                "demand": 10,
+                "type": "node"
+            },
+            {
+                "id": 50,
+                "x": 21,
+                "y": 55,
+                "demand": 20,
+                "type": "node"
+            },
+            {
+                "id": 51,
+                "x": 65,
+                "y": 23,
+                "demand": 7,
+                "type": "node"
+            },
+            {
+                "id": 52,
+                "x": 65,
+                "y": 47,
+                "demand": 13,
+                "type": "node"
+            },
+            {
+                "id": 53,
+                "x": 97,
+                "y": 23,
+                "demand": 16,
+                "type": "node"
+            },
+            {
+                "id": 54,
+                "x": 23,
+                "y": 71,
+                "demand": 23,
+                "type": "node"
+            },
+            {
+                "id": 55,
+                "x": 5,
+                "y": 81,
+                "demand": 22,
+                "type": "node"
+            },
+            {
+                "id": 56,
+                "x": 53,
+                "y": 27,
+                "demand": 18,
+                "type": "node"
+            },
+            {
+                "id": 57,
+                "x": 57,
+                "y": 85,
+                "demand": 6,
+                "type": "node"
+            },
+            {
+                "id": 58,
+                "x": 89,
+                "y": 23,
+                "demand": 12,
+                "type": "node"
+            },
+            {
+                "id": 59,
+                "x": 51,
+                "y": 65,
+                "demand": 27,
+                "type": "node"
+            },
+            {
+                "id": 60,
+                "x": 13,
+                "y": 49,
+                "demand": 9,
+                "type": "depot"
+            },
+            {
+                "id": 61,
+                "x": 91,
+                "y": 41,
+                "demand": 15,
+                "type": "node"
+            }
+        ]
+    },
+    "solution": {
+        "cost": -1,
+        "num_routes": 9,
+        "routes": [
+            [
+                14,
+                7,
+                23,
+                55,
+                50
+            ],
+            [
+                12,
+                22,
+                4,
+                26,
+                43,
+                32,
+                42,
+                33
+            ],
+            [
+                10,
+                2,
+                46,
+                54,
+                5,
+                53,
+                40
+            ],
+            [
+                19,
+                8,
+                41,
+                6,
+                20,
+                58
+            ],
+            [
+                51,
+                35,
+                18,
+                47,
+                56,
+                27,
+                21,
+                36,
+                29,
+                25
+            ],
+            [
+                44,
+                11,
+                1,
+                16,
+                48,
+                34,
+                9
+            ],
+            [
+                3,
+                38,
+                15
+            ],
+            [
+                13,
+                17,
+                57,
+                52,
+                31,
+                60,
+                28,
+                39
+            ],
+            [
+                24,
+                49,
+                59,
+                45,
+                37,
+                30
+            ]
+        ]
+    }
+}
