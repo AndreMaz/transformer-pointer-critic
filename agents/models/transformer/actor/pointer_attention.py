@@ -42,11 +42,11 @@ class PointerAttention(Layer):
     # Apply the mask
     pointer_logits -= mask * self.BIG_NUMBER
 
-        # Apply softmax
+    # Apply softmax
     pointer_probs = tf.nn.softmax(pointer_logits, axis=-1)
 
      # Grab the indice of the values pointed by the pointer
-    pointer_index = pointer_probs.numpy().argmax(-1)[-1]
+    pointer_index = pointer_probs.numpy().argmax(-1)
 
     # Grab decoded element
     dec_output = enc_input.numpy()[batch_indices, pointer_index]

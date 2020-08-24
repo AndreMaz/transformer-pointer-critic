@@ -27,7 +27,7 @@ class LastDecoderLayer(tf.keras.layers.Layer):
            enc_input,
            enc_output,
            training,
-           mask,
+           attention_mask,
            look_ahead_mask = None,
            padding_mask = None
            ):
@@ -42,7 +42,7 @@ class LastDecoderLayer(tf.keras.layers.Layer):
         dec_output,
         enc_input,
         enc_output,
-        mask
+        attention_mask
     )
 
     return p_logits, p_probs, p_index, p_value

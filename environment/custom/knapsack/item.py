@@ -3,24 +3,16 @@ from random import randint
 class Item():
     def __init__(self,
                  id: int,
-                 normalization_factor: int,
-                 value: int = None,
-                 weight: int = None,
-                 min_value: int = None,
-                 max_value: int = None,
-                 min_weight: int = None,
-                 max_weight: int = None
+                 value,
+                 weight,
                  ):
 
         self.id = id
 
-        self.normalization_factor = normalization_factor
+        self.value = value
+        self.weight = weight
 
-        if value is not None: self.value = value
-        else: self.value = randint(min_value, max_value) / self.normalization_factor
-
-        if weight is not None: self.weight = weight
-        else: self.weight = randint(min_weight, max_weight) / self.normalization_factor
+        self.ratio = value / weight
 
         # By default item is not in a backpack, i.e., not taken
         self.taken = False

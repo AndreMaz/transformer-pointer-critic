@@ -1,30 +1,48 @@
 from agents.agent import Agent, TRANSFORMER
-from environment.custom.knapsack.env import Knapsack
+from environment.custom.knapsack.env_v2 import KnapsackV2
 import tensorflow as tf
+import numpy as np
+import time
 
-
-def trainer(env: Knapsack, agent: Agent, opts: dict):
+def trainer(env: KnapsackV2, agent: Agent, opts: dict):
+    print(f'Training with {env.item_sample_size} items and {env.backpack_sample_size} backpacks')
 
     training = True
+    # General training vars
     n_iterations: int = opts['n_iterations']
+    n_steps_to_update: int = opts['n_steps_to_update']
+    rewards_buffer = []
+    episode_count = 0
     
-    rewards_buffer = [0.0]
-    for iteration in range(n_iterations):
+    # Initial vars for the initial episode
+    isDone = False
+    episode_rewards = np.zeros((agent.batch_size, agent.num_items), dtype="float32")
+    current_state, backpack_net_mask, item_net_mask, mha_used_mask = env.reset()
+    dec_input = agent.generate_decoder_input(current_state)
+    training_step = 0
+    start = time.time()
+
+    while episode_count < n_iterations:
         
-        episode_reward = 0
-        isDone = False
-        current_state, backpack_net_mask, item_net_mask = env.reset()
+        # Reached the end of episode. Reset for the next episode
+        if isDone:
+            isDone = False
+            episode_rewards = np.zeros((agent.batch_size, agent.num_items), dtype="float32")
+            current_state, backpack_net_mask, item_net_mask, mha_used_mask = env.reset()
+            # SOS input for Item Ptr Net
+            dec_input = agent.generate_decoder_input(current_state)
+            training_step = 0
+            start = time.time()
 
-        # SOS input for Item Ptr Net
-        dec_input = agent.generate_decoder_input(current_state)
-
-        while not isDone:
+        while not isDone or training_step > n_steps_to_update:
             # Select an action
-            backpack_id, item_id, decoded_item = agent.act(
+            backpack_id, item_id, decoded_item, backpack_net_mask = agent.act(
                 current_state,
                 dec_input,
                 backpack_net_mask,
-                item_net_mask
+                item_net_mask,
+                mha_used_mask,
+                env.build_feasible_mask
             )
 
             # Play one step
@@ -33,8 +51,8 @@ def trainer(env: Knapsack, agent: Agent, opts: dict):
                 item_id
             )
             
-            # Episode increment rewards
-            episode_reward += reward
+            # Store episode rewards
+            episode_rewards[:, training_step] = reward[:, 0]
 
             # Store in memory
             agent.store(
@@ -42,9 +60,11 @@ def trainer(env: Knapsack, agent: Agent, opts: dict):
                 dec_input,
                 backpack_net_mask,
                 item_net_mask,
+                mha_used_mask,
                 item_id,
                 backpack_id,
-                reward
+                reward,
+                training_step
             )
 
             # Update for next iteration
@@ -52,21 +72,25 @@ def trainer(env: Knapsack, agent: Agent, opts: dict):
             current_state = next_state
             backpack_net_mask = info['backpack_net_mask']
             item_net_mask = info['item_net_mask']
+            mha_used_mask = info['mha_used_mask']
 
-            # Prep the vars for the next training round
+            training_step += 1
+
+            # Grab the stats from the current episode
             if isDone:
-                rewards_buffer.append(episode_reward)
-                current_state, backpack_net_mask, item_net_mask = env.reset()
-        
-        print(f"\rIteration: {iteration}. Reward {episode_reward}", end="\n")
+                episode_count += 1
 
+                average_per_problem = np.sum(episode_rewards, axis=-1)
+                episode_reward = np.average(average_per_problem, axis=-1)
+                rewards_buffer.append(episode_reward)
+                # current_state, backpack_net_mask, item_net_mask, mha_used_mask = env.reset()
+        
         if isDone == True:
             # We are done. So the state_value is 0
-            bootstrap_state_value = tf.convert_to_tensor([0], dtype="float32")
+            bootstrap_state_value = tf.zeros([agent.batch_size, 1],dtype="float32")
         else:
             # Not done. Ask model to generate the state value
-            backpack_id, item_id, bootstrap_state_value = agent.act(
-                current_state)
+            bootstrap_state_value = agent.critic(current_state, agent.training)
 
         discounted_rewards = agent.compute_discounted_rewards(bootstrap_state_value)
         
@@ -135,6 +159,9 @@ def trainer(env: Knapsack, agent: Agent, opts: dict):
                 agent.backpack_actor.trainable_weights
             )
         )
+
+        if isDone:
+            print(f"\rEpisode: {episode_count} took {time.time() - start:.2f} seconds. Average Reward: {episode_reward:.3f}", end="\n")
 
         # Iteration complete. Clear agent's memory
         agent.clear_memory()
