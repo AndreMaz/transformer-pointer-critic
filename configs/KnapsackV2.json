@@ -3,8 +3,14 @@
     
     "trainer_config": {
         "description": "Trainer function configs.",
-        "n_iterations": 1,
+        "n_iterations": 500,
         "n_steps_to_update": 20
+    },
+
+    "tester_config": {
+        "description": "Testing function configs.",
+        "backpack_sample_size": 5,
+        "item_sample_size": 20
     },
 
     "env_config": {
@@ -20,6 +26,7 @@
 
         "sampling_mode": false,
         "item_sample_size": 20,
+        "backpack_sample_size": 5,
 
         "normalization_factor": 1,
 
@@ -29,9 +36,7 @@
         "max_item_weight": 20,
 
         "min_backpack_capacity": 1,
-        "max_backpack_capacity": 20,
-
-        "compute_mha_mask": true
+        "max_backpack_capacity": 20
     },
 
     "dpc": {

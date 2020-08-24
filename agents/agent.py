@@ -19,26 +19,25 @@ class Agent():
 
         # Default training mode
         self.training = True
-        self.use_mha_mask = opts['use_mha_mask']
 
-        self.batch_size = opts['batch_size']
-        self.num_items = opts['num_items']
+        self.batch_size: int = opts['batch_size']
+        self.num_items: int = opts['num_items']
 
-        self.num_items = opts['num_items']
-        self.num_backpacks = opts['num_backpacks']
-        self.tensor_size = opts['tensor_size']
-        self.vocab_size = opts['vocab_size']
-        self.SOS_CODE = opts['actor']['SOS_CODE']
+        self.num_items: int = opts['num_items']
+        self.num_backpacks: int = opts['num_backpacks']
+        self.tensor_size: int = opts['tensor_size']
+        self.vocab_size: int = opts['vocab_size']
+        self.SOS_CODE: int = opts['actor']['SOS_CODE']
 
-        self.gamma = opts['gamma'] # Discount factor
-        self.entropy_coefficient = opts['entropy_coefficient']
-        self.stochastic_action_selection = opts['stochastic_action_selection']
+        self.gamma: float = opts['gamma'] # Discount factor
+        self.entropy_coefficient: float = opts['entropy_coefficient']
+        self.stochastic_action_selection: bool = opts['stochastic_action_selection']
 
         ### Optimizers ###
-        self.critic_learning_rate = opts['critic']['learning_rate']
+        self.critic_learning_rate: float = opts['critic']['learning_rate']
         self.critic_opt = tf.keras.optimizers.Adam(learning_rate=self.critic_learning_rate)
         
-        self.actor_learning_rate = opts['actor']['learning_rate']
+        self.actor_learning_rate: float = opts['actor']['learning_rate']
         self.pointer_opt = tf.keras.optimizers.Adam(learning_rate=self.actor_learning_rate)
 
         ### Load the models
@@ -126,11 +125,8 @@ class Agent():
         batch, dec_steps, elem, features = states.shape
         states = tf.reshape(states, [batch*dec_steps, elem, features])
 
-        if self.use_mha_mask:
-            mha_mask = tf.convert_to_tensor(self.mha_masks, dtype='float32')
-            mha_mask = tf.reshape(mha_mask, [batch*dec_steps, 1, 1, elem])
-        else:
-            mha_mask = None
+        mha_mask = tf.convert_to_tensor(self.mha_masks, dtype='float32')
+        mha_mask = tf.reshape(mha_mask, [batch*dec_steps, 1, 1, elem])        
 
         # Get state_values
         state_values = self.critic(
@@ -170,12 +166,9 @@ class Agent():
         attention_mask = tf.convert_to_tensor(masks, dtype='float32')
         attention_mask = tf.reshape(attention_mask, [batch*dec_steps, elem])
 
-        if self.use_mha_mask:
-            mha_mask = tf.convert_to_tensor(self.mha_masks, dtype='float32')
-            mha_mask = tf.reshape(mha_mask, [batch*dec_steps, 1, 1, elem])
-        else:
-            mha_mask = None
-
+        mha_mask = tf.convert_to_tensor(self.mha_masks, dtype='float32')
+        mha_mask = tf.reshape(mha_mask, [batch*dec_steps, 1, 1, elem])
+        
         dec_input = tf.convert_to_tensor(decoder_inputs, dtype='float32')
         dec_input = tf.reshape(dec_input, [batch*dec_steps, 1, features])
 

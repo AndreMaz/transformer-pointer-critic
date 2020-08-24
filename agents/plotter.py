@@ -1,16 +1,17 @@
 # For plotting
+from environment.custom.knapsack.heuristic import solver
 import matplotlib.pyplot as plt
 import os
 
 # Import Google OR Tools Solver
-from agents.optimum_solver import solver
+# from agents.optimum_solver import solver
 
 
-def plotter(data, env, agent, agent_config, print_details=False):
+def plotter(data, env, agent, agent_config, opt_solver, print_details=False):
     
     # Compute optimum solution
     input_solver = env.convert_to_ortools_input()
-    optimum_value = solver(input_solver, print_details)
+    optimum_value = opt_solver(input_solver, print_details)
     opt_values = [optimum_value for i in range(len(data))]
 
     agent_name = agent.name
