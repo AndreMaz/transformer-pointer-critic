@@ -258,7 +258,7 @@
                 "x": 18,
                 "y": 89,
                 "demand": 20,
-                "type": "depot"
+                "type": "node"
             },
             {
                 "id": 37,

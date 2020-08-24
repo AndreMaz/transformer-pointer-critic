@@ -117,7 +117,7 @@ def parse_problem(dir_path, prob_name):
             node['demand'] = demand
         
         if DEPOT_SEC:
-            if (line[0] != -1): # -1 is the EOL of depot section
+            if (line[0] != '-1'): # -1 is the EOL of depot section
                 id = int(line[0])
                 node = nodes[id - 1] # In the datasets the indexes start at 1 in
                 node['type'] = DEPOT
@@ -155,6 +155,22 @@ def find_problems_with_opt(dir_path):
                 pass
     
     return prob_sol_pair
+
+def load_problem(dir_path, prob_name = None):
+    problem_instances = []
+    file_list = listdir(dir_path)
+    for file_name in file_list:
+        file_type = file_name.split(".")
+        if file_type[-1] == 'json':
+            with open(f'{dir_path}/{file_name}') as json_file:
+                problem = json.load(json_file)
+
+                if problem['problem']['name'] == prob_name:
+                    return problem['problem'], problem['solution']
+
+                problem_instances.append(problem)
+
+    return problem_instances
 
 if __name__ == "__main__":
     # converter(dir_path='.')
