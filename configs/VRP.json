@@ -17,26 +17,15 @@
         "description": "Environment configs.",
 
         "load_from_file": false,
-        "location": "./environment/custom/knapsack/problem.json",
+        "dir_path": "./environment/custom/vrp/datasets",
+        "problem_name": "A-n65-k9",
+
+        "num_features": 3,
         
         "batch_size": 32,
-        "num_items": 100,
-        "num_backpacks": 10,
-        "EOS_CODE": 0,
-
-        "sampling_mode": false,
-        "item_sample_size": 20,
-        "backpack_sample_size": 5,
-
-        "normalization_factor": 1,
-
-        "min_item_value": 1,
-        "max_item_value": 100,
-        "min_item_weight": 1,
-        "max_item_weight": 20,
-
-        "min_backpack_capacity": 1,
-        "max_backpack_capacity": 20
+        
+        "node_sample_size": 20,
+        "vehicle_sample_size": 5
     },
 
     "dpc": {
