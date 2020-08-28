@@ -18,14 +18,14 @@
 
         "load_from_file": false,
         "dir_path": "./environment/custom/vrp/datasets",
-        "problem_name": "A-n65-k9",
+        "problem_name": "A-n32-k5",
 
         "num_features": 3,
         
         "batch_size": 32,
         
-        "node_sample_size": 65,
-        "vehicle_sample_size": 9
+        "node_sample_size": 32,
+        "vehicle_sample_size": 5
     },
 
     "tpc": {

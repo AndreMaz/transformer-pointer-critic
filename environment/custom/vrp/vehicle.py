@@ -52,4 +52,4 @@ class Vehicle():
         self.current_y = self.current_y
     
     def print(self):
-        print(f'Vehicle ID: {self.id} | Maximum Capacity: {self.capacity} | Current Load: {self.current_load} | Route Distance: {self.route_distance}')
+        print(f'Vehicle ID: {self.id} | Maximum Capacity: {self.capacity} | Current Load: {self.current_load} | Route Distance: {self.route_distance} | Current Location X {self.current_x} | Y {self.current_y}')

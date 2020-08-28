@@ -88,7 +88,7 @@ class CVRP(BaseEnvironment):
 
             distance = round(sqrt(xd*xd + yd*yd))
 
-            history_entry: History = self.history[batch_id][self.node_sample_size - vehicle_id]
+            history_entry: History = self.history[batch_id][str(vehicle_id)]
             history_entry.add_node(node_id, node_x, node_y, node_demand)
 
             assert vehicle_current_capacity - node_demand >= 0, \
@@ -141,7 +141,7 @@ class CVRP(BaseEnvironment):
         batch = np.zeros((self.batch_size, elem_size, self.num_features), dtype='float32')
 
         for batch_id in range(self.batch_size):
-            problem = []
+            problem = {}
 
             batch[batch_id, 0] = self.EOS_DEPOT
 
@@ -170,13 +170,13 @@ class CVRP(BaseEnvironment):
 
                 vehicle = self.total_vehicles[id]
 
-                problem.append(History(
+                problem[str(i)]= History(
                     i,
                     vehicle[0],
                     vehicle[1],
                     vehicle[2]
-                ))
-
+                )
+                
                 batch[batch_id, i, 0] = vehicle[0] # Set the X coord
                 batch[batch_id, i, 1] = vehicle[1] # Set the Y coord
                 batch[batch_id, i, 2] = vehicle[2] # Remaining capacity
@@ -187,7 +187,8 @@ class CVRP(BaseEnvironment):
 
     def generate_masks(self):
         elem_size = self.node_sample_size + self.vehicle_sample_size
-
+        
+        # When selecting an node you can't point to the vehicle
         # Represents positions marked as "0" where item Ptr Net can point
         nodes_net_mask = np.zeros((self.batch_size, elem_size), dtype='float32')
         
@@ -196,7 +197,7 @@ class CVRP(BaseEnvironment):
             (self.batch_size, elem_size), dtype='float32')
 
         for batch_id in range(self.batch_size):
-            for i in range(self.vehicle_sample_size):
+            for i in range(self.node_sample_size):
                 nodes_net_mask[batch_id, i] = 1
 
         vehicles_net_mask = vehicles_net_mask - nodes_net_mask
@@ -264,7 +265,7 @@ class CVRP(BaseEnvironment):
 
         totals = backpack_current_load - item_weight
         # EOS is always available for poiting
-        totals[:,0] = 0
+        # totals[:,0] = 0
         # Can't point to items positions
         totals *= item_net_mask
 
@@ -275,6 +276,10 @@ class CVRP(BaseEnvironment):
         # Merge the masks
         mask = tf.maximum(binary_masks, backpack_net_mask)
 
+        # for i in range(batch):
+        #    if np.all(mask[i] == 1):
+        #        print(mask[i])
+        
         return tf.cast(mask, dtype="float32")
 
 if __name__ == "__main__":
