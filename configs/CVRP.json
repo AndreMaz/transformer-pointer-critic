@@ -24,43 +24,8 @@
         
         "batch_size": 32,
         
-        "node_sample_size": 20,
-        "vehicle_sample_size": 5
-    },
-
-    "dpc": {
-        "description": "Double Pointer Critic Agent configs.",
-        "agent_config": {
-
-            "gamma": 0.999,
-            "entropy_coefficient": 0.00001,
-            "stochastic_action_selection": true,
-
-            "actor": {
-                "SOS_CODE": -1,
-                "learning_rate": 0.0001,
-
-                "encoder_embedding_size": 128,
-                "encoder_embedding_time_distributed": true,
-                "encoder_lstm_units": 128,
-
-                "attention_dense_units": 128
-            },
-
-            "critic": {
-                "learning_rate": 0.0001,
-
-                "encoder_embedding_size": 128,
-                "encoder_embedding_time_distributed": true,
-                "encoder_lstm_units": 128,
-
-                "processing_lstm_units": 128,
-                "processing_dense_units": 128,
-
-                "decoder_units": 128,
-                "decoder_activation": "relu"
-            }
-        }
+        "node_sample_size": 65,
+        "vehicle_sample_size": 9
     },
 
     "tpc": {
@@ -94,7 +59,7 @@
                 "inner_layer_dim": 128,
                 "encoder_embedding_time_distributed": true,
                 "last_layer_units": 128,
-                "last_layer_activation": "relu",
+                "last_layer_activation": "linear",
                 "dropout_rate": 0.01,
 
                 "learning_rate": 0.0005

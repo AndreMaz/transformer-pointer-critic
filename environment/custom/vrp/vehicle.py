@@ -27,14 +27,18 @@ class Vehicle():
 
         assert self.capacity >= self.current_load + demand, \
             f'Vehicle {self.id} is overloaded. Maximum capacity: {self.capacity} || Current Load {self.current_load} ||  Item Weight: {demand}'
-        
+                
         self.current_load += demand
 
-        # Compute route distance so far
+        # Compute route distance between current vehicle location and the node
         xd = self.current_x - x
         yd = self.current_y - y
 
         distance = round(sqrt(xd*xd + yd*yd))
+        
+        # Update the coords of the vehicle
+        self.current_x = x
+        self.current_y = y
 
         self.route_distance += distance
 

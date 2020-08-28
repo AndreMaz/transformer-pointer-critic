@@ -26,7 +26,7 @@ if gpus:
     # Virtual devices must be set before GPUs have been initialized
     print(e)
 
-def runner(env_type="custom", env_name='KnapsackV2', agent_name="tpc"):
+def runner(env_type="custom", env_name='CVRP', agent_name="tpc"):
     # Read the configs
     agent_config, trainer_config, env_config = get_configs(env_name, agent_name)
 
