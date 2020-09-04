@@ -101,12 +101,12 @@ class CVRP(BaseEnvironment):
 
             # Update the masks
             # Node visited taken mask it
-            if node_demand == 0:
+            if node_demand != 0:
                 self.item_net_mask[batch_id, node_id] = 1
                 self.mha_used_mask[batch_id, :, :, node_id] = 1
 
             # Mask the vehicle if it's full
-            if (vehicle_current_capacity - node_demand == 0):
+            if vehicle_current_capacity - node_demand == 0:
                 self.backpack_net_mask[batch_id, vehicle_id] = 1
                 self.mha_used_mask[batch_id, :, :, vehicle_id] = 1
 
@@ -115,7 +115,7 @@ class CVRP(BaseEnvironment):
         self.visited_nodes += 1
         
         # Visited all nodes
-        # Time return all vehicles to the depot
+        # Time to return all vehicles to the depot
         if self.node_sample_size - 1 == self.visited_nodes:
             self.item_net_mask[:, 0] = 0
 

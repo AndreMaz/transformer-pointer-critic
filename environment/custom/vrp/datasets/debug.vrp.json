@@ -1,0 +1,56 @@
+{
+    "problem": {
+        "name": "debug",
+        "comment": "(debug, Min no of trucks: 3, Optimal value: 68)",
+        "type": "CVRP",
+        "dimension": 4,
+        "edge_weight_type": "EUC_2D",
+        "capacity": 30,
+        "total_demand": 65,
+        "nodes": [
+            {
+                "id": 1,
+                "x": 0,
+                "y": 0,
+                "demand": 0,
+                "type": "depot"
+            },
+            {
+                "id": 2,
+                "x": 0,
+                "y": 10,
+                "demand": 15,
+                "type": "node"
+            },
+            {
+                "id": 3,
+                "x": 10,
+                "y": 10,
+                "demand": 20,
+                "type": "node"
+            },
+            {
+                "id": 4,
+                "x": 10,
+                "y": 0,
+                "demand": 30,
+                "type": "node"
+            }
+        ]
+    },
+    "solution": {
+        "cost": 68,
+        "num_routes": 3,
+        "routes": [
+            [
+                2
+            ],
+            [
+                3
+            ],
+            [
+                4
+            ]
+        ]
+    }
+}

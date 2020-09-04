@@ -3,7 +3,7 @@
     
     "trainer_config": {
         "description": "Trainer function configs.",
-        "n_iterations": 500,
+        "n_iterations": 10,
         "n_steps_to_update": 20
     },
 
@@ -18,14 +18,14 @@
 
         "load_from_file": false,
         "dir_path": "./environment/custom/vrp/datasets",
-        "problem_name": "A-n32-k5",
+        "problem_name": "debug",
 
         "num_features": 3,
         
-        "batch_size": 32,
+        "batch_size": 2,
         
-        "node_sample_size": 32,
-        "vehicle_sample_size": 5
+        "node_sample_size": 4,
+        "vehicle_sample_size": 3
     },
 
     "tpc": {
