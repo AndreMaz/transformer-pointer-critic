@@ -282,6 +282,13 @@ class CVRP(BaseEnvironment):
         
         return tf.cast(mask, dtype="float32")
 
+    def print_history(self):
+        for batch_id in range(self.batch_size):
+            print('_________________________________')
+            for bp in self.history[batch_id].values():
+                bp.print()
+            print('_________________________________')
+
 if __name__ == "__main__":
     env_name = 'CVRP'
 

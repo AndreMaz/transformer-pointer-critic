@@ -43,14 +43,16 @@ def runner(env_type="custom", env_name='CVRP', agent_name="tpc"):
     print('Training...')
     training_history = trainer(env, agent, trainer_config)
     
-    # Plot the learning curve
-    print('\nPlotting Results...')
-    plotter(training_history, env, agent, agent_config, opt_solver, False)
+    env.print_history()
 
-    # Test the agent
-    print("\nTesting...")
-    tester(env, agent, opt_solver, heuristic_solver)
-    print('End... Goodbye!')
+    # # Plot the learning curve
+    # print('\nPlotting Results...')
+    # plotter(training_history, env, agent, agent_config, opt_solver, False)
+
+    # # Test the agent
+    # print("\nTesting...")
+    # tester(env, agent, opt_solver, heuristic_solver)
+    # print('End... Goodbye!')
 
 def tuner(env_type="custom", env_name='KnapsackV2', agent_name="tpc"):
     # Read the configs

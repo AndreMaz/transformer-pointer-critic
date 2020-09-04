@@ -17,6 +17,9 @@ class Vehicle():
         
         self.nodes = []
 
+        # Add the depot. All vehicles start from there
+        self.add_node(0, depot_x, depot_y, 0)
+
     def add_node(self, node_id, x, y, demand):
         node = {
             "id": node_id,
@@ -53,3 +56,7 @@ class Vehicle():
     
     def print(self):
         print(f'Vehicle ID: {self.id} | Maximum Capacity: {self.capacity} | Current Load: {self.current_load} | Route Distance: {self.route_distance} | Current Location X {self.current_x} | Y {self.current_y}')
+
+        print(f'Route')
+        for node in self.nodes:
+            print(f"Node X {node['x']} \t|| Node Y {node['y']} \t|| Demand {node['demand']}")
