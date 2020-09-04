@@ -105,21 +105,30 @@ class CVRP(BaseEnvironment):
                 self.item_net_mask[batch_id, node_id] = 1
                 self.mha_used_mask[batch_id, :, :, node_id] = 1
 
-            # Mask the vehicle if it's full
-            if vehicle_current_capacity - node_demand == 0:
+            # Vehicle has returned back to depot.
+            # Mask it
+            if node_demand == 0:
                 self.backpack_net_mask[batch_id, vehicle_id] = 1
                 self.mha_used_mask[batch_id, :, :, vehicle_id] = 1
+
+            # Mask the vehicle if it's full
+            # if vehicle_current_capacity - node_demand == 0:
+            #    self.backpack_net_mask[batch_id, vehicle_id] = 1
+            #    self.mha_used_mask[batch_id, :, :, vehicle_id] = 1
 
             rewards[batch_id][0] = -1 * distance
         
         self.visited_nodes += 1
         
+        # if (self.visited_nodes == self.node_sample_size - 1):
+        #    print('All Visited')
+
         # Visited all nodes
         # Time to return all vehicles to the depot
         if self.node_sample_size - 1 == self.visited_nodes:
             self.item_net_mask[:, 0] = 0
 
-        if self.visited_nodes == self.node_sample_size + self.vehicle_sample_size:
+        if self.visited_nodes == self.node_sample_size - 1 + self.vehicle_sample_size:
         # if np.all(self.item_net_mask == 1):
             isDone = True
 
@@ -212,9 +221,14 @@ class CVRP(BaseEnvironment):
         return nodes_net_mask, vehicles_net_mask, mha_used_mask
 
     def add_stats_to_agent_config(self, agent_config: dict):
-        agent_config['num_items'] = self.node_sample_size + self.vehicle_sample_size
+        # Refactor this!
+        # This params indicate the number of steps until the end of the episode
+        # - 1 because because we start at the depot
+        agent_config['num_items'] = self.node_sample_size - 1 + self.vehicle_sample_size
+        
+        agent_config['tensor_size'] = self.node_sample_size  + self.vehicle_sample_size
+
         agent_config['num_backpacks'] = self.vehicle_sample_size
-        agent_config['tensor_size'] = self.node_sample_size + self.vehicle_sample_size
 
         agent_config['batch_size'] = self.batch_size
 

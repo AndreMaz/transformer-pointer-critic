@@ -3,7 +3,7 @@
     
     "trainer_config": {
         "description": "Trainer function configs.",
-        "n_iterations": 1,
+        "n_iterations": 10,
         "n_steps_to_update": 20
     },
 
@@ -22,7 +22,7 @@
 
         "num_features": 3,
         
-        "batch_size": 2,
+        "batch_size": 1,
         
         "node_sample_size": 4,
         "vehicle_sample_size": 3

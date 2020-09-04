@@ -43,7 +43,7 @@ def runner(env_type="custom", env_name='CVRP', agent_name="tpc"):
     print('Training...')
     training_history = trainer(env, agent, trainer_config)
     
-    env.print_history()
+    # env.print_history()
 
     # # Plot the learning curve
     # print('\nPlotting Results...')
