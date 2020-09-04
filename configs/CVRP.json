@@ -3,8 +3,8 @@
     
     "trainer_config": {
         "description": "Trainer function configs.",
-        "n_iterations": 10,
-        "n_steps_to_update": 20
+        "n_iterations": 5000,
+        "n_steps_to_update": 32
     },
 
     "tester_config": {
@@ -18,14 +18,14 @@
 
         "load_from_file": false,
         "dir_path": "./environment/custom/vrp/datasets",
-        "problem_name": "debug",
+        "problem_name": "A-n32-k5",
 
         "num_features": 3,
         
-        "batch_size": 1,
+        "batch_size": 10,
         
-        "node_sample_size": 4,
-        "vehicle_sample_size": 3
+        "node_sample_size": 32,
+        "vehicle_sample_size": 5
     },
 
     "tpc": {
@@ -62,7 +62,7 @@
                 "last_layer_activation": "linear",
                 "dropout_rate": 0.01,
 
-                "learning_rate": 0.0005
+                "learning_rate": 0.0001
             }
         }
     }

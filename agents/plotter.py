@@ -10,9 +10,9 @@ import os
 def plotter(data, env, agent, agent_config, opt_solver, print_details=False):
     
     # Compute optimum solution
-    input_solver = env.convert_to_ortools_input()
-    optimum_value = opt_solver(input_solver, print_details)
-    opt_values = [optimum_value for i in range(len(data))]
+    # input_solver = env.convert_to_ortools_input()
+    # optimum_value = opt_solver(input_solver, print_details)
+    opt_values = [0 for i in range(len(data))]
 
     agent_name = agent.name
     env_name = env.name
