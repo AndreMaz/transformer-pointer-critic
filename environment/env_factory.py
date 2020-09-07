@@ -5,12 +5,12 @@ from environment.custom.knapsack.optimum_solver import solver as KnapsackSolver
 from environment.custom.knapsack.heuristic import solver as KnapsackHeuristic
 
 from environment.custom.vrp.env import CVRP
-from environment.custom.vrp.optimum_solver import solver as CVRPSolver
-from environment.custom.vrp.heuristic import solver as CVRPHeuristic
+# from environment.custom.vrp.optimum_solver import solver as CVRPSolver
+# from environment.custom.vrp.heuristic import solver as CVRPHeuristic
 
 custom_envs = {
     "KnapsackV2": (KnapsackV2, KnapsackSolver, KnapsackHeuristic),
-    "CVRP": (CVRP, CVRPSolver, CVRPHeuristic),
+    "CVRP": (CVRP, None, None),
 }
 
 def env_factory(type, name, opts):

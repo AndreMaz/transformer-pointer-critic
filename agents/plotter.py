@@ -2,7 +2,7 @@
 from environment.custom.knapsack.heuristic import solver
 import matplotlib.pyplot as plt
 import os
-
+import numpy as np
 # Import Google OR Tools Solver
 # from agents.optimum_solver import solver
 
@@ -10,9 +10,18 @@ import os
 def plotter(data, env, agent, agent_config, opt_solver, print_details=False):
     
     # Compute optimum solution
-    # input_solver = env.convert_to_ortools_input()
-    # optimum_value = opt_solver(input_solver, print_details)
-    opt_values = [0 for i in range(len(data))]
+    optimum_value = 0
+    if opt_solver is not None:
+        input_solver = env.convert_to_ortools_input()
+        optimum_value = opt_solver(input_solver, print_details)
+    else:
+        optimum_value = env.optimum_value
+    # Fill the array with the opt values
+    # This will create a flat line
+    opt_values = [optimum_value for i in range(len(data))]
+    
+    if env.name == 'CVRP':
+        data = -1 * np.array(data)
 
     agent_name = agent.name
     env_name = env.name

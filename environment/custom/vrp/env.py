@@ -26,6 +26,10 @@ class CVRP(BaseEnvironment):
         self.num_features = opts['num_features']
 
         self.parsed_prob, self.parsed_sol = load_problem(self.dir_path, self.prob_name)
+        
+        # Optimal distance/cost
+        self.optimum_value = self.parsed_sol['cost']
+        
         self.total_demand = self.parsed_prob['total_demand']
         self.vehicle_capacity = self.parsed_prob['capacity']
 
@@ -298,11 +302,16 @@ class CVRP(BaseEnvironment):
 
     def print_history(self):
         for batch_id in range(self.batch_size):
+            total_visited_nodes = 0
+            total_distance = 0
             print('_________________________________')
             for bp in self.history[batch_id].values():
                 bp.print()
+                total_visited_nodes += len(bp.nodes) - 2 # Because of Depot at beggining and the end
+                total_distance += bp.route_distance
+            print(f'\nTotal Distance: {total_distance} || Visited Nodes (excluding the depot): {total_visited_nodes}')
             print('_________________________________')
-
+        
 if __name__ == "__main__":
     env_name = 'CVRP'
 

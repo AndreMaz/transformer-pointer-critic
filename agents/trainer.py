@@ -81,6 +81,7 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict):
                 episode_count += 1
 
                 average_per_problem = np.sum(episode_rewards, axis=-1)
+                min_in_batch = np.min(average_per_problem, axis=-1)
                 max_in_batch = np.max(average_per_problem, axis=-1)
                 episode_reward = np.average(average_per_problem, axis=-1)
                 rewards_buffer.append(episode_reward)
@@ -163,7 +164,7 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict):
         )
 
         if isDone:
-            print(f"\rEpisode: {episode_count} took {time.time() - start:.2f} seconds. Max in Batch: {max_in_batch:.3f} Average Reward: {episode_reward:.3f}", end="\n")
+            print(f"\rEpisode: {episode_count} took {time.time() - start:.2f} seconds. Min in Batch: {min_in_batch:.3f} Max in Batch: {max_in_batch:.3f} Average Reward: {episode_reward:.3f}", end="\n")
 
         # Iteration complete. Clear agent's memory
         agent.clear_memory()
