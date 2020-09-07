@@ -305,10 +305,10 @@ class CVRP(BaseEnvironment):
             total_visited_nodes = 0
             total_distance = 0
             print('_________________________________')
-            for bp in self.history[batch_id].values():
-                bp.print()
-                total_visited_nodes += len(bp.nodes) - 2 # Because of Depot at beggining and the end
-                total_distance += bp.route_distance
+            for vehicle in self.history[batch_id].values():
+                vehicle.print()
+                total_visited_nodes += len(vehicle.nodes) - 2 # Because of Depot at beggining and the end
+                total_distance += vehicle.route_distance
             print(f'\nTotal Distance: {total_distance} || Visited Nodes (excluding the depot): {total_visited_nodes}')
             print('_________________________________')
         

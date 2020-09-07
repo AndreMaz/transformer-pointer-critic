@@ -239,9 +239,16 @@ class KnapsackV2(BaseEnvironment):
 
     def print_history(self):
         for batch_id in range(self.batch_size):
+            total_packed_items = 0
+            total_packed_value = 0
+            total_packed_weight = 0
             print('_________________________________')
             for bp in self.history[batch_id]:
                 bp.print()
+                total_packed_items += len(bp.items)
+                total_packed_value += bp.current_value
+                total_packed_weight += bp.current_load
+            print(f'\nTotal Packed Items:  {total_packed_items} || Total Packed Value {total_packed_value} || Total Packed Weight {total_packed_weight}')
             print('_________________________________')
     
     def add_stats_to_agent_config(self, agent_config: dict):
