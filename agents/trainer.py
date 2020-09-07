@@ -11,7 +11,9 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict):
     # General training vars
     n_iterations: int = opts['n_iterations']
     n_steps_to_update: int = opts['n_steps_to_update']
-    rewards_buffer = []
+    average_rewards_buffer = []
+    min_rewards_buffer = []
+    max_rewards_buffer = []
     episode_count = 0
     
     # Initial vars for the initial episode
@@ -84,7 +86,10 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict):
                 min_in_batch = np.min(average_per_problem, axis=-1)
                 max_in_batch = np.max(average_per_problem, axis=-1)
                 episode_reward = np.average(average_per_problem, axis=-1)
-                rewards_buffer.append(episode_reward)
+                
+                average_rewards_buffer.append(episode_reward)
+                min_rewards_buffer.append(min_in_batch)
+                max_rewards_buffer.append(max_in_batch)
                 break
                 # current_state, backpack_net_mask, item_net_mask, mha_used_mask = env.reset()
         
@@ -169,4 +174,4 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict):
         # Iteration complete. Clear agent's memory
         agent.clear_memory()
 
-    return rewards_buffer
+    return average_rewards_buffer, min_rewards_buffer, max_rewards_buffer
