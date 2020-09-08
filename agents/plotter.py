@@ -2,24 +2,40 @@
 from environment.custom.knapsack.heuristic import solver
 import matplotlib.pyplot as plt
 import os
-
+import numpy as np
 # Import Google OR Tools Solver
 # from agents.optimum_solver import solver
 
 
 def plotter(data, env, agent, agent_config, opt_solver, print_details=False):
     
+    # Destructure the tuple
+    average_rewards_buffer, min_rewards_buffer, max_rewards_buffer = data
+
     # Compute optimum solution
-    input_solver = env.convert_to_ortools_input()
-    optimum_value = opt_solver(input_solver, print_details)
-    opt_values = [optimum_value for i in range(len(data))]
+    optimum_value = 0
+    if opt_solver is not None:
+        input_solver = env.convert_to_ortools_input()
+        optimum_value = opt_solver(input_solver, print_details)
+    else:
+        optimum_value = env.optimum_value
+    # Fill the array with the opt values
+    # This will create a flat line
+    opt_values = [optimum_value for i in range(len(average_rewards_buffer))]
+    
+    if env.name == 'CVRP':
+        average_rewards_buffer = -1 * np.array(average_rewards_buffer)
+        min_rewards_buffer = -1 * np.array(min_rewards_buffer)
+        max_rewards_buffer = -1 * np.array(max_rewards_buffer)
 
     agent_name = agent.name
     env_name = env.name
 
-    x_values = [i for i in range(len(data))]
+    x_values = [i for i in range(len(average_rewards_buffer))]
     
-    plt.plot(x_values, data, label="Double Pointer Critic")
+    plt.plot(x_values, average_rewards_buffer, label="Average (in batch) Double Pointer Critic")
+    plt.plot(x_values, min_rewards_buffer, label="Minimum (in Batch) Double Pointer Critic")
+    plt.plot(x_values, max_rewards_buffer, label="Maximum (in batch) Double Pointer Critic")
     plt.plot(x_values, opt_values, label="Optimal")
 
     plt.ylabel('Collected Reward')

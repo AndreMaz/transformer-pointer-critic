@@ -280,6 +280,11 @@ class Agent():
         # Decode the backpack
         decoded_backpack = state[batch_indices, backpack_ids]
 
+        #for index, bp_id in enumerate(backpack_ids):
+        #    if (bp_id < 32):
+        #        print(bp_id)
+        #        print(backpacks_mask[index])
+
         return backpack_ids, \
                item_ids, \
                decoded_items, \

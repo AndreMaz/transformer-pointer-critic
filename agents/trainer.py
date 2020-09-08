@@ -5,13 +5,15 @@ import numpy as np
 import time
 
 def trainer(env: KnapsackV2, agent: Agent, opts: dict):
-    print(f'Training with {env.item_sample_size} items and {env.backpack_sample_size} backpacks')
+    # print(f'Training with {env.item_sample_size} items and {env.backpack_sample_size} backpacks')
 
     training = True
     # General training vars
     n_iterations: int = opts['n_iterations']
     n_steps_to_update: int = opts['n_steps_to_update']
-    rewards_buffer = []
+    average_rewards_buffer = []
+    min_rewards_buffer = []
+    max_rewards_buffer = []
     episode_count = 0
     
     # Initial vars for the initial episode
@@ -81,8 +83,14 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict):
                 episode_count += 1
 
                 average_per_problem = np.sum(episode_rewards, axis=-1)
+                min_in_batch = np.min(average_per_problem, axis=-1)
+                max_in_batch = np.max(average_per_problem, axis=-1)
                 episode_reward = np.average(average_per_problem, axis=-1)
-                rewards_buffer.append(episode_reward)
+                
+                average_rewards_buffer.append(episode_reward)
+                min_rewards_buffer.append(min_in_batch)
+                max_rewards_buffer.append(max_in_batch)
+                break
                 # current_state, backpack_net_mask, item_net_mask, mha_used_mask = env.reset()
         
         if isDone == True:
@@ -161,9 +169,9 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict):
         )
 
         if isDone:
-            print(f"\rEpisode: {episode_count} took {time.time() - start:.2f} seconds. Average Reward: {episode_reward:.3f}", end="\n")
+            print(f"\rEpisode: {episode_count} took {time.time() - start:.2f} seconds. Min in Batch: {min_in_batch:.3f} Max in Batch: {max_in_batch:.3f} Average Reward: {episode_reward:.3f}", end="\n")
 
         # Iteration complete. Clear agent's memory
         agent.clear_memory()
 
-    return rewards_buffer
+    return average_rewards_buffer, min_rewards_buffer, max_rewards_buffer
