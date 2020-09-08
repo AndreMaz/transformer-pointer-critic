@@ -2,6 +2,7 @@
 # from agents.transformer_pointer_critic.model.critic.model import CriticTransformer
 # from agents.transformer_pointer_critic.model.actor.model import ActorTransformer
 
+from turtle import back
 from agents.models.model_factory import model_factory
 
 import tensorflow_probability as tfp
@@ -280,15 +281,12 @@ class Agent():
         # Decode the backpack
         decoded_backpack = state[batch_indices, backpack_ids]
 
-        #for index, bp_id in enumerate(backpack_ids):
-        #    if (bp_id < 32):
-        #        print(bp_id)
-        #        print(backpacks_mask[index])
-
         return backpack_ids, \
                item_ids, \
                decoded_items, \
-               backpacks_mask
+               backpacks_mask, \
+               items_probs, \
+               backpacks_probs
 
     def set_training_mode(self, mode: bool):
         # Only used by transformer model

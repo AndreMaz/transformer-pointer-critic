@@ -1,9 +1,11 @@
 from environment.custom.knapsack.env_v2 import KnapsackV2
 from agents.agent import Agent
+from agents.plotter import plot_attentions
 
 # from agents.optimum_solver import solver
 import numpy as np
 import time
+
 
 OPTIMAL = 'Optimal'
 HEURISTIC = 'Heuristic'
@@ -14,11 +16,14 @@ def test(env: KnapsackV2, agent: Agent, opt_solver, heuristic_solver, look_for_o
     agent.stochastic_action_selection = False
     
     # Increase the number for items during testing
-    env.item_sample_size = 50
-    agent.num_items = 50
+    env.item_sample_size = 5
+    agent.num_items = 5
 
     # Increase the number of backpacks during testing
     env.backpack_sample_size = 10 + 1 # Because of the EOS
+    
+    env.batch_size  = 1
+    agent.batch_size = 1
 
     training_step = 0
     isDone = False
@@ -51,10 +56,22 @@ def test(env: KnapsackV2, agent: Agent, opt_solver, heuristic_solver, look_for_o
 
     print('Solving with nets...')
     start = time.time()
+
+    # attention_size = env.item_sample_size + env.backpack_sample_size
+    # item_attentions = np.zeros((env.item_sample_size, attention_size), dtype="float32")
+    # backpack_attentions = np.zeros((env.item_sample_size, attention_size), dtype="float32")
+    
+    attentions = []
+
     while not isDone:
         print(f'Placing step {training_step} of {agent.num_items}', end='\r')
         # Select an action
-        backpack_id, item_id, decoded_item, backpack_net_mask = agent.act(
+        backpack_id,\
+        item_id,\
+        decoded_item,\
+        backpack_net_mask,\
+        items_probs,\
+        backpacks_probs = agent.act(
             current_state,
             dec_input,
             backpack_net_mask,
@@ -68,9 +85,17 @@ def test(env: KnapsackV2, agent: Agent, opt_solver, heuristic_solver, look_for_o
             backpack_id,
             item_id
         )
-        
+                
         # Store episode rewards
         episode_rewards[:, training_step] = reward[:, 0]
+
+        attentions.append({
+            'item_net_input': np.array(dec_input),
+            'backpack_net_input': decoded_item.numpy(),
+            'item_attention': items_probs.numpy(),
+            "backpack_attention": backpacks_probs.numpy(),
+            "current_state": current_state.copy()
+        })
 
         # Update for next iteration
         dec_input = decoded_item
@@ -91,7 +116,6 @@ def test(env: KnapsackV2, agent: Agent, opt_solver, heuristic_solver, look_for_o
     # print(episode_rewards)
     episode_rewards = np.sum(episode_rewards, axis=-1)
     
-    
     if not look_for_opt:
         optimal_values = len(episode_rewards) * [0]
 
@@ -110,3 +134,6 @@ def test(env: KnapsackV2, agent: Agent, opt_solver, heuristic_solver, look_for_o
             d_from_opt = 100 - (net_val * 100 / heu_val)
 
             print(f'Net {net_val} \t| Heuristic {heu_val} \t| % from Heuristic {d_from_opt:.2f}')
+
+    # Plot the attentions to visualize the policy
+    plot_attentions(attentions, env.item_sample_size, env.backpack_sample_size)

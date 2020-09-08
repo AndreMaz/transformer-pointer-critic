@@ -26,7 +26,7 @@ if gpus:
     # Virtual devices must be set before GPUs have been initialized
     print(e)
 
-def runner(env_type="custom", env_name='CVRP', agent_name="tpc"):
+def runner(env_type="custom", env_name='KnapsackV2', agent_name="tpc"):
     # Read the configs
     agent_config, trainer_config, env_config = get_configs(env_name, agent_name)
 
@@ -50,8 +50,8 @@ def runner(env_type="custom", env_name='CVRP', agent_name="tpc"):
     plotter(training_history, env, agent, agent_config, opt_solver, False)
 
     # Test the agent
-    # print("\nTesting...")
-    # tester(env, agent, opt_solver, heuristic_solver)
+    print("\nTesting...")
+    tester(env, agent, opt_solver, heuristic_solver)
     print('End... Goodbye!')
 
 def tuner(env_type="custom", env_name='CVRP', agent_name="tpc"):
@@ -112,5 +112,5 @@ def tuner(env_type="custom", env_name='CVRP', agent_name="tpc"):
 
 
 if __name__ == "__main__":
-    # runner()
-    tuner()
+    runner()
+    # tuner()
