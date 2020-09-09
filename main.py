@@ -51,7 +51,8 @@ def runner(env_type="custom", env_name='KnapsackV2', agent_name="tpc"):
 
     # Test the agent
     print("\nTesting...")
-    tester(env, agent, opt_solver, heuristic_solver)
+    look_for_opt = True
+    tester(env, agent, opt_solver, heuristic_solver, look_for_opt)
     print('End... Goodbye!')
 
 def tuner(env_type="custom", env_name='CVRP', agent_name="tpc"):

@@ -116,6 +116,8 @@ def plot_attentions(attentions, num_items, num_backpacks):
             )
         plt.xticks(range(len(backpack_xlabel)), backpack_xlabel)
     
+    # plt.subplots_adjust(wspace=0.3, hspace = 0.3)
+
     plt.show(block=True)
 
 if __name__ == "__main__":
