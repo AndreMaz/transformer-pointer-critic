@@ -36,7 +36,7 @@ Testing configs:
 - Item sample size: `7`
 - Backpack sample size: `6 + 1`. `+ 1` is the empty backpack where items that weren't selected are placed.
 
-The figure below shows the item selection and placement sequence. Plots in the left column represent the probabilities of selecting an item during as each decoding step. Plots in the right column represent the probabilities of placing the item, selected previously, at a specific backpack. Each row in the figure (tuple of plots) represents the selected item and the place where it was be placed.
+The figure below shows the item selection and placement sequence. Plots in the left column represent the probabilities of selecting an item at each decoding step. Plots in the right column represent the probabilities of placing the item, selected previously, at a specific backpack. Each row in the figure (tuple of plots) represents the selected item and the place where it was be placed.
 
 The performance of the network was compared against [Google OR-Tools](https://developers.google.com/optimization/bin/multiple_knapsack) and a simple heuristic. The heuristic consists in sorting the backpacks, by their capacities, and the items, by the value-to-weight ration, in a descending order. After that the items are placed in a first place (i.e., backpack) that fits.
 
