@@ -38,7 +38,7 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict):
 
         while not isDone or training_step > n_steps_to_update:
             # Select an action
-            backpack_id, item_id, decoded_item, backpack_net_mask = agent.act(
+            backpack_id, item_id, decoded_item, backpack_net_mask, _, _ = agent.act(
                 current_state,
                 dec_input,
                 backpack_net_mask,

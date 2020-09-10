@@ -1,5 +1,5 @@
 # For plotting
-from environment.custom.knapsack.heuristic import solver
+# from environment.custom.knapsack.heuristic import solver
 import matplotlib.pyplot as plt
 import os
 import numpy as np
@@ -70,3 +70,57 @@ def plotter(data, env, agent, agent_config, opt_solver, print_details=False):
     )
 
     plt.close()
+
+def plot_attentions(attentions, num_items, num_backpacks):
+    
+    fig, axs = plt.subplots(num_items, 2)
+
+    for index, attention in enumerate(attentions):
+        
+        # Only show the attention over the items
+        axs[index, 0].matshow(attention['item_attention'][:, num_backpacks:])
+        # axs[index, 0].set_title('Item Attention')
+
+        # Only show the attention over the backpacks
+        axs[index, 1].matshow(attention['backpack_attention'][:, :num_backpacks])
+        # axs[index, 1].set_title('Backpack Attention')
+
+    for index in range(num_items):
+        # Select the plot by index for the Items
+        plt.sca(axs[index, 0])
+        # Add the ticks and the labels
+        item_input = attentions[index]["item_net_input"]
+        item_ylabel = f'w:{int(item_input[0,0,0])} v:{int(item_input[0,0,1])}'
+        plt.yticks([0], [item_ylabel])
+
+        item_states = attentions[index]['current_state'][0, num_backpacks:]
+        item_xlabel = []
+        for itm in item_states:
+            item_xlabel.append(
+                f'w:{int(itm[0])} v:{int(itm[1])}'
+            )
+        plt.xticks(range(len(item_xlabel)), item_xlabel)
+
+        # Select the plot by index for the Backpacks
+        plt.sca(axs[index, 1])
+        # Add the ticks and the labels
+        item_input = attentions[index]["backpack_net_input"]
+        backpack_ylabel = f'w:{int(item_input[0,0,0])} v:{int(item_input[0,0,1])}'
+        plt.yticks([0], [backpack_ylabel])
+
+        backpack_states = attentions[index]['current_state'][0, :num_backpacks]
+        backpack_xlabel = []
+        for bp in backpack_states:
+            backpack_xlabel.append(
+                f'c:{int(bp[0])} l:{int(bp[1])}'
+            )
+        plt.xticks(range(len(backpack_xlabel)), backpack_xlabel)
+    
+    # plt.subplots_adjust(wspace=0.3, hspace = 0.3)
+
+    plt.show(block=True)
+
+if __name__ == "__main__":
+    
+    plot_attentions()
+    # tuner()
