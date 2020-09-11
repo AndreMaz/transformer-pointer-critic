@@ -12,6 +12,27 @@
 ## Multiple Knapsack Problem
 Given a set of items, `x = {x_1, x_2, ..., x_i}` where each item has it's own weight `w_i` and value `v_i`, and a set of backpacks, `m = {m_1, m_2, ..., m_j}` each having a capacity `c_j`, the goal is to select a subset of items and place them into the backpacks in a way that total profit of the selected items is maximized.
 
+### Input Example
+
+Below is an example of an input that goes to both nets. It contains information about the state of the backpacks and the items.
+
+```bash
+array([
+    [ 0.,  0.],  -> Backpack EOS. Not selected items will be "placed" here
+    [ 7.,  0.],  -> Backpack 1. Capacity: 7     | Current Load: 0
+    [ 8.,  0.],  -> Backpack 2. Capacity: 8     | Current Load: 0
+    [13.,  0.],  -> Backpack 3. Capacity: 13    | Current Load: 0
+    [ 8.,  0.],  -> Backpack 4. Capacity: 8     | Current Load: 0
+    [ 6.,  0.],  -> Backpack 5. Capacity: 6     | Current Load: 0
+    [ 5., 38.],  -> Item 1. Weight: 5   | Value : 38
+    [11., 42.],  -> Item 2. Weight: 11  | Value : 42
+    [ 9., 46.],  -> Item 3. Weight: 9   | Value : 46
+    [17., 23.],  -> Item 4. Weight: 17  | Value : 23
+    [20.,  8.]   -> Item 5. Weight: 20  | Value : 8
+    ],
+       dtype=float32, shape=(11, 2))
+```
+
 ### Policy Analysis of the Multiple Knapsack Problem
 A simple test were performed to analyze the policy that the both nets created. 
 
