@@ -3,6 +3,7 @@
 - [Traveling Salesman Problem](#Traveling-Salesman-Problem)
 - [Knapsack Problem](#Knapsack-Problem)
 - [Multiple Knapsack Problem](#Multiple-Knapsack-Problem)
+- [Resource Placement at Edge Devices](#Resource-Placement-At-Edge-Devices)
 
 # Traveling Salesman Problem
 
@@ -94,8 +95,6 @@ array([
     ],
 ```
 
-After 4 decoding steps the Pointer
-
 After 4 decoding steps the Pointer-Network would have generated the following sequence: 
 
 ```
@@ -186,3 +185,11 @@ In other words, the encoder's attention is looking for possible (good) contender
 
 ### Pointer-Network Attention
 Given the encoder's and the decoder's input the attention will try to focus (by giving higher probability) on specific items that should selected. In other words, given the remaining items, the state of the backpacks and knowing the last selected item the attention will point to the next item that should be selected.
+
+
+# Resource Placement at Edge Devices
+**Problem statement**: At each time `t` a randomly sized batch of user's requests arrive, each has its own profile that contains information about the amount of resources (e.g., [`10` units of CPU, `2` units of RAM, `5` units for Memory]) that it needs in order to be processed properly. The incoming requests must be placed at a set of available nodes, each having its own processing capabilities (e.g., [`100` units of CPU, `20` units of RAM, `50` units for Memory]). In real world, these nodes usually are located behind a reverse proxy such as NGNIX, Traefik or Moleculer API Gateway. All of them provide load balancing capabilities. NGNIX [offers](http://nginx.org/en/docs/http/load_balancing.html) round-robin, least-connected, ip-hash; Traefik, at this moment, only [supports](https://docs.traefik.io/routing/services/#load-balancing) round-robin method; Moleculer API Gateway [offers](https://moleculer.services/docs/0.14/balancing.html#Built-in-strategies) round-robin, random, CPU usage-based and sharding. These load balancing strategies don't provide optimal solution, it's too expensive too look for it in real-time, they simply follow the selected load balancing strategy. These strategies are fast but the results that they provide can be suboptimal.
+
+**Goal**: The goal is to design another load balancing strategy that's able to distribute the incoming requests in a fair way, i.e., in a way that the incoming requests have similar working conditions.
+
+**Purpose of the Neural-based load balancing strategy**: A Neural-based load balancing strategy can adapt the distribution policy (heuristic) according to the incoming user's requests and the state of the nodes and, thus, offer a better way of placing the requests.
