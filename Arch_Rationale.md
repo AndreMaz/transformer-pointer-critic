@@ -186,6 +186,41 @@ In other words, the encoder's attention is looking for possible (good) contender
 ### Pointer-Network Attention
 Given the encoder's and the decoder's input the attention will try to focus (by giving higher probability) on specific items that should selected. In other words, given the remaining items, the state of the backpacks and knowing the last selected item the attention will point to the next item that should be selected.
 
+### Results
+ 
+Net 1303.0      | Heuristic 1215.0      | % from Heuristic -7.24
+Net 1259.0      | Heuristic 1132.0      | % from Heuristic -11.22
+Net 1321.0      | Heuristic 1236.0      | % from Heuristic -6.88
+Net 1244.0      | Heuristic 1153.0      | % from Heuristic -7.89
+Net 1122.0      | Heuristic 994.0       | % from Heuristic -12.88
+Net 1065.0      | Heuristic 949.0       | % from Heuristic -12.22
+Net 1195.0      | Heuristic 1069.0      | % from Heuristic -11.79
+Net 1333.0      | Heuristic 1222.0      | % from Heuristic -9.08
+Net 1259.0      | Heuristic 1136.0      | % from Heuristic -10.83
+Net 1234.0      | Heuristic 1083.0      | % from Heuristic -13.94
+Net 1204.0      | Heuristic 1079.0      | % from Heuristic -11.58
+Net 1243.0      | Heuristic 1104.0      | % from Heuristic -12.59
+Net 1423.0      | Heuristic 1312.0      | % from Heuristic -8.46
+Net 1341.0      | Heuristic 1242.0      | % from Heuristic -7.97
+Net 1373.0      | Heuristic 1213.0      | % from Heuristic -13.19
+Net 1035.0      | Heuristic 958.0       | % from Heuristic -8.04
+Net 1385.0      | Heuristic 1227.0      | % from Heuristic -12.88
+Net 1166.0      | Heuristic 1022.0      | % from Heuristic -14.09
+Net 1472.0      | Heuristic 1291.0      | % from Heuristic -14.02
+Net 1486.0      | Heuristic 1353.0      | % from Heuristic -9.83
+Net 1359.0      | Heuristic 1269.0      | % from Heuristic -7.09
+Net 1157.0      | Heuristic 1080.0      | % from Heuristic -7.13
+Net 1238.0      | Heuristic 1142.0      | % from Heuristic -8.41
+Net 1203.0      | Heuristic 1124.0      | % from Heuristic -7.03
+Net 1265.0      | Heuristic 1170.0      | % from Heuristic -8.12
+Net 1423.0      | Heuristic 1343.0      | % from Heuristic -5.96
+Net 1340.0      | Heuristic 1232.0      | % from Heuristic -8.77
+Net 1253.0      | Heuristic 1127.0      | % from Heuristic -11.18
+Net 1097.0      | Heuristic 955.0       | % from Heuristic -14.87
+Net 1364.0      | Heuristic 1226.0      | % from Heuristic -11.26
+Net 1339.0      | Heuristic 1231.0      | % from Heuristic -8.77
+Net 1289.0      | Heuristic 1213.0      | % from Heuristic -6.27
+
 
 # Resource Placement at Edge Devices
 **Problem statement**: At each time `t` a randomly sized batch of user's requests arrive, each has its own profile that contains information about the amount of resources (e.g., [`10` units of CPU, `2` units of RAM, `5` units for Memory]) that it needs in order to be processed properly. The incoming requests must be placed at a set of available nodes, each having its own processing capabilities (e.g., [`100` units of CPU, `20` units of RAM, `50` units for Memory]). In real world, these nodes usually are located behind a reverse proxy such as NGNIX, Traefik or Moleculer API Gateway. All of them provide load balancing capabilities. NGNIX [offers](http://nginx.org/en/docs/http/load_balancing.html) round-robin, least-connected, ip-hash; Traefik, at this moment, only [supports](https://docs.traefik.io/routing/services/#load-balancing) round-robin method; Moleculer API Gateway [offers](https://moleculer.services/docs/0.14/balancing.html#Built-in-strategies) round-robin, random, CPU usage-based and sharding. These load balancing strategies don't provide optimal solution, it's too expensive too look for it in real-time, they simply follow the selected load balancing strategy. These strategies are fast but the results that they provide can be suboptimal.

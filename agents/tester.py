@@ -137,4 +137,4 @@ def test(env: KnapsackV2, agent: Agent, opt_solver, heuristic_solver, look_for_o
             print(f'Net {net_val} \t| Heuristic {heu_val} \t| % from Heuristic {d_from_opt:.2f}')
 
     # Plot the attentions to visualize the policy
-    plot_attentions(attentions, env.item_sample_size, env.backpack_sample_size)
+    # plot_attentions(attentions, env.item_sample_size, env.backpack_sample_size)
