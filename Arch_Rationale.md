@@ -187,7 +187,29 @@ In other words, the encoder's attention is looking for possible (good) contender
 Given the encoder's and the decoder's input the attention will try to focus (by giving higher probability) on specific items that should selected. In other words, given the remaining items, the state of the backpacks and knowing the last selected item the attention will point to the next item that should be selected.
 
 ### Results
- 
+
+Environment configuration for testing and training:
+- Set size of items: `100`
+- Item value: random in [`1`, `100`] range
+- Item weight: random in [`1`, `20`] range
+- Set size of backpacks: `20`
+- Backpack capacities: random in [`1`, `20`] range
+
+Training configs:
+- Batch size: `32`
+- Number of epochs: `5000`
+- Total number of problem instances used during training: `32 * 5000 = 160000` 
+- Item sample size: `20`
+- Backpack sample size: `5`
+
+> **Note:** For building a single problem instance the items and backpacks are randomly sampled from their respective sets
+
+Testing configs:
+- Batch size: `32`
+- Item sample size: `50`
+- Backpack sample size: `10 + 1`. `+ 1` is the empty backpack where items that weren't selected are placed.
+
+```bash
 Net 1303.0      | Heuristic 1215.0      | % from Heuristic -7.24
 Net 1259.0      | Heuristic 1132.0      | % from Heuristic -11.22
 Net 1321.0      | Heuristic 1236.0      | % from Heuristic -6.88
@@ -220,7 +242,7 @@ Net 1097.0      | Heuristic 955.0       | % from Heuristic -14.87
 Net 1364.0      | Heuristic 1226.0      | % from Heuristic -11.26
 Net 1339.0      | Heuristic 1231.0      | % from Heuristic -8.77
 Net 1289.0      | Heuristic 1213.0      | % from Heuristic -6.27
-
+```
 
 # Resource Placement at Edge Devices
 **Problem statement**: At each time `t` a randomly sized batch of user's requests arrive, each has its own profile that contains information about the amount of resources (e.g., [`10` units of CPU, `2` units of RAM, `5` units for Memory]) that it needs in order to be processed properly. The incoming requests must be placed at a set of available nodes, each having its own processing capabilities (e.g., [`100` units of CPU, `20` units of RAM, `50` units for Memory]). In real world, these nodes usually are located behind a reverse proxy such as NGNIX, Traefik or Moleculer API Gateway. All of them provide load balancing capabilities. NGNIX [offers](http://nginx.org/en/docs/http/load_balancing.html) round-robin, least-connected, ip-hash; Traefik, at this moment, only [supports](https://docs.traefik.io/routing/services/#load-balancing) round-robin method; Moleculer API Gateway [offers](https://moleculer.services/docs/0.14/balancing.html#Built-in-strategies) round-robin, random, CPU usage-based and sharding. These load balancing strategies don't provide optimal solution, it's too expensive too look for it in real-time, they simply follow the selected load balancing strategy. These strategies are fast but the results that they provide can be suboptimal.
