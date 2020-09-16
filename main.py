@@ -51,7 +51,7 @@ def runner(env_type="custom", env_name='KnapsackV2', agent_name="tpc"):
 
     # Test the agent
     print("\nTesting...")
-    look_for_opt = True
+    look_for_opt = False
     tester(env, agent, opt_solver, heuristic_solver, look_for_opt)
     print('End... Goodbye!')
 
