@@ -244,6 +244,40 @@ Net 1339.0      | Heuristic 1231.0      | % from Heuristic -8.77
 Net 1289.0      | Heuristic 1213.0      | % from Heuristic -6.27
 ```
 
+
+Opt 369.0       | Net 352.0     | % from Opt 4.61        || Heuristic 352.0     | % from Opt 4.61
+Opt 654.0       | Net 593.0     | % from Opt 9.33        || Heuristic 578.0     | % from Opt 11.62
+Opt 443.0       | Net 443.0     | % from Opt 0.00        || Heuristic 374.0     | % from Opt 15.58
+Opt 666.0       | Net 637.0     | % from Opt 4.35        || Heuristic 637.0     | % from Opt 4.35
+Opt 624.0       | Net 612.0     | % from Opt 1.92        || Heuristic 567.0     | % from Opt 9.13
+Opt 606.0       | Net 602.0     | % from Opt 0.66        || Heuristic 565.0     | % from Opt 6.77
+Opt 514.0       | Net 497.0     | % from Opt 3.31        || Heuristic 479.0     | % from Opt 6.81
+Opt 559.0       | Net 505.0     | % from Opt 9.66        || Heuristic 520.0     | % from Opt 6.98
+Opt 683.0       | Net 668.0     | % from Opt 2.20        || Heuristic 636.0     | % from Opt 6.88
+Opt 450.0       | Net 415.0     | % from Opt 7.78        || Heuristic 415.0     | % from Opt 7.78
+Opt 484.0       | Net 484.0     | % from Opt 0.00        || Heuristic 425.0     | % from Opt 12.19
+Opt 494.0       | Net 477.0     | % from Opt 3.44        || Heuristic 457.0     | % from Opt 7.49
+Opt 664.0       | Net 648.0     | % from Opt 2.41        || Heuristic 583.0     | % from Opt 12.20
+Opt 532.0       | Net 515.0     | % from Opt 3.20        || Heuristic 496.0     | % from Opt 6.77
+Opt 657.0       | Net 614.0     | % from Opt 6.54        || Heuristic 587.0     | % from Opt 10.65
+Opt 661.0       | Net 661.0     | % from Opt 0.00        || Heuristic 606.0     | % from Opt 8.32
+Opt 500.0       | Net 500.0     | % from Opt 0.00        || Heuristic 468.0     | % from Opt 6.40
+Opt 613.0       | Net 601.0     | % from Opt 1.96        || Heuristic 601.0     | % from Opt 1.96
+Opt 417.0       | Net 415.0     | % from Opt 0.48        || Heuristic 378.0     | % from Opt 9.35
+Opt 639.0       | Net 574.0     | % from Opt 10.17       || Heuristic 574.0     | % from Opt 10.17
+Opt 583.0       | Net 575.0     | % from Opt 1.37        || Heuristic 575.0     | % from Opt 1.37
+Opt 592.0       | Net 584.0     | % from Opt 1.35        || Heuristic 486.0     | % from Opt 17.91
+Opt 560.0       | Net 552.0     | % from Opt 1.43        || Heuristic 502.0     | % from Opt 10.36
+Opt 650.0       | Net 594.0     | % from Opt 8.62        || Heuristic 559.0     | % from Opt 14.00
+Opt 599.0       | Net 555.0     | % from Opt 7.35        || Heuristic 507.0     | % from Opt 15.36
+Opt 673.0       | Net 630.0     | % from Opt 6.39        || Heuristic 611.0     | % from Opt 9.21
+Opt 623.0       | Net 613.0     | % from Opt 1.61        || Heuristic 583.0     | % from Opt 6.42
+Opt 841.0       | Net 793.0     | % from Opt 5.71        || Heuristic 747.0     | % from Opt 11.18
+Opt 464.0       | Net 446.0     | % from Opt 3.88        || Heuristic 464.0     | % from Opt 0.00
+Opt 525.0       | Net 500.0     | % from Opt 4.76        || Heuristic 500.0     | % from Opt 4.76
+Opt 498.0       | Net 495.0     | % from Opt 0.60        || Heuristic 409.0     | % from Opt 17.87
+Opt 733.0       | Net 692.0     | % from Opt 5.59        || Heuristic 653.0     | % from Opt 10.91
+
 # Resource Placement at Edge Devices
 **Problem statement**: At each time `t` a randomly sized batch of user's requests arrive, each has its own profile that contains information about the amount of resources (e.g., [`10` units of CPU, `2` units of RAM, `5` units for Memory]) that it needs in order to be processed properly. The incoming requests must be placed at a set of available nodes, each having its own processing capabilities (e.g., [`100` units of CPU, `20` units of RAM, `50` units for Memory]). In real world, these nodes usually are located behind a reverse proxy such as NGNIX, Traefik or Moleculer API Gateway. All of them provide load balancing capabilities. NGNIX [offers](http://nginx.org/en/docs/http/load_balancing.html) round-robin, least-connected, ip-hash; Traefik, at this moment, only [supports](https://docs.traefik.io/routing/services/#load-balancing) round-robin method; Moleculer API Gateway [offers](https://moleculer.services/docs/0.14/balancing.html#Built-in-strategies) round-robin, random, CPU usage-based and sharding. These load balancing strategies don't provide optimal solution, it's too expensive too look for it in real-time, they simply follow the selected load balancing strategy. These strategies are fast but the results that they provide can be suboptimal.
 
