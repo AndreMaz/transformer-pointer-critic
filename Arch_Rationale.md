@@ -183,6 +183,8 @@ The self-attention mechanism allows the inputs to interact with each other (“s
 
 In other words, the encoder's attention is looking for possible (good) contender backpack for each item. Moreover, the contender selection also takes into the account the existence of other items because they are also fed into the encoder.
 
+Moreover, the by using the self-attention during the encoding process we ensure that the output data is invariant to the input order. This is an important issue when dealing with the data is not a sequence but a set. For more info about it check: [Order Matters: Sequence to sequence for sets](https://arxiv.org/pdf/1511.06391.pdf). The Transformer's self-attention, without the positional encoding, makes the data invariant. For more info check: [Attention, Learn to Solve Routing Problems!](https://arxiv.org/abs/1803.08475).
+
 ### Pointer-Network Attention
 Given the encoder's and the decoder's input the attention will try to focus (by giving higher probability) on specific items that should selected. In other words, given the remaining items, the state of the backpacks and knowing the last selected item the attention will point to the next item that should be selected.
 
