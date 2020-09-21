@@ -272,6 +272,7 @@ Testing configs:
 - Item sample size: `50`
 - Backpack sample size: `10 + 1`. `+ 1` is the empty backpack where items that weren't selected are placed.
 
+**Item are selected by the first network**
 ```bash
 Net 1303.0      | Heuristic 1215.0      | % from Heuristic -7.24
 Net 1259.0      | Heuristic 1132.0      | % from Heuristic -11.22
@@ -307,6 +308,43 @@ Net 1339.0      | Heuristic 1231.0      | % from Heuristic -8.77
 Net 1289.0      | Heuristic 1213.0      | % from Heuristic -6.27
 ```
 
+Same test were performed but in this case the item selecting network were removed. Instead of the network feeding the items into the backpack selecting net, the items were selected in random order and sequentially, i.e., from the first to last in each problem instance. In both cases the results were similar. Below are the results for the random selection. Looking at the results it's possible to see that single network approach can't outperform the heuristic.
+
+**Random item selection**
+```bash
+Net 917.0       | Heuristic 1062.0      | % from Heuristic 13.65
+Net 1095.0      | Heuristic 1175.0      | % from Heuristic 6.81
+Net 980.0       | Heuristic 971.0       | % from Heuristic -0.93
+Net 1045.0      | Heuristic 1141.0      | % from Heuristic 8.41
+Net 919.0       | Heuristic 1093.0      | % from Heuristic 15.92
+Net 976.0       | Heuristic 1125.0      | % from Heuristic 13.24
+Net 840.0       | Heuristic 1019.0      | % from Heuristic 17.57
+Net 1081.0      | Heuristic 1078.0      | % from Heuristic -0.28
+Net 1023.0      | Heuristic 1136.0      | % from Heuristic 9.95
+Net 1009.0      | Heuristic 1279.0      | % from Heuristic 21.11
+Net 1058.0      | Heuristic 1075.0      | % from Heuristic 1.58
+Net 952.0       | Heuristic 1103.0      | % from Heuristic 13.69
+Net 1018.0      | Heuristic 1131.0      | % from Heuristic 9.99
+Net 956.0       | Heuristic 960.0       | % from Heuristic 0.42
+Net 1033.0      | Heuristic 1190.0      | % from Heuristic 13.19
+Net 1083.0      | Heuristic 1157.0      | % from Heuristic 6.40
+Net 983.0       | Heuristic 1198.0      | % from Heuristic 17.95
+Net 1158.0      | Heuristic 1161.0      | % from Heuristic 0.26
+Net 905.0       | Heuristic 982.0       | % from Heuristic 7.84
+Net 919.0       | Heuristic 1022.0      | % from Heuristic 10.08
+Net 883.0       | Heuristic 904.0       | % from Heuristic 2.32
+Net 962.0       | Heuristic 1138.0      | % from Heuristic 15.47
+Net 1053.0      | Heuristic 1044.0      | % from Heuristic -0.86
+Net 868.0       | Heuristic 1039.0      | % from Heuristic 16.46
+Net 1000.0      | Heuristic 1098.0      | % from Heuristic 8.93
+Net 1015.0      | Heuristic 1120.0      | % from Heuristic 9.38
+Net 1121.0      | Heuristic 1139.0      | % from Heuristic 1.58
+Net 942.0       | Heuristic 1064.0      | % from Heuristic 11.47
+Net 1131.0      | Heuristic 1157.0      | % from Heuristic 2.25
+Net 921.0       | Heuristic 1204.0      | % from Heuristic 23.50
+Net 916.0       | Heuristic 1185.0      | % from Heuristic 22.70
+Net 930.0       | Heuristic 1135.0      | % from Heuristic 18.06
+```
 
 # Resource Placement at Edge Devices
 **Problem statement**: At each time `t` a randomly sized batch of user's requests arrive, each has its own profile that contains information about the amount of resources (e.g., [`10` units of CPU, `2` units of RAM, `5` units for Memory]) that it needs in order to be processed properly. The incoming requests must be placed at a set of available nodes, each having its own processing capabilities (e.g., [`100` units of CPU, `20` units of RAM, `50` units for Memory]). In real world, these nodes usually are located behind a reverse proxy such as NGNIX, Traefik or Moleculer API Gateway. All of them provide load balancing capabilities. NGNIX [offers](http://nginx.org/en/docs/http/load_balancing.html) round-robin, least-connected, ip-hash; Traefik, at this moment, only [supports](https://docs.traefik.io/routing/services/#load-balancing) round-robin method; Moleculer API Gateway [offers](https://moleculer.services/docs/0.14/balancing.html#Built-in-strategies) round-robin, random, CPU usage-based and sharding. These load balancing strategies don't provide optimal solution, it's too expensive too look for it in real-time, they simply follow the selected load balancing strategy. These strategies are fast but the results that they provide can be suboptimal.
