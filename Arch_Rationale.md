@@ -11,7 +11,7 @@
 
 **Claim**: Given a set of nodes, it is possible to sort them in a ___specific___ way where the order by which the nodes were sorted represents the (near) optimal visitation sequence.
 
-**Goal of Pointer-Network** Given a set of nodes, the goal of the Pointer-Network is to generate a sequence by which the nodes will be visited.
+**Goal of Pointer-Network** Given a set of nodes, the goal of the Pointer-Network sequentially point to the indexes of the input and, therefore, generate a sequence by which the nodes will be visited.
 
 **Encoder Input** Represents the coordinates of the nodes
 
@@ -61,7 +61,7 @@ Given the encoder's and the decoder's input the attention will try to focus (by 
 
 **Claim**: Given a set of items, it is possible to sort them in a ___specific___ way where the order by which the items were sorted represents the (near) optimal picking sequence.
 
-**Goal of Pointer-Network** Given a set of items and a backpack, the goal of the Pointer-Network is to generate a sequence by which the items will be selected and placed in the backpack.
+**Goal of Pointer-Network** Given a set of items and a backpack, the goal of the Pointer-Network sequentially point to the indexes of the input and, therefore, generate a sequence by which the items will be selected and placed in the backpack.
 
 **Encoder Input** Represents the coordinates of the nodes
 
@@ -84,8 +84,7 @@ array([
     ],
 ```
 
-> Note: For more info see [A Pointer Network Based Deep Learning Algorithm
-for 0-1 Knapsack Problem](https://ieeexplore.ieee.org/document/8377505)
+> Note: For more info see [Neural Combinatorial Optimization with Reinforcement Learning](https://arxiv.org/pdf/1611.09940.pdf) and [A Pointer Network Based Deep Learning Algorithm for 0-1 Knapsack Problem](https://ieeexplore.ieee.org/document/8377505) 
 
 Assuming that at first decoding step the Pointer-Network "pointed" at Item 2, represented as [7., 1/7],  the decoder's input for the next decoding step would be updated to:
 
@@ -114,12 +113,19 @@ Given the encoder's and the decoder's input the attention will try to focus (by 
 How to handle the multiple knapsack problem? 
 
 # Multiple Knapsack Problem
-**Problem statement**: Given a set of items, each with a weight `x` and value `y`, and a set of backpacks, each with a capacity `c`, the goal is to take the items in a way that the profit is maximized.
+**Problem statement**: Given a set of items, each with a weight `x` and value `y`, and a set of backpacks, each with a capacity `c`, the goal is to take the items and place them into the backpacks in a way that the total profit is maximized.
 
 **Problems with the previous approach**
 - [Previous approach](#Knapsack-Problem) is not able to work with multiple backpacks.
 
-- One possibility to solve the problem is to select a specific backpack from a set and then try to insert all the items. Then, select another backpack and try to insert the remaining items. However, what's the order by which the backpacks should be selected? Sort them descending order by their capacities? Will this approach work well every time? No. For specific set of items this approach will generate bad results. For example:
+- One possibility to solve this problem is break it into multiple sub-problems, i.e., select a specific backpack from a set and then try to insert all the items. Then, select another backpack and try to insert the remaining items. However, what's the order by which the backpacks should be selected? Sort them descending order by their capacities? Will this approach work well every time? No, because after inserting an item into the backpack we cannot take it back until the end of the decoding process.
+
+- What if we invert the problem? Pick a single item and try to place it across multiple backpacks. Then, take another item and repeat the process. In this case, what would be the sequence by which we would select the items? Start by the items with the highest cost? Will this approach work well every time? No. Given the fact that we cannot remove the item from the backpack. The item selection and its placement, into a specific backpack, must be done in a way that "we know" what items are remaining and the state of the backpacks.
+
+- While the items are independent from each other their placement is not. Placing an item at a specific backpack **can and will** affect the way by which other items are be placed.
+
+**Why "classical" heuristic produce sub-optimal results?** 
+For specific set of items applying the heuristic from [Neural Combinatorial Optimization with Reinforcement Learning](https://arxiv.org/pdf/1611.09940.pdf) (`A simple yet strong heuristic is to take the items ordered by their weight-to-value ratios until they fill up the weight capacity`) will generate suboptimal results. For example:
 
 ```bash
 array([
@@ -133,17 +139,11 @@ array([
     dtype=float32, shape=(11, 2))
 ```
 
-After applying the heuristic from [Neural Combinatorial Optimization with Reinforcement Learning](https://arxiv.org/pdf/1611.09940.pdf): `A simple yet strong heuristic is to take the items ordered by their weight-to-value ratios until they fill up the weight capacity`. We would get reward equal to 5, because the first item (weight: 3, value: 3) would be placed into the first backpack (capacity: 4). After that, only one of the remaining items would fit the backpacks.
+The heuristic above would get reward equal to 5, because the first item (weight: 3, value: 3) would be placed into the first backpack (capacity: 4). After that, only one of the remaining items would fit the backpacks.
 
-In this case, the optimal solution would be placing the item 1 (weight: 3, value: 3) into the backpack 2 (capacity: 3) and the remaining two items would be placed into the first backpack. In this case, the reward would be equal to 7.
+In this case, the optimal solution would be placing the item 1 (weight: 3, value: 3) into the backpack 2 (capacity: 3) and the remaining two items would be placed into the first backpack. In this case, the reward would be equal to 7 and the backpacks would reach their maximum capacity.
 
-- What if we invert the problem? Pick a single item and try to place it across multiple backpacks. Then, take another item and repeat the process. In this case, what would be the sequence by which we would select the items? Start by the items with the highest cost? Will this approach work well every time? No. 
-
-- Given the fact that we cannot remove the item from the backpack. The item selection and its placement, into a specific backpack, must be done in a way that "we know" what items are remaining and the state of the backpacks.
-
-- While the items are independent from each other their placement is not. Placing an item at a specific backpack **can and will** affect the way by which the other items are be placed.
-
-**Claim**: Given a set of items and the backpacks, it is possible to sort them in a ___specific___ way after which the fit-first (or any other) approach generates the optimal picking and placing sequence.
+**Claim**: Given a set of items and the backpacks, it is possible to select them (by pointing) in a ___specific___ way that generates (near) optimal picking and placing sequence.
 
 **Encoder Input** Represents the state of the backpacks and the items that can be picked.
 
@@ -172,7 +172,6 @@ array([
     [ 0.,  0.],  -> Start the decoding process.
     ],
 ```
-
 
 **Backpack Selecting Decoder Input** Represents the item that was selected by previous network.
 
