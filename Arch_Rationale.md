@@ -125,7 +125,7 @@ How to handle the multiple knapsack problem?
 - While the items are independent from each other their placement is not. Placing an item at a specific backpack **can and will** affect the way by which other items are be placed.
 
 **Why "classical" heuristic produce sub-optimal results?** 
-The "classical" heuristics are "static", i.e., they perform the same item and placement procedure regardless of the input. This means that for specific inputs they will generate suboptimal results. 
+The "classical" heuristics are "static", i.e., they perform the same item selection and placement procedure regardless of the input. This means that for specific inputs they will generate suboptimal results. 
 
 For example, for the following input the heuristic from [Neural Combinatorial Optimization with Reinforcement Learning](https://arxiv.org/pdf/1611.09940.pdf) (`A simple yet strong heuristic is to take the items ordered by their weight-to-value ratios until they fill up the weight capacity`):
 
