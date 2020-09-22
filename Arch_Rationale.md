@@ -139,9 +139,9 @@ array([
     dtype=float32, shape=(11, 2))
 ```
 
-The heuristic above is "static", i.e., it does the same procedure regardless of the input. In this case, it would get reward equal to 5, because the first item (weight: 3, value: 3) would be placed into the first backpack (capacity: 4). After that, only one of the remaining items would fit the backpacks.
+The heuristic above is "static", i.e., it does the same procedure regardless of the input. In this case, it would get reward equal to 5, because the first Item 1 (weight: 3, value: 3) would be placed into the first Backpack 1 (capacity: 4). After that, only one of the remaining items would fit the backpacks.
 
-In this case, the optimal solution would be placing the item 1 (weight: 3, value: 3) into the backpack 2 (capacity: 3) and the remaining two items would be placed into the first backpack. In this case, the reward would be equal to 7 and the backpacks would reach their maximum capacity.
+In this case, the optimal solution would be placing the Item 1 (weight: 3, value: 3) into the Backpack 2 (capacity: 3) and the remaining two items would be placed into the first backpack. In this case, the reward would be equal to 7 and the backpacks would reach their maximum capacity.
 
 **Claim**: Given a set of items and the backpacks, it is possible to select them (by pointing) in a ___specific___ way that generates (near) optimal picking and placing sequence.
 
@@ -165,7 +165,6 @@ array([
     ],
     dtype=float32, shape=(11, 2))
 ```
-
 
 **Item Selecting Decoder Input** Represents the previously select item. At the beginning it will be at the [SOS, SOS].
 
@@ -193,7 +192,7 @@ This sequence represents the solution by which the items should be selected and 
 
 ## Goal of the Embedding Layers and the Attention
 ### Encoder's Embedding Layers
-In this case in particular the embedding layers will simply represent, in a high dimensional space, the items and the backpacks. Similar items will have similar representations.
+In this case in particular the embedding layers will simply represent, in a high dimensional space, the items and the backpacks. Similar items will have similar representations (same for the backpacks).
 
 ### Transformer's Encoder Attention
 The self-attention mechanism allows the inputs to interact with each other (“self”) and find out who they should pay more attention to (“attention”). The outputs are aggregates of these interactions and attention scores. In the case of the multiple knapsack problem, the attention will "learn" that specific items and specific backpacks tend to generate higher rewards. Lower probabilities (between the item and the backpack) in the attention will mean that for a specific item the network should not consider trying to insert it into the specific backpack because it will generate bad rewards.
