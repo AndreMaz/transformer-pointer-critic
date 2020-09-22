@@ -125,7 +125,9 @@ How to handle the multiple knapsack problem?
 - While the items are independent from each other their placement is not. Placing an item at a specific backpack **can and will** affect the way by which other items are be placed.
 
 **Why "classical" heuristic produce sub-optimal results?** 
-For specific set of items applying the heuristic from [Neural Combinatorial Optimization with Reinforcement Learning](https://arxiv.org/pdf/1611.09940.pdf) (`A simple yet strong heuristic is to take the items ordered by their weight-to-value ratios until they fill up the weight capacity`) will generate suboptimal results. For example:
+The "classical" heuristics are "static", i.e., they perform the same item and placement procedure regardless of the input. This means that for specific inputs they will generate suboptimal results. 
+
+For example, for the following input the heuristic from [Neural Combinatorial Optimization with Reinforcement Learning](https://arxiv.org/pdf/1611.09940.pdf) (`A simple yet strong heuristic is to take the items ordered by their weight-to-value ratios until they fill up the weight capacity`):
 
 ```bash
 array([
@@ -139,7 +141,7 @@ array([
     dtype=float32, shape=(11, 2))
 ```
 
-The heuristic above is "static", i.e., it does the same procedure regardless of the input. In this case, it would get reward equal to 5, because the first Item 1 (weight: 3, value: 3) would be placed into the first Backpack 1 (capacity: 4). After that, only one of the remaining items would fit the backpacks.
+would get reward equal to 5, because the first Item 1 (weight: 3, value: 3) would be placed into the first Backpack 1 (capacity: 4). After that, only one of the remaining items would fit the backpacks.
 
 In this case, the optimal solution would be placing the Item 1 (weight: 3, value: 3) into the Backpack 2 (capacity: 3) and the remaining two items would be placed into the first backpack. In this case, the reward would be equal to 7 and the backpacks would reach their maximum capacity.
 
