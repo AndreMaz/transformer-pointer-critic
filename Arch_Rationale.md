@@ -119,7 +119,23 @@ How to handle the multiple knapsack problem?
 **Problems with the previous approach**
 - [Previous approach](#Knapsack-Problem) is not able to work with multiple backpacks.
 
-- One possibility to solve the problem is to select a specific backpack from a set and then try to insert all the items. Then, select another backpack and try to insert the remaining items. However, what's the order by which the backpacks should be selected? Sort them descending order by their capacities? Will this approach work well every time? No. For specific set of items this approach will generate bad results.
+- One possibility to solve the problem is to select a specific backpack from a set and then try to insert all the items. Then, select another backpack and try to insert the remaining items. However, what's the order by which the backpacks should be selected? Sort them descending order by their capacities? Will this approach work well every time? No. For specific set of items this approach will generate bad results. For example:
+
+```bash
+array([
+    [ 0., 0.],  -> Backpack EOS. Not selected items will be "placed" here
+    [ 4., 0.],  -> Backpack 1. Capacity: 4     | Current Load: 0
+    [ 3., 0.],  -> Backpack 2. Capacity: 4     | Current Load: 0
+    [ 3., 3.],  -> Item 1. Weight: 3  | Value : 3
+    [ 2., 2.],  -> Item 2. Weight: 2  | Value : 2
+    [ 2., 2.]   -> Item 3. Weight: 2  | Value : 2
+    ],
+    dtype=float32, shape=(11, 2))
+```
+
+After applying the heuristic from [Neural Combinatorial Optimization with Reinforcement Learning](https://arxiv.org/pdf/1611.09940.pdf): `A simple yet strong heuristic is to take the items ordered by their weight-to-value ratios until they fill up the weight capacity`. We would get reward equal to 5, because the first item (weight: 3, value: 3) would be placed into the first backpack (capacity: 4). After that, only one of the remaining items would fit the backpacks.
+
+In this case, the optimal solution would be placing the item 1 (weight: 3, value: 3) into the backpack 2 (capacity: 3) and the remaining two items would be placed into the first backpack. In this case, the reward would be equal to 7.
 
 - What if we invert the problem? Pick a single item and try to place it across multiple backpacks. Then, take another item and repeat the process. In this case, what would be the sequence by which we would select the items? Start by the items with the highest cost? Will this approach work well every time? No. 
 
