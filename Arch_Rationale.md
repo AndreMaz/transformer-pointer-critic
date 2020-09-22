@@ -9,9 +9,9 @@
 
 **Problem statement**: Given a set of nodes, each located at {`x`, `y`}, the goal is to visit them in a way that the total traveling distance is minimized.
 
-**Claim**: Given a set of nodes, it is possible to sort them in a ___specific___ way where the order by which the nodes were sorted represents the (near) optimal visitation sequence.
+**Claim**: Given a set of nodes, it is possible to select them (by pointing) in a ___specific___ order that represents the (near) optimal visitation sequence.
 
-**Goal of Pointer-Network** Given a set of nodes, the goal of the Pointer-Network sequentially point to the indexes of the input and, therefore, generate a sequence by which the nodes will be visited.
+**Goal of Pointer-Network** Given a set of nodes, the goal of the Pointer-Network is to sequentially point to the indexes of the input and, therefore, generate a sequence by which the nodes will be visited.
 
 **Encoder Input** Represents the coordinates of the nodes
 
@@ -59,9 +59,9 @@ Given the encoder's and the decoder's input the attention will try to focus (by 
 # Knapsack Problem
 **Problem statement**: Given a set of items, each with a weight `x` and value `y`, and a backpack with a capacity `c` the goal is to take the items in a way that the profit is maximized.
 
-**Claim**: Given a set of items, it is possible to sort them in a ___specific___ way where the order by which the items were sorted represents the (near) optimal picking sequence.
+**Claim**: Given a set of items, it is possible to select them (by pointing) in a ___specific___ order that represents the (near) optimal picking sequence.
 
-**Goal of Pointer-Network** Given a set of items and a backpack, the goal of the Pointer-Network sequentially point to the indexes of the input and, therefore, generate a sequence by which the items will be selected and placed in the backpack.
+**Goal of Pointer-Network** Given a set of items and a backpack, the goal of the Pointer-Network is to sequentially point to the indexes of the input and, therefore, generate a sequence by which the items will be selected and placed in the backpack.
 
 **Encoder Input** Represents the coordinates of the nodes
 
@@ -84,7 +84,7 @@ array([
     ],
 ```
 
-> Note: For more info see [Neural Combinatorial Optimization with Reinforcement Learning](https://arxiv.org/pdf/1611.09940.pdf) and [A Pointer Network Based Deep Learning Algorithm for 0-1 Knapsack Problem](https://ieeexplore.ieee.org/document/8377505) 
+> Note: For more info see [A Pointer Network Based Deep Learning Algorithm for 0-1 Knapsack Problem](https://ieeexplore.ieee.org/document/8377505).
 
 Assuming that at first decoding step the Pointer-Network "pointed" at Item 2, represented as [7., 1/7],  the decoder's input for the next decoding step would be updated to:
 
@@ -120,7 +120,7 @@ How to handle the multiple knapsack problem?
 
 - One possibility to solve this problem is break it into multiple sub-problems, i.e., select a specific backpack from a set and then try to insert all the items. Then, select another backpack and try to insert the remaining items. However, what's the order by which the backpacks should be selected? Sort them descending order by their capacities? Will this approach work well every time? No, because after inserting an item into the backpack we cannot take it back until the end of the decoding process.
 
-- What if we invert the problem? Pick a single item and try to place it across multiple backpacks. Then, take another item and repeat the process. In this case, what would be the sequence by which we would select the items? Start by the items with the highest cost? Will this approach work well every time? No. Given the fact that we cannot remove the item from the backpack. The item selection and its placement, into a specific backpack, must be done in a way that "we know" what items are remaining and the state of the backpacks.
+- What if we invert the problem? Pick a single item and try to place it across multiple backpacks. Then, take another item and repeat the process. In this case, what would be the sequence by which we would select the items? Start by the items with the highest cost? Will this approach work well every time? No. Given the fact that we cannot remove the item from the backpack. The item selection and its placement, into a specific backpack, must be done in a way that "we know" the remaining items that still need to be placed and the state of the backpacks.
 
 - While the items are independent from each other their placement is not. Placing an item at a specific backpack **can and will** affect the way by which other items are be placed.
 
@@ -139,11 +139,13 @@ array([
     dtype=float32, shape=(11, 2))
 ```
 
-The heuristic above would get reward equal to 5, because the first item (weight: 3, value: 3) would be placed into the first backpack (capacity: 4). After that, only one of the remaining items would fit the backpacks.
+The heuristic above is "static", i.e., it does the same procedure regardless of the input. In this case, it would get reward equal to 5, because the first item (weight: 3, value: 3) would be placed into the first backpack (capacity: 4). After that, only one of the remaining items would fit the backpacks.
 
 In this case, the optimal solution would be placing the item 1 (weight: 3, value: 3) into the backpack 2 (capacity: 3) and the remaining two items would be placed into the first backpack. In this case, the reward would be equal to 7 and the backpacks would reach their maximum capacity.
 
 **Claim**: Given a set of items and the backpacks, it is possible to select them (by pointing) in a ___specific___ way that generates (near) optimal picking and placing sequence.
+
+**Goal of Pointer-Network** Given a set of items and a backpack, the goal of the Pointer-Network is to sequentially point to the indexes of the input and, therefore, generate a sequence by which each item will be placed at a specific backpack.
 
 **Encoder Input** Represents the state of the backpacks and the items that can be picked.
 
