@@ -153,11 +153,9 @@ In this case, the optimal solution would be placing the Item 1 (weight: 3, value
 
 After selecting a specific item and placing it at a specific backpack the state of the problem changes, i.e., we have one less item to select and the capacity of the backpack is now different. Once the item is inserted it cannot be extracted, which means that selecting and placing a specific item during in the decision tree can yield sub-optimal results. Hence, a careful selection and placement must be done throughout the whole process. 
 
-**Goal of Double Pointer-Network** Given a set of items and a backpack, the goal of the Pointer-Network is to sequentially point to the indexes of the input and, therefore, generate a sequence by which each item will be placed at a specific backpack.
+**Goal of Double Pointer-Network**  The idea of Double Pointer-Network is to mimic this two decision process with two dedicated neural networks. The first one will be responsible for selecting the item and the second one will be responsible for selecting the appropriate backpack for the item. 
 
-The idea of Double Pointer-Network is to mimic this two decision process with two dedicated neural networks. The first one will be responsible for selecting the item and the second one will be responsible for selecting the appropriate backpack for the item. 
-
-Since both networks are fed with the information about the all the items that can be selected and the current state of the backpacks
+Both networks are fed with the information about the all the items that can be selected and the current state of the backpacks. This allows the Item selecting network to make the item selection decision based on the remaining items and the current state of the backpacks. Same thing happens with the Backpack selecting network whose decision is not only based on a current item but also on the knowledge about the remaining items that need to be inserted. Knowing the remaining items that need to be inserted allows the network to take less greedy decisions.
 
 **The proposed architecture**
 ![detailed_arch](./media/detailed_arch.jpg)
