@@ -416,8 +416,30 @@ Net 930.0       | Heuristic 1135.0      | % from Heuristic 18.06
 ```
 
 # Resource Placement at Edge Devices
-**Problem statement**: At each time `t` a randomly sized batch of user's requests arrive, each has its own profile that contains information about the amount of resources (e.g., [`10` units of CPU, `2` units of RAM, `5` units for Memory]) that it needs in order to be processed properly. The incoming requests must be placed at a set of available nodes, each having its own processing capabilities (e.g., [`100` units of CPU, `20` units of RAM, `50` units for Memory]). In real world, these nodes usually are located behind a reverse proxy such as NGNIX, Traefik or Moleculer API Gateway. All of them provide load balancing capabilities. NGNIX [offers](http://nginx.org/en/docs/http/load_balancing.html) round-robin, least-connected, ip-hash; Traefik, at this moment, only [supports](https://docs.traefik.io/routing/services/#load-balancing) round-robin method; Moleculer API Gateway [offers](https://moleculer.services/docs/0.14/balancing.html#Built-in-strategies) round-robin, random, CPU usage-based and sharding. These load balancing strategies don't provide optimal solution, it's too expensive too look for it in real-time, they simply follow the selected load balancing strategy. These strategies are fast but the results that they provide can be suboptimal.
+**Problem statement**: At each time `t` a randomly sized batch of user's requests arrive, each has its own profile with the following information:
+
+The amount of resources that it needs in order to be processed properly. For example:
+- `10` units of CPU
+- `2` units of RAM
+- `5` units for Memory
+
+Moreover, in also contains info about the type of the request. For example
+- `1` or `0` depending if the user is premium or free
+- `2`(or any other number) type of the task. Representing the specific need of the request. For example, specific request might need the presence of the GPU or additional data that needs to be fetched in order to be properly processed.
+
+These request must be distributed in a fair way across multiple edge devices/nodes. Each node has the following characteristics:
+- `100` units of CPU available for processing
+- `20` units of RAM available for processing
+- `50` units of memory available for processing
+
+it also contains the range of task that it can process without penalty (e.g., fetching additional data or library from some remote place, a process that will require more memory, RAM and CPU usage):
+- `2` lower bound ID of the tasks that a node can process
+- `5` upper bound ID of the tasks that a node can process
+
+This means that current node can process the tasks (`2`, `3`, `4`, `5`) without any additional penalty.
+
+In real world, these nodes usually are located behind a reverse proxy such as NGNIX, Traefik or Moleculer API Gateway. All of them provide load balancing capabilities. NGNIX [offers](http://nginx.org/en/docs/http/load_balancing.html) round-robin, least-connected, ip-hash; Traefik, at this moment, only [supports](https://docs.traefik.io/routing/services/#load-balancing) round-robin method; Moleculer API Gateway [offers](https://moleculer.services/docs/0.14/balancing.html#Built-in-strategies) round-robin, random, CPU usage-based and sharding. These load balancing strategies don't provide optimal solution, it's too expensive too look for it in real-time, they simply follow the selected load balancing strategy. These strategies are fast but the results that they provide can be suboptimal.
 
 **Goal**: The goal is to design another load balancing strategy that's able to distribute the incoming requests in a fair way, i.e., in a way that the incoming requests have similar working conditions.
 
-**Purpose of the Neural-based load balancing strategy**: A Neural-based load balancing strategy can adapt the distribution policy (heuristic) according to the incoming user's requests and the state of the nodes and, thus, offer a better way of placing the requests.
+**Purpose of the Neural-based load balancing strategy**: A Neural-based load balancing strategy can adapt the distribution policy (heuristic) according to the incoming user's requests and the state of the nodes and, thus, offer a "better" way of placing the requests.
