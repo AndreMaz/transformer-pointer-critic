@@ -153,7 +153,7 @@ In this case, the optimal solution would be placing the Item 1 (weight: 3, value
 ![decision_tree](./media/decision_tree.png)
 > Note: In this case Item 2 was selected during the first decision step.
 
-After selecting a specific item and placing it at a specific backpack the state of the problem changes, i.e., we have one less item to select and the capacity of the backpack is now different. Once the item is inserted it cannot be extracted, hence a careful selection and placement must be done during throughout the whole process.
+After selecting a specific item and placing it at a specific backpack the state of the problem changes, i.e., we have one less item to select and the capacity of the backpack is now different. Once the item is inserted it cannot be extracted, hence a careful selection and placement must be done throughout the whole process.
 
 The idea of Double Pointer-Network is to mimic this two decision process with two dedicated neural networks. The first one will be responsible for selecting the item and the second one will be responsible for selecting the appropriate backpack for the item.
 
