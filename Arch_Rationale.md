@@ -100,7 +100,7 @@ After 4 decoding steps the Pointer-Network would have generated the following se
 Item 3 -> Item 2 -> Item 4 -> Item 0
 ```
 This sequence represents the solution by which the items should be selected.
-***Faroq: the order does not matter, any premutation of these items is basically the same, unlike the TSP ***
+
 
 
 ## Goal of the Embedding Layers and the Attention
@@ -112,6 +112,17 @@ Given the encoder's and the decoder's input the attention will try to focus (by 
 
 ### Problem with this approach
 How to handle the multiple knapsack problem? 
+
+
+### Differences between the Knapsack Problem and Traveling Salesman Problem
+
+While both problem can be solved with the same network architecture the results produced have different interpretations.
+
+For the Traveling Salesman Problem the Pointer Network starts with an empty set, which means that no cities were visited. Then, at each decoding step and knowing the last visited node (fed to the decoder as input), the Pointer Network sequentially adds nodes to the set. In the end, the order by which the nodes were added has a specific meaning, the visitation sequence (although reversed order produces the same solution). For this problem, given a set of nodes `n` the number of possible visitation sequences is equal to `n!`. For 10 nodes we have 10`P`10 = 3628800 possibilities.
+
+In the Knapsack Problem the Pointer Network starts with an empty set that means that no items were selected. Then, at each decoding step and knowing the last selected item (fed to the decoder as input), the Pointer Network sequentially expands the set by adding items. In this particular problem, the order by which the nodes were added to the set don't have any specific meaning. Any order combination of the set produces the same solution. For 10 items we have 10`C`1 + 10`C`2 + 10`C`3 + 10`C`4 + 10`C`5 + 10`C`5 + 10`C`6 + 10`C`7 + 10`C`8 + 10`C`9 + 10`C`10 = 1 + 45 + 120 + 210 + 252 + 210 + 120 + 45 + 1 = 1004 possibilities.
+
+**Faroq: the order does not matter, any permutation of these items is basically the same, unlike the TSP**
 
 # Multiple Knapsack Problem
 **Problem statement**: Given a set of items, each with a weight `x` and value `y`, and a set of backpacks, each with a capacity `c`, the goal is to take the items and place them into the backpacks in a way that the total profit is maximized.
