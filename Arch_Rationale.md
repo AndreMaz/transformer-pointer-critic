@@ -125,9 +125,7 @@ How to handle the multiple knapsack problem?
 - While the items are independent from each other their placement is not. Placing an item at a specific backpack **can and will** affect the way by which other items are be placed.
 
 **Why "classical" heuristic produce sub-optimal results?** 
-The "classical" heuristics are "static", i.e., they perform the same item selection and placement procedure regardless of the input. This means that for specific inputs they will generate suboptimal results. 
-
-For example, for the following input the heuristic from [Neural Combinatorial Optimization with Reinforcement Learning](https://arxiv.org/pdf/1611.09940.pdf) (`A simple yet strong heuristic is to take the items ordered by their weight-to-value ratios until they fill up the weight capacity`):
+The "classical" heuristics are "static", i.e., they perform the same item selection and placement procedure regardless of the input. This means that for specific inputs they will generate suboptimal results. For example, for the following input the heuristic from [Neural Combinatorial Optimization with Reinforcement Learning](https://arxiv.org/pdf/1611.09940.pdf) (`A simple yet strong heuristic is to take the items ordered by their weight-to-value ratios until they fill up the weight capacity`):
 
 ```bash
 array([
@@ -148,6 +146,20 @@ In this case, the optimal solution would be placing the Item 1 (weight: 3, value
 **Claim**: Given a set of items and the backpacks, it is possible to select them (by pointing) in a ___specific___ way that generates (near) optimal picking and placing sequence.
 
 **Goal of Pointer-Network** Given a set of items and a backpack, the goal of the Pointer-Network is to sequentially point to the indexes of the input and, therefore, generate a sequence by which each item will be placed at a specific backpack.
+
+**Double Pointer-Network Rationale** Each iteration in Multiple Knapsack Problem consists of two decisions: `1)` item selection; `2)` backpack selection. 
+
+**Graphical representation of the decision tree**
+![decision_tree](./media/decision_tree.png)
+> Note: In this case Item 2 was selected during the first decision step.
+
+After selecting a specific item and placing it at a specific backpack the state of the problem changes, i.e., we have one less item to select and the capacity of the backpack is now different. Once the item is inserted it cannot be extracted, hence a careful selection and placement must be done during throughout the whole process.
+
+The idea of Double Pointer-Network is to mimic this two decision process with two dedicated neural networks. The first one will be responsible for selecting the item and the second one will be responsible for selecting the appropriate backpack for the item.
+
+**The proposed architecture**
+![detailed_arch](./media/detailed_arch.jpg)
+
 
 **Encoder Input** Represents the state of the backpacks and the items that can be picked.
 
@@ -326,8 +338,7 @@ Net 1339.0      | Heuristic 1231.0      | % from Heuristic -8.77
 Net 1289.0      | Heuristic 1213.0      | % from Heuristic -6.27
 ```
 
-Results for the same problem but comparing against another heuristic.
-This time the heuristic sorts the items in a descending weight-to-value ration and sorts the backpacks in an ascending order by their capacities.
+Results for the same problem but comparing against slightly different heuristic. The heuristic still sorts the items in a descending weight-to-value ration but the backpacks are sorted in an ascending order by their capacities. This means that items with the best weight-to-value ration will be placed in smaller backpacks.
 
 ```bash
 Net 1200.0      | Heuristic 1163.0      | % from Heuristic -3.18
