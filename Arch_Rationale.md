@@ -116,9 +116,9 @@ How to handle the multiple knapsack problem?
 
 ### Differences between the Knapsack Problem and Traveling Salesman Problem
 
-While both problem can be solved with the same network architecture the results produced by it have different interpretations.
+While both problems can be solved with the same network architecture the results produced by it have different interpretations.
 
-For the Traveling Salesman Problem the Pointer Network starts with an empty set, which means that no cities were visited. Then, at each decoding step and knowing the last visited node (fed to the decoder as input), the Pointer Network sequentially adds nodes to the set. In the end, the order by which the nodes were added has a specific meaning, the visitation sequence (although reversed order produces the same solution). For this problem, given a set of nodes `n` the number of possible visitation sequences is equal to `n!`. For 10 nodes we have 10`P`10 = 3628800 possibilities.
+For the Traveling Salesman Problem the Pointer Network starts with a set with a single element that represents the starting point. Then, at each decoding step and knowing the last visited node (fed to the decoder as input), the Pointer Network sequentially adds nodes to the set. In the end, the order by which the nodes were added has a specific meaning, the visitation sequence (although reversed order produces the same solution). For this problem, given a set of nodes `n` and a given start city the number of possible visitation sequences is `(n - 1)!/2`. For 10 nodes we have 181440 tours
 
 In the Knapsack Problem the Pointer Network starts with an empty set that means that no items were selected. Then, at each decoding step and knowing the last selected item (fed to the decoder as input), the Pointer Network sequentially expands the set by adding items. In this particular problem, the order by which the nodes were added to the set don't have any specific meaning. Any order combination of the set produces the same solution. For 10 items we have 10`C`1 + 10`C`2 + 10`C`3 + 10`C`4 + 10`C`5 + 10`C`5 + 10`C`6 + 10`C`7 + 10`C`8 + 10`C`9 + 10`C`10 = 1 + 45 + 120 + 210 + 252 + 210 + 120 + 45 + 1 = 1004 possibilities.
 
