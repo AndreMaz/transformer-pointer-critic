@@ -9,9 +9,9 @@
 
 **Problem statement**: Given a set of nodes, each located at {`x`, `y`}, the goal is to visit them in a way that the total traveling distance is minimized.
 
-**Claim**: Given a set of nodes, it is possible to sort them in a ___specific___ way where the order by which the nodes were sorted represents the (near) optimal visitation sequence.
+**Claim**: Given a set of nodes, it is possible to select them (by pointing) in a ___specific___ order that represents the (near) optimal visitation sequence.
 
-**Goal of Pointer-Network** Given a set of nodes, the goal of the Pointer-Network is to generate a sequence by which the nodes will be visited.
+**Goal of Pointer-Network** Given a set of nodes, the goal of the Pointer-Network is to sequentially point to the indexes of the input and, therefore, generate a sequence by which the nodes will be visited.
 
 **Encoder Input** Represents the coordinates of the nodes
 
@@ -59,9 +59,9 @@ Given the encoder's and the decoder's input the attention will try to focus (by 
 # Knapsack Problem
 **Problem statement**: Given a set of items, each with a weight `x` and value `y`, and a backpack with a capacity `c` the goal is to take the items in a way that the profit is maximized.
 
-**Claim**: Given a set of items, it is possible to sort them in a ___specific___ way where the order by which the items were sorted represents the (near) optimal picking sequence.
+**Claim**: Given a set of items, it is possible to select them (by pointing) in a ___specific___ order that represents the (near) optimal picking sequence.
 
-**Goal of Pointer-Network** Given a set of items and a backpack, the goal of the Pointer-Network is to generate a sequence by which the items will be selected and placed in the backpack.
+**Goal of Pointer-Network** Given a set of items and a backpack, the goal of the Pointer-Network is to sequentially point to the indexes of the input and, therefore, generate a sequence by which the items will be selected and placed in the backpack.
 
 **Encoder Input** Represents the coordinates of the nodes
 
@@ -84,8 +84,7 @@ array([
     ],
 ```
 
-> Note: For more info see [A Pointer Network Based Deep Learning Algorithm
-for 0-1 Knapsack Problem](https://ieeexplore.ieee.org/document/8377505)
+> Note: For more info see [A Pointer Network Based Deep Learning Algorithm for 0-1 Knapsack Problem](https://ieeexplore.ieee.org/document/8377505).
 
 Assuming that at first decoding step the Pointer-Network "pointed" at Item 2, represented as [7., 1/7],  the decoder's input for the next decoding step would be updated to:
 
@@ -114,12 +113,21 @@ Given the encoder's and the decoder's input the attention will try to focus (by 
 How to handle the multiple knapsack problem? 
 
 # Multiple Knapsack Problem
-**Problem statement**: Given a set of items, each with a weight `x` and value `y`, and a set of backpacks, each with a capacity `c`, the goal is to take the items in a way that the profit is maximized.
+**Problem statement**: Given a set of items, each with a weight `x` and value `y`, and a set of backpacks, each with a capacity `c`, the goal is to take the items and place them into the backpacks in a way that the total profit is maximized.
 
 **Problems with the previous approach**
 - [Previous approach](#Knapsack-Problem) is not able to work with multiple backpacks.
 
-- One possibility to solve the problem is to select a specific backpack from a set and then try to insert all the items. Then, select another backpack and try to insert the remaining items. However, what's the order by which the backpacks should be selected? Sort them descending order by their capacities? Will this approach work well every time? No. For specific set of items this approach will generate bad results. For example:
+- One possibility to solve this problem is break it into multiple sub-problems, i.e., select a specific backpack from a set and then try to insert all the items. Then, select another backpack and try to insert the remaining items. However, what's the order by which the backpacks should be selected? Sort them descending order by their capacities? Will this approach work well every time? No, because after inserting an item into the backpack we cannot take it back until the end of the decoding process.
+
+- What if we invert the problem? Pick a single item and try to place it across multiple backpacks. Then, take another item and repeat the process. In this case, what would be the sequence by which we would select the items? Start by the items with the highest cost? Will this approach work well every time? No. Given the fact that we cannot remove the item from the backpack. The item selection and its placement, into a specific backpack, must be done in a way that "we know" the remaining items that still need to be placed and the state of the backpacks.
+
+- While the items are independent from each other their placement is not. Placing an item at a specific backpack **can and will** affect the way by which other items are be placed.
+
+**Why "classical" heuristic produce sub-optimal results?** 
+The "classical" heuristics are "static", i.e., they perform the same item selection and placement procedure regardless of the input. This means that for specific inputs they will generate suboptimal results. 
+
+For example, for the following input the heuristic from [Neural Combinatorial Optimization with Reinforcement Learning](https://arxiv.org/pdf/1611.09940.pdf) (`A simple yet strong heuristic is to take the items ordered by their weight-to-value ratios until they fill up the weight capacity`):
 
 ```bash
 array([
@@ -133,17 +141,13 @@ array([
     dtype=float32, shape=(11, 2))
 ```
 
-After applying the heuristic from [Neural Combinatorial Optimization with Reinforcement Learning](https://arxiv.org/pdf/1611.09940.pdf): `A simple yet strong heuristic is to take the items ordered by their weight-to-value ratios until they fill up the weight capacity`. We would get reward equal to 5, because the first item (weight: 3, value: 3) would be placed into the first backpack (capacity: 4). After that, only one of the remaining items would fit the backpacks.
+would get reward equal to 5, because the first Item 1 (weight: 3, value: 3) would be placed into the first Backpack 1 (capacity: 4). After that, only one of the remaining items would fit the backpacks.
 
-In this case, the optimal solution would be placing the item 1 (weight: 3, value: 3) into the backpack 2 (capacity: 3) and the remaining two items would be placed into the first backpack. In this case, the reward would be equal to 7.
+In this case, the optimal solution would be placing the Item 1 (weight: 3, value: 3) into the Backpack 2 (capacity: 3) and the remaining two items would be placed into the first backpack. In this case, the reward would be equal to 7 and the backpacks would reach their maximum capacity.
 
-- What if we invert the problem? Pick a single item and try to place it across multiple backpacks. Then, take another item and repeat the process. In this case, what would be the sequence by which we would select the items? Start by the items with the highest cost? Will this approach work well every time? No. 
+**Claim**: Given a set of items and the backpacks, it is possible to select them (by pointing) in a ___specific___ way that generates (near) optimal picking and placing sequence.
 
-- Given the fact that we cannot remove the item from the backpack. The item selection and its placement, into a specific backpack, must be done in a way that "we know" what items are remaining and the state of the backpacks.
-
-- While the items are independent from each other their placement is not. Placing an item at a specific backpack **can and will** affect the way by which the other items are be placed.
-
-**Claim**: Given a set of items and the backpacks, it is possible to sort them in a ___specific___ way after which the fit-first (or any other) approach generates the optimal picking and placing sequence.
+**Goal of Pointer-Network** Given a set of items and a backpack, the goal of the Pointer-Network is to sequentially point to the indexes of the input and, therefore, generate a sequence by which each item will be placed at a specific backpack.
 
 **Encoder Input** Represents the state of the backpacks and the items that can be picked.
 
@@ -164,7 +168,6 @@ array([
     dtype=float32, shape=(11, 2))
 ```
 
-
 **Item Selecting Decoder Input** Represents the previously select item. At the beginning it will be at the [SOS, SOS].
 
 ```bash
@@ -172,7 +175,6 @@ array([
     [ 0.,  0.],  -> Start the decoding process.
     ],
 ```
-
 
 **Backpack Selecting Decoder Input** Represents the item that was selected by previous network.
 
@@ -192,7 +194,7 @@ This sequence represents the solution by which the items should be selected and 
 
 ## Goal of the Embedding Layers and the Attention
 ### Encoder's Embedding Layers
-In this case in particular the embedding layers will simply represent, in a high dimensional space, the items and the backpacks. Similar items will have similar representations.
+In this case in particular the embedding layers will simply represent, in a high dimensional space, the items and the backpacks. Similar items will have similar representations (same for the backpacks).
 
 ### Transformer's Encoder Attention
 The self-attention mechanism allows the inputs to interact with each other (“self”) and find out who they should pay more attention to (“attention”). The outputs are aggregates of these interactions and attention scores. In the case of the multiple knapsack problem, the attention will "learn" that specific items and specific backpacks tend to generate higher rewards. Lower probabilities (between the item and the backpack) in the attention will mean that for a specific item the network should not consider trying to insert it into the specific backpack because it will generate bad rewards.
@@ -322,6 +324,44 @@ Net 1097.0      | Heuristic 955.0       | % from Heuristic -14.87
 Net 1364.0      | Heuristic 1226.0      | % from Heuristic -11.26
 Net 1339.0      | Heuristic 1231.0      | % from Heuristic -8.77
 Net 1289.0      | Heuristic 1213.0      | % from Heuristic -6.27
+```
+
+Results for the same problem but comparing against another heuristic.
+This time the heuristic sorts the items in a descending weight-to-value ration and sorts the backpacks in an ascending order by their capacities.
+
+```bash
+Net 1200.0      | Heuristic 1163.0      | % from Heuristic -3.18
+Net 1112.0      | Heuristic 1118.0      | % from Heuristic 0.54
+Net 1323.0      | Heuristic 1283.0      | % from Heuristic -3.12
+Net 1226.0      | Heuristic 1179.0      | % from Heuristic -3.99
+Net 1185.0      | Heuristic 1116.0      | % from Heuristic -6.18
+Net 1360.0      | Heuristic 1304.0      | % from Heuristic -4.29
+Net 1416.0      | Heuristic 1354.0      | % from Heuristic -4.58
+Net 1251.0      | Heuristic 1129.0      | % from Heuristic -10.81
+Net 1181.0      | Heuristic 1132.0      | % from Heuristic -4.33
+Net 1247.0      | Heuristic 1180.0      | % from Heuristic -5.68
+Net 1072.0      | Heuristic 993.0       | % from Heuristic -7.96
+Net 1340.0      | Heuristic 1254.0      | % from Heuristic -6.86
+Net 1397.0      | Heuristic 1307.0      | % from Heuristic -6.89
+Net 1190.0      | Heuristic 1096.0      | % from Heuristic -8.58
+Net 1171.0      | Heuristic 1132.0      | % from Heuristic -3.45
+Net 1099.0      | Heuristic 1006.0      | % from Heuristic -9.24
+Net 1175.0      | Heuristic 1135.0      | % from Heuristic -3.52
+Net 1542.0      | Heuristic 1488.0      | % from Heuristic -3.63
+Net 1069.0      | Heuristic 1031.0      | % from Heuristic -3.69
+Net 1322.0      | Heuristic 1260.0      | % from Heuristic -4.92
+Net 1336.0      | Heuristic 1271.0      | % from Heuristic -5.11
+Net 1327.0      | Heuristic 1297.0      | % from Heuristic -2.31
+Net 1337.0      | Heuristic 1272.0      | % from Heuristic -5.11
+Net 1403.0      | Heuristic 1320.0      | % from Heuristic -6.29
+Net 1408.0      | Heuristic 1359.0      | % from Heuristic -3.61
+Net 1167.0      | Heuristic 1103.0      | % from Heuristic -5.80
+Net 1195.0      | Heuristic 1096.0      | % from Heuristic -9.03
+Net 1358.0      | Heuristic 1288.0      | % from Heuristic -5.43
+Net 1407.0      | Heuristic 1332.0      | % from Heuristic -5.63
+Net 1184.0      | Heuristic 1146.0      | % from Heuristic -3.32
+Net 1297.0      | Heuristic 1216.0      | % from Heuristic -6.66
+Net 1267.0      | Heuristic 1190.0      | % from Heuristic -6.47
 ```
 
 Same test were performed but in this case the item selecting network were removed. Instead of the network feeding the items into the backpack selecting net, the items were selected in random order and sequentially, i.e., from the first to last in each problem instance. In both cases the results were similar. Below are the results for the random selection. Looking at the results it's possible to see that single network approach can't outperform the heuristic.
