@@ -12,7 +12,7 @@ import numpy as np
 def solver(problem, num_backpacks: int):
     backpacks, items = parse_input(problem, num_backpacks)
     
-    backpacks: List[Backpack] = sorted(backpacks, key=attrgetter("capacity"), reverse=True)
+    backpacks: List[Backpack] = sorted(backpacks, key=attrgetter("capacity"), reverse=False)
     items: List[Item] = sorted(items, key=lambda item: item.ratio, reverse=True)
 
     total_value = 0
