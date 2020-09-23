@@ -11,9 +11,9 @@
 
 **Claim**: Given a set of nodes, it is possible to select them (by pointing) in a ___specific___ order that represents the (near) optimal visitation sequence.
 
-**Goal of Pointer-Network** Given a set of nodes, the goal of the Pointer-Network is to sequentially point to the indexes of the input and, therefore, generate a sequence by which the nodes will be visited.
+**Goal of Pointer-Network**: Given a set of nodes, the goal of the Pointer-Network is to sequentially point to the indexes of the input and, therefore, generate a sequence by which the nodes will be visited.
 
-**Encoder Input** Represents the coordinates of the nodes
+**Encoder Input**: Represents the coordinates of the nodes
 
 ```bash
 array([
@@ -25,7 +25,7 @@ array([
 ```
 
 
-**Decoder Input** Represents the current previous location of the salesman. At the beginning it will be at the starting point.
+**Decoder Input**: Represents the current previous location of the salesman. At the beginning it will be at the starting point.
 
 ```bash
 array([
@@ -33,7 +33,7 @@ array([
     ],
 ```
 
-Assuming that at first decoding step the Pointer-Network "pointed" at Node 1, located at (1,1), the decoder's input for the next decoding step would be updated to:
+Assuming that at the first decoding step the Pointer-Network "pointed" at Node 1, located at (1,1), the decoder's input for the next decoding step would be updated to:
 
 ```bash
 array([
@@ -51,19 +51,19 @@ This sequence represents the solution to this particular problem. However, if th
 
 ## Goal of the Embedding Layers and the Attention
 ### Encoder's Embedding Layers
-In this case in particular the embedding layers will represent, in a high dimensional space, the distance map between the nodes. Two nodes that are close to each other will have similar representations. Nodes that are distant from each other will have very different representations.
+In this case the embedding layers in particular will represent, in a high dimensional space, the distance map between the nodes. Since we only consider the locations of the nodes as input, closer node will have similar representations.
 
 ### Pointer-Network Attention
-Given the encoder's and the decoder's input the attention will try to focus (by giving higher probability) on specific nodes that should be considered during the current decoding step.
+Given the encoder's and the decoder's input, the attention will try to focus (by giving higher probability) on specific nodes that should be considered during the current decoding step.
 
 # Knapsack Problem
-**Problem statement**: Given a set of items, each with a weight `x` and value `y`, and a backpack with a capacity `c` the goal is to take the items in a way that the profit is maximized.
+**Problem statement**: Given a set of items, each with a weight `x` and value `y`, and a backpack with a capacity `c` the goal is to pack the items in a way that the profit is maximized.
 
 **Claim**: Given a set of items, it is possible to select them (by pointing) in a ___specific___ order that represents the (near) optimal picking sequence.
 
 **Goal of Pointer-Network** Given a set of items and a backpack, the goal of the Pointer-Network is to sequentially point to the indexes of the input and, therefore, generate a sequence by which the items will be selected and placed in the backpack.
 
-**Encoder Input** Represents the coordinates of the nodes
+**Encoder Input** A tuple of (`x`, `y/c`), where `y/c` is the relative weight of the item
 
 ```bash
 array([
@@ -74,9 +74,9 @@ array([
     [ 2.,  3/7.],  -> Item 4. Value `2`. Occupies 3 units of space in a backpack with 7 units of capacity.
     ],
 ```
+where EOS is the end of sequence symbol.
 
-
-**Decoder Input** Represents the previously select item. At the beginning it will be at the [SOS, SOS].
+**Decoder Input** Represents the previously selected item. At the beginning it will be at the [SOS, SOS].
 
 ```bash
 array([
@@ -99,8 +99,9 @@ After 4 decoding steps the Pointer-Network would have generated the following se
 ```
 Item 3 -> Item 2 -> Item 4 -> Item 0
 ```
-
 This sequence represents the solution by which the items should be selected.
+***Faroq: the order does not matter, any premutation of these items is basically the same, unlike the TSP ***
+
 
 ## Goal of the Embedding Layers and the Attention
 ### Encoder's Embedding Layers
@@ -145,22 +146,24 @@ In this case, the optimal solution would be placing the Item 1 (weight: 3, value
 
 **Claim**: Given a set of items and the backpacks, it is possible to select them (by pointing) in a ___specific___ way that generates (near) optimal picking and placing sequence.
 
-**Multiple Knapsack Problem Decision Tree** Each iteration in Multiple Knapsack Problem consists of two decisions: `1)` item selection; `2)` backpack selection. 
+**Multiple Knapsack Problem Decision Tree**: Each iteration in Multiple Knapsack Problem consists of two decisions: `1)` item selection; `2)` backpack selection. 
 
-**Graphical representation of the decision tree**
+**Graphical representation of the decision tree**:
 ![decision_tree](./media/decision_tree.png)
 > Note: In this case Item 2 was selected during the first decision step.
 
-After selecting a specific item and placing it at a specific backpack the state of the problem changes, i.e., we have one less item to select and the capacity of the backpack is now different. Once the item is inserted it cannot be extracted, which means that selecting and placing a specific item during in the decision tree can yield sub-optimal results. Hence, a careful selection and placement must be done throughout the whole process. 
+After selecting a specific item and placing it at a specific backpack the state of the problem changes, i.e., we have one less item to select and the capacity of the backpack is now different. Once the item is inserted it cannot be extracted, which means that selecting and placing a specific item during the decision tree can yield sub-optimal results. Hence, a careful selection and placement must be done throughout the whole process. 
 
-**Goal of Double Pointer-Network**  The idea of Double Pointer-Network is to mimic this two decision process with two dedicated neural networks. The first one will be responsible for selecting the item and the second one will be responsible for selecting the appropriate backpack for the item. 
+**Goal of Double Pointer-Network**:  The idea of Double Pointer-Network is to mimic this two decision process with two dedicated neural networks. The first one will be responsible for selecting the item and the second one will be responsible for selecting the appropriate backpack for the item. 
 
-Both networks are fed with the information about all the items that can be selected and the current state of the backpacks. This allows the Item selecting network to make the (item selection) decision based on the remaining items and the current state of the backpacks. Same thing happens with the Backpack selecting network whose decision is not only based on a current item but also on the knowledge about the remaining items that need to be inserted. Having knowledge about the remaining items allows the network to take less greedy decisions. This process kind of mimics the following idea: `I will place this specific item into this backpack _because_ I know that I still have to insert other items. Therefore, placing current item at this specific backpack will allow me (in the future) to pack the remaining items in a better way`.
+Both networks are fed with the information about all the items that can be selected and the current state of the backpacks. This way both networks aware of the items and backpacks states. This allows the Item selecting network to make the (item selection) decision based on, not only the remaining items but also the current state of the backpacks. The same thing happens with the Backpack selecting network whose decision is not only based on a current item but also on the knowledge about the remaining items that need to be inserted. Since, the Item selector network will change the items state, the selected item is feed to the Backpack network (see link originated from Rule 1 in the following digram).
+
+Having knowledge about the remaining items allows the network to take less greedy decisions. This process kind of mimics the following idea: `I will place this specific item into this backpack _because_ I know that I still have to insert other items. Therefore, placing current item at this specific backpack will allow me (in the future) to pack the remaining items in a better way`.
 
 **The proposed architecture**
 ![detailed_arch](./media/detailed_arch.jpg)
 
-**Encoder Input** Represents the state of the backpacks and the items that can be picked.
+**Encoder Input**: Represents the state of the backpacks and the items that can be picked.
 
 ```bash
 array([
@@ -179,7 +182,7 @@ array([
     dtype=float32, shape=(11, 2))
 ```
 
-**Item Selecting Decoder Input** Represents the previously select item. At the beginning it will be at the [SOS, SOS].
+**Item Selecting Decoder Input**: Represents the previously select item. At the beginning it will be at the [SOS, SOS].
 
 ```bash
 array([
