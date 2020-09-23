@@ -443,3 +443,16 @@ In real world, these nodes usually are located behind a reverse proxy such as NG
 **Goal**: The goal is to design another load balancing strategy that's able to distribute the incoming requests in a fair way, i.e., in a way that the incoming requests have similar working conditions.
 
 **Purpose of the Neural-based load balancing strategy**: A Neural-based load balancing strategy can adapt the distribution policy (heuristic) according to the incoming user's requests and the state of the nodes and, thus, offer a "better" way of placing the requests.
+
+
+**Possible Input Representation**
+```bash
+array([
+    [ 0., 0., 0., 0., 0.],  -> Node EOS. Rejected items will be "placed" here
+    [ 70., 80., 40., 4., 7.] -> Node 1. CPU: 70 | RAM: 80 | Memory: 40 | Tasks without penalty `4`, `5`, `6`, `7`
+    [ 50., 40., 20., 1., 4.] -> Node 2. CPU: 50 | RAM: 40 | Memory: 20 | Tasks without penalty `1`, `2`, `3`, `4`
+    [ 10., 12., 17., 0., 3.] -> Request 1. CPU: 10 | RAM: 12 | Memory: 17 | Free user: 0 | Task: 3
+    [ 18., 32., 16., 1., 4.] -> Request 1. CPU: 10 | RAM: 12 | Memory: 17 | Premium user: 0 | Task: 4
+    ],
+    dtype=float32, shape=(5, 5))
+```
