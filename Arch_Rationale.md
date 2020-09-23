@@ -116,7 +116,7 @@ How to handle the multiple knapsack problem?
 
 ### Differences between the Knapsack Problem and Traveling Salesman Problem
 
-While both problem can be solved with the same network architecture the results produced have different interpretations.
+While both problem can be solved with the same network architecture the results produced by it have different interpretations.
 
 For the Traveling Salesman Problem the Pointer Network starts with an empty set, which means that no cities were visited. Then, at each decoding step and knowing the last visited node (fed to the decoder as input), the Pointer Network sequentially adds nodes to the set. In the end, the order by which the nodes were added has a specific meaning, the visitation sequence (although reversed order produces the same solution). For this problem, given a set of nodes `n` the number of possible visitation sequences is equal to `n!`. For 10 nodes we have 10`P`10 = 3628800 possibilities.
 
