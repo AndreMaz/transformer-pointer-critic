@@ -326,42 +326,42 @@ Net 1339.0      | Heuristic 1231.0      | % from Heuristic -8.77
 Net 1289.0      | Heuristic 1213.0      | % from Heuristic -6.27
 ```
 
-Results for the same problem but comparing against other heuristic.
+Results for the same problem but comparing against another heuristic.
 This time the heuristic sorts the items in a descending weight-to-value ration and sorts the backpacks in an ascending order by their capacities.
 
 ```bash
-Net 1213.0      | Heuristic 1189.0      | % from Heuristic -2.02
-Net 1253.0      | Heuristic 1232.0      | % from Heuristic -1.70
-Net 1074.0      | Heuristic 1080.0      | % from Heuristic 0.56
-Net 876.0       | Heuristic 846.0       | % from Heuristic -3.55
-Net 1246.0      | Heuristic 1211.0      | % from Heuristic -2.89
-Net 1263.0      | Heuristic 1212.0      | % from Heuristic -4.21
-Net 1124.0      | Heuristic 1129.0      | % from Heuristic 0.44
-Net 1247.0      | Heuristic 1209.0      | % from Heuristic -3.14
-Net 1069.0      | Heuristic 1067.0      | % from Heuristic -0.19
-Net 993.0       | Heuristic 934.0       | % from Heuristic -6.32
-Net 1019.0      | Heuristic 1045.0      | % from Heuristic 2.49
-Net 1034.0      | Heuristic 969.0       | % from Heuristic -6.71
-Net 1327.0      | Heuristic 1316.0      | % from Heuristic -0.84
-Net 1218.0      | Heuristic 1158.0      | % from Heuristic -5.18
-Net 1276.0      | Heuristic 1235.0      | % from Heuristic -3.32
-Net 1263.0      | Heuristic 1225.0      | % from Heuristic -3.10
-Net 1027.0      | Heuristic 994.0       | % from Heuristic -3.32
-Net 1097.0      | Heuristic 1048.0      | % from Heuristic -4.68
-Net 1210.0      | Heuristic 1203.0      | % from Heuristic -0.58
-Net 1056.0      | Heuristic 1058.0      | % from Heuristic 0.19
-Net 1263.0      | Heuristic 1188.0      | % from Heuristic -6.31
-Net 1165.0      | Heuristic 1149.0      | % from Heuristic -1.39
-Net 1332.0      | Heuristic 1294.0      | % from Heuristic -2.94
-Net 1087.0      | Heuristic 1113.0      | % from Heuristic 2.34
-Net 1042.0      | Heuristic 1026.0      | % from Heuristic -1.56
-Net 1109.0      | Heuristic 1078.0      | % from Heuristic -2.88
-Net 1238.0      | Heuristic 1203.0      | % from Heuristic -2.91
-Net 1233.0      | Heuristic 1231.0      | % from Heuristic -0.16
-Net 1164.0      | Heuristic 1149.0      | % from Heuristic -1.31
-Net 1087.0      | Heuristic 1099.0      | % from Heuristic 1.09
-Net 1138.0      | Heuristic 1094.0      | % from Heuristic -4.02
-Net 1059.0      | Heuristic 1015.0      | % from Heuristic -4.33
+Net 1200.0      | Heuristic 1163.0      | % from Heuristic -3.18
+Net 1112.0      | Heuristic 1118.0      | % from Heuristic 0.54
+Net 1323.0      | Heuristic 1283.0      | % from Heuristic -3.12
+Net 1226.0      | Heuristic 1179.0      | % from Heuristic -3.99
+Net 1185.0      | Heuristic 1116.0      | % from Heuristic -6.18
+Net 1360.0      | Heuristic 1304.0      | % from Heuristic -4.29
+Net 1416.0      | Heuristic 1354.0      | % from Heuristic -4.58
+Net 1251.0      | Heuristic 1129.0      | % from Heuristic -10.81
+Net 1181.0      | Heuristic 1132.0      | % from Heuristic -4.33
+Net 1247.0      | Heuristic 1180.0      | % from Heuristic -5.68
+Net 1072.0      | Heuristic 993.0       | % from Heuristic -7.96
+Net 1340.0      | Heuristic 1254.0      | % from Heuristic -6.86
+Net 1397.0      | Heuristic 1307.0      | % from Heuristic -6.89
+Net 1190.0      | Heuristic 1096.0      | % from Heuristic -8.58
+Net 1171.0      | Heuristic 1132.0      | % from Heuristic -3.45
+Net 1099.0      | Heuristic 1006.0      | % from Heuristic -9.24
+Net 1175.0      | Heuristic 1135.0      | % from Heuristic -3.52
+Net 1542.0      | Heuristic 1488.0      | % from Heuristic -3.63
+Net 1069.0      | Heuristic 1031.0      | % from Heuristic -3.69
+Net 1322.0      | Heuristic 1260.0      | % from Heuristic -4.92
+Net 1336.0      | Heuristic 1271.0      | % from Heuristic -5.11
+Net 1327.0      | Heuristic 1297.0      | % from Heuristic -2.31
+Net 1337.0      | Heuristic 1272.0      | % from Heuristic -5.11
+Net 1403.0      | Heuristic 1320.0      | % from Heuristic -6.29
+Net 1408.0      | Heuristic 1359.0      | % from Heuristic -3.61
+Net 1167.0      | Heuristic 1103.0      | % from Heuristic -5.80
+Net 1195.0      | Heuristic 1096.0      | % from Heuristic -9.03
+Net 1358.0      | Heuristic 1288.0      | % from Heuristic -5.43
+Net 1407.0      | Heuristic 1332.0      | % from Heuristic -5.63
+Net 1184.0      | Heuristic 1146.0      | % from Heuristic -3.32
+Net 1297.0      | Heuristic 1216.0      | % from Heuristic -6.66
+Net 1267.0      | Heuristic 1190.0      | % from Heuristic -6.47
 ```
 
 Same test were performed but in this case the item selecting network were removed. Instead of the network feeding the items into the backpack selecting net, the items were selected in random order and sequentially, i.e., from the first to last in each problem instance. In both cases the results were similar. Below are the results for the random selection. Looking at the results it's possible to see that single network approach can't outperform the heuristic.
