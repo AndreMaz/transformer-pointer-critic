@@ -155,7 +155,9 @@ After selecting a specific item and placing it at a specific backpack the state 
 
 **Goal of Double Pointer-Network** Given a set of items and a backpack, the goal of the Pointer-Network is to sequentially point to the indexes of the input and, therefore, generate a sequence by which each item will be placed at a specific backpack.
 
-The idea of Double Pointer-Network is to mimic this two decision process with two dedicated neural networks. The first one will be responsible for selecting the item and the second one will be responsible for selecting the appropriate backpack for the item.
+The idea of Double Pointer-Network is to mimic this two decision process with two dedicated neural networks. The first one will be responsible for selecting the item and the second one will be responsible for selecting the appropriate backpack for the item. 
+
+Since both networks are fed with the information about the all the items that can be selected and the current state of the backpacks
 
 **The proposed architecture**
 ![detailed_arch](./media/detailed_arch.jpg)
