@@ -429,7 +429,7 @@ Net 916.0       | Heuristic 1185.0      | % from Heuristic 22.70
 Net 930.0       | Heuristic 1135.0      | % from Heuristic 18.06
 ```
 
-#### Results Interpretation
+#### Pointer Attention Interpretation
 Solution quality:
 ```bash
 Opt 381.0 || Net 381.0 | % from Opt 0.00 || Heuristic 351.0 | % from Opt 7.87
@@ -438,8 +438,9 @@ Opt 381.0 || Net 381.0 | % from Opt 0.00 || Heuristic 351.0 | % from Opt 7.87
 **Item selection and placement sequence**
 ![detailed_arch](./media/Policy.png)
 > **Legend to the figure:** `w` and `v` represent the weight and the value of an item; `c` and `l` represent the maximum capacity and the current load of a backpack.
+Each row in the plot represents an item selection (left plot) and its placement sequence (right plot).
 
-
+Interpreting the selection decision is hard and, therefore, we can only hypothesize. Nevertheless, interesting behavior happens during the first step. In this step the Item selecting network selected the item with weight 13 and value 96. Then, during the placement the network considers 3 contender backpacks: backpack with capacity 13; backpack with capacity 14; backpack with capacity 19. The last backpack was the one that received the least attention. Why? First of all, because this backpack is feasible, i.e., item with weight 13 and value 96 can fit. However, this raises the following question: `why the with capacity 19 received less attention than the backpack with capacity 14?`. We can only hypothesize but it seem that the network gave more attention to the backpack with with capacity 14 because it knows that there is an item with weight 1 and value 88, i.e., it knows that if it places item with weight 13 and value 96 and then item weight 1 and value 88 then the backpack will be full and there won't be any unused space in it. Nevertheless, the network selected, by giving the highest attention, the backpack with the capacity of 13. After placing the item with weight 13 and value 96 the backpack is at full capacity and, therefore, can't accept any other item. 
 
 # Resource Placement at Edge Devices
 **Problem statement**: At each time `t` a randomly sized batch of user's requests arrive, each has its own profile with the following information:
