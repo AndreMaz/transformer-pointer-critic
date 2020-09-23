@@ -210,9 +210,9 @@ In this case in particular the embedding layers will simply represent, in a high
 ### Transformer's Encoder Attention
 The self-attention mechanism allows the inputs to interact with each other (“self”) and find out who they should pay more attention to (“attention”). The outputs are aggregates of these interactions and attention scores. In the case of the multiple knapsack problem, the attention will "learn" that specific items and specific backpacks tend to generate higher rewards. Lower probabilities (between the item and the backpack) in the attention will mean that for a specific item the network should not consider trying to insert it into the specific backpack because it will generate bad rewards.
 
-In other words, the encoder's attention is looking for possible (good) contender backpack for each item. Moreover, the contender selection also takes into the account the existence of other items because they are also fed into the encoder.
+In other words, the encoder's attention is looking for possible (good) contender backpack for each item. Moreover, the contender selection also takes into the account the presence of other items because they are also fed into the encoder.
 
-Moreover, the by using the self-attention during the encoding process we ensure that the output data is invariant to the input order. This is an important issue when dealing with the data is not a sequence but a set. For more info about it check: [Order Matters: Sequence to sequence for sets](https://arxiv.org/pdf/1511.06391.pdf). The Transformer's self-attention, without the positional encoding, makes the data invariant. For more info check: [Attention, Learn to Solve Routing Problems!](https://arxiv.org/abs/1803.08475).
+Moreover, by using the self-attention during the encoding process we ensure that the output data is invariant to the input order. This is an important issue when dealing with the data is not a sequence but a set. For more info about it check: [Order Matters: Sequence to sequence for sets](https://arxiv.org/pdf/1511.06391.pdf). The Transformer's self-attention, without the positional encoding, makes the data invariant. For more info check: [Attention, Learn to Solve Routing Problems!](https://arxiv.org/abs/1803.08475).
 
 ### Pointer-Network Attention
 Given the encoder's and the decoder's input the attention will try to focus (by giving higher probability) on specific items that should selected. In other words, given the remaining items, the state of the backpacks and knowing the last selected item the attention will point to the next item that should be selected.
@@ -241,6 +241,9 @@ Testing configs:
 - Batch size: `32`
 - Item sample size: `20`
 - Backpack sample size: `5 + 1`. `+ 1` is the empty backpack where items that weren't selected are placed.
+
+> Note: Training for longer time produces better results. For example, in 
+[Neural Combinatorial Optimization with Reinforcement Learning](https://arxiv.org/pdf/1611.09940.pdf) authors trained the network with `1 000 000` problem instances. We've trained our network only with `160 000` instances.
 
 ```bash
 Opt 369.0       | Net 352.0 | % from Opt 4.61 || Heuristic 352.0     | % from Opt 4.61
