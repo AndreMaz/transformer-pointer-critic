@@ -155,11 +155,10 @@ After selecting a specific item and placing it at a specific backpack the state 
 
 **Goal of Double Pointer-Network**  The idea of Double Pointer-Network is to mimic this two decision process with two dedicated neural networks. The first one will be responsible for selecting the item and the second one will be responsible for selecting the appropriate backpack for the item. 
 
-Both networks are fed with the information about the all the items that can be selected and the current state of the backpacks. This allows the Item selecting network to make the item selection decision based on the remaining items and the current state of the backpacks. Same thing happens with the Backpack selecting network whose decision is not only based on a current item but also on the knowledge about the remaining items that need to be inserted. Knowing the remaining items that need to be inserted allows the network to take less greedy decisions.
+Both networks are fed with the information about the all the items that can be selected and the current state of the backpacks. This allows the Item selecting network to make the item selection decision based on the remaining items and the current state of the backpacks. Same thing happens with the Backpack selecting network whose decision is not only based on a current item but also on the knowledge about the remaining items that need to be inserted. Having knowledge about the remaining items allows the network to take less greedy decisions.
 
 **The proposed architecture**
 ![detailed_arch](./media/detailed_arch.jpg)
-
 
 **Encoder Input** Represents the state of the backpacks and the items that can be picked.
 
