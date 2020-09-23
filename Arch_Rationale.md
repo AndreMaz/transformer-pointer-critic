@@ -429,6 +429,18 @@ Net 916.0       | Heuristic 1185.0      | % from Heuristic 22.70
 Net 930.0       | Heuristic 1135.0      | % from Heuristic 18.06
 ```
 
+#### Results Interpretation
+Solution quality:
+```bash
+Opt 381.0 || Net 381.0 | % from Opt 0.00 || Heuristic 351.0 | % from Opt 7.87
+```
+
+**Item selection and placement sequence**
+![detailed_arch](./media/Policy.png)
+> **Legend to the figure:** `w` and `v` represent the weight and the value of an item; `c` and `l` represent the maximum capacity and the current load of a backpack.
+
+
+
 # Resource Placement at Edge Devices
 **Problem statement**: At each time `t` a randomly sized batch of user's requests arrive, each has its own profile with the following information:
 
