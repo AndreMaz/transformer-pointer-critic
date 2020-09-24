@@ -249,7 +249,7 @@ Training configs:
 - Number of epochs: `5000`
 - Total number of problem instances used during training: `32 * 5000 = 160000` 
 - Item sample size: `20`
-- Backpack sample size: `5`
+- Backpack sample size: `5 + 1`. `+ 1` is the empty backpack where items that weren't selected are placed.
 
 Testing configs:
 - Batch size: `32`
@@ -313,7 +313,7 @@ Training configs:
 
 > **Note:** For building a single problem instance the items and backpacks are randomly sampled from their respective sets
 
-Testing configs:
+For testing we've increased the number of items by factor of `x2.5` (from 20 during training for 50 during testing) and number of backpacks by factor of `x2` (from 5 during training for 10 during testing). Testing configs:
 - Batch size: `32`
 - Item sample size: `50`
 - Backpack sample size: `10 + 1`. `+ 1` is the empty backpack where items that weren't selected are placed.

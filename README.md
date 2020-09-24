@@ -1,5 +1,7 @@
 # Double Transformer Pointer-Critic
 
+**For the details please check [Architecture Rationale](./Arch_Rationale.md)**
+
 ## Architecture Details
 
 **Simple Overview**
