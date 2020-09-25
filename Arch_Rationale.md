@@ -3,6 +3,7 @@
 - [Traveling Salesman Problem](#Traveling-Salesman-Problem)
 - [Knapsack Problem](#Knapsack-Problem)
 - [Multiple Knapsack Problem](#Multiple-Knapsack-Problem)
+- [Vehicle Routing Problem](#Vehicle-Routing-Problem)
 - [Resource Placement at Edge Devices](#Resource-Placement-At-Edge-Devices)
 
 # Traveling Salesman Problem
@@ -442,11 +443,18 @@ Each row in the plot represents an item selection (left plot) and its placement 
 
 Interpreting the selection decision is hard and, therefore, we can only hypothesize. Nevertheless, interesting behavior happens during the first step. In this step the Item selecting network selected the item with weight 13 and value 96. Then, during the placement the network considers 3 contender backpacks: backpack with capacity 13; backpack with capacity 14; backpack with capacity 19. The last backpack was the one that received the least attention. Why? First of all, because this backpack is feasible, i.e., item with weight 13 and value 96 can fit into it. Hence, it has to receive at least some attention. However, this raises the following question: `why the backpack with capacity 19 received less attention than the backpack with capacity 14?`. We can only hypothesize but it seem that the network gave more attention to the backpack with with capacity 14 because it knows that there is an item with weight 1 and value 88, i.e., it knows that if it places item with weight 13 and value 96 and then item weight 1 and value 88 then the backpack will be full and there won't be any unused space in it. Nevertheless, the network selected, by giving the highest attention, the backpack with the capacity of 13. After placing the item with weight 13 and value 96 the backpack is at full capacity and, therefore, can't accept any other item. 
 
-During second step (second row), despite having an item with weight 9 and value of 90 the network selected a less valuable item (weight of 1 and value of 88). During the placement, and even though there were 4 more backpacks that could be used, the network was sure about the location it should place the item. It seems that the network decided to place the item into the backpack with capacity of 5 because it knows that remaining items has weight greater than 5, i.e., placing current item (weight of 1 and value of 88) at this backpack would not have any effect on the future placements.
+During second step (second row), despite having an item with weight 9 and value of 90 the network selected a less valuable item (weight of 1 and value of 88). During the placement, and even though there were 4 more backpacks that could be used, the network was sure about the location it should place the item. It seems that the network decided to place the item into the backpack with capacity of 5 because it knows that remaining items has weight greater than 5, i.e., placing current item (weight of 1 and value of 88) at this backpack would not have any effect on the future placements. In other words, the network took the best possible action.
 
 At step 3, the network placed item with weight 9 and value of 90 in the backpack with capacity of 9. This placement fills the backpack completely and doesn't leave any unused space.
 
 At steps 4 and 5, the network had to place two items: one with weight of 6 and value of 46 and another one with weight of 8 and value of 31. In both cases the network considered inserting the items into the backpack with capacity of 19. However, in both cases, it gave preference to other backpacks. Then, at step 6, the network had to place an item with weight of 19 and value of 30 and it placed it into the backpack with capacity of 19. It seems that in step 4 and 5 the network knew that due to the presence of item with weight of 19 it's better to leave that backpack empty.
+
+# Vehicle Routing Problem
+To see if the network is able to generalize to other problems we've tested it with the Vehicle Routing Problem. We've used exactly the same architecture and the same hyper-parameters. The plot below shows the network's learning process. While it didn't manage to reach the global optimum it still progressed a lot. It started with routes of ~2500 units and in the end best solutions was ~900.
+
+Further tunning of hyper-parameters could improve the quality of the solution.
+
+![detailed_arch](./media/VRP.png)
 
 # Resource Placement at Edge Devices
 **Problem statement**: At each time `t` a randomly sized batch of user's requests arrive, each has its own profile with the following information:
