@@ -175,6 +175,8 @@ Having knowledge about the remaining items allows the network to take less greed
 **The proposed architecture**
 ![detailed_arch](./media/detailed_arch.jpg)
 
+Both networks have a global view of the problem because they receive the same data as input. It contains information about the state of the backpacks __and__ the items. What this means it that the Item selecting network decision is __not__ based only on the items but on the items __and__ the current state of the backpacks. Same thing happens with the Backpack selecting network. When it places an item into a specific backpack the placement decision is __not__ based only a single item (item to be inserted at this moment) but it also takes into the account the fact that there are other items that still need to be inserted in the next steps.
+
 **Encoder Input**: Represents the state of the backpacks and the items that can be picked.
 
 ```bash
