@@ -79,12 +79,46 @@ class Resource(BaseEnvironment):
             self.mha_used_mask = self.generate_masks()
 
     def reset(self):
-        return
+        self.batch, self.history = self.generate_batch()
+        self.bin_net_mask,\
+            self.resource_net_mask,\
+            self.mha_used_mask = self.generate_masks()
+
+        return self.state()
 
     def state(self):
-        return
+        return self.batch.copy(),\
+            self.bin_net_mask.copy(),\
+            self.resource_net_mask.copy(),\
+            self.mha_used_mask.copy()
 
-    def step(self, backpack_ids: list, item_ids: list):
+    def step(self, bin_ids: list, resource_ids: list):
+        rewards = np.zeros((self.batch_size, 1), dtype="float32")
+
+        # Default is not done
+        isDone = False
+
+        # Default mask for resources
+        for batch_id in range(self.batch_size):
+            bin_id = bin_ids[batch_id]
+            resource_id = resource_ids[batch_id]
+
+            bin = self.batch[batch_id, bin_id]
+            resource = self.batch[batch_id, resource_id]
+
+            bin_remaning_CPU = bin[0]
+            bin_remaning_RAM = bin[1]
+            bin_remaning_MEM = bin[2]
+            bin_lower_type = bin[3]
+            bin_upper_type = bin[4]
+
+            resource_CPU = resource[0]
+            resource_RAM = resource[1]
+            resource_MEM = resource[2]
+            resource_type = resource[3]
+            request_type = resource[4]
+
+
         return
     
     def generate_dataset(self):
@@ -139,7 +173,7 @@ class Resource(BaseEnvironment):
                 self.max_resource_MEM
             ) / self.normalization_factor
 
-            resources[i, 3] = randint(0, self.num_task_types - 1)
+            resources[i, 3] = self.tasks[randint(0, self.num_task_types - 1)]
             
             # User type will be generated on-the-fly
             resources[i, 4] = -1
@@ -185,6 +219,7 @@ class Resource(BaseEnvironment):
                 resource  = self.total_resources[id]
                 batch[batch_id, i, :] = resource
                 
+                # User type. e.g. premium or free
                 batch[batch_id, i, 4] = randint(0, self.num_user_levels)
 
         return batch, history
@@ -227,8 +262,8 @@ class Resource(BaseEnvironment):
     
         return agent_config
 
-    def build_feasible_mask(self, state, items, backpack_net_mask):
-        return
+    def build_feasible_mask(self, state, resources, bin_net_mask):
+        return bin_net_mask
 
     
 if __name__ == "__main__":

@@ -8,9 +8,12 @@ from environment.custom.vrp.env import CVRP
 # from environment.custom.vrp.optimum_solver import solver as CVRPSolver
 # from environment.custom.vrp.heuristic import solver as CVRPHeuristic
 
+from environment.custom.resource.env import Resource
+
 custom_envs = {
     "KnapsackV2": (KnapsackV2, KnapsackSolver, KnapsackHeuristic),
     "CVRP": (CVRP, None, None),
+    "Resource": (Resource, None, None),
 }
 
 def env_factory(type, name, opts):
