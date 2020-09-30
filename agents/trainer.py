@@ -5,7 +5,7 @@ import numpy as np
 import time
 
 def trainer(env: KnapsackV2, agent: Agent, opts: dict):
-    # print(f'Training with {env.item_sample_size} items and {env.backpack_sample_size} backpacks')
+    # print(f'Training with {env.resource_sample_size} resources and {env.bin_sample_size} bins')
 
     training = True
     # General training vars
@@ -18,8 +18,8 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict):
     
     # Initial vars for the initial episode
     isDone = False
-    episode_rewards = np.zeros((agent.batch_size, agent.num_items), dtype="float32")
-    current_state, backpack_net_mask, item_net_mask, mha_used_mask = env.reset()
+    episode_rewards = np.zeros((agent.batch_size, agent.num_resources), dtype="float32")
+    current_state, bin_net_mask, resource_net_mask, mha_used_mask = env.reset()
     dec_input = agent.generate_decoder_input(current_state)
     training_step = 0
     start = time.time()
@@ -29,28 +29,28 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict):
         # Reached the end of episode. Reset for the next episode
         if isDone:
             isDone = False
-            episode_rewards = np.zeros((agent.batch_size, agent.num_items), dtype="float32")
-            current_state, backpack_net_mask, item_net_mask, mha_used_mask = env.reset()
-            # SOS input for Item Ptr Net
+            episode_rewards = np.zeros((agent.batch_size, agent.num_resources), dtype="float32")
+            current_state, bin_net_mask, resource_net_mask, mha_used_mask = env.reset()
+            # SOS input for resource Ptr Net
             dec_input = agent.generate_decoder_input(current_state)
             training_step = 0
             start = time.time()
 
         while not isDone or training_step > n_steps_to_update:
             # Select an action
-            backpack_id, item_id, decoded_item, backpack_net_mask, _, _ = agent.act(
+            bin_id, resource_id, decoded_resource, bin_net_mask, _, _ = agent.act(
                 current_state,
                 dec_input,
-                backpack_net_mask,
-                item_net_mask,
+                bin_net_mask,
+                resource_net_mask,
                 mha_used_mask,
                 env.build_feasible_mask
             )
 
             # Play one step
             next_state, reward, isDone, info = env.step(
-                backpack_id,
-                item_id
+                bin_id,
+                resource_id
             )
             
             # Store episode rewards
@@ -60,20 +60,20 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict):
             agent.store(
                 current_state,
                 dec_input,
-                backpack_net_mask,
-                item_net_mask,
+                bin_net_mask,
+                resource_net_mask,
                 mha_used_mask,
-                item_id,
-                backpack_id,
+                resource_id,
+                bin_id,
                 reward,
                 training_step
             )
 
             # Update for next iteration
-            dec_input = decoded_item
+            dec_input = decoded_resource
             current_state = next_state
-            backpack_net_mask = info['backpack_net_mask']
-            item_net_mask = info['item_net_mask']
+            bin_net_mask = info['bin_net_mask']
+            resource_net_mask = info['resource_net_mask']
             mha_used_mask = info['mha_used_mask']
 
             training_step += 1
@@ -91,7 +91,7 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict):
                 min_rewards_buffer.append(min_in_batch)
                 max_rewards_buffer.append(max_in_batch)
                 break
-                # current_state, backpack_net_mask, item_net_mask, mha_used_mask = env.reset()
+                # current_state, bin_net_mask, resource_net_mask, mha_used_mask = env.reset()
         
         if isDone == True:
             # We are done. So the state_value is 0
@@ -114,36 +114,36 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict):
         )
 
         with tf.GradientTape() as tape:
-            items_loss, decoded_items = agent.compute_actor_loss(
-                agent.item_actor,
-                agent.item_masks,
-                agent.items,
-                agent.decoded_items,
+            resources_loss, decoded_resources = agent.compute_actor_loss(
+                agent.resource_actor,
+                agent.resource_masks,
+                agent.resources,
+                agent.decoded_resources,
                 discounted_rewards,
                 state_values
             )
         
-        item_grads = tape.gradient(
-            items_loss,
-            agent.item_actor.trainable_weights
+        resource_grads = tape.gradient(
+            resources_loss,
+            agent.resource_actor.trainable_weights
         )
 
         # Add time dimension
-        decoded_items = tf.expand_dims(decoded_items, axis=1)
+        decoded_resources = tf.expand_dims(decoded_resources, axis=1)
 
         with tf.GradientTape() as tape:
-            backpack_loss, decoded_backpacks = agent.compute_actor_loss(
-                agent.backpack_actor,
-                agent.backpack_masks,
-                agent.backpacks,
-                decoded_items,
+            bin_loss, decoded_bins = agent.compute_actor_loss(
+                agent.bin_actor,
+                agent.bin_masks,
+                agent.bins,
+                decoded_resources,
                 discounted_rewards,
                 state_values
             )
         
-        backpack_grads = tape.gradient(
-            backpack_loss,
-            agent.backpack_actor.trainable_weights
+        bin_grads = tape.gradient(
+            bin_loss,
+            agent.bin_actor.trainable_weights
         )
 
         # Apply gradients to tweak the model
@@ -156,15 +156,15 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict):
 
         agent.pointer_opt.apply_gradients(
             zip(
-                item_grads,
-                agent.item_actor.trainable_weights
+                resource_grads,
+                agent.resource_actor.trainable_weights
             )
         )
 
         agent.pointer_opt.apply_gradients(
             zip(
-                backpack_grads,
-                agent.backpack_actor.trainable_weights
+                bin_grads,
+                agent.bin_actor.trainable_weights
             )
         )
 
