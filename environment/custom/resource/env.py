@@ -8,6 +8,9 @@ import tensorflow as tf
 from random import randint
 
 from environment.base.base import BaseEnvironment
+from environment.custom.resource.node import Node as History
+from environment.custom.resource.penalty import Penalty
+from environment.custom.resource.reward import compute_reward
 
 class Resource(BaseEnvironment):
     def __init__(self, name: str, opts: dict):
@@ -38,7 +41,17 @@ class Resource(BaseEnvironment):
         self.num_user_levels: int = opts['num_user_levels']
 
         self.num_task_types: int = opts['num_task_types']
-    
+
+        self.CPU_misplace_penalty: int = opts['CPU_misplace_penalty']
+        self.RAM_misplace_penalty: int = opts['RAM_misplace_penalty']
+        self.MEM_misplace_penalty: int = opts['MEM_misplace_penalty']
+        
+        self.penalty = Penalty(
+            self.CPU_misplace_penalty,
+            self.RAM_misplace_penalty,
+            self.MEM_misplace_penalty
+        )
+
         self.min_resource_CPU: int = opts['min_resource_CPU']
         self.max_resource_CPU: int = opts['max_resource_CPU']
         self.min_resource_RAM: int = opts['min_resource_RAM']
@@ -106,20 +119,26 @@ class Resource(BaseEnvironment):
             bin = self.batch[batch_id, bin_id]
             resource = self.batch[batch_id, resource_id]
 
-            bin_remaning_CPU = bin[0]
-            bin_remaning_RAM = bin[1]
-            bin_remaning_MEM = bin[2]
-            bin_lower_type = bin[3]
-            bin_upper_type = bin[4]
+            node: History = self.history[batch_id][bin_id]
+            
+            reward = compute_reward(
+                self.batch[batch_id],
+                self.bin_sample_size,
+                bin,
+                resource,
+            )
 
-            resource_CPU = resource[0]
-            resource_RAM = resource[1]
-            resource_MEM = resource[2]
-            resource_type = resource[3]
-            request_type = resource[4]
+            # Update the masks
+            # Item taken mask it
+            self.resource_net_mask[batch_id, resource_id] = 1
+            self.mha_used_mask[batch_id, :, :, resource_id] = 1
 
+        info = {}
 
-        return
+        if np.all(self.resource_net_mask == 1):
+            isDone = True
+        
+        return self.batch.copy(), rewards, isDone, info
     
     def generate_dataset(self):
         bins = np.zeros((self.num_bins, self.num_features), dtype='float32')
@@ -182,16 +201,28 @@ class Resource(BaseEnvironment):
 
 
     def generate_batch(self):
-        history = [1]
+        history = []
 
         elem_size = self.bin_sample_size + self.resource_sample_size
 
         batch = np.zeros((self.batch_size, elem_size, self.num_features), dtype='float32')
 
         for batch_id in range(self.batch_size):
+            problem = []
             
             # Set the EOS bin/node
             batch[batch_id, 0] = self.EOS_BIN
+
+            problem.append(History(
+                batch_id,
+                0,
+                self.EOS_CODE,
+                self.EOS_CODE,
+                self.EOS_CODE,
+                self.EOS_CODE,
+                self.EOS_CODE,
+                self.penalty
+            ))
 
             # Shuffle the bins and select a sample
             np.random.shuffle(self.binIDS)
@@ -202,6 +233,17 @@ class Resource(BaseEnvironment):
                 id = bins_sample_ids.pop(0)
                 # Get the bin by ID
                 bin = self.total_bins[id]
+
+                problem.append(History(
+                    batch_id,
+                    i,
+                    bin[0], # CPU
+                    bin[1], # RAM
+                    bin[2], # MEM
+                    bin[3], # Lower task
+                    bin[4], # Upper task
+                    self.penalty
+                ))
 
                 # Set the bin/node
                 batch[batch_id, i, :] = bin
@@ -221,6 +263,8 @@ class Resource(BaseEnvironment):
                 
                 # User type. e.g. premium or free
                 batch[batch_id, i, 4] = randint(0, self.num_user_levels)
+
+            history.append(problem)
 
         return batch, history
 
@@ -267,7 +311,7 @@ class Resource(BaseEnvironment):
 
     
 if __name__ == "__main__":
-    env_name = 'Knapsack'
+    env_name = 'Resource'
 
     with open(f"configs/Resource.json") as json_file:
         params = json.load(json_file)
@@ -275,3 +319,23 @@ if __name__ == "__main__":
     env_config = params['env_config']
 
     env = Resource(env_name, env_config)
+    
+    env.a = np.array([[
+                        [  0.,   0.,   0.,   0.,   0.],
+                        [100., 200., 300.,   0.,   2.],
+                        [400., 500., 600.,   0.,   3.],
+                        [ 10.,  20.,  30.,   1.,   1.],
+                        [ 40.,  50.,  60.,   8.,   1.]],
+                    [
+                        [  0.,   0.,   0.,   0.,   0.],
+                        [1000., 2000., 3000.,   2.,   5.],
+                        [4000., 5000., 6000.,   3.,   6.],
+                        [ 100.,  200.,  300.,   0.,   1.],
+                        [ 400.,  500.,  600.,   8.,   1.]
+                    ]], dtype='float32')
+
+    bin_ids = [1 , 2]
+
+    resource_ids = [3, 4]
+
+    env.step(bin_ids, resource_ids)
