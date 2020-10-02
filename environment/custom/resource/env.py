@@ -1,4 +1,5 @@
 import sys
+from typing import List
 
 sys.path.append('.')
 
@@ -10,7 +11,7 @@ from random import randint
 from environment.base.base import BaseEnvironment
 from environment.custom.resource.node import Node as History
 from environment.custom.resource.penalty import Penalty
-from environment.custom.resource.reward import compute_reward
+from environment.custom.resource.reward import Reward
 
 class Resource(BaseEnvironment):
     def __init__(self, name: str, opts: dict):
@@ -39,6 +40,11 @@ class Resource(BaseEnvironment):
         self.normalization_factor: int = opts['normalization_factor']
 
         self.num_user_levels: int = opts['num_user_levels']
+        self.reward_per_level: List[int] = opts['reward_per_level']
+
+        assert self.num_user_levels == len(self.reward_per_level), 'Length of reward_per_level must be equal to the num_user_levels'
+
+        self.misplace_reward_penalty: int = opts['misplace_reward_penalty']
 
         self.num_task_types: int = opts['num_task_types']
 
@@ -46,12 +52,6 @@ class Resource(BaseEnvironment):
         self.RAM_misplace_penalty: int = opts['RAM_misplace_penalty']
         self.MEM_misplace_penalty: int = opts['MEM_misplace_penalty']
         
-        self.penalty = Penalty(
-            self.CPU_misplace_penalty,
-            self.RAM_misplace_penalty,
-            self.MEM_misplace_penalty
-        )
-
         self.min_resource_CPU: int = opts['min_resource_CPU']
         self.max_resource_CPU: int = opts['max_resource_CPU']
         self.min_resource_RAM: int = opts['min_resource_RAM']
@@ -72,6 +72,16 @@ class Resource(BaseEnvironment):
         ################################################
         ##### MATERIALIZED VARIABLES FROM CONFIGS ######
         ################################################
+        self.reward_helper = Reward(
+            self.reward_per_level,
+            self.misplace_reward_penalty
+        )
+
+        self.penalty = Penalty(
+            self.CPU_misplace_penalty,
+            self.RAM_misplace_penalty,
+            self.MEM_misplace_penalty
+        )
 
         self.tasks = list(range(0, self.num_task_types))
 
@@ -121,7 +131,7 @@ class Resource(BaseEnvironment):
 
             node: History = self.history[batch_id][bin_id]
             
-            reward = compute_reward(
+            reward = self.reward_helper.compute_reward(
                 self.batch[batch_id],
                 self.bin_sample_size,
                 bin,

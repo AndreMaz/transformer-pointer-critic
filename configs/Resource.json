@@ -31,7 +31,9 @@
         "normalization_factor": 1,
 
         "num_user_levels": 1, 
-        
+        "reward_per_level": [ 10, 20 ],
+        "misplace_reward_penalty": 5,
+
         "num_task_types": 10,
         
         "CPU_misplace_penalty": 10,

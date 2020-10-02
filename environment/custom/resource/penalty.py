@@ -26,3 +26,10 @@ class Penalty():
 
     def compute_MEM_penalty(self, MEM):
         return MEM + self.MEM_penalty
+    
+    def toPenalize(self, bin_lower_type, bin_upper_type, resource_type):
+
+        if bin_lower_type <= resource_type <= bin_upper_type:
+            return False
+        
+        return True

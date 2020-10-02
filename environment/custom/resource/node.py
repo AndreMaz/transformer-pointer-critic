@@ -45,11 +45,11 @@ class Node():
 
         req = Resource(id, CPU, RAM, MEM, task, request_type)
 
-        return self.is_valid(req)
+        # return self.is_valid(req)
 
         if (self.id != 0):
-            assert self.is_valid(req, misplace_penalty) == True,\
-                f'Node {self.id} is overloaded. Maximum capacity: {self.capacity} || Item Weight: {weight}'
+            assert self.is_valid(req) == True,\
+                f'Node {self.id} is overloaded. Cannot Place Resource {CPU}|{RAM}|{MEM} to a Node with {self.used_CPU}/{self.CPU}|{self.used_RAM}/{self.RAM}|{self.used_MEM}/{self.MEM}'
 
         self.resources.append(req)
 
@@ -80,7 +80,7 @@ class Node():
 
 if __name__ == "__main__":
     batch_id = 0
-    id = 0
+    id = 2
     CPU = 10
     RAM = 10
     MEM = 10
@@ -110,17 +110,17 @@ if __name__ == "__main__":
 
     resource_id = 1
     resource_CPU = 10
-    resource_RAM  = 10
+    resource_RAM  = 100
     resource_MEM = 10
     resource_task = 123
     request_type = 1
 
 
-    print(node.add_resource(
+    node.add_resource(
         resource_id,
         resource_CPU,
         resource_RAM,
         resource_MEM,
         resource_task,
         request_type
-    ))
+    )
