@@ -64,9 +64,6 @@ class Node():
 
     def is_valid(self, resource: Resource):
 
-        isValid = False
-
-        # if self.lower_task <= resource.task <= self.upper_task:
         if self.penalizer.toPenalize(self.lower_task, self.upper_task, resource.task) == False:
             if self.remaining_CPU - resource.CPU >= 0\
                     and self.remaining_RAM - resource.RAM >= 0\
@@ -75,10 +72,10 @@ class Node():
         else:
             if self.remaining_CPU - self.penalizer.compute_CPU_penalty(resource.CPU) >= 0\
                     and self.remaining_RAM - self.penalizer.compute_RAM_penalty(resource.RAM) >= 0\
-                    and self.remaining_MEM + self.penalizer.compute_MEM_penalty(resource.MEM) >= 0:
+                    and self.remaining_MEM - self.penalizer.compute_MEM_penalty(resource.MEM) >= 0:
                 return True
 
-        return isValid
+        return False
 
 
 if __name__ == "__main__":
