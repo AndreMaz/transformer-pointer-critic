@@ -6,7 +6,7 @@ sys.path.append('.')
 import json
 import numpy as np
 import tensorflow as tf
-from random import randint
+from random import randint, randrange
 
 from environment.base.base import BaseEnvironment
 from environment.custom.resource.node import Node as History
@@ -42,7 +42,7 @@ class Resource(BaseEnvironment):
         self.num_user_levels: int = opts['num_user_levels']
         self.reward_per_level: List[int] = opts['reward_per_level']
 
-        assert self.num_user_levels == len(self.reward_per_level), 'Length of reward_per_level must be equal to the num_user_levels'
+        assert self.num_user_levels + 1 == len(self.reward_per_level), 'Length of reward_per_level must be equal to the num_user_levels'
 
         self.misplace_reward_penalty: int = opts['misplace_reward_penalty']
 
@@ -72,15 +72,19 @@ class Resource(BaseEnvironment):
         ################################################
         ##### MATERIALIZED VARIABLES FROM CONFIGS ######
         ################################################
-        self.reward_helper = Reward(
-            self.reward_per_level,
-            self.misplace_reward_penalty
-        )
-
-        self.penalty = Penalty(
+        
+        # Class responsible for computing penalties for each placement
+        self.penalizer = Penalty(
             self.CPU_misplace_penalty,
             self.RAM_misplace_penalty,
             self.MEM_misplace_penalty
+        )
+
+        # Class responsible form computing rewards for each placement
+        self.rewarder = Reward(
+            self.reward_per_level,
+            self.misplace_reward_penalty,
+            self.penalizer
         )
 
         self.tasks = list(range(0, self.num_task_types))
@@ -130,20 +134,35 @@ class Resource(BaseEnvironment):
             resource = self.batch[batch_id, resource_id]
 
             node: History = self.history[batch_id][bin_id]
-            
-            reward = self.reward_helper.compute_reward(
+            node.add_resource(
+                resource_id,
+                resource[0],
+                resource[1],
+                resource[2],
+                resource[3],
+                resource[4],
+            )
+
+            reward = self.rewarder.compute_reward(
                 self.batch[batch_id],
                 self.bin_sample_size,
                 bin,
                 resource,
             )
 
+            rewards[batch_id][0] = reward
+
             # Update the masks
             # Item taken mask it
             self.resource_net_mask[batch_id, resource_id] = 1
             self.mha_used_mask[batch_id, :, :, resource_id] = 1
 
-        info = {}
+        info = {
+             'bin_net_mask': self.bin_net_mask.copy(),
+             'resource_net_mask': self.resource_net_mask.copy(),
+             'mha_used_mask': self.mha_used_mask.copy(),
+             'num_resource_to_place': self.num_resources
+        }
 
         if np.all(self.resource_net_mask == 1):
             isDone = True
@@ -175,9 +194,9 @@ class Resource(BaseEnvironment):
             # Range of tasks that node can process without any penalty
             num_tasks_for_bin = randint(self.min_bin_range_type, self.max_bin_range_type)
 
-            task_lower_index = randint(
+            task_lower_index = randrange(
                 0,
-                self.num_task_types - ( 1 + num_tasks_for_bin)
+                self.num_task_types - num_tasks_for_bin
             )
 
             bins[i, 3] = self.tasks[task_lower_index]
@@ -231,7 +250,7 @@ class Resource(BaseEnvironment):
                 self.EOS_CODE,
                 self.EOS_CODE,
                 self.EOS_CODE,
-                self.penalty
+                self.penalizer
             ))
 
             # Shuffle the bins and select a sample
@@ -252,7 +271,7 @@ class Resource(BaseEnvironment):
                     bin[2], # MEM
                     bin[3], # Lower task
                     bin[4], # Upper task
-                    self.penalty
+                    self.penalizer
                 ))
 
                 # Set the bin/node

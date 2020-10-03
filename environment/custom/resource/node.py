@@ -14,7 +14,7 @@ class Node():
                  MEM,
                  lower_task,
                  upper_task,
-                 penalty: Penalty):
+                 penalizer: Penalty):
         super(Node, self).__init__()
 
         self.batch_id = batch_id
@@ -23,11 +23,11 @@ class Node():
         self.RAM = RAM
         self.MEM = MEM
 
-        self.used_CPU = 0
-        self.used_RAM = 0
-        self.used_MEM = 0
+        self.remaining_CPU = CPU
+        self.remaining_RAM = RAM
+        self.remaining_MEM = MEM
 
-        self.penalty = penalty
+        self.penalizer = penalizer
 
 
         self.lower_task = lower_task
@@ -51,12 +51,14 @@ class Node():
             assert self.is_valid(req) == True,\
                 f'Node {self.id} is overloaded. Cannot Place Resource {CPU}|{RAM}|{MEM} to a Node with {self.used_CPU}/{self.CPU}|{self.used_RAM}/{self.RAM}|{self.used_MEM}/{self.MEM}'
 
+            # if self.
+
         self.resources.append(req)
 
     def reset(self):
-        self.used_CPU = 0
-        self.used_RAM = 0
-        self.used_MEM = 0
+        self.remaining_CPU = self.CPU
+        self.remaining_RAM = self.RAM
+        self.remaining_MEM = self.MEM
 
         self.resources = []
 
@@ -64,15 +66,16 @@ class Node():
 
         isValid = False
 
-        if self.lower_task <= resource.task <= self.upper_task:
-            if self.used_CPU + resource.CPU <= self.CPU\
-                    and self.used_RAM + resource.RAM <= self.RAM\
-                    and self.used_MEM + resource.MEM <= self.MEM:
+        # if self.lower_task <= resource.task <= self.upper_task:
+        if self.penalizer.toPenalize(self.lower_task, self.upper_task, resource.task) == False:
+            if self.remaining_CPU - resource.CPU >= 0\
+                    and self.remaining_RAM - resource.RAM >= 0\
+                    and self.remaining_MEM - resource.MEM >= 0:
                 return True
         else:
-            if self.used_CPU + self.penalty.compute_CPU_penalty(resource.CPU) <= self.CPU\
-                    and self.used_RAM + self.penalty.compute_RAM_penalty(resource.RAM) <= self.RAM\
-                    and self.used_MEM + self.penalty.compute_MEM_penalty(resource.MEM) <= self.MEM:
+            if self.remaining_CPU - self.penalizer.compute_CPU_penalty(resource.CPU) >= 0\
+                    and self.remaining_RAM - self.penalizer.compute_RAM_penalty(resource.RAM) >= 0\
+                    and self.remaining_MEM + self.penalizer.compute_MEM_penalty(resource.MEM) >= 0:
                 return True
 
         return isValid
