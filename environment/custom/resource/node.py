@@ -74,24 +74,17 @@ class Node():
         MEM = 0
 
         if self.penalizer.toPenalize(self.lower_task, self.upper_task, resource.task) == False:
-            if self.remaining_CPU - resource.CPU >= 0\
-                    and self.remaining_RAM - resource.RAM >= 0\
-                    and self.remaining_MEM - resource.MEM >= 0:
+            CPU = self.remaining_CPU - resource.CPU
+            RAM = self.remaining_RAM - resource.RAM
+            MEM = self.remaining_MEM - resource.MEM
 
-                CPU = self.remaining_CPU - resource.CPU
-                RAM = self.remaining_RAM - resource.RAM
-                MEM = self.remaining_MEM - resource.MEM
-
+            if CPU >= 0 and RAM >= 0 and MEM >= 0:
                 return True, CPU, MEM, RAM
         else:
-            if self.remaining_CPU - self.penalizer.compute_CPU_penalty(resource.CPU) >= 0\
-                    and self.remaining_RAM - self.penalizer.compute_RAM_penalty(resource.RAM) >= 0\
-                    and self.remaining_MEM - self.penalizer.compute_MEM_penalty(resource.MEM) >= 0:
-
-                CPU = self.remaining_CPU - self.penalizer.compute_CPU_penalty(resource.CPU)
-                RAM = self.remaining_RAM - self.penalizer.compute_RAM_penalty(resource.RAM)
-                MEM = self.remaining_MEM - self.penalizer.compute_MEM_penalty(resource.MEM)
-
+            CPU = self.remaining_CPU - self.penalizer.compute_CPU_penalty(resource.CPU)
+            RAM = self.remaining_RAM - self.penalizer.compute_RAM_penalty(resource.RAM)
+            MEM = self.remaining_MEM - self.penalizer.compute_MEM_penalty(resource.MEM)
+            if CPU >= 0 and RAM >= 0 and MEM >= 0:
                 return True, CPU, MEM, RAM
 
         return False, CPU, MEM, RAM
