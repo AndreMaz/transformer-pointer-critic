@@ -134,7 +134,9 @@ class Resource(BaseEnvironment):
             resource = self.batch[batch_id, resource_id]
 
             node: History = self.history[batch_id][bin_id]
-            node.add_resource(
+            
+            # Add resource to bin
+            remaining_resources = node.add_resource(
                 resource_id,
                 resource[0],
                 resource[1],
@@ -143,6 +145,7 @@ class Resource(BaseEnvironment):
                 resource[4],
             )
 
+            # Compute reward
             reward = self.rewarder.compute_reward(
                 self.batch[batch_id],
                 self.bin_sample_size,
@@ -152,10 +155,17 @@ class Resource(BaseEnvironment):
 
             rewards[batch_id][0] = reward
 
+            # Update the remaining node resources
+            if (bin_id != 0):
+                self.batch[batch_id, bin_id, :3] = remaining_resources
+
             # Update the masks
             # Item taken mask it
             self.resource_net_mask[batch_id, resource_id] = 1
             self.mha_used_mask[batch_id, :, :, resource_id] = 1
+
+            if (np.all(self.batch[batch_id, bin_id, :3] == 0)):
+                self.bin_net_mask[batch_id, bin_id] = 1
 
         info = {
              'bin_net_mask': self.bin_net_mask.copy(),

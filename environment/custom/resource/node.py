@@ -45,15 +45,20 @@ class Node():
 
         req = Resource(id, CPU, RAM, MEM, task, request_type)
 
-        # return self.is_valid(req)
-
         if (self.id != 0):
-            assert self.is_valid(req) == True,\
+            isValid, CPU, RAM, MEM = self.validate(req)
+
+            assert isValid == True,\
                 f'Node {self.id} is overloaded. Cannot Place Resource {CPU}|{RAM}|{MEM} to a Node with {self.used_CPU}/{self.CPU}|{self.used_RAM}/{self.RAM}|{self.used_MEM}/{self.MEM}'
 
             # if self.
+            self.remaining_CPU = CPU
+            self.remaining_RAM = RAM
+            self.remaining_MEM = MEM
 
         self.resources.append(req)
+
+        return [CPU, RAM, MEM]
 
     def reset(self):
         self.remaining_CPU = self.CPU
@@ -62,20 +67,34 @@ class Node():
 
         self.resources = []
 
-    def is_valid(self, resource: Resource):
+    def validate(self, resource: Resource):
+        
+        CPU = 0
+        RAM = 0
+        MEM = 0
 
         if self.penalizer.toPenalize(self.lower_task, self.upper_task, resource.task) == False:
             if self.remaining_CPU - resource.CPU >= 0\
                     and self.remaining_RAM - resource.RAM >= 0\
                     and self.remaining_MEM - resource.MEM >= 0:
-                return True
+
+                CPU = self.remaining_CPU - resource.CPU
+                RAM = self.remaining_RAM - resource.RAM
+                MEM = self.remaining_MEM - resource.MEM
+
+                return True, CPU, MEM, RAM
         else:
             if self.remaining_CPU - self.penalizer.compute_CPU_penalty(resource.CPU) >= 0\
                     and self.remaining_RAM - self.penalizer.compute_RAM_penalty(resource.RAM) >= 0\
                     and self.remaining_MEM - self.penalizer.compute_MEM_penalty(resource.MEM) >= 0:
-                return True
 
-        return False
+                CPU = self.remaining_CPU - self.penalizer.compute_CPU_penalty(resource.CPU)
+                RAM = self.remaining_RAM - self.penalizer.compute_RAM_penalty(resource.RAM)
+                MEM = self.remaining_MEM - self.penalizer.compute_MEM_penalty(resource.MEM)
+
+                return True, CPU, MEM, RAM
+
+        return False, CPU, MEM, RAM
 
 
 if __name__ == "__main__":

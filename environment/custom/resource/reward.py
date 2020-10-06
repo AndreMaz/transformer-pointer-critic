@@ -34,7 +34,7 @@ class Reward():
         resource_RAM = resource[1]
         resource_MEM = resource[2]
         resource_type = resource[3]
-        request_type = resource[4]
+        request_type = int(resource[4])
         
         reward = 0
         if self.penalty.toPenalize(bin_lower_type,bin_upper_type, resource_type):
