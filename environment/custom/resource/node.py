@@ -45,20 +45,23 @@ class Node():
 
         req = Resource(id, CPU, RAM, MEM, task, request_type)
 
+        remaning_CPU = 0
+        remaning_RAM = 0
+        remaining_MEM = 0
+
         if (self.id != 0):
-            isValid, CPU, RAM, MEM = self.validate(req)
+            isValid, remaning_CPU, remaning_RAM, remaining_MEM = self.validate(req)
 
             assert isValid == True,\
                 f'Node {self.id} is overloaded. Cannot Place Resource {CPU}|{RAM}|{MEM} to a Node with {self.used_CPU}/{self.CPU}|{self.used_RAM}/{self.RAM}|{self.used_MEM}/{self.MEM}'
 
-            # if self.
-            self.remaining_CPU = CPU
-            self.remaining_RAM = RAM
-            self.remaining_MEM = MEM
+            self.remaining_CPU = remaning_CPU
+            self.remaining_RAM = remaning_RAM
+            self.remaining_MEM = remaining_MEM
 
         self.resources.append(req)
 
-        return [CPU, RAM, MEM]
+        return [remaning_CPU, remaning_RAM, remaining_MEM]
 
     def reset(self):
         self.remaining_CPU = self.CPU
@@ -73,7 +76,7 @@ class Node():
         RAM = 0
         MEM = 0
 
-        if self.penalizer.toPenalize(self.lower_task, self.upper_task, resource.task) == False:
+        if self.penalizer.to_penalize(self.lower_task, self.upper_task, resource.task) == False:
             CPU = self.remaining_CPU - resource.CPU
             RAM = self.remaining_RAM - resource.RAM
             MEM = self.remaining_MEM - resource.MEM

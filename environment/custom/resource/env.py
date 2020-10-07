@@ -13,9 +13,9 @@ from environment.custom.resource.node import Node as History
 from environment.custom.resource.penalty import Penalty
 from environment.custom.resource.reward import Reward
 
-class Resource(BaseEnvironment):
+class ResourceEnvironment(BaseEnvironment):
     def __init__(self, name: str, opts: dict):
-        super(Resource, self).__init__(name)
+        super(ResourceEnvironment, self).__init__(name)
 
         self.load_from_file = opts['load_from_file']
         self.location = opts['location']
@@ -157,6 +157,7 @@ class Resource(BaseEnvironment):
 
             # Update the remaining node resources
             if (bin_id != 0):
+                assert np.all(self.batch[batch_id, bin_id, :3] > 0), f'Batch {batch_id}: Node {bin_id} is overloaded!'
                 self.batch[batch_id, bin_id, :3] = remaining_resources
 
             # Update the masks
@@ -357,7 +358,7 @@ if __name__ == "__main__":
 
     env_config = params['env_config']
 
-    env = Resource(env_name, env_config)
+    env = ResourceEnvironment(env_name, env_config)
     
     env.a = np.array([[
                         [  0.,   0.,   0.,   0.,   0.],

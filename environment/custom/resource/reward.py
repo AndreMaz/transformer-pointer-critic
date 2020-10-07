@@ -6,13 +6,13 @@ class Reward():
     def __init__(self,
                  reward_per_level,
                  misplace_reward_penalty,
-                 penalty
+                 penalizer
                  ):
         super(Reward, self).__init__()
 
         self.reward_per_level = reward_per_level
         self.misplace_reward_penalty = misplace_reward_penalty
-        self.penalty: Penalty = penalty
+        self.penalizer: Penalty = penalizer
 
     def compute_reward(self,
                        batch,
@@ -37,7 +37,7 @@ class Reward():
         request_type = int(resource[4])
         
         reward = 0
-        if self.penalty.toPenalize(bin_lower_type,bin_upper_type, resource_type):
+        if self.penalizer.to_penalize(bin_lower_type,bin_upper_type, resource_type):
             reward = self.reward_per_level[request_type] - self.misplace_reward_penalty
         else:
             reward = self.reward_per_level[request_type]

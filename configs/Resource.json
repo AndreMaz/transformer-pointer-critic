@@ -3,7 +3,7 @@
     
     "trainer_config": {
         "description": "Trainer function configs.",
-        "n_iterations": 1,
+        "n_iterations": 100,
         "n_steps_to_update": 20
     },
 
@@ -25,8 +25,8 @@
         "num_bins": 10,
         "EOS_CODE": 0,
 
-        "resource_sample_size": 2,
-        "bin_sample_size": 2,
+        "resource_sample_size": 5,
+        "bin_sample_size": 5,
 
         "normalization_factor": 1,
 
