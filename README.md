@@ -105,3 +105,16 @@ Follow Tensorflow's [installation guide](https://www.tensorflow.org/install/pip)
 - [Reinforcement Learning for Solving the Vehicle Routing Problem](https://arxiv.org/pdf/1802.04240.pdf)
 - [Order Matters: Sequence to sequence for sets](https://arxiv.org/pdf/1511.06391.pdf)
 - [Attention, Learn to Solve Routing Problems!](https://arxiv.org/abs/1803.08475)
+
+### Unit Test and Coverage
+```bash
+python environment/custom/resource/tests/runner.py
+```
+or 
+```bash
+coverage run environment/custom/resource/tests/runner.py 
+```
+
+```bash
+coverage html --include=environment/*
+```

@@ -349,6 +349,14 @@ class ResourceEnvironment(BaseEnvironment):
     def build_feasible_mask(self, state, resources, bin_net_mask):
         return bin_net_mask
 
+    def num_inserted_resources(self):
+        num_inserted = 0
+
+        for instance in self.history:
+            for bin in instance:
+                num_inserted += len(bin.resources)
+
+        return num_inserted
     
 if __name__ == "__main__":
     env_name = 'Resource'
