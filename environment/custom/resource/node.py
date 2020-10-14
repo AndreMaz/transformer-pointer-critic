@@ -80,17 +80,23 @@ class Node():
             CPU = self.remaining_CPU - resource.CPU
             RAM = self.remaining_RAM - resource.RAM
             MEM = self.remaining_MEM - resource.MEM
-
-            if CPU >= 0 and RAM >= 0 and MEM >= 0:
-                return True, CPU, MEM, RAM
         else:
             CPU = self.remaining_CPU - self.penalizer.compute_CPU_penalty(resource.CPU)
             RAM = self.remaining_RAM - self.penalizer.compute_RAM_penalty(resource.RAM)
             MEM = self.remaining_MEM - self.penalizer.compute_MEM_penalty(resource.MEM)
-            if CPU >= 0 and RAM >= 0 and MEM >= 0:
-                return True, CPU, MEM, RAM
 
-        return False, CPU, MEM, RAM
+        if CPU >= 0 and RAM >= 0 and MEM >= 0:
+            return True, CPU, RAM, MEM
+        else:
+            return False, CPU, RAM, MEM
+
+    def print(self):
+        print(f'Node ID: {self.id} | Available CPU: {self.remaining_CPU} of {self.CPU} | Available RAM: {self.remaining_RAM} of {self.RAM} | Available MEM: {self.remaining_MEM} of {self.MEM} | Lower Task: {self.lower_task} | Upper Task: {self.upper_task}')
+        
+        print('Resources allocated to the Node:')
+        if len(self.resources) == 0: print('<Empty>')
+        for res in self.resources:
+            res.print()
 
 
 if __name__ == "__main__":

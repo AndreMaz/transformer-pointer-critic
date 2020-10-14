@@ -331,9 +331,6 @@ class ResourceEnvironment(BaseEnvironment):
 
         return bin_net_mask, resource_net_mask, mha_used_mask
         
-    def print_history(self):
-        return
-
     def add_stats_to_agent_config(self, agent_config: dict):
         agent_config['num_resources'] = self.resource_sample_size
         agent_config['num_bins'] = self.bin_sample_size
@@ -358,6 +355,38 @@ class ResourceEnvironment(BaseEnvironment):
 
         return num_inserted
     
+    def rebuild_history(self) -> None:
+        history = []
+
+        for batch_id, instance in enumerate(self.batch):
+            bins = []
+            for i, bin in enumerate(instance[:self.bin_sample_size]):
+                bins.append(
+                    History(
+                        batch_id,
+                        i,
+                        bin[0], # CPU
+                        bin[1], # RAM
+                        bin[2], # MEM
+                        bin[3], # Lower task
+                        bin[4], # Upper task
+                        self.penalizer
+                    )
+                )
+            
+            history.append(bins)
+        
+        self.history = history
+
+    def print_history(self) -> None:
+
+        for batch_id in range(self.batch_size):
+            print('_________________________________')
+            for bp in self.history[batch_id]:
+                bp.print()
+            print('_________________________________')
+
+
 if __name__ == "__main__":
     env_name = 'Resource'
 
@@ -386,4 +415,5 @@ if __name__ == "__main__":
 
     resource_ids = [3, 4]
 
-    env.step(bin_ids, resource_ids)
+    # env.step(bin_ids, resource_ids)
+    env.rebuild_history()
