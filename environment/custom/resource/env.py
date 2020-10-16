@@ -377,7 +377,7 @@ class ResourceEnvironment(BaseEnvironment):
         resource_demands = tf.tile(resource_demands, [1, num_elems, 1])
 
         # Compute remaining resources after placement
-        after_place = bin_remaining_resources - resource_demands + in_range * penalty_tensor
+        after_place = bin_remaining_resources - (resource_demands + in_range * penalty_tensor)
         
         after_place = tf.reduce_min(after_place, axis=-1)
         after_place = tf.less(after_place, 0)
@@ -452,27 +452,28 @@ if __name__ == "__main__":
     # env.rebuild_history()
 
     state = np.array([[
-        [0.,   0.,   0.,   0.,   0.],
-        [100., 200., 300.,   0.,   2.],
-        [400., 500., 600.,   0.,   3.],
-        [10.,  20.,  30.,   1.,   1.],
-        [40.,  50.,  60.,   8.,   1.]],
-        [
-        [0.,   0.,   0.,   0.,   0.],
-        [1000., 2000., 3000.,   2.,   5.],
-        [4000., 5000., 6000.,   3.,   6.],
-        [100.,  200.,  300.,   0.,   1.],
-        [400.,  500.,  600.,   8.,   1.]
-    ]], dtype='float32')
+                [  0.,   0.,   0.,   0.,   0.],
+                [ 10.,  20.,  30.,   0.,   2.], # Node task range [0, 2]
+                [ 10.,  20.,  30.,   0.,   3.],
+                [ 10.,  20.,  30.,   3.,   1.], # Resource task 15
+                [ 40.,  50.,  60.,   1.,   0.]],
+            [
+                [   0.,    0.,    0.,   0.,   0.],
+                [ 400.,  500.,  600.,   2.,   5.],
+                [ 400.,  500.,  600.,   3.,   6.], # Node task range [3, 6]
+                [ 100.,  200.,  300.,   0.,   1.],
+                [ 400.,  500.,  600.,   6.,   1.] # Resource task 10
+            ]], dtype='float32')
 
     resources = np.array([
-        [10.,  20.,  30.,   1.,   1.],
-        [400.,  500.,  600.,   8.,   1.]
-    ], dtype='float32')    
+            [ 10.,  20.,  30.,   3.,   1.],
+            [ 400.,  500.,  600.,   6.,   1.]
+        ], dtype='float32')    
 
     bin_net_mask = np.array([
-        [0., 0., 0., 1.,  1.],
-        [0., 0., 0., 1.,  1.]
-    ], dtype='float32')
+            [0., 0., 0., 1.,  1.],
+            [0., 0., 0., 1.,  1.]
+        ], dtype='float32')
+
 
     env.build_feasible_mask(state, resources, bin_net_mask)
