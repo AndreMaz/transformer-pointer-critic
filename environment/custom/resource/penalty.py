@@ -1,3 +1,4 @@
+import tensorflow as tf
 
 class Penalty():
     def __init__(self,
@@ -9,6 +10,15 @@ class Penalty():
         self.CPU_penalty = CPU_misplace_penalty
         self.RAM_penalty = RAM_misplace_penalty
         self.MEM_penalty = MEM_misplace_penalty
+
+        self.tensor = tf.constant([
+            self.CPU_penalty,
+            self.RAM_penalty,
+            self.MEM_penalty
+        ],
+            dtype='float32',
+            shape=(1, 3)
+        )
 
     def compute_penalty(self, CPU, RAM, MEM):
         
@@ -33,3 +43,6 @@ class Penalty():
             return False
         
         return True
+    
+    def tensor_representation(self):
+        return self.tensor

@@ -433,3 +433,86 @@ class TestStepFn(unittest.TestCase):
             info['mha_used_mask'].tolist(),
             expected_mha_mask
         )
+
+
+    def test_build_feasible_mask_SHOULD_mask_1_bin(self):
+        state = np.array([[
+                [  0.,   0.,   0.,   0.,   0.],
+                [100., 200., 300.,   0.,   2.], # Node task range [0, 2]
+                [  5.,   5.,   5.,   0.,   3.],
+                [ 10.,  20.,  30.,   1.,   0.], # Resource task 15
+                [ 40.,  50.,  60.,   8.,   1.]],
+            [
+                [   0.,    0.,    0.,   0.,   0.],
+                [   1.,    2.,    3.,   2.,   5.],
+                [4000., 5000., 6000.,   3.,   6.], # Node task range [3, 6]
+                [ 100.,  200.,  300.,   0.,   1.],
+                [ 400.,  500.,  600.,   8.,   0.] # Resource task 10
+            ]], dtype='float32')
+
+        resources = np.array([
+            [10.,  20.,  30.,   1.,   1.],
+            [400.,  500.,  600.,   8.,   1.]
+        ], dtype='float32')    
+
+        bin_net_mask = np.array([
+            [0., 0., 0., 1.,  1.],
+            [0., 0., 0., 1.,  1.]
+        ], dtype='float32')
+
+        actual_mask = self.env.build_feasible_mask(
+            state,
+            resources,
+            bin_net_mask
+        )
+
+        expected_mask = [
+            [0.0, 0.0, 1.0, 1.0, 1.0],
+            [0.0, 1.0, 0.0, 1.0, 1.0],
+        ]
+
+        self.assertEqual(
+            actual_mask.tolist(),
+            expected_mask
+        )
+
+    def test_build_feasible_mask_mask_all(self):
+        state = np.array([[
+                [  0.,   0.,   0.,   0.,   0.],
+                [  1.,   2.,   3.,   0.,   2.], # Node task range [0, 2]
+                [  5.,   5.,   5.,   0.,   3.],
+                [ 10.,  20.,  30.,   1.,   0.], # Resource task 15
+                [ 40.,  50.,  60.,   8.,   1.]],
+            [
+                [   0.,    0.,    0.,   0.,   0.],
+                [   1.,    2.,    3.,   2.,   5.],
+                [   4.,    5.,    6.,   3.,   6.], # Node task range [3, 6]
+                [ 100.,  200.,  300.,   0.,   1.],
+                [ 400.,  500.,  600.,   8.,   0.] # Resource task 10
+            ]], dtype='float32')
+
+        resources = np.array([
+            [10.,  20.,  30.,   1.,   1.],
+            [400.,  500.,  600.,   8.,   1.]
+        ], dtype='float32')    
+
+        bin_net_mask = np.array([
+            [0., 0., 0., 1.,  1.],
+            [0., 0., 0., 1.,  1.]
+        ], dtype='float32')
+
+        actual_mask = self.env.build_feasible_mask(
+            state,
+            resources,
+            bin_net_mask
+        )
+
+        expected_mask = [
+            [0.0, 1.0, 1.0, 1.0, 1.0],
+            [0.0, 1.0, 1.0, 1.0, 1.0],
+        ]
+
+        self.assertEqual(
+            actual_mask.tolist(),
+            expected_mask
+        )

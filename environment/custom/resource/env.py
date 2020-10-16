@@ -344,7 +344,54 @@ class ResourceEnvironment(BaseEnvironment):
         return agent_config
 
     def build_feasible_mask(self, state, resources, bin_net_mask):
-        return bin_net_mask
+        batch = state.shape[0]
+        num_elems = state.shape[1]
+
+        penalty_tensor = self.penalizer.tensor_representation()
+        penalty_tensor = tf.tile(penalty_tensor, [num_elems, 1])
+        penalty_tensor = tf.expand_dims(penalty_tensor, 0)
+
+        resource_net_mask = np.ones_like(bin_net_mask)
+        resource_net_mask -= bin_net_mask
+
+        # Extract type of the resource
+        # Reshape into (batch, 1)
+        resource_type = np.reshape(resources[:, 3], (batch, 1))
+        resource_demands = np.reshape(resources[:, :3], (batch, 1, 3))
+
+        bin_lower_type = state[:, :, 3]
+        bin_upper_type = state[:, :, 4]
+        bin_remaining_resources = state[:,:, :3]
+
+        # Look for places that won't be penalized
+        # From: https://stackoverflow.com/a/55870586
+        lower_tensor = tf.greater_equal(resource_type, bin_lower_type)
+        upper_tensor = tf.less_equal(resource_type, bin_upper_type)
+
+        in_range = tf.logical_and(lower_tensor, upper_tensor)
+        # Marked as 1 = there's penalty involved
+        # Marked as 0 = no penalty
+        in_range = 1 - tf.cast(in_range, dtype='float32')
+        in_range = tf.expand_dims(in_range, -1)
+        
+        resource_demands = tf.tile(resource_demands, [1, num_elems, 1])
+
+        # Compute remaining resources after placement
+        after_place = bin_remaining_resources - resource_demands + in_range * penalty_tensor
+        
+        after_place = tf.reduce_min(after_place, axis=-1)
+        after_place = tf.less(after_place, 0)
+        after_place = tf.cast(after_place, dtype='float32')
+
+
+        # Can't point to resources positions
+        after_place = tf.maximum(after_place, bin_net_mask)
+        
+        after_place = after_place.numpy()
+        # EOS is always available for pointing
+        after_place[:, 0] = 0
+    
+        return after_place
 
     def num_inserted_resources(self):
         num_inserted = 0
@@ -397,23 +444,35 @@ if __name__ == "__main__":
 
     env = ResourceEnvironment(env_name, env_config)
     
-    env.a = np.array([[
-                        [  0.,   0.,   0.,   0.,   0.],
-                        [100., 200., 300.,   0.,   2.],
-                        [400., 500., 600.,   0.,   3.],
-                        [ 10.,  20.,  30.,   1.,   1.],
-                        [ 40.,  50.,  60.,   8.,   1.]],
-                    [
-                        [  0.,   0.,   0.,   0.,   0.],
-                        [1000., 2000., 3000.,   2.,   5.],
-                        [4000., 5000., 6000.,   3.,   6.],
-                        [ 100.,  200.,  300.,   0.,   1.],
-                        [ 400.,  500.,  600.,   8.,   1.]
-                    ]], dtype='float32')
+    # bin_ids = [1 , 2]
 
-    bin_ids = [1 , 2]
-
-    resource_ids = [3, 4]
+    # resource_ids = [3, 4]
 
     # env.step(bin_ids, resource_ids)
-    env.rebuild_history()
+    # env.rebuild_history()
+
+    state = np.array([[
+        [0.,   0.,   0.,   0.,   0.],
+        [100., 200., 300.,   0.,   2.],
+        [400., 500., 600.,   0.,   3.],
+        [10.,  20.,  30.,   1.,   1.],
+        [40.,  50.,  60.,   8.,   1.]],
+        [
+        [0.,   0.,   0.,   0.,   0.],
+        [1000., 2000., 3000.,   2.,   5.],
+        [4000., 5000., 6000.,   3.,   6.],
+        [100.,  200.,  300.,   0.,   1.],
+        [400.,  500.,  600.,   8.,   1.]
+    ]], dtype='float32')
+
+    resources = np.array([
+        [10.,  20.,  30.,   1.,   1.],
+        [400.,  500.,  600.,   8.,   1.]
+    ], dtype='float32')    
+
+    bin_net_mask = np.array([
+        [0., 0., 0., 1.,  1.],
+        [0., 0., 0., 1.,  1.]
+    ], dtype='float32')
+
+    env.build_feasible_mask(state, resources, bin_net_mask)
