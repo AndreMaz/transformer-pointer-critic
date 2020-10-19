@@ -145,6 +145,55 @@ class TestStepFn(unittest.TestCase):
         }
         self.env = ResourceEnvironment('Resource', ENV_CONFIG)
 
+    def test_step_EOS_node(self):
+        self.env.batch = np.array([[
+                [  0.,   0.,   0.,   0.,   0.],
+                [100., 200., 300.,   0.,   2.], # Node task range [0, 2]
+                [400., 500., 600.,   0.,   3.],
+                [ 10.,  20.,  30.,   1.,   1.], # Resource task 1
+                [ 40.,  50.,  60.,   8.,   1.]],
+            [
+                [  0.,   0.,   0.,   0.,   0.],
+                [1000., 2000., 3000.,   2.,   5.],
+                [4000., 5000., 6000.,   3.,   6.], # Node task range [3, 6]
+                [ 100.,  200.,  300.,   0.,   1.],
+                [ 400.,  500.,  600.,   4.,   1.]  # Resource task 4
+            ]], dtype='float32')
+        
+        self.env.rebuild_history()
+
+        bin_ids =       [0 , 0]
+        resource_ids =  [3 , 4]
+
+        next_state, rewards, isDone, info = self.env.step(
+            bin_ids, 
+            resource_ids
+        )
+
+        expected_next_state = np.array([[
+                [  0.,   0.,   0.,   0.,   0.],
+                [100., 200., 300.,   0.,   2.],
+                [400., 500., 600.,   0.,   3.],
+                [ 10.,  20.,  30.,   1.,   1.], # Resource task 1
+                [ 40.,  50.,  60.,   8.,   1.]],
+            [
+                [  0.,   0.,   0.,   0.,   0.],
+                [1000., 2000., 3000.,   2.,   5.],
+                [4000., 5000., 6000.,   3.,   6.],
+                [ 100.,  200.,  300.,   0.,   1.],
+                [ 400.,  500.,  600.,   4.,   1.]  # Resource task 4
+            ]], dtype='float32')
+        self.assertEqual(next_state.tolist(),expected_next_state.tolist())
+
+        expected_rewards = np.array([
+            [0],
+            [0]
+        ], dtype="float32")
+
+        self.assertEqual(rewards.tolist(), expected_rewards.tolist())
+
+        self.assertFalse(isDone)
+
     def test_step_premium_user_NO_penalty(self):
         self.env.batch = np.array([[
                 [  0.,   0.,   0.,   0.,   0.],

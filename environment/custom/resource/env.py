@@ -145,6 +145,7 @@ class ResourceEnvironment(BaseEnvironment):
                 resource[4],
             )
 
+            # No reward. Placed at EOS bin
             if bin_id == 0:
                 reward = 0
             else:
