@@ -18,7 +18,7 @@ def plotter(data, env, agent, agent_config, opt_solver, print_details=False):
         input_solver = env.convert_to_ortools_input()
         optimum_value = opt_solver(input_solver, print_details)
     else:
-        optimum_value = env.optimum_value
+        optimum_value = 0
     # Fill the array with the opt values
     # This will create a flat line
     opt_values = [optimum_value for i in range(len(average_rewards_buffer))]

@@ -18,4 +18,4 @@ class Resource():
         
 
     def print(self):
-        print(f'ID : {self.id} | CPU: {self.CPU} | RAM: {self.RAM} | MEM: {self.MEM} | Task: {self.task} | Type: {self.request_type}')
+        print(f'ID : {self.id} \t| CPU: {self.CPU} | RAM: {self.RAM} | MEM: {self.MEM} | Task: {self.task} | Type: {self.request_type}')

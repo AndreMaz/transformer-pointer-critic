@@ -3,7 +3,7 @@
     
     "trainer_config": {
         "description": "Trainer function configs.",
-        "n_iterations": 100,
+        "n_iterations": 1,
         "n_steps_to_update": 20
     },
 
@@ -19,13 +19,13 @@
         "load_from_file": false,
         "location": "./environment/custom/knapsack/problem.json",
         
-        "batch_size": 2,
+        "batch_size": 32,
         "num_features": 5,
         "num_resources": 100,
         "num_bins": 10,
         "EOS_CODE": 0,
 
-        "resource_sample_size": 5,
+        "resource_sample_size": 20,
         "bin_sample_size": 5,
 
         "normalization_factor": 1,
@@ -34,28 +34,30 @@
         "reward_per_level": [ 10, 20 ],
         "misplace_reward_penalty": 5,
 
-        "num_task_types": 10,
+        "num_task_types": 50,
         
         "CPU_misplace_penalty": 10,
         "RAM_misplace_penalty": 10,
         "MEM_misplace_penalty": 10,
 
-        "min_resource_CPU": 10,
-        "max_resource_CPU": 20,
+        "min_resource_CPU": 30,
+        "max_resource_CPU": 40,
+
         "min_resource_RAM": 30,
         "max_resource_RAM": 40,
-        "min_resource_MEM": 50,
-        "max_resource_MEM": 60,
+
+        "min_resource_MEM": 30,
+        "max_resource_MEM": 40,
         
         "min_bin_CPU": 100,
         "max_bin_CPU": 200,
-        "min_bin_RAM": 300,
-        "max_bin_RAM": 400,
-        "min_bin_MEM": 500,
-        "max_bin_MEM": 600,
+        "min_bin_RAM": 100,
+        "max_bin_RAM": 200,
+        "min_bin_MEM": 100,
+        "max_bin_MEM": 200,
         
-        "min_bin_range_type": 2,
-        "max_bin_range_type": 3
+        "min_bin_range_type": 5,
+        "max_bin_range_type": 9
     },
 
     "tpc": {
