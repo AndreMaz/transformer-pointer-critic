@@ -98,6 +98,11 @@ class Node():
         for res in self.resources:
             res.print()
 
+    def is_valid(self):
+        if self.remaining_CPU >= 0 and self.remaining_RAM >= 0 and self.remaining_MEM >= 0:
+            return True
+        
+        return False
 
 if __name__ == "__main__":
     batch_id = 0

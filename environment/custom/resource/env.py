@@ -145,14 +145,17 @@ class ResourceEnvironment(BaseEnvironment):
                 resource[4],
             )
 
-            # Compute reward
-            reward = self.rewarder.compute_reward(
-                self.batch[batch_id],
-                self.bin_sample_size,
-                bin,
-                resource,
-            )
-
+            if bin_id == 0:
+                reward = 0
+            else:
+                # Compute reward
+                reward = self.rewarder.compute_reward(
+                    self.batch[batch_id],
+                    self.bin_sample_size,
+                    bin,
+                    resource,
+                )
+            
             rewards[batch_id][0] = reward
 
             # Update the remaining node resources
@@ -433,6 +436,13 @@ class ResourceEnvironment(BaseEnvironment):
                 bp.print()
             print('_________________________________')
 
+    def validate_history(self):
+        for problem in self.history:
+            for bin in problem:
+                if bin.is_valid() == False:
+                    return False
+
+        return True        
 
 if __name__ == "__main__":
     env_name = 'Resource'

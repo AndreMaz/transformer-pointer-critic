@@ -1,6 +1,6 @@
 from environment.custom.knapsack.env_v2 import KnapsackV2
 from agents.agent import Agent
-from agents.plotter import plot_attentions
+from environment.custom.knapsack.plotter import plot_attentions
 
 # from agents.optimum_solver import solver
 import numpy as np
