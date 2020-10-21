@@ -4,6 +4,7 @@ sys.path.append('.')
 
 from environment.custom.resource.resource import Resource
 from environment.custom.resource.penalty import Penalty
+import numpy as np
 
 class Node():
     def __init__(self,
@@ -19,19 +20,18 @@ class Node():
 
         self.batch_id = batch_id
         self.id = id
-        self.CPU = CPU
-        self.RAM = RAM
-        self.MEM = MEM
+        self.CPU = np.array([CPU], dtype='float32')
+        self.RAM = np.array([RAM], dtype='float32')
+        self.MEM = np.array([MEM], dtype='float32')
 
-        self.remaining_CPU = CPU
-        self.remaining_RAM = RAM
-        self.remaining_MEM = MEM
+        self.remaining_CPU = np.array([CPU], dtype='float32')
+        self.remaining_RAM = np.array([RAM], dtype='float32')
+        self.remaining_MEM = np.array([MEM], dtype='float32')
 
         self.penalizer = penalizer
 
-
-        self.lower_task = lower_task
-        self.upper_task = upper_task
+        self.lower_task = np.array([lower_task], dtype='float32')
+        self.upper_task = np.array([upper_task], dtype='float32')
 
         self.resources = []
 
@@ -53,7 +53,7 @@ class Node():
             isValid, remaning_CPU, remaning_RAM, remaining_MEM = self.validate(req)
 
             assert isValid == True,\
-                f'Node {self.id} is overloaded. Cannot Place Resource {CPU}|{RAM}|{MEM} to a Node with {self.used_CPU}/{self.CPU}|{self.used_RAM}/{self.RAM}|{self.used_MEM}/{self.MEM}'
+                f'Node {self.id} is overloaded. Cannot Place Resource {CPU}|{RAM}|{MEM} to a Node with {self.remaining_CPU}/{self.CPU}|{self.remaining_RAM}/{self.RAM}|{self.remaining_MEM}/{self.MEM}'
 
             self.remaining_CPU = remaning_CPU
             self.remaining_RAM = remaning_RAM
@@ -91,7 +91,7 @@ class Node():
             return False, CPU, RAM, MEM
 
     def print(self):
-        print(f'Node ID: {self.id} | Available CPU: {self.remaining_CPU} of {self.CPU} | Available RAM: {self.remaining_RAM} of {self.RAM} | Available MEM: {self.remaining_MEM} of {self.MEM} | Lower Task: {self.lower_task} | Upper Task: {self.upper_task}')
+        print(f'Node ID: {self.id} \t| Remaining CPU: {np.around(self.remaining_CPU, decimals=3)} of {self.CPU} \t| Remaining RAM: {np.around(self.remaining_RAM, decimals=3)} of {self.RAM} \t| Remaining MEM: {np.around(self.remaining_MEM, decimals=3)} of {self.MEM} \t| Lower Task: {self.lower_task} \t| Upper Task: {self.upper_task}')
         
         print('Resources allocated to the Node:')
         if len(self.resources) == 0: print('<Empty>')

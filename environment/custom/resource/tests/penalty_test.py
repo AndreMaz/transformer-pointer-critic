@@ -11,9 +11,9 @@ from environment.custom.resource.penalty import Penalty
 class TestItem(unittest.TestCase):
 
     def setUp(self) -> None:
-        CPU_misplace_penalty = 5
-        RAM_misplace_penalty = 10
-        MEM_misplace_penalty = 15
+        CPU_misplace_penalty = np.array([5], dtype='float32')
+        RAM_misplace_penalty = np.array([10], dtype='float32')
+        MEM_misplace_penalty = np.array([15], dtype='float32')
 
         self.penalizer = Penalty(
             CPU_misplace_penalty,

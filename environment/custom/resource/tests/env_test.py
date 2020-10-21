@@ -30,7 +30,8 @@ class TestResource(unittest.TestCase):
             "resource_sample_size": 5,
             "bin_sample_size": 5,
 
-            "normalization_factor": 1,
+            "resource_normalization_factor": 1,
+            "task_normalization_factor": 1,
 
             "num_user_levels": 1,
             "reward_per_level": [10, 20],
@@ -114,7 +115,8 @@ class TestStepFn(unittest.TestCase):
             "resource_sample_size": 2,
             "bin_sample_size": 2,
 
-            "normalization_factor": 1,
+            "resource_normalization_factor": 1,
+            "task_normalization_factor": 1,
 
             "num_user_levels": 1,
             "reward_per_level": [10, 20],
@@ -145,7 +147,7 @@ class TestStepFn(unittest.TestCase):
         }
         self.env = ResourceEnvironment('Resource', ENV_CONFIG)
 
-    def test_step_EOS_node(self):
+    def test_step_EOS_node_reward_SHOULD_be_zero(self):
         self.env.batch = np.array([[
                 [  0.,   0.,   0.,   0.,   0.],
                 [100., 200., 300.,   0.,   2.], # Node task range [0, 2]

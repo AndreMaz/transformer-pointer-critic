@@ -1,4 +1,5 @@
 import tensorflow as tf
+import numpy as np
 
 class Penalty():
     def __init__(self,
@@ -7,9 +8,9 @@ class Penalty():
                  MEM_misplace_penalty):
         super(Penalty, self).__init__()
 
-        self.CPU_penalty = CPU_misplace_penalty
-        self.RAM_penalty = RAM_misplace_penalty
-        self.MEM_penalty = MEM_misplace_penalty
+        self.CPU_penalty = np.array([CPU_misplace_penalty], dtype='float32')
+        self.RAM_penalty = np.array([RAM_misplace_penalty], dtype='float32')
+        self.MEM_penalty = np.array([MEM_misplace_penalty], dtype='float32')
 
         self.tensor = tf.constant([
             self.CPU_penalty,

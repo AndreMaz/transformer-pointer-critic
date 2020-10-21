@@ -37,7 +37,8 @@ class ResourceEnvironment(BaseEnvironment):
         self.bin_sample_size: int = opts['bin_sample_size'] + 1 # + 1 because of the EOS bin
         assert self.num_bins >= self.bin_sample_size, 'Bins sample size should be less than total number of bins'
 
-        self.normalization_factor: int = opts['normalization_factor']
+        self.resource_normalization_factor: int = opts['resource_normalization_factor']
+        self.task_normalization_factor: int = opts['task_normalization_factor']
 
         self.num_user_levels: int = opts['num_user_levels']
         self.reward_per_level: List[int] = opts['reward_per_level']
@@ -48,9 +49,9 @@ class ResourceEnvironment(BaseEnvironment):
 
         self.num_task_types: int = opts['num_task_types']
 
-        self.CPU_misplace_penalty: int = opts['CPU_misplace_penalty']
-        self.RAM_misplace_penalty: int = opts['RAM_misplace_penalty']
-        self.MEM_misplace_penalty: int = opts['MEM_misplace_penalty']
+        self.CPU_misplace_penalty: int = opts['CPU_misplace_penalty'] / self.resource_normalization_factor
+        self.RAM_misplace_penalty: int = opts['RAM_misplace_penalty'] / self.resource_normalization_factor
+        self.MEM_misplace_penalty: int = opts['MEM_misplace_penalty'] / self.resource_normalization_factor
         
         self.min_resource_CPU: int = opts['min_resource_CPU']
         self.max_resource_CPU: int = opts['max_resource_CPU']
@@ -134,7 +135,7 @@ class ResourceEnvironment(BaseEnvironment):
             resource = self.batch[batch_id, resource_id]
 
             node: History = self.history[batch_id][bin_id]
-            
+
             # Add resource to bin
             remaining_resources = node.add_resource(
                 resource_id,
@@ -194,17 +195,17 @@ class ResourceEnvironment(BaseEnvironment):
             bins[i, 0] = randint(
                 self.min_bin_CPU,
                 self.max_bin_CPU
-            ) / self.normalization_factor
+            ) / self.resource_normalization_factor
             
             bins[i, 1] = randint(
                 self.min_bin_RAM,
                 self.max_bin_RAM
-            ) / self.normalization_factor
+            ) / self.resource_normalization_factor
 
             bins[i, 2] = randint(
                 self.min_bin_MEM,
                 self.max_bin_MEM
-            ) / self.normalization_factor
+            ) / self.resource_normalization_factor
 
             # Range of tasks that node can process without any penalty
             num_tasks_for_bin = randint(self.min_bin_range_type, self.max_bin_range_type)
@@ -214,8 +215,8 @@ class ResourceEnvironment(BaseEnvironment):
                 self.num_task_types - num_tasks_for_bin
             )
 
-            bins[i, 3] = self.tasks[task_lower_index]
-            bins[i, 4] = self.tasks[task_lower_index + num_tasks_for_bin]
+            bins[i, 3] = self.tasks[task_lower_index] / self.task_normalization_factor
+            bins[i, 4] = self.tasks[task_lower_index + num_tasks_for_bin] / self.task_normalization_factor
         
 
         resources = np.zeros((self.num_resources, self.num_features), dtype='float32')
@@ -224,19 +225,19 @@ class ResourceEnvironment(BaseEnvironment):
             resources[i, 0] = randint(
                 self.min_resource_CPU,
                 self.max_resource_CPU
-            ) / self.normalization_factor
+            ) / self.resource_normalization_factor
 
             resources[i, 1] = randint(
                 self.min_resource_RAM,
                 self.max_resource_RAM
-            ) / self.normalization_factor
+            ) / self.resource_normalization_factor
 
             resources[i, 2] = randint(
                 self.min_resource_MEM,
                 self.max_resource_MEM
-            ) / self.normalization_factor
+            ) / self.resource_normalization_factor
 
-            resources[i, 3] = self.tasks[randint(0, self.num_task_types - 1)]
+            resources[i, 3] = self.tasks[randint(0, self.num_task_types - 1)] / self.task_normalization_factor
             
             # User type will be generated on-the-fly
             resources[i, 4] = -1
