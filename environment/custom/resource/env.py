@@ -39,7 +39,9 @@ class ResourceEnvironment(BaseEnvironment):
 
         self.resource_normalization_factor: int = opts['resource_normalization_factor']
         self.task_normalization_factor: int = opts['task_normalization_factor']
-
+        self.num_iterations_before_node_reset: int = opts['num_iterations_before_node_reset']
+        self.num_iterations = 0
+    
         self.num_user_levels: int = opts['num_user_levels']
         self.reward_per_level: List[int] = opts['reward_per_level']
 
@@ -106,8 +108,17 @@ class ResourceEnvironment(BaseEnvironment):
             self.resource_net_mask,\
             self.mha_used_mask = self.generate_masks()
 
+    def reset_num_iterations(self):
+        self.num_iterations = 999
+
     def reset(self):
-        self.batch, self.history = self.generate_batch()
+        if self.num_iterations < self.num_iterations_before_node_reset:
+            new_resources = self.generate_resources()
+            self.batch[:, self.bin_sample_size:, :] = new_resources
+        else:
+            self.num_iterations = 0
+            self.batch, self.history = self.generate_batch()
+
         self.bin_net_mask,\
             self.resource_net_mask,\
             self.mha_used_mask = self.generate_masks()
@@ -182,6 +193,7 @@ class ResourceEnvironment(BaseEnvironment):
 
         if np.all(self.resource_net_mask == 1):
             isDone = True
+            self.num_iterations += 1
         
         return self.batch.copy(), rewards, isDone, info
     
@@ -244,6 +256,29 @@ class ResourceEnvironment(BaseEnvironment):
 
         return bins, resources
 
+    def generate_resources(self):
+        elem_size = self.resource_sample_size
+        batch = np.zeros((self.batch_size, elem_size, self.num_features), dtype='float32')
+
+        for batch_id in range(self.batch_size):
+
+            # Shuffle the resources and select a sample
+            np.random.shuffle(self.resourceIDS)
+            resources_sample_ids = self.resourceIDS[:self.resource_sample_size]
+
+            # start = self.bin_sample_size
+            # end = self.bin_sample_size + self.resource_sample_size
+            for i in range(self.resource_sample_size):
+                # Pop the ID
+                id = resources_sample_ids.pop(0)
+                # Get the resource by ID
+                resource  = self.total_resources[id]
+                batch[batch_id, i, :] = resource
+                
+                # User type. e.g. premium or free
+                batch[batch_id, i, 4] = randint(0, self.num_user_levels)
+
+        return batch
 
     def generate_batch(self):
         history = []

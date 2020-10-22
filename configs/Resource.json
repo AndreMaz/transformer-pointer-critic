@@ -28,8 +28,9 @@
         "resource_sample_size": 20,
         "bin_sample_size": 5,
 
-        "resource_normalization_factor": 1000,
-        "task_normalization_factor": 100,
+        "resource_normalization_factor": 10000,
+        "task_normalization_factor": 1000,
+        "num_iterations_before_node_reset": 10,
 
         "num_user_levels": 1, 
         "reward_per_level": [ 1, 2 ],
@@ -41,21 +42,21 @@
         "RAM_misplace_penalty": 10,
         "MEM_misplace_penalty": 10,
 
-        "min_resource_CPU": 30,
+        "min_resource_CPU": 20,
         "max_resource_CPU": 40,
 
-        "min_resource_RAM": 30,
+        "min_resource_RAM": 20,
         "max_resource_RAM": 40,
 
-        "min_resource_MEM": 30,
+        "min_resource_MEM": 20,
         "max_resource_MEM": 40,
         
-        "min_bin_CPU": 100,
-        "max_bin_CPU": 200,
-        "min_bin_RAM": 100,
-        "max_bin_RAM": 200,
-        "min_bin_MEM": 100,
-        "max_bin_MEM": 200,
+        "min_bin_CPU": 1000,
+        "max_bin_CPU": 2000,
+        "min_bin_RAM": 1000,
+        "max_bin_RAM": 2000,
+        "min_bin_MEM": 1000,
+        "max_bin_MEM": 2000,
         
         "min_bin_range_type": 5,
         "max_bin_range_type": 9

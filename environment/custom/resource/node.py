@@ -91,7 +91,7 @@ class Node():
             return False, CPU, RAM, MEM
 
     def print(self):
-        print(f'Node ID: {self.id} \t| Remaining CPU: {np.around(self.remaining_CPU, decimals=3)} of {self.CPU} \t| Remaining RAM: {np.around(self.remaining_RAM, decimals=3)} of {self.RAM} \t| Remaining MEM: {np.around(self.remaining_MEM, decimals=3)} of {self.MEM} \t| Lower Task: {self.lower_task} \t| Upper Task: {self.upper_task}')
+        print(f'Node ID: {self.id} \t| Remaining CPU: {np.around(self.remaining_CPU, decimals=4)} of {self.CPU} \t| Remaining RAM: {np.around(self.remaining_RAM, decimals=4)} of {self.RAM} \t| Remaining MEM: {np.around(self.remaining_MEM, decimals=4)} of {self.MEM} \t| Lower Task: {int(self.lower_task[0])} \t| Upper Task: {int(self.upper_task[0])}')
         
         print('Resources allocated to the Node:')
         if len(self.resources) == 0: print('<Empty>')

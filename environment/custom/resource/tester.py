@@ -17,14 +17,15 @@ def test(env: ResourceEnvironment, agent: Agent, opt_solver, heuristic_solver, l
     agent.stochastic_action_selection = False
     
     # Increase the number for resources during testing
-    env.resource_sample_size = 50
-    agent.num_resources = 50
+    env.resource_sample_size = 5
+    agent.num_resources = 5
 
     # Increase the number of bins during testing
-    env.bin_sample_size = 10 + 1 # Because of the EOS
+    env.bin_sample_size = 5 + 1 # Because of the EOS
     
-    # env.batch_size  = 1
-    # agent.batch_size = 1
+    env.reset_num_iterations() # Reset the env
+    env.batch_size  = 1
+    agent.batch_size = 1
 
     training_step = 0
     isDone = False
@@ -137,4 +138,10 @@ def test(env: ResourceEnvironment, agent: Agent, opt_solver, heuristic_solver, l
     #         print(f'Net {net_val} \t| Heuristic {heu_val} \t| % from Heuristic {d_from_opt:.2f}')
 
     # Plot the attentions to visualize the policy
-    # plot_attentions(attentions, env.resource_sample_size, env.bin_sample_size)
+    # plot_attentions(
+    #     attentions,
+    #     env.resource_sample_size,
+    #     env.bin_sample_size,
+    #     env.resource_normalization_factor,
+    #     env.task_normalization_factor
+    # )

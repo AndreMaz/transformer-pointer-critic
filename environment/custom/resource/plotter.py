@@ -71,50 +71,96 @@ def plotter(data, env, agent, agent_config, opt_solver, print_details=False):
 
     plt.close()
 
-def plot_attentions(attentions, num_items, num_backpacks):
+def plot_attentions(attentions,
+                    num_resources,
+                    num_bins,
+                    resource_normalization_factor,
+                    task_normalization_factor):
     
-    fig, axs = plt.subplots(num_items, 2)
+    fig, axs = plt.subplots(num_resources, 2)
 
     for index, attention in enumerate(attentions):
         
-        # Only show the attention over the items
-        axs[index, 0].matshow(attention['item_attention'][:, num_backpacks:])
+        # Only show the attention over the resources
+        axs[index, 0].matshow(attention['resource_attention'][:, num_bins:])
         # axs[index, 0].set_title('Item Attention')
 
-        # Only show the attention over the backpacks
-        axs[index, 1].matshow(attention['backpack_attention'][:, :num_backpacks])
+        # Only show the attention over the bins
+        axs[index, 1].matshow(attention['bin_attention'][:, :num_bins])
         # axs[index, 1].set_title('Backpack Attention')
 
-    for index in range(num_items):
+    for index in range(num_resources):
         # Select the plot by index for the Items
         plt.sca(axs[index, 0])
         # Add the ticks and the labels
-        item_input = attentions[index]["item_net_input"]
-        item_ylabel = f'w:{int(item_input[0,0,0])} v:{int(item_input[0,0,1])}'
-        plt.yticks([0], [item_ylabel])
+        resource_input = attentions[index]["resource_net_input"]
+        if int(round(resource_input[0,0,0])) == -1:
+            CPU = -1
+            RAM = -1
+            MEM = -1
+            task = -1
+        else:
+            CPU = int(round(resource_input[0,0,0])  * resource_normalization_factor)
+            RAM = int(round(resource_input[0,0,1])  * resource_normalization_factor)
+            MEM = int(round(resource_input[0,0,2])  * resource_normalization_factor)
+            task = int(round(resource_input[0,0,3]) * task_normalization_factor)
 
-        item_states = attentions[index]['current_state'][0, num_backpacks:]
-        item_xlabel = []
-        for itm in item_states:
-            item_xlabel.append(
-                f'w:{int(itm[0])} v:{int(itm[1])}'
+        req_type = int(round(resource_input[0,0,4]))
+
+        resource_ylabel = f'C:{CPU} R:{RAM} M:{MEM} T:{task} P:{req_type}'
+        plt.yticks([0], [resource_ylabel])
+
+        resource_states = attentions[index]['current_state'][0, num_bins:]
+        resource_xlabel = []
+        for itm in resource_states:
+            if int(round(itm[0])) == -1:
+                CPU = -1
+                RAM = -1
+                MEM = -1
+                task = -1
+            else:
+                CPU = int(round(itm[0])  * resource_normalization_factor)
+                RAM = int(round(itm[1])  * resource_normalization_factor)
+                MEM = int(round(itm[2])  * resource_normalization_factor)
+                task = int(round(itm[3]) * task_normalization_factor)
+
+            req_type = int(round(itm[4]))
+
+            resource_xlabel.append(
+                f'C:{CPU} R:{RAM} M:{MEM} T:{task} P:{req_type}'
             )
-        plt.xticks(range(len(item_xlabel)), item_xlabel)
+
+        plt.xticks(range(len(resource_xlabel)), resource_xlabel)
 
         # Select the plot by index for the Backpacks
         plt.sca(axs[index, 1])
         # Add the ticks and the labels
-        item_input = attentions[index]["backpack_net_input"]
-        backpack_ylabel = f'w:{int(item_input[0,0,0])} v:{int(item_input[0,0,1])}'
-        plt.yticks([0], [backpack_ylabel])
+        resource_input = attentions[index]["bin_net_input"]
+        CPU = int(round(resource_input[0,0,0])  * resource_normalization_factor)
+        RAM = int(round(resource_input[0,0,1])  * resource_normalization_factor)
+        MEM = int(round(resource_input[0,0,2])  * resource_normalization_factor)
 
-        backpack_states = attentions[index]['current_state'][0, :num_backpacks]
-        backpack_xlabel = []
-        for bp in backpack_states:
-            backpack_xlabel.append(
-                f'c:{int(bp[0])} l:{int(bp[1])}'
+        lower_task = int(round(resource_input[0,0,3]) * task_normalization_factor)
+        upper_task = int(round(resource_input[0,0,4]) * task_normalization_factor)
+
+        bin_ylabel = f'C:{CPU} R:{RAM} M:{MEM} L:{lower_task} U:{upper_task}'
+        plt.yticks([0], [bin_ylabel])
+
+        bin_states = attentions[index]['current_state'][0, :num_bins]
+        bin_xlabel = []
+        for bp in bin_states:
+            CPU = int(round(bp[0])  * resource_normalization_factor)
+            RAM = int(round(bp[1])  * resource_normalization_factor)
+            MEM = int(round(bp[2])  * resource_normalization_factor)
+
+            lower_task = int(round(bp[3]) * task_normalization_factor)
+            upper_task = int(round(bp[4]) * task_normalization_factor)
+
+
+            bin_xlabel.append(
+                f'C:{CPU} R:{RAM} M:{MEM} L:{lower_task} U:{upper_task}'
             )
-        plt.xticks(range(len(backpack_xlabel)), backpack_xlabel)
+        plt.xticks(range(len(bin_xlabel)), bin_xlabel)
     
     # plt.subplots_adjust(wspace=0.3, hspace = 0.3)
 
