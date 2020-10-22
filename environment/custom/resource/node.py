@@ -36,6 +36,7 @@ class Node():
         self.resources = []
 
     def add_resource(self,
+                     iteration_num,
                      id,
                      CPU,
                      RAM,
@@ -43,7 +44,7 @@ class Node():
                      task,
                      request_type):
 
-        req = Resource(id, CPU, RAM, MEM, task, request_type)
+        req = Resource(iteration_num, id, CPU, RAM, MEM, task, request_type)
 
         remaning_CPU = 0
         remaning_RAM = 0
@@ -91,7 +92,10 @@ class Node():
             return False, CPU, RAM, MEM
 
     def print(self):
-        print(f'Node ID: {self.id} \t| Remaining CPU: {np.around(self.remaining_CPU, decimals=4)} of {self.CPU} \t| Remaining RAM: {np.around(self.remaining_RAM, decimals=4)} of {self.RAM} \t| Remaining MEM: {np.around(self.remaining_MEM, decimals=4)} of {self.MEM} \t| Lower Task: {int(self.lower_task[0])} \t| Upper Task: {int(self.upper_task[0])}')
+        if self.id == 0:
+            print(f'Node ID: {self.id} \t| Remaining CPU: {np.around(self.remaining_CPU, decimals=4)} of {self.CPU} \t| Remaining RAM: {np.around(self.remaining_RAM, decimals=4)} of {self.RAM} \t| Remaining MEM: {np.around(self.remaining_MEM, decimals=4)} of {self.MEM} \t| Lower Task: {int(self.lower_task[0])} \t| Upper Task: {int(self.upper_task[0])}')
+        else:
+            print(f'Node ID: {self.id} \t| Remaining CPU: {np.around(self.remaining_CPU, decimals=4)} of {self.CPU} \t| Remaining RAM: {np.around(self.remaining_RAM, decimals=4)} of {self.RAM} \t| Remaining MEM: {np.around(self.remaining_MEM, decimals=4)} of {self.MEM} \t| Lower Task: {self.lower_task[0]:1f} \t| Upper Task: {self.upper_task[0]:1f}')
         
         print('Resources allocated to the Node:')
         if len(self.resources) == 0: print('<Empty>')

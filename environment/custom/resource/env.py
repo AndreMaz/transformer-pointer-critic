@@ -149,6 +149,7 @@ class ResourceEnvironment(BaseEnvironment):
 
             # Add resource to bin
             remaining_resources = node.add_resource(
+                self.num_iterations,        
                 resource_id,
                 resource[0],
                 resource[1],
