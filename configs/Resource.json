@@ -3,7 +3,7 @@
     
     "trainer_config": {
         "description": "Trainer function configs.",
-        "n_iterations": 10000,
+        "n_iterations": 300,
         "n_steps_to_update": 20
     },
 
@@ -58,8 +58,8 @@
         "min_bin_MEM": 1000,
         "max_bin_MEM": 2000,
         
-        "min_bin_range_type": 5,
-        "max_bin_range_type": 9
+        "min_bin_range_type": 15,
+        "max_bin_range_type": 25
     },
 
     "tpc": {

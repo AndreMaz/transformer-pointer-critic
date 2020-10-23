@@ -15,7 +15,9 @@ class Node():
                  MEM,
                  lower_task,
                  upper_task,
-                 penalizer: Penalty):
+                 penalizer: Penalty,
+                 task_normalization_factor
+                 ):
         super(Node, self).__init__()
 
         self.batch_id = batch_id
@@ -34,6 +36,8 @@ class Node():
         self.upper_task = np.array([upper_task], dtype='float32')
 
         self.resources = []
+
+        self.task_normalization_factor = task_normalization_factor
 
     def add_resource(self,
                      iteration_num,
@@ -101,6 +105,21 @@ class Node():
         if len(self.resources) == 0: print('<Empty>')
         for res in self.resources:
             res.print()
+
+        total_nodes = len(self.resources)
+        if total_nodes == 0: return
+
+        within_range = 0
+
+        low = int(round(self.lower_task[0] * self.task_normalization_factor))
+        up = int(round(self.upper_task[0] * self.task_normalization_factor))
+
+        for res in self.resources:
+            task = int(round(res.task[0] * self.task_normalization_factor))
+            if low <= task <= up:
+                within_range = +1
+
+        print(f'Percentage of penalized resources: {(1 - (within_range/total_nodes))*100:.2f}%')
 
     def is_valid(self):
         if self.remaining_CPU >= 0 and self.remaining_RAM >= 0 and self.remaining_MEM >= 0:

@@ -5,8 +5,12 @@ class Penalty():
     def __init__(self,
                  CPU_misplace_penalty,
                  RAM_misplace_penalty,
-                 MEM_misplace_penalty):
+                 MEM_misplace_penalty,
+                 EOS_CODE
+                 ):
         super(Penalty, self).__init__()
+
+        self.EOS_CODE = EOS_CODE
 
         self.CPU_penalty = np.array([CPU_misplace_penalty], dtype='float32')
         self.RAM_penalty = np.array([RAM_misplace_penalty], dtype='float32')
@@ -39,6 +43,10 @@ class Penalty():
         return MEM + self.MEM_penalty
     
     def to_penalize(self, bin_lower_type, bin_upper_type, resource_type):
+        
+        # EOS Node is always available
+        if bin_lower_type == self.EOS_CODE and bin_upper_type == self.EOS_CODE:
+            return False
 
         if bin_lower_type <= resource_type <= bin_upper_type:
             return False

@@ -80,7 +80,8 @@ class ResourceEnvironment(BaseEnvironment):
         self.penalizer = Penalty(
             self.CPU_misplace_penalty,
             self.RAM_misplace_penalty,
-            self.MEM_misplace_penalty
+            self.MEM_misplace_penalty,
+            self.EOS_CODE
         )
 
         # Class responsible form computing rewards for each placement
@@ -162,14 +163,14 @@ class ResourceEnvironment(BaseEnvironment):
             if bin_id == 0:
                 reward = 0
             else:
-                # Compute reward
+            # Compute reward
                 reward = self.rewarder.compute_reward(
                     self.batch[batch_id],
                     self.bin_sample_size,
                     bin,
                     resource,
                 )
-            
+
             rewards[batch_id][0] = reward
 
             # Update the remaining node resources
@@ -302,7 +303,8 @@ class ResourceEnvironment(BaseEnvironment):
                 self.EOS_CODE,
                 self.EOS_CODE,
                 self.EOS_CODE,
-                self.penalizer
+                self.penalizer,
+                self.task_normalization_factor
             ))
 
             # Shuffle the bins and select a sample
@@ -323,7 +325,8 @@ class ResourceEnvironment(BaseEnvironment):
                     bin[2], # MEM
                     bin[3], # Lower task
                     bin[4], # Upper task
-                    self.penalizer
+                    self.penalizer,
+                    self.task_normalization_factor
                 ))
 
                 # Set the bin/node
