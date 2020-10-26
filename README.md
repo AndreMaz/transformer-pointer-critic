@@ -1,6 +1,6 @@
 # Double Transformer Pointer-Critic
 
-**For the details please check [Architecture Rationale](./Arch_Rationale.md)**
+**For the rationale behind the architecture please check [Architecture Rationale](./Arch_Rationale.md)**
 
 ## Architecture Details
 
@@ -10,87 +10,55 @@
 **Detailed Overview**
 ![detailed_arch](./media/detailed_arch.jpg)
 
+## Resource Placement at Edge Devices
 
-## Multiple Knapsack Problem
-Given a set of items, `x = {x_1, x_2, ..., x_i}` where each item has it's own weight `w_i` and value `v_i`, and a set of backpacks, `m = {m_1, m_2, ..., m_j}` each having a capacity `c_j`, the goal is to select a subset of items and place them into the backpacks in a way that total profit of the selected items is maximized.
+**Tech Background**
 
-### Input Example
 
-Below is an example of an input that goes to both nets. It contains information about the state of the backpacks and the items.
+In real world, the nodes (virtual or physical) usually are located behind a reverse proxy such as NGNIX, Traefik or Moleculer API Gateway. All of them provide load balancing capabilities. NGNIX [offers](http://nginx.org/en/docs/http/load_balancing.html) round-robin, least-connected, ip-hash; Traefik, at this moment, only [supports](https://docs.traefik.io/routing/services/#load-balancing) round-robin method; Moleculer API Gateway [offers](https://moleculer.services/docs/0.14/balancing.html#Built-in-strategies) round-robin, random, CPU usage-based and sharding. These load balancing strategies don't provide optimal solutions because it's too expensive to look for them in real-time. Instead, these strategies trade the quality of solution for the response time, i.e., these strategies are fast but the solutions that they provide can be can be suboptimal.
 
+In containerized environments, where nodes are in containers, there is usually a container manager. 
+
+software such as [Kubernetes](https://kubernetes.io/blog/2016/07/autoscaling-in-kubernetes/).
+
+**Problem statement**: 
+Given a set of nodes/devices available for processing. Each node has the following characteristics:
+- `100` units of CPU available for processing
+- `20` units of RAM available for processing
+- `50` units of memory available for processing
+
+it also contains the range of tasks that it can process without penalty (e.g., a node can maintain an active connection with a weather API service or it can have the desired info in cache; if not, then fetching required data from some remote place is required, a process that will require more memory, RAM and CPU):
+- `2` lower bound ID of the tasks that a node can process without penalty
+- `5` upper bound ID of the tasks that a node can process without penalty
+
+> Note: In the example above the lower and upper bounds mean that that specific node can process tasks (`2`, `3`, `4`, `5`) without any additional penalty.
+
+Moreover, at each time `t` a randomly sized batch of user's requests arrive, each has its own profile with the following information:
+
+The amount of resources that it needs in order to be processed properly. For example:
+- `10` units of CPU
+- `2` units of RAM
+- `5` units for Memory
+
+The profile also contains info about the type of the request. For example
+- `1` or `0` depending if the user is `premium` or `free`
+- `2`(or any other number) type of the task. Representing the specific need of the request. For example, specific request might need the presence of the GPU or additional data that needs to be fetched in order to be properly processed.
+
+**Goal**: The goal is to design a load balancing strategy that's able to distribute the incoming requests across the devices. The designed strategy must prioritize the `premium` requests and, when possible, satisfy the `free` requests.
+
+**Purpose of the Neural-based load balancing strategy**: A Neural-based load balancing strategy can adapt the distribution policy (heuristic) according to the incoming user's requests and the state of the nodes and, thus, offer a "better" way of placing the requests.
+
+**Input Representation**
 ```bash
 array([
-    [ 0.,  0.],  -> Backpack EOS. Not selected items will be "placed" here
-    [ 7.,  0.],  -> Backpack 1. Capacity: 7     | Current Load: 0
-    [ 8.,  0.],  -> Backpack 2. Capacity: 8     | Current Load: 0
-    [13.,  0.],  -> Backpack 3. Capacity: 13    | Current Load: 0
-    [ 8.,  0.],  -> Backpack 4. Capacity: 8     | Current Load: 0
-    [ 6.,  0.],  -> Backpack 5. Capacity: 6     | Current Load: 0
-    [ 5., 38.],  -> Item 1. Weight: 5   | Value : 38
-    [11., 42.],  -> Item 2. Weight: 11  | Value : 42
-    [ 9., 46.],  -> Item 3. Weight: 9   | Value : 46
-    [17., 23.],  -> Item 4. Weight: 17  | Value : 23
-    [20.,  8.]   -> Item 5. Weight: 20  | Value : 8
+    [ 0., 0., 0., 0., 0.],  -> Node EOS. Rejected items will be "placed" here
+    [ 70., 80., 40., 4., 7.] -> Node 1. Remaining CPU: 70 | Remaining RAM: 80 | Remaining Memory: 40 | Tasks without penalty `4`, `5`, `6`, `7`
+    [ 50., 40., 20., 1., 4.] -> Node 2. Remaining CPU: 50 | Remaining RAM: 40 | Remaining Memory: 20 | Tasks without penalty `1`, `2`, `3`, `4`
+    [ 10., 12., 17., 3., 3.] -> Request 1. Required CPU: 10 | Required RAM: 12 | Required Memory: 17 | Task: 3 | User Type: 0 (`free`)
+    [ 18., 32., 16., 4., 4.] -> Request 1. Required CPU: 10 | Required RAM: 12 | Required Memory: 17 | Task: 4 | User Type: 1 (`premium`)
     ],
-       dtype=float32, shape=(11, 2))
+    dtype=float32, shape=(5, 5))
 ```
-
-### Policy Analysis of the Multiple Knapsack Problem
-A simple test were performed to analyze the policy that the both nets created. 
-
-Environment configuration for testing and training:
-- Set size of items: `100`
-- Item value: random in [`1`, `100`] range
-- Item weight: random in [`1`, `20`] range
-- Set size of backpacks: `20`
-- Backpack capacities: random in [`1`, `20`] range
-
-Training configs:
-- Batch size: `32`
-- Number of epochs: `2000`
-- Total number of problem instances used during training: `32 * 2000 = 64000` 
-- Item sample size: `20`
-- Backpack sample size: `5`
-
-> **Note:** For building a single problem instance the items and backpacks are randomly sampled from their respective sets
-
-Testing configs:
-- Batch size: `1`
-- Item sample size: `7`
-- Backpack sample size: `6 + 1`. `+ 1` is the empty backpack where items that weren't selected are placed.
-
-The figure below shows the item selection and placement sequence. Plots in the left column represent the probabilities of selecting an item at each decoding step. Plots in the right column represent the probabilities of placing the item, selected previously, at a specific backpack. Each row in the figure (tuple of plots) represents the selected item and the place where it was be placed.
-
-The performance of the network was compared against [Google OR-Tools](https://developers.google.com/optimization/bin/multiple_knapsack) and a simple heuristic. The heuristic consists in sorting the backpacks, by their capacities, and the items, by the value-to-weight ration, in a descending order. After that the items are placed in a first place (i.e., backpack) that fits.
-
-#### Problem Instance 1
-Solution quality:
-```bash
-Opt 381.0 || Net 381.0 | % from Opt 0.00 || Heuristic 351.0 | % from Opt 7.87
-```
-
-**Item selection and placement sequence**
-![detailed_arch](./media/Policy.png)
-> **Legend to the figure:** `w` and `v` represent the weight and the value of an item; `c` and `l` represent the maximum capacity and the current load of a backpack.
-
-#### Problem Instance 2
-Solution quality:
-```bash
-Opt 341.0 || Net 341.0 | % from Opt 0.00 || Heuristic 268.0 | % from Opt 21.41
-```
-**Item selection and placement sequence**
-![detailed_arch](./media/Policy_2.png)
-> **Legend to the figure:** `w` and `v` represent the weight and the value of an item; `c` and `l` represent the maximum capacity and the current load of a backpack.
-
-Looking at the attentions it is possible to see that network responsible for item selection was able to learn that it is preferable to take the most valuable items first.
-
-Moreover, for this simple problem instances the network was able match the Google OR-Tools performance and beat the heuristic.
-
-## Setting the environment and installing the dependencies
-Follow Tensorflow's [installation guide](https://www.tensorflow.org/install/pip) to set the environment and get things ready.
-
-> I'm using Python v3.6 and Tensorflow v2.1
-
 
 ## Useful Links
 - [Deep Reinforcement Learning: Pong from Pixels](http://karpathy.github.io/2016/05/31/rl/)

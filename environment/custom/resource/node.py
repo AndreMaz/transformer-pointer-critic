@@ -107,7 +107,9 @@ class Node():
             res.print()
 
         total_nodes = len(self.resources)
-        if total_nodes == 0: return
+        if total_nodes == 0 or self.id == 0: 
+            print(f'Percentage of penalized resources: {0:.2f}%')
+            return
 
         within_range = 0
 
@@ -117,7 +119,7 @@ class Node():
         for res in self.resources:
             task = int(round(res.task[0] * self.task_normalization_factor))
             if low <= task <= up:
-                within_range = +1
+                within_range += 1
 
         print(f'Percentage of penalized resources: {(1 - (within_range/total_nodes))*100:.2f}%')
 
