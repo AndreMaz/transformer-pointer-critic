@@ -19,13 +19,15 @@ One of such synchronization mechanisms is the `Rule` resource (a detailed descri
 
 In IETF's draft called [`IoT Edge Challenges and Functions`](https://t2trg.github.io/t2trg-iot-edge-computing/draft-hong-t2trg-iot-edge-computing.html) they highlight the need of edge computing for the new generation of IoT applications, whose requirements cannot be met by the cloud. In this document they [outline](https://t2trg.github.io/t2trg-iot-edge-computing/draft-hong-t2trg-iot-edge-computing.html#name-iot-edge-computing-function) the need of `virtualization platforms that enable the deployment of virtual edge computing functions` near the devices. They also state that `end devices are envisioned to become computing devices in forward looking projects, but are not commonly used as such today`.
 
-Following the IETF's line of thought, the `Rule` (or any other synchronization mechanisms) will be processed at the edge devices that are deployed in the vicinity or on premises.
+Following the IETF's line of thought, the `Rule` (or any other synchronization mechanism) will be processed at the edge devices that are deployed in the vicinity or on premises.
 
 Today, in a typical deployment, the devices/nodes/servers (virtual or physical) are usually located behind a [reverse proxy](https://en.wikipedia.org/wiki/Reverse_proxy) such as NGNIX, Traefik or Moleculer API Gateway. All of them provide load balancing capabilities. NGNIX [offers](http://nginx.org/en/docs/http/load_balancing.html) round-robin, least-connected, ip-hash; Traefik, at this moment, only [supports](https://docs.traefik.io/routing/services/#load-balancing) round-robin method; Moleculer API Gateway [offers](https://moleculer.services/docs/0.14/balancing.html#Built-in-strategies) round-robin, random, CPU usage-based and sharding. These load balancing strategies don't provide optimal solutions because it's too expensive to look for them in real-time. Instead, these strategies trade the quality of solution for the response time, i.e., these strategies are fast but the solutions that they provide can be can be suboptimal.
 
 In containerized environments, where nodes are running in isolated containers, there is usually a container manager (e.g., Kubernetes). One of the features that these container managers provide is [autoscaling](https://kubernetes.io/blog/2016/07/autoscaling-in-kubernetes/). Autoscaling allows to dynamically scale the number of nodes/servers, by creating (or destroying) replicas, according current load of the system.
 
 Regardless of the number of nodes currently running (due to autoscaling) the reverse proxies still perform the load balancing across all the available nodes. The load balancing strategies adapt according to the current state of the system.
+
+Therefore, any new load balancing strategy must be scalable and adaptable to the dynamics of the system.
 
 **Problem statement**: 
 Given a set of nodes/devices available for processing. Each node has the following characteristics:
@@ -37,11 +39,11 @@ it also contains the range of tasks that it can process without penalty (e.g., a
 - `2` lower bound ID of the tasks that a node can process without penalty
 - `5` upper bound ID of the tasks that a node can process without penalty
 
-> Note: In the example above the lower and upper bounds mean that that specific node can process tasks (`2`, `3`, `4`, `5`) without any additional penalty.
+> Note: In the example above the lower and upper bounds mean that that specific node can process tasks (`2`, `3`, `4`, `5`) without any additional penalty. Any task outside of this range can still be processed by the node but it will incur some CPU/RAM/MEM penalty.
 
 Moreover, at each time `t` a randomly sized batch of user's requests arrive, each has its own profile with the following information:
 
-The amount of resources that it needs in order to be processed properly. For example:
+The amount of resources that it needs in order to be processed. For example:
 - `10` units of CPU
 - `2` units of RAM
 - `5` units for Memory
@@ -50,7 +52,7 @@ The profile also contains info about the type of the request. For example
 - `1` or `0` depending if the user is `premium` or `free`
 - `2`(or any other number) type of the task. Representing the specific need of the request. For example, specific request might need the presence of the GPU or additional data that needs to be fetched in order to be properly processed.
 
-**Goal**: The goal is to design a load balancing strategy that's able to distribute the incoming requests across the devices. The designed strategy must prioritize the `premium` requests and, when possible, satisfy the `free` requests.
+**Goal**: The goal is to design a load balancing strategy that's able to distribute the incoming requests across the devices. The designed strategy must prioritize the `premium` requests but at the same time satisfy the `free` requests. By providing good quality-of-service for the `free` users it's more probable for them to become `premium` and recommend the system to other users.
 
 **Purpose of the Neural-based load balancing strategy**: A Neural-based load balancing strategy can adapt the distribution policy (heuristic) according to the incoming user's requests and the state of the nodes and, thus, offer a "better" way of placing the requests.
 
