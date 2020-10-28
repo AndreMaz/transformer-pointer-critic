@@ -3,7 +3,7 @@
     
     "trainer_config": {
         "description": "Trainer function configs.",
-        "n_iterations": 10000,
+        "n_iterations": 30000,
         "n_steps_to_update": 20
     },
 
@@ -21,8 +21,8 @@
         
         "batch_size": 32,
         "num_features": 5,
-        "num_resources": 30,
-        "num_bins": 10,
+        "num_resources": 200,
+        "num_bins": 15,
         "EOS_CODE": 0,
 
         "resource_sample_size": 20,
@@ -36,7 +36,7 @@
         "reward_per_level": [ 1, 2 ],
         "misplace_reward_penalty": 0.5,
 
-        "num_task_types": 30,
+        "num_task_types": 100,
         
         "CPU_misplace_penalty": 10,
         "RAM_misplace_penalty": 10,
@@ -58,8 +58,8 @@
         "min_bin_MEM": 1000,
         "max_bin_MEM": 2000,
         
-        "min_bin_range_type": 10,
-        "max_bin_range_type": 20
+        "min_bin_range_type": 25,
+        "max_bin_range_type": 35
     },
 
     "tpc": {

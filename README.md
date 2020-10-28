@@ -19,15 +19,17 @@ One of such synchronization mechanisms is the `Rule` resource (a detailed descri
 
 In IETF's draft called [`IoT Edge Challenges and Functions`](https://t2trg.github.io/t2trg-iot-edge-computing/draft-hong-t2trg-iot-edge-computing.html) they highlight the need of edge computing for the new generation of IoT applications, whose requirements cannot be met by the cloud. In this document they [outline](https://t2trg.github.io/t2trg-iot-edge-computing/draft-hong-t2trg-iot-edge-computing.html#name-iot-edge-computing-function) the need of `virtualization platforms that enable the deployment of virtual edge computing functions` near the devices. They also state that `end devices are envisioned to become computing devices in forward looking projects, but are not commonly used as such today`.
 
-Following the IETF's line of thought, the `Rule` (or any other synchronization mechanism) will be processed at the edge devices that are deployed in the vicinity or on premises.
+Following the IETF's line of thought, the `Rule` (or any other synchronization mechanism) will be processed at the edge devices that are deployed in the vicinity or on the premises.
 
 Today, in a typical deployment, the devices/nodes/servers (virtual or physical) are usually located behind a [reverse proxy](https://en.wikipedia.org/wiki/Reverse_proxy) such as NGNIX, Traefik or Moleculer API Gateway. All of them provide load balancing capabilities. NGNIX [offers](http://nginx.org/en/docs/http/load_balancing.html) round-robin, least-connected, ip-hash; Traefik, at this moment, only [supports](https://docs.traefik.io/routing/services/#load-balancing) round-robin method; Moleculer API Gateway [offers](https://moleculer.services/docs/0.14/balancing.html#Built-in-strategies) round-robin, random, CPU usage-based and sharding. These load balancing strategies don't provide optimal solutions because it's too expensive to look for them in real-time. Instead, these strategies trade the quality of solution for the response time, i.e., these strategies are fast but the solutions that they provide can be can be suboptimal.
 
 In containerized environments, where nodes are running in isolated containers, there is usually a container manager (e.g., Kubernetes). One of the features that these container managers provide is [autoscaling](https://kubernetes.io/blog/2016/07/autoscaling-in-kubernetes/). Autoscaling allows to dynamically scale the number of nodes/servers, by creating (or destroying) replicas, according current load of the system.
 
-Regardless of the number of nodes currently running (due to autoscaling) the reverse proxies still perform the load balancing across all the available nodes. The load balancing strategies adapt according to the current state of the system.
+Regardless of the number of nodes currently running (due to autoscaling), reverse proxies still perform the load balancing across all the available nodes. The load balancing strategies adapt according to the current state of the system.
 
-Therefore, any new load balancing strategy must be scalable and adaptable to the dynamics of the system.
+Another dynamic element in a typical web application is the number of user's requests that the system receives at a specific instant. The arrival of new requests may be erratic, there might be spikes of requests during short periods of time and then there might be periods of slowdown. Nevertheless, the load balancing strategies need to be able to handle any given situation.
+
+In summary, any new load balancing strategy must be scalable and adaptable to the dynamics of the system, both in terms of incoming requests and the number of available nodes/servers.
 
 **Problem statement**: 
 Given a set of nodes/devices available for processing. Each node has the following characteristics:
