@@ -12,14 +12,14 @@
 
 ## Resource Placement at Edge Devices
 
-**Tech Background**
+### Tech Background
 
 In Web of Things (WoT), where every device resource is URI addressable, the event processing can be seen as a three stage process: `observation` of one or many endpoints, `evaluation` of the data produced and `actuation` by sending notifications to one or more endpoints. Together these elements form the resource synchronization mechanism, where resources are located at URI addressable endpoints.
 One of such synchronization mechanisms is the `Rule` resource (a detailed description about the `Rule` can be seen in our [previous paper](https://ieeexplore.ieee.org/document/8928976)). A `Rule` is a web resource that can be placed at any device/node that implements `Rule`'s API (REST API to be precise).
 
 In IETF's draft called [`IoT Edge Challenges and Functions`](https://t2trg.github.io/t2trg-iot-edge-computing/draft-hong-t2trg-iot-edge-computing.html) they highlight the need of edge computing for the new generation of IoT applications, whose requirements cannot be met by the cloud. In this document they [outline](https://t2trg.github.io/t2trg-iot-edge-computing/draft-hong-t2trg-iot-edge-computing.html#name-iot-edge-computing-function) the need of `virtualization platforms that enable the deployment of virtual edge computing functions` near the devices. They also state that `end devices are envisioned to become computing devices in forward looking projects, but are not commonly used as such today`.
 
-Following the IETF's line of thought, the `Rule` (or any other synchronization mechanism) will be processed at the edge devices that are deployed in the vicinity or on the premises.
+Following the IETF's line of thought, the `Rule` (or any other synchronization mechanism) will be processed at the edge devices that are deployed in the vicinity or on the premises. Users will generate requests (e.g., via HTTP POST) and these request must be distributed across a set of devices/nodes/servers that are deployed and available for processing.
 
 Today, in a typical deployment, the devices/nodes/servers (virtual or physical) are usually located behind a [reverse proxy](https://en.wikipedia.org/wiki/Reverse_proxy) such as NGNIX, Traefik or Moleculer API Gateway. All of them provide load balancing capabilities. NGNIX [offers](http://nginx.org/en/docs/http/load_balancing.html) round-robin, least-connected, ip-hash; Traefik, at this moment, only [supports](https://docs.traefik.io/routing/services/#load-balancing) round-robin method; Moleculer API Gateway [offers](https://moleculer.services/docs/0.14/balancing.html#Built-in-strategies) round-robin, random, CPU usage-based and sharding. These load balancing strategies don't provide optimal solutions because it's too expensive to look for them in real-time. Instead, these strategies trade the quality of solution for the response time, i.e., these strategies are fast but the solutions that they provide can be can be suboptimal.
 
@@ -31,7 +31,8 @@ Another dynamic element in a typical web application is the number of user's req
 
 In summary, any new load balancing strategy must be scalable and adaptable to the dynamics of the system, both in terms of incoming requests and the number of available nodes/servers.
 
-**Problem statement**: 
+### Problem statement
+
 Given a set of nodes/devices available for processing. Each node has the following characteristics:
 - `100` units of CPU available for processing
 - `20` units of RAM available for processing
@@ -54,12 +55,17 @@ The profile also contains info about the type of the request. For example
 - `1` or `0` depending if the user is `premium` or `free`
 - `2`(or any other number) type of the task. Representing the specific need of the request. For example, specific request might need the presence of the GPU or additional data that needs to be fetched in order to be properly processed.
 
-**Goal**: The goal is to design a load balancing strategy that's able to distribute the incoming requests across the devices. The designed strategy must prioritize the `premium` requests but at the same time satisfy the `free` requests. By providing good quality-of-service for the `free` users it's more probable for them to become `premium` and recommend the system to other users.
+### Goal
 
-**Purpose of the Neural-based load balancing strategy**: A Neural-based load balancing strategy can adapt the distribution policy (heuristic) according to the incoming user's requests and the state of the nodes and, thus, offer a "better" way of placing the requests.
+The goal is to design a load balancing strategy that's able to distribute the incoming requests across the devices. The designed strategy must prioritize the `premium` requests but at the same time satisfy the `free` requests. By providing good quality-of-service for the `free` users it's more probable for them to become `premium` and recommend the system to other users.
 
-**Input Representation**
-```bash
+### Purpose of the Neural-based load balancing strategy
+ 
+A Neural-based load balancing strategy can adapt the distribution policy (heuristic) according to the incoming user's requests and the state of the nodes and, thus, offer a "better" way of placing the requests.
+
+### Input Representation
+
+```python
 array([
     [ 0., 0., 0., 0., 0.],  -> Node EOS. Rejected items will be "placed" here
     [ 70., 80., 40., 4., 7.] -> Node 1. Remaining CPU: 70 | Remaining RAM: 80 | Remaining Memory: 40 | Tasks without penalty `4`, `5`, `6`, `7`
@@ -69,6 +75,15 @@ array([
     ],
     dtype=float32, shape=(5, 5))
 ```
+
+### Training
+
+The devices/nodes can have large capacities for rule processing, i.e., they can "hold" more resources that the ones that are present in a problem instance.
+In other words, the nodes won't be full after a single episode. However, we want for the neural network to learn how to distribute the resources for any possible state of the nodes. Therefore, the devices/nodes are "recycled" for multiple episodes. By "recycled" I mean that after resetting the environment the state of the devices/nodes is kept for multiple episodes. The state of the nodes at the end of the episode `e` will be the initial state of the nodes at the episode `e+1`. What changes between the episode is the requests.
+
+### Testing
+
+`What measurements to take???`
 
 ## Useful Links
 - [Deep Reinforcement Learning: Pong from Pixels](http://karpathy.github.io/2016/05/31/rl/)
