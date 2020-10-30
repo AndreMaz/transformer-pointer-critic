@@ -27,24 +27,24 @@ def solver(data, print_details = True):
     # Variables
     # x[i, j] = 1 if item i is packed in bin j.
     x = {}
-    for i in data['items']:
+    for i in data['resources']:
         for j in data['bins']:
             x[(i, j)] = solver.IntVar(0, 1, 'x_%i_%i' % (i, j))
 
     # Constraints
     # Each item can be in at most one bin.
-    for i in data['items']:
+    for i in data['resources']:
         solver.Add(sum(x[i, j] for j in data['bins']) <= 1)
     # The amount packed in each bin cannot exceed its capacity.
     for j in data['bins']:
         solver.Add(
             sum(x[(i, j)] * data['weights'][i]
-                for i in data['items']) <= data['bin_capacities'][j])
+                for i in data['resources']) <= data['bin_capacities'][j])
 
     # Objective
     objective = solver.Objective()
 
-    for i in data['items']:
+    for i in data['resources']:
         for j in data['bins']:
             objective.SetCoefficient(x[(i, j)], data['values'][i])
     objective.SetMaximization()

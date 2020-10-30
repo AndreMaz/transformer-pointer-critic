@@ -23,7 +23,7 @@ def solver(problem, num_backpacks: int):
                     item.take() # Mark as taken
 
                     # Add to backpack. For stats
-                    backpack.add_item(item.id, item.weight, item.value)
+                    backpack.add_resource(item.id, item.weight, item.value)
                     
                     # Add to the total value
                     total_value += item.value

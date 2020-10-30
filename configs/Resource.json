@@ -3,7 +3,7 @@
     
     "trainer_config": {
         "description": "Trainer function configs.",
-        "n_iterations": 300,
+        "n_iterations": 30000,
         "n_steps_to_update": 20
     },
 
@@ -20,58 +20,46 @@
         "location": "./environment/custom/knapsack/problem.json",
         
         "batch_size": 32,
-        "num_resources": 100,
-        "num_bins": 10,
+        "num_features": 5,
+        "num_resources": 200,
+        "num_bins": 15,
         "EOS_CODE": 0,
 
-        "sampling_mode": false,
         "resource_sample_size": 20,
         "bin_sample_size": 5,
 
-        "normalization_factor": 1,
+        "resource_normalization_factor": 10000,
+        "task_normalization_factor": 1000,
+        "num_iterations_before_node_reset": 10,
 
-        "min_resource_value": 1,
-        "max_resource_value": 100,
-        "min_resource_weight": 1,
-        "max_resource_weight": 20,
+        "num_user_levels": 1, 
+        "reward_per_level": [ 1, 2 ],
+        "misplace_reward_penalty": 0.5,
 
-        "min_bin_capacity": 1,
-        "max_bin_capacity": 20
-    },
+        "num_task_types": 100,
+        
+        "CPU_misplace_penalty": 10,
+        "RAM_misplace_penalty": 10,
+        "MEM_misplace_penalty": 10,
 
-    "dpc": {
-        "description": "Double Pointer Critic Agent configs.",
-        "agent_config": {
+        "min_resource_CPU": 20,
+        "max_resource_CPU": 40,
 
-            "gamma": 0.999,
-            "entropy_coefficient": 0.00001,
-            "stochastic_action_selection": true,
+        "min_resource_RAM": 20,
+        "max_resource_RAM": 40,
 
-            "actor": {
-                "SOS_CODE": -1,
-                "learning_rate": 0.0001,
-
-                "encoder_embedding_size": 128,
-                "encoder_embedding_time_distributed": true,
-                "encoder_lstm_units": 128,
-
-                "attention_dense_units": 128
-            },
-
-            "critic": {
-                "learning_rate": 0.0001,
-
-                "encoder_embedding_size": 128,
-                "encoder_embedding_time_distributed": true,
-                "encoder_lstm_units": 128,
-
-                "processing_lstm_units": 128,
-                "processing_dense_units": 128,
-
-                "decoder_units": 128,
-                "decoder_activation": "relu"
-            }
-        }
+        "min_resource_MEM": 20,
+        "max_resource_MEM": 40,
+        
+        "min_bin_CPU": 1000,
+        "max_bin_CPU": 2000,
+        "min_bin_RAM": 1000,
+        "max_bin_RAM": 2000,
+        "min_bin_MEM": 1000,
+        "max_bin_MEM": 2000,
+        
+        "min_bin_range_type": 25,
+        "max_bin_range_type": 35
     },
 
     "tpc": {

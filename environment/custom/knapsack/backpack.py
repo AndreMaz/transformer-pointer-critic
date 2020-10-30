@@ -8,9 +8,9 @@ class Backpack():
         self.current_load = 0
         self.current_value = 0
 
-        self.items = []
+        self.resources = []
     
-    def add_item(self, id, weight, value):
+    def add_resource(self, id, weight, value):
         item = {
             'id': id,
             'weight': weight,
@@ -24,29 +24,29 @@ class Backpack():
             self.current_load = self.current_load + weight
             self.current_value = self.current_value + value
 
-        self.items.append(item)
+        self.resources.append(item)
     
     def reset(self):
         self.current_load = 0
-        self.items = []
+        self.resources = []
     
     def print(self):
         print(f'Backpack ID: {self.id} | Maximum Capacity: {self.capacity} | Current Load: {self.current_load} | Backpack Value: {self.current_value}')
 
         print(f'Items in the backpack:')
-        if len(self.items) == 0: print('<Empty>')
-        for item in self.items:
+        if len(self.resources) == 0: print('<Empty>')
+        for item in self.resources:
             print(f'ID: {item["id"]} | Weight {item["weight"]} | Value {item["value"]}')
     
     def is_valid(self):
         total_load = 0
-        for i in self.items:
+        for i in self.resources:
             total_load += i['weight']
 
         # By default EOS is always true
         if (self.id == 0): return True
         
-        assert total_load == self.current_load, 'Total weight of items is different from current load of backpack'
+        assert total_load == self.current_load, 'Total weight of resources is different from current load of backpack'
 
         if total_load > self.capacity:
             return False

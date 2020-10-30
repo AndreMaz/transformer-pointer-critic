@@ -22,10 +22,9 @@ class Agent():
         self.training = True
 
         self.batch_size: int = opts['batch_size']
-        self.num_items: int = opts['num_items']
+        self.num_resources: int = opts['num_resources']
 
-        self.num_items: int = opts['num_items']
-        self.num_backpacks: int = opts['num_backpacks']
+        self.num_bins: int = opts['num_bins']
         self.tensor_size: int = opts['tensor_size']
         self.vocab_size: int = opts['vocab_size']
         self.SOS_CODE: int = opts['actor']['SOS_CODE']
@@ -42,58 +41,58 @@ class Agent():
         self.pointer_opt = tf.keras.optimizers.Adam(learning_rate=self.actor_learning_rate)
 
         ### Load the models
-        self.item_actor, self.backpack_actor, self.critic = model_factory(
+        self.resource_actor, self.bin_actor, self.critic = model_factory(
             name,
             opts
         )
 
         # Init memory
         self.states = []
-        self.decoded_items = []
-        self.items = []
-        self.backpacks = []
-        self.backpack_masks = []
-        self.item_masks = []
+        self.decoded_resources = []
+        self.resources = []
+        self.bins = []
+        self.bin_masks = []
+        self.resource_masks = []
         self.mha_masks = [] # <= ToDo
-        self.rewards = np.zeros((self.batch_size, self.num_items), dtype="float32")
+        self.rewards = np.zeros((self.batch_size, self.num_resources), dtype="float32")
     
     def store(self,
               state,
-              decoded_item,
-              backpack_mask,
-              items_masks,
+              decoded_resource,
+              bin_mask,
+              resources_masks,
               mha_mask,
-              item,
-              backpack,
+              resource,
+              bin,
               reward,
               training_step
             ):
 
         self.states.append(state)
         
-        self.decoded_items.append(decoded_item)
+        self.decoded_resources.append(decoded_resource)
 
-        self.backpack_masks.append(backpack_mask)
-        self.item_masks.append(items_masks)
+        self.bin_masks.append(bin_mask)
+        self.resource_masks.append(resources_masks)
         self.mha_masks.append(mha_mask)
 
-        self.items.append(item)
-        self.backpacks.append(backpack)
+        self.resources.append(resource)
+        self.bins.append(bin)
         
         self.rewards[:, training_step] = reward[:, 0]
 
     def clear_memory(self):
         self.states = []
-        self.decoded_items = []
+        self.decoded_resources = []
         
-        self.backpack_masks = []
-        self.item_masks = []
+        self.bin_masks = []
+        self.resource_masks = []
         self.mha_masks = []
 
-        self.items = []
-        self.backpacks = []
+        self.resources = []
+        self.bins = []
 
-        self.rewards = np.zeros((self.batch_size, self.num_items), dtype="float32")
+        self.rewards = np.zeros((self.batch_size, self.num_resources), dtype="float32")
 
     def generate_decoder_input(self, state):
         batch = state.shape[0]
@@ -217,8 +216,8 @@ class Agent():
     def act(self,
             state,
             dec_input,
-            backpacks_mask,
-            items_mask,
+            bins_mask,
+            resources_mask,
             mha_used_mask,
             build_feasible_mask
         ):
@@ -227,70 +226,70 @@ class Agent():
         batch_indices = tf.range(batch_size, dtype='int32')
 
         #########################################
-        ############ SELECT AN ITEM ############
+        ############ SELECT AN resource ############
         #########################################
-        items_logits, items_probs, item_ids, decoded_items = self.item_actor(
+        resources_logits, resources_probs, resource_ids, decoded_resources = self.resource_actor(
             state,
             dec_input,
-            items_mask,
+            resources_mask,
             self.training,
             enc_padding_mask = mha_used_mask,
             dec_padding_mask = mha_used_mask
         )
 
         if self.stochastic_action_selection:
-            item_ids = []
+            resource_ids = []
             for batch_id in range(batch_size):
-                # Stochastic item selection
-                dist_item = tfp.distributions.Categorical(probs = items_probs[batch_id])
+                # Stochastic resource selection
+                dist_resource = tfp.distributions.Categorical(probs = resources_probs[batch_id])
                 # Sample from distribution
-                item_ids.append(dist_item.sample().numpy())
+                resource_ids.append(dist_resource.sample().numpy())
         
-        # Decode the items
-        decoded_items = state[batch_indices, item_ids]
+        # Decode the resources
+        decoded_resources = state[batch_indices, resource_ids]
 
-        # Update the masks for the backpack
+        # Update the masks for the bin
         # This will only allow to point to feasible solutions
-        backpacks_mask = build_feasible_mask(state,
-                                             decoded_items,
-                                             backpacks_mask
+        bins_mask = build_feasible_mask(state,
+                                             decoded_resources,
+                                             bins_mask
                                              )
 
         # Add time step dim
-        decoded_items = tf.expand_dims(decoded_items, axis = 1)
+        decoded_resources = tf.expand_dims(decoded_resources, axis = 1)
         
         #########################################
-        ### SELECT BACKPACK TO PLACE THE ITEM ###
+        ### SELECT bin TO PLACE THE resource ###
         #########################################
-        backpacks_logits, backpacks_probs, backpack_ids, decoded_backpack = self.backpack_actor(
+        bins_logits, bins_probs, bin_ids, decoded_bin = self.bin_actor(
             state,
-            decoded_items, # Pass decoded item to backpack decoder
-            backpacks_mask,
+            decoded_resources, # Pass decoded resource to bin decoder
+            bins_mask,
             self.training,
             enc_padding_mask = mha_used_mask,
             dec_padding_mask = mha_used_mask
         )
 
         if self.stochastic_action_selection:
-            backpack_ids = []
+            bin_ids = []
             for batch_id in range(batch_size):
-                # Stochastic backpack selection
-                dist_backpack = tfp.distributions.Categorical(probs = backpacks_probs[batch_id])
-                backpack_ids.append(dist_backpack.sample().numpy())
+                # Stochastic bin selection
+                dist_bin = tfp.distributions.Categorical(probs = bins_probs[batch_id])
+                bin_ids.append(dist_bin.sample().numpy())
 
-        # Decode the backpack
-        decoded_backpack = state[batch_indices, backpack_ids]
+        # Decode the bin
+        decoded_bin = state[batch_indices, bin_ids]
 
-        return backpack_ids, \
-               item_ids, \
-               decoded_items, \
-               backpacks_mask, \
-               items_probs, \
-               backpacks_probs
+        return bin_ids, \
+               resource_ids, \
+               decoded_resources, \
+               bins_mask, \
+               resources_probs, \
+               bins_probs
 
     def set_training_mode(self, mode: bool):
         # Only used by transformer model
         if self.name == TRANSFORMER:
-            self.item_actor.training = mode
-            self.backpack_actor.training = mode
+            self.resource_actor.training = mode
+            self.bin_actor.training = mode
             self.critic = mode
