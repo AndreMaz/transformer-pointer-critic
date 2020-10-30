@@ -82,11 +82,13 @@ def plot_attentions(attentions,
     for index, attention in enumerate(attentions):
         
         # Only show the attention over the resources
-        axs[index, 0].matshow(attention['resource_attention'][:, num_bins:])
+        resource_attention = attention['resource_attention'][:, num_bins:]
+        axs[index, 0].matshow(np.transpose(resource_attention))
         # axs[index, 0].set_title('Item Attention')
 
         # Only show the attention over the bins
-        axs[index, 1].matshow(attention['bin_attention'][:, :num_bins])
+        bin_attention = attention['bin_attention'][:, :num_bins]
+        axs[index, 1].matshow(np.transpose(bin_attention))
         # axs[index, 1].set_title('Backpack Attention')
 
     for index in range(num_resources):
@@ -107,11 +109,11 @@ def plot_attentions(attentions,
 
         req_type = int(round(resource_input[0,0,4]))
 
-        resource_ylabel = f'C:{CPU} R:{RAM} M:{MEM} T:{task} P:{req_type}'
-        plt.yticks([0], [resource_ylabel], fontsize=8)
+        resource_xlabel = f'C:{CPU} R:{RAM} M:{MEM} T:{task} P:{req_type}'
+        plt.xticks([0], [resource_xlabel], fontsize=8)
 
         resource_states = attentions[index]['current_state'][0, num_bins:]
-        resource_xlabel = []
+        resource_ylabel = []
         for itm in resource_states:
             if int(round(itm[0])) == -1:
                 CPU = -1
@@ -126,11 +128,11 @@ def plot_attentions(attentions,
 
             req_type = int(round(itm[4]))
 
-            resource_xlabel.append(
+            resource_ylabel.append(
                 f'C:{CPU} R:{RAM} M:{MEM} T:{task} P:{req_type}'
             )
 
-        plt.xticks(range(len(resource_xlabel)), resource_xlabel, fontsize=8)
+        plt.yticks(range(len(resource_ylabel)), resource_ylabel, rotation=0, fontsize=8)
 
         # Select the plot by index for the Backpacks
         plt.sca(axs[index, 1])
@@ -140,14 +142,15 @@ def plot_attentions(attentions,
         RAM = int(round(resource_input[0,0,1] * resource_normalization_factor)  )
         MEM = int(round(resource_input[0,0,2] * resource_normalization_factor)  )
 
-        lower_task = int(round(resource_input[0,0,3] * task_normalization_factor) )
-        upper_task = int(round(resource_input[0,0,4] * task_normalization_factor) )
+        task = int(round(resource_input[0,0,3] * task_normalization_factor) )
+        # upper_task = int(round(resource_input[0,0,4] * task_normalization_factor) )
+        req_type = int(round(resource_input[0,0,4]))
 
-        bin_ylabel = f'C:{CPU} R:{RAM} M:{MEM} L:{lower_task} U:{upper_task}'
-        plt.yticks([0], [bin_ylabel], fontsize=8)
+        bin_xlabel = f'C:{CPU} R:{RAM} M:{MEM} T:{task} P:{req_type}'
+        plt.xticks([0], [bin_xlabel], fontsize=8)
 
         bin_states = attentions[index]['current_state'][0, :num_bins]
-        bin_xlabel = []
+        bin_ylabel = []
         for bp in bin_states:
             CPU = int(round(bp[0] * resource_normalization_factor)  )
             RAM = int(round(bp[1] * resource_normalization_factor)  )
@@ -157,14 +160,14 @@ def plot_attentions(attentions,
             upper_task = int(round(bp[4] * task_normalization_factor) )
 
 
-            bin_xlabel.append(
+            bin_ylabel.append(
                 f'C:{CPU} R:{RAM} M:{MEM} L:{lower_task} U:{upper_task}'
             )
-        plt.xticks(range(len(bin_xlabel)), bin_xlabel, rotation=0, fontsize=8)
+        plt.yticks(range(len(bin_ylabel)), bin_ylabel, rotation=0, fontsize=8)
     
     # plt.subplots_adjust(wspace=0.3, hspace = 0.3)
-    #plt.tight_layout()
-    plt.show(block=True, )
+    plt.tight_layout()
+    plt.show(block=True)
 
 if __name__ == "__main__":
     

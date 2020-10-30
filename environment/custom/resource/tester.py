@@ -138,10 +138,10 @@ def test(env: ResourceEnvironment, agent: Agent, opt_solver, heuristic_solver, l
     #         print(f'Net {net_val} \t| Heuristic {heu_val} \t| % from Heuristic {d_from_opt:.2f}')
 
     # Plot the attentions to visualize the policy
-    # plot_attentions(
-    #     attentions,
-    #     env.resource_sample_size,
-    #     env.bin_sample_size,
-    #     env.resource_normalization_factor,
-    #     env.task_normalization_factor
-    # )
+    plot_attentions(
+        attentions,
+        env.resource_sample_size,
+        env.bin_sample_size,
+        env.resource_normalization_factor,
+        env.task_normalization_factor
+    )
