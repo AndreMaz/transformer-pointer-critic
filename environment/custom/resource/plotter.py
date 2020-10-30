@@ -100,15 +100,15 @@ def plot_attentions(attentions,
             MEM = -1
             task = -1
         else:
-            CPU = int(round(resource_input[0,0,0])  * resource_normalization_factor)
-            RAM = int(round(resource_input[0,0,1])  * resource_normalization_factor)
-            MEM = int(round(resource_input[0,0,2])  * resource_normalization_factor)
-            task = int(round(resource_input[0,0,3]) * task_normalization_factor)
+            CPU = int(round(resource_input[0,0,0]  * resource_normalization_factor))
+            RAM = int(round(resource_input[0,0,1]  * resource_normalization_factor))
+            MEM = int(round(resource_input[0,0,2]  * resource_normalization_factor))
+            task = int(round(resource_input[0,0,3] * task_normalization_factor))
 
         req_type = int(round(resource_input[0,0,4]))
 
         resource_ylabel = f'C:{CPU} R:{RAM} M:{MEM} T:{task} P:{req_type}'
-        plt.yticks([0], [resource_ylabel])
+        plt.yticks([0], [resource_ylabel], fontsize=8)
 
         resource_states = attentions[index]['current_state'][0, num_bins:]
         resource_xlabel = []
@@ -119,10 +119,10 @@ def plot_attentions(attentions,
                 MEM = -1
                 task = -1
             else:
-                CPU = int(round(itm[0])  * resource_normalization_factor)
-                RAM = int(round(itm[1])  * resource_normalization_factor)
-                MEM = int(round(itm[2])  * resource_normalization_factor)
-                task = int(round(itm[3]) * task_normalization_factor)
+                CPU = int(round(itm[0] * resource_normalization_factor)  )
+                RAM = int(round(itm[1] * resource_normalization_factor)  )
+                MEM = int(round(itm[2] * resource_normalization_factor)  )
+                task = int(round(itm[3] * task_normalization_factor) )
 
             req_type = int(round(itm[4]))
 
@@ -130,41 +130,41 @@ def plot_attentions(attentions,
                 f'C:{CPU} R:{RAM} M:{MEM} T:{task} P:{req_type}'
             )
 
-        plt.xticks(range(len(resource_xlabel)), resource_xlabel)
+        plt.xticks(range(len(resource_xlabel)), resource_xlabel, fontsize=8)
 
         # Select the plot by index for the Backpacks
         plt.sca(axs[index, 1])
         # Add the ticks and the labels
         resource_input = attentions[index]["bin_net_input"]
-        CPU = int(round(resource_input[0,0,0])  * resource_normalization_factor)
-        RAM = int(round(resource_input[0,0,1])  * resource_normalization_factor)
-        MEM = int(round(resource_input[0,0,2])  * resource_normalization_factor)
+        CPU = int(round(resource_input[0,0,0] * resource_normalization_factor)  )
+        RAM = int(round(resource_input[0,0,1] * resource_normalization_factor)  )
+        MEM = int(round(resource_input[0,0,2] * resource_normalization_factor)  )
 
-        lower_task = int(round(resource_input[0,0,3]) * task_normalization_factor)
-        upper_task = int(round(resource_input[0,0,4]) * task_normalization_factor)
+        lower_task = int(round(resource_input[0,0,3] * task_normalization_factor) )
+        upper_task = int(round(resource_input[0,0,4] * task_normalization_factor) )
 
         bin_ylabel = f'C:{CPU} R:{RAM} M:{MEM} L:{lower_task} U:{upper_task}'
-        plt.yticks([0], [bin_ylabel])
+        plt.yticks([0], [bin_ylabel], fontsize=8)
 
         bin_states = attentions[index]['current_state'][0, :num_bins]
         bin_xlabel = []
         for bp in bin_states:
-            CPU = int(round(bp[0])  * resource_normalization_factor)
-            RAM = int(round(bp[1])  * resource_normalization_factor)
-            MEM = int(round(bp[2])  * resource_normalization_factor)
+            CPU = int(round(bp[0] * resource_normalization_factor)  )
+            RAM = int(round(bp[1] * resource_normalization_factor)  )
+            MEM = int(round(bp[2] * resource_normalization_factor)  )
 
-            lower_task = int(round(bp[3]) * task_normalization_factor)
-            upper_task = int(round(bp[4]) * task_normalization_factor)
+            lower_task = int(round(bp[3] * task_normalization_factor) )
+            upper_task = int(round(bp[4] * task_normalization_factor) )
 
 
             bin_xlabel.append(
                 f'C:{CPU} R:{RAM} M:{MEM} L:{lower_task} U:{upper_task}'
             )
-        plt.xticks(range(len(bin_xlabel)), bin_xlabel)
+        plt.xticks(range(len(bin_xlabel)), bin_xlabel, rotation=0, fontsize=8)
     
     # plt.subplots_adjust(wspace=0.3, hspace = 0.3)
-
-    plt.show(block=True)
+    #plt.tight_layout()
+    plt.show(block=True, )
 
 if __name__ == "__main__":
     
