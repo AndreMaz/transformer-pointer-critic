@@ -82,7 +82,7 @@ array([
     [ 0., 0., 0., 0., 0.],  -> Node EOS. Rejected items will be "placed" here
     [ 70., 80., 40., 4., 7.] -> Node 1. Remaining CPU: 70 | Remaining RAM: 80 | Remaining Memory: 40 | Tasks without penalty `4`, `5`, `6`, `7`
     [ 50., 40., 20., 1., 4.] -> Node 2. Remaining CPU: 50 | Remaining RAM: 40 | Remaining Memory: 20 | Tasks without penalty `1`, `2`, `3`, `4`
-    [ 10., 12., 17., 3., 3.] -> Request 1. Required CPU: 10 | Required RAM: 12 | Required Memory: 17 | Task: 3 | User Type: 0 (`free`)
+    [ 10., 12., 17., 3., 0.] -> Request 1. Required CPU: 10 | Required RAM: 12 | Required Memory: 17 | Task: 3 | User Type: 0 (`free`)
     [ 18., 32., 16., 4., 4.] -> Request 1. Required CPU: 10 | Required RAM: 12 | Required Memory: 17 | Task: 4 | User Type: 1 (`premium`)
     ],
     dtype=float32, shape=(5, 5))
