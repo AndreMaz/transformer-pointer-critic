@@ -3,7 +3,6 @@ import sys
 sys.path.append('.')
 
 from environment.custom.resource.resource import Resource
-from environment.custom.resource.penalty import Penalty
 import numpy as np
 
 class Node():
@@ -15,7 +14,7 @@ class Node():
                  MEM,
                  lower_task,
                  upper_task,
-                 penalizer: Penalty,
+                 penalizer,
                  task_normalization_factor
                  ):
         super(Node, self).__init__()

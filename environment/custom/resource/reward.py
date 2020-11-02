@@ -1,18 +1,27 @@
 
-from environment.custom.resource.penalty import Penalty
+def RewardFactory(opts: dict, penalizer):
+    rewards = {
+        'greedy': GreedyReward,
+    }
+
+    try:
+        rewardType = opts['type']
+        R = rewards[f'{rewardType}']
+        return R(opts[f'{rewardType}'], penalizer)
+    except KeyError:
+        raise NameError(f'Unknown Reward Name! Select one of {list(rewards.keys())}')
 
 
-class Reward():
+class GreedyReward():
     def __init__(self,
-                 reward_per_level,
-                 misplace_reward_penalty,
+                 opts: dict,
                  penalizer
                  ):
-        super(Reward, self).__init__()
+        super(GreedyReward, self).__init__()
 
-        self.reward_per_level = reward_per_level
-        self.misplace_reward_penalty = misplace_reward_penalty
-        self.penalizer: Penalty = penalizer
+        self.reward_per_level = opts['reward_per_level']
+        self.misplace_reward_penalty = opts['misplace_reward_penalty']
+        self.penalizer = penalizer
 
     def compute_reward(self,
                        batch,

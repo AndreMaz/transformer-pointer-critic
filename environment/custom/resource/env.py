@@ -10,8 +10,8 @@ from random import randint, randrange
 
 from environment.base.base import BaseEnvironment
 from environment.custom.resource.node import Node as History
-from environment.custom.resource.penalty import Penalty
-from environment.custom.resource.reward import Reward
+from environment.custom.resource.penalty import PenaltyFactory
+from environment.custom.resource.reward import RewardFactory
 
 class ResourceEnvironment(BaseEnvironment):
     def __init__(self, name: str, opts: dict):
@@ -43,17 +43,16 @@ class ResourceEnvironment(BaseEnvironment):
         self.num_iterations = 0
     
         self.num_user_levels: int = opts['num_user_levels']
-        self.reward_per_level: List[int] = opts['reward_per_level']
+        # self.reward_per_level: List[int] = opts['reward_per_level']
 
-        assert self.num_user_levels + 1 == len(self.reward_per_level), 'Length of reward_per_level must be equal to the num_user_levels'
-
-        self.misplace_reward_penalty: int = opts['misplace_reward_penalty']
+        # assert self.num_user_levels + 1 == len(self.reward_per_level), 'Length of reward_per_level must be equal to the num_user_levels'
+        # self.misplace_reward_penalty: int = opts['misplace_reward_penalty']
 
         self.num_task_types: int = opts['num_task_types']
 
-        self.CPU_misplace_penalty: int = opts['CPU_misplace_penalty'] / self.resource_normalization_factor
-        self.RAM_misplace_penalty: int = opts['RAM_misplace_penalty'] / self.resource_normalization_factor
-        self.MEM_misplace_penalty: int = opts['MEM_misplace_penalty'] / self.resource_normalization_factor
+        # self.CPU_misplace_penalty: int = opts['CPU_misplace_penalty'] / self.resource_normalization_factor
+        # self.RAM_misplace_penalty: int = opts['RAM_misplace_penalty'] / self.resource_normalization_factor
+        # self.MEM_misplace_penalty: int = opts['MEM_misplace_penalty'] / self.resource_normalization_factor
         
         self.min_resource_CPU: int = opts['min_resource_CPU']
         self.max_resource_CPU: int = opts['max_resource_CPU']
@@ -77,17 +76,22 @@ class ResourceEnvironment(BaseEnvironment):
         ################################################
         
         # Class responsible for computing penalties for each placement
-        self.penalizer = Penalty(
-            self.CPU_misplace_penalty,
-            self.RAM_misplace_penalty,
-            self.MEM_misplace_penalty,
-            self.EOS_CODE
+        # self.penalizer = Penalty(
+        #     self.CPU_misplace_penalty,
+        #     self.RAM_misplace_penalty,
+        #     self.MEM_misplace_penalty,
+        #     self.EOS_CODE
+        # )
+
+        self.penalizer = PenaltyFactory(
+            opts['penalty'],
+            self.EOS_CODE,
+            self.resource_normalization_factor
         )
 
         # Class responsible form computing rewards for each placement
-        self.rewarder = Reward(
-            self.reward_per_level,
-            self.misplace_reward_penalty,
+        self.rewarder = RewardFactory(
+            opts['reward'],
             self.penalizer
         )
 
