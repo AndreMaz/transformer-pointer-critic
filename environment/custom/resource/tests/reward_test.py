@@ -4,30 +4,33 @@ import sys
 sys.path.append('.')
 
 # Custom Imports
-from environment.custom.resource.reward import Reward
-from environment.custom.resource.penalty import Penalty
-
+from environment.custom.resource.reward import GreedyReward
+from environment.custom.resource.penalty import GreedyPenalty
 
 class TestItem(unittest.TestCase):
 
     def setUp(self) -> None:
-        CPU_misplace_penalty = 5
-        RAM_misplace_penalty = 10
-        MEM_misplace_penalty = 15
+        opts = {
+                "CPU_misplace_penalty": 5,
+                "RAM_misplace_penalty": 10,
+                "MEM_misplace_penalty": 15
+        }
 
-        penalizer = Penalty(
-            CPU_misplace_penalty,
-            RAM_misplace_penalty,
-            MEM_misplace_penalty
+        EOS_CODE = -1
+        resource_normalization_factor = 1
+
+        penalizer = GreedyPenalty(
+            opts, EOS_CODE, resource_normalization_factor    
         )
 
-        reward_per_level = [10, 20]
-        misplace_reward_penalty = 5
+        opts = {
+            "reward_per_level": [ 10, 20 ],
+            "misplace_reward_penalty": 5,
+            "correct_place_factor": 1
+        }
 
-        self.rewarder = Reward(
-            reward_per_level,
-            misplace_reward_penalty,
-            penalizer
+        self.rewarder = GreedyReward(
+            opts, penalizer
         )
 
     def test_constructor(self):

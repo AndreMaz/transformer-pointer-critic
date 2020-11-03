@@ -10,8 +10,8 @@ from random import randint, randrange
 
 from environment.base.base import BaseEnvironment
 from environment.custom.resource.node import Node as History
-from environment.custom.resource.penalty import Penalty
-from environment.custom.resource.reward import Reward
+from environment.custom.resource.penalty import PenaltyFactory
+from environment.custom.resource.reward import RewardFactory
 
 class ResourceEnvironment(BaseEnvironment):
     def __init__(self, name: str, opts: dict):
@@ -43,17 +43,16 @@ class ResourceEnvironment(BaseEnvironment):
         self.num_iterations = 0
     
         self.num_user_levels: int = opts['num_user_levels']
-        self.reward_per_level: List[int] = opts['reward_per_level']
+        # self.reward_per_level: List[int] = opts['reward_per_level']
 
-        assert self.num_user_levels + 1 == len(self.reward_per_level), 'Length of reward_per_level must be equal to the num_user_levels'
-
-        self.misplace_reward_penalty: int = opts['misplace_reward_penalty']
+        # assert self.num_user_levels + 1 == len(self.reward_per_level), 'Length of reward_per_level must be equal to the num_user_levels'
+        # self.misplace_reward_penalty: int = opts['misplace_reward_penalty']
 
         self.num_task_types: int = opts['num_task_types']
 
-        self.CPU_misplace_penalty: int = opts['CPU_misplace_penalty'] / self.resource_normalization_factor
-        self.RAM_misplace_penalty: int = opts['RAM_misplace_penalty'] / self.resource_normalization_factor
-        self.MEM_misplace_penalty: int = opts['MEM_misplace_penalty'] / self.resource_normalization_factor
+        # self.CPU_misplace_penalty: int = opts['CPU_misplace_penalty'] / self.resource_normalization_factor
+        # self.RAM_misplace_penalty: int = opts['RAM_misplace_penalty'] / self.resource_normalization_factor
+        # self.MEM_misplace_penalty: int = opts['MEM_misplace_penalty'] / self.resource_normalization_factor
         
         self.min_resource_CPU: int = opts['min_resource_CPU']
         self.max_resource_CPU: int = opts['max_resource_CPU']
@@ -77,17 +76,22 @@ class ResourceEnvironment(BaseEnvironment):
         ################################################
         
         # Class responsible for computing penalties for each placement
-        self.penalizer = Penalty(
-            self.CPU_misplace_penalty,
-            self.RAM_misplace_penalty,
-            self.MEM_misplace_penalty,
-            self.EOS_CODE
+        # self.penalizer = Penalty(
+        #     self.CPU_misplace_penalty,
+        #     self.RAM_misplace_penalty,
+        #     self.MEM_misplace_penalty,
+        #     self.EOS_CODE
+        # )
+
+        self.penalizer = PenaltyFactory(
+            opts['penalty'],
+            self.EOS_CODE,
+            self.resource_normalization_factor
         )
 
         # Class responsible form computing rewards for each placement
-        self.rewarder = Reward(
-            self.reward_per_level,
-            self.misplace_reward_penalty,
+        self.rewarder = RewardFactory(
+            opts['reward'],
             self.penalizer
         )
 
@@ -110,10 +114,10 @@ class ResourceEnvironment(BaseEnvironment):
             self.mha_used_mask = self.generate_masks()
 
     def reset_num_iterations(self):
-        self.num_iterations = 999
+        self.num_iterations = -1
 
     def reset(self):
-        if self.num_iterations < self.num_iterations_before_node_reset:
+        if self.num_iterations > -1 and self.num_iterations < self.num_iterations_before_node_reset:
             new_resources = self.generate_resources()
             self.batch[:, self.bin_sample_size:, :] = new_resources
         else:
@@ -132,7 +136,7 @@ class ResourceEnvironment(BaseEnvironment):
             self.resource_net_mask.copy(),\
             self.mha_used_mask.copy()
 
-    def step(self, bin_ids: list, resource_ids: list):
+    def step(self, bin_ids: list, resource_ids: list, feasible_bin_mask):
         rewards = np.zeros((self.batch_size, 1), dtype="float32")
 
         # Default is not done
@@ -142,6 +146,7 @@ class ResourceEnvironment(BaseEnvironment):
         for batch_id in range(self.batch_size):
             bin_id = bin_ids[batch_id]
             resource_id = resource_ids[batch_id]
+            feasible_mask = feasible_bin_mask[batch_id]
 
             bin = self.batch[batch_id, bin_id]
             resource = self.batch[batch_id, resource_id]
@@ -169,6 +174,7 @@ class ResourceEnvironment(BaseEnvironment):
                     self.bin_sample_size,
                     bin,
                     resource,
+                    feasible_mask
                 )
 
             rewards[batch_id][0] = reward
@@ -434,7 +440,7 @@ class ResourceEnvironment(BaseEnvironment):
         after_place = after_place.numpy()
         # EOS is always available for pointing
         after_place[:, 0] = 0
-    
+
         return after_place
 
     def num_inserted_resources(self):
@@ -461,7 +467,8 @@ class ResourceEnvironment(BaseEnvironment):
                         bin[2], # MEM
                         bin[3], # Lower task
                         bin[4], # Upper task
-                        self.penalizer
+                        self.penalizer,
+                        self.task_normalization_factor
                     )
                 )
             

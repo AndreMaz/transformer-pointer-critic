@@ -1,20 +1,40 @@
 import tensorflow as tf
 import numpy as np
 
-class Penalty():
+def PenaltyFactory(opts: dict, EOS_CODE, resource_normalization_factor):
+    penalties = {
+        'greedy': GreedyPenalty,
+    }
+
+    try:
+        penaltyType = opts['type']
+        P = penalties[f'{penaltyType}']
+        return P(opts[f'{penaltyType}'], EOS_CODE, resource_normalization_factor)
+    except KeyError:
+        raise NameError(f'Unknown Penalizer Name! Select one of {list(penalties.keys())}')
+
+class GreedyPenalty():
     def __init__(self,
-                 CPU_misplace_penalty,
-                 RAM_misplace_penalty,
-                 MEM_misplace_penalty,
-                 EOS_CODE
+                 opts,
+                 EOS_CODE,
+                 resource_normalization_factor
                  ):
-        super(Penalty, self).__init__()
+        super(GreedyPenalty, self).__init__()
 
         self.EOS_CODE = EOS_CODE
 
-        self.CPU_penalty = np.array([CPU_misplace_penalty], dtype='float32')
-        self.RAM_penalty = np.array([RAM_misplace_penalty], dtype='float32')
-        self.MEM_penalty = np.array([MEM_misplace_penalty], dtype='float32')
+        self.CPU_penalty = np.array(
+            [opts['CPU_misplace_penalty'] / resource_normalization_factor],
+            dtype='float32'
+        )
+        self.RAM_penalty = np.array(
+            [opts['RAM_misplace_penalty'] / resource_normalization_factor],
+            dtype='float32'
+        )
+        self.MEM_penalty = np.array(
+            [opts['MEM_misplace_penalty'] / resource_normalization_factor],
+            dtype='float32'
+        )
 
         self.tensor = tf.constant([
             self.CPU_penalty,

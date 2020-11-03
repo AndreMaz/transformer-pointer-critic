@@ -74,7 +74,7 @@ class KnapsackV2(BaseEnvironment):
             self.resource_net_mask.copy(),\
             self.mha_used_mask.copy()
 
-    def step(self, bin_ids: list, resource_ids: list):
+    def step(self, bin_ids: list, resource_ids: list, feasible_bin_mask):
         # rewards = []
         rewards = np.zeros((self.batch_size, 1), dtype="float32")
 

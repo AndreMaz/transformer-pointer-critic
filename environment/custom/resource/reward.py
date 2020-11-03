@@ -1,24 +1,36 @@
 
-from environment.custom.resource.penalty import Penalty
+def RewardFactory(opts: dict, penalizer):
+    rewards = {
+        'greedy': GreedyReward,
+        "fair": FairReward
+    }
+
+    try:
+        rewardType = opts['type']
+        R = rewards[f'{rewardType}']
+        return R(opts[f'{rewardType}'], penalizer)
+    except KeyError:
+        raise NameError(f'Unknown Reward Name! Select one of {list(rewards.keys())}')
 
 
-class Reward():
+class GreedyReward():
     def __init__(self,
-                 reward_per_level,
-                 misplace_reward_penalty,
+                 opts: dict,
                  penalizer
                  ):
-        super(Reward, self).__init__()
+        super(GreedyReward, self).__init__()
 
-        self.reward_per_level = reward_per_level
-        self.misplace_reward_penalty = misplace_reward_penalty
-        self.penalizer: Penalty = penalizer
+        self.reward_per_level = opts['reward_per_level']
+        self.misplace_reward_penalty = opts['misplace_reward_penalty']
+        self.correct_place_factor = opts['correct_place_factor']
+        self.penalizer = penalizer
 
     def compute_reward(self,
                        batch,
                        total_num_nodes,
                        bin,
                        resource,
+                       feasible_mask
                        ):
 
         bins = batch[:total_num_nodes]
@@ -40,6 +52,25 @@ class Reward():
         if self.penalizer.to_penalize(bin_lower_type, bin_upper_type, resource_type):
             reward = self.reward_per_level[request_type] - self.misplace_reward_penalty
         else:
-            reward = 10 * self.reward_per_level[request_type]
+            reward = self.correct_place_factor * self.reward_per_level[request_type]
             
         return reward
+
+
+class FairReward():
+    def __init__(self,
+                 opts: dict,
+                 penalizer
+                 ):
+        super(FairReward, self).__init__()
+
+        self.penalizer = penalizer
+
+    def compute_reward(self,
+                       batch,
+                       total_num_nodes,
+                       bin,
+                       resource,
+                       feasible_mask
+                       ):
+        return
