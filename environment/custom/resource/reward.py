@@ -2,6 +2,7 @@
 def RewardFactory(opts: dict, penalizer):
     rewards = {
         'greedy': GreedyReward,
+        "fair": FairReward
     }
 
     try:
@@ -21,6 +22,7 @@ class GreedyReward():
 
         self.reward_per_level = opts['reward_per_level']
         self.misplace_reward_penalty = opts['misplace_reward_penalty']
+        self.correct_place_factor = opts['correct_place_factor']
         self.penalizer = penalizer
 
     def compute_reward(self,
@@ -28,6 +30,7 @@ class GreedyReward():
                        total_num_nodes,
                        bin,
                        resource,
+                       feasible_mask
                        ):
 
         bins = batch[:total_num_nodes]
@@ -49,6 +52,25 @@ class GreedyReward():
         if self.penalizer.to_penalize(bin_lower_type, bin_upper_type, resource_type):
             reward = self.reward_per_level[request_type] - self.misplace_reward_penalty
         else:
-            reward = self.reward_per_level[request_type]
+            reward = self.correct_place_factor * self.reward_per_level[request_type]
             
         return reward
+
+
+class FairReward():
+    def __init__(self,
+                 opts: dict,
+                 penalizer
+                 ):
+        super(FairReward, self).__init__()
+
+        self.penalizer = penalizer
+
+    def compute_reward(self,
+                       batch,
+                       total_num_nodes,
+                       bin,
+                       resource,
+                       feasible_mask
+                       ):
+        return

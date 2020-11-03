@@ -136,7 +136,7 @@ class ResourceEnvironment(BaseEnvironment):
             self.resource_net_mask.copy(),\
             self.mha_used_mask.copy()
 
-    def step(self, bin_ids: list, resource_ids: list):
+    def step(self, bin_ids: list, resource_ids: list, feasible_bin_mask):
         rewards = np.zeros((self.batch_size, 1), dtype="float32")
 
         # Default is not done
@@ -146,6 +146,7 @@ class ResourceEnvironment(BaseEnvironment):
         for batch_id in range(self.batch_size):
             bin_id = bin_ids[batch_id]
             resource_id = resource_ids[batch_id]
+            feasible_mask = feasible_bin_mask[batch_id]
 
             bin = self.batch[batch_id, bin_id]
             resource = self.batch[batch_id, resource_id]
@@ -173,6 +174,7 @@ class ResourceEnvironment(BaseEnvironment):
                     self.bin_sample_size,
                     bin,
                     resource,
+                    feasible_mask
                 )
 
             rewards[batch_id][0] = reward
@@ -438,7 +440,7 @@ class ResourceEnvironment(BaseEnvironment):
         after_place = after_place.numpy()
         # EOS is always available for pointing
         after_place[:, 0] = 0
-    
+
         return after_place
 
     def num_inserted_resources(self):
