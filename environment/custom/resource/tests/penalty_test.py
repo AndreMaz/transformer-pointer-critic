@@ -5,20 +5,23 @@ import unittest
 import numpy as np
 
 ### Custom Imports
-from environment.custom.resource.penalty import Penalty
+from environment.custom.resource.penalty import GreedyPenalty
 
 
 class TestItem(unittest.TestCase):
 
     def setUp(self) -> None:
-        CPU_misplace_penalty = np.array([5], dtype='float32')
-        RAM_misplace_penalty = np.array([10], dtype='float32')
-        MEM_misplace_penalty = np.array([15], dtype='float32')
+        opts = {
+                "CPU_misplace_penalty": 5,
+                "RAM_misplace_penalty": 10,
+                "MEM_misplace_penalty": 15
+        }
 
-        self.penalizer = Penalty(
-            CPU_misplace_penalty,
-            RAM_misplace_penalty,
-            MEM_misplace_penalty
+        EOS_CODE = -1
+        resource_normalization_factor = 1
+
+        self.penalizer = GreedyPenalty(
+            opts, EOS_CODE, resource_normalization_factor    
         )
     
     def test_constructor(self):

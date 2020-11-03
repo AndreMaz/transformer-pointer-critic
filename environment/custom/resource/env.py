@@ -114,10 +114,10 @@ class ResourceEnvironment(BaseEnvironment):
             self.mha_used_mask = self.generate_masks()
 
     def reset_num_iterations(self):
-        self.num_iterations = 999
+        self.num_iterations = -1
 
     def reset(self):
-        if self.num_iterations < self.num_iterations_before_node_reset:
+        if self.num_iterations > -1 and self.num_iterations < self.num_iterations_before_node_reset:
             new_resources = self.generate_resources()
             self.batch[:, self.bin_sample_size:, :] = new_resources
         else:
@@ -465,7 +465,8 @@ class ResourceEnvironment(BaseEnvironment):
                         bin[2], # MEM
                         bin[3], # Lower task
                         bin[4], # Upper task
-                        self.penalizer
+                        self.penalizer,
+                        self.task_normalization_factor
                     )
                 )
             

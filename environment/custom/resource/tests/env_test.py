@@ -1,6 +1,5 @@
 import sys
 
-from numpy.core.defchararray import equal
 sys.path.append('.')
 
 import numpy as np
@@ -8,8 +7,8 @@ import unittest
 
 # Custom Imports
 from environment.custom.resource.env import ResourceEnvironment
-from environment.custom.resource.reward import Reward
-from environment.custom.resource.penalty import Penalty
+from environment.custom.resource.reward import GreedyReward
+from environment.custom.resource.penalty import GreedyPenalty
 
 
 class TestResource(unittest.TestCase):
@@ -32,16 +31,36 @@ class TestResource(unittest.TestCase):
 
             "resource_normalization_factor": 1,
             "task_normalization_factor": 1,
+            "num_iterations_before_node_reset": 10,
 
             "num_user_levels": 1,
-            "reward_per_level": [10, 20],
-            "misplace_reward_penalty": 5,
+            # "reward_per_level": [10, 20],
+            # "misplace_reward_penalty": 5,
+            "reward": {
+                "type": "greedy",
+                "greedy": {
+                    "reward_per_level": [ 10, 20 ],
+                    "misplace_reward_penalty": 5
+                },
+                "fair": {
+
+                }
+            },
 
             "num_task_types": 10,
 
-            "CPU_misplace_penalty": 10,
-            "RAM_misplace_penalty": 10,
-            "MEM_misplace_penalty": 10,
+            # "CPU_misplace_penalty": 10,
+            # "RAM_misplace_penalty": 10,
+            # "MEM_misplace_penalty": 10,
+
+            "penalty": {
+                "type": "greedy",
+                "greedy": {
+                    "CPU_misplace_penalty": 10,
+                    "RAM_misplace_penalty": 10,
+                    "MEM_misplace_penalty": 10
+                }
+            },
 
             "min_resource_CPU": 10,
             "max_resource_CPU": 20,
@@ -89,6 +108,7 @@ class TestResource(unittest.TestCase):
         after_insertion_num = self.env.num_inserted_resources()
 
         # Reset env
+        self.env.reset_num_iterations()
         self.env.reset()
         after_reset_num = self.env.num_inserted_resources()
 
@@ -117,16 +137,36 @@ class TestStepFn(unittest.TestCase):
 
             "resource_normalization_factor": 1,
             "task_normalization_factor": 1,
+            "num_iterations_before_node_reset": 10,
 
             "num_user_levels": 1,
-            "reward_per_level": [10, 20],
-            "misplace_reward_penalty": 5,
+            # "reward_per_level": [10, 20],
+            # "misplace_reward_penalty": 5,
+            "reward": {
+                "type": "greedy",
+                "greedy": {
+                    "reward_per_level": [ 10, 20 ],
+                    "misplace_reward_penalty": 5
+                },
+                "fair": {
+
+                }
+            },
 
             "num_task_types": 10,
 
-            "CPU_misplace_penalty": 10,
-            "RAM_misplace_penalty": 10,
-            "MEM_misplace_penalty": 10,
+            # "CPU_misplace_penalty": 10,
+            # "RAM_misplace_penalty": 10,
+            # "MEM_misplace_penalty": 10,
+
+            "penalty": {
+                "type": "greedy",
+                "greedy": {
+                    "CPU_misplace_penalty": 10,
+                    "RAM_misplace_penalty": 10,
+                    "MEM_misplace_penalty": 10
+                }
+            },
 
             "min_resource_CPU": 10,
             "max_resource_CPU": 20,

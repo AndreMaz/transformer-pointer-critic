@@ -49,6 +49,6 @@ class GreedyReward():
         if self.penalizer.to_penalize(bin_lower_type, bin_upper_type, resource_type):
             reward = self.reward_per_level[request_type] - self.misplace_reward_penalty
         else:
-            reward = 10 * self.reward_per_level[request_type]
+            reward = self.reward_per_level[request_type]
             
         return reward
