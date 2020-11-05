@@ -45,46 +45,41 @@ Overall, any new load balancing strategy must be scalable and adaptable to the d
 
 ### Problem statement
 
-At each time `t` a randomly sized batch of requests arrive, each has its own profile with the following information:
-
-The amount of resources that it needs in order to be processed. For example:
-- `10` units of CPU
-- `2` units of RAM
-- `5` units for Memory
-
-The profile also contains info about the type of the data that the request needs. For example:
-- `2` (or any other number) that represents the specific type of the data.
-
-> **Note**: In the example above the request type `2` might represent type of a `Rule` that needs information from a weather API (e.g., [Open Weather Map](https://openweathermap.org/api), [Aeris Weather](https://www.aerisweather.com/features/aerisweather-solutions/)) or traffic API services (e.g., [Here Traffic API](https://developer.here.com/documentation/traffic/dev_guide/topics/what-is.html)). So, for this specific `Rule` to be processed, there are two costs involved: one is the "cost" (CPU/RAM/MEM) involved in the reasoning over the actual `Rule` and another one is the "cost" (CPU/RAM/MEM) of keeping an active with an external API in order for constantly having fresh data.
-
-The request also contains the information about the user that created the request. For example:
-- `1` or `0` depending if the user is `premium` or `free`
-
-Once the requests arrive they must be distributed among a set of nodes/devices available for processing. Each node has the following characteristics:
+Given a set of nodes/devices available for processing. Each node has the following characteristics:
 - `100` (or any other value) remaining units of CPU that available for processing
 - `100` (or any other value) remaining units of RAM that available for processing
 - `100` (or any other value) remaining units of memory that available for processing
 
-Moreover, each node maintains a set of active connections with a set of APIs from where it constantly getting fresh data. The set of data that's being fetched from these API is represented in the following way:
-- `2` lower bound of the API that the node is connected with
-- `5` upper bound of the API that the node is connected with
+Moreover, each node maintains a set of active connections with a set of APIs (data sources) from where it constantly getting fresh data. The set of data that's being fetched from these APIs is represented by a range:
+- `2` lower bound of the API (data source) that the node is connected with
+- `5` upper bound of the API (data source) that the node is connected with
 
-This means that the node maintains active connections with APIs and fetching data  (`2`, `3`, `4`, `5`)
+This range means that the node maintains active connections with APIs `2`, `3`, `4`, `5` and that it constantly fetching, processing and caching the data.
+For example, the range defined above might represent the following active connections: `2` - weather API service, `3` - earthquake API service, `4` - pollution API, `5` - traffic camera. In case of task `5` (traffic camera), the node might use a neural network to process the image stream and count the number of cars, pedestrians, etc. This information would be cached by the node and, later, used by a `Rule` that needs this kind of information.
+In the case of the weather API service, the node might simply fetch and store weather data of a complete region (e.g., city or country) and then only use a specific portion of the data for a specific `Rule`.
+
+Keeping active connections and constantly processing and caching the data requires resources. This means every node can only handle a set of active connections and cache the incoming data. In other words, this means that some nodes will be "specialized" in storing/caching specific type of data.
+
+Moreover, at each time `t` a randomly sized batch of requests arrive, each has its own profile with the following information:
+
+The information about the user that created the request. For example:
+- `1` or `0` depending if the user is `premium` or `free`
+
+The amount of resources that it needs in order to be processed. For example:
+- `10` (or any other value) units of CPU
+- `2` (or any other value) units of RAM
+- `5` (or any other value) units for Memory
+
+The profile also contains info about the data source that the request needs. For example:
+- `2` (or any other number) that represents the specific type of the data source that the request needs.
+
+> **Note**: In the example above the request type `2` might represent type of a `Rule` that needs information from a weather API (e.g., [Open Weather Map](https://openweathermap.org/api), [Aeris Weather](https://www.aerisweather.com/features/aerisweather-solutions/)) or traffic API services (e.g., [Here Traffic API](https://developer.here.com/documentation/traffic/dev_guide/topics/what-is.html)). 
 
 
-For example, this range might represent the following active connections: `2` - weather API service, `3` - earthquake API service, `4` - traffic API, `5` - traffic camera. This means that the node maintains active connection with these services in order to get fresh data. Moreover, the node might do some pre-processing of the data that will be used, in the future, by the `Rule` requests. In case of task `5` (traffic camera), the node might use neural networks to process the image stream and count the number of cars, pedestrians, etc. Keeping an active connection and constantly pre-processing the data requires a lot of resources.
 
-For example, a specific node might maintain active connections with weather API, earthquake API and traffic API where the latter provides live stream. For the traffic API the node might use neural networks to process the image stream and count the number of cars, pedestrians, etc. Keeping an active connection and constantly pre-processing the data requires a lot of resources.
+Overall, for a specific `Rule` to be processed, there are two costs involved: one is the "cost" (CPU/RAM/MEM) involved in the reasoning over the actual `Rule` and another one is the "cost" (CPU/RAM/MEM) of keeping an active connection with an external API in order to constantly having fresh data and processing the incoming data. 
 
-it also contains the range of tasks that it can process without penalty (e.g., a node can maintain an active connection with a weather API service or it can have some specific info in cache; if not, then fetching required data from some remote place is required, a process that will require more memory, RAM and CPU):
-
-> **Note**: In the example above the lower and upper bounds mean that specific node can process tasks (`2`, `3`, `4`, `5`) without any additional penalty. For example, this range might represent the following active connections: `2` - weather API service, `3` - earthquake API service, `4` - traffic API, `5` - traffic camera. This means that the node maintains active connection with these services in order to get fresh data. Moreover, the node might do some pre-processing of the data that will be used, in the future, by the `Rule` requests. In case of task `5` (traffic camera), the node might use neural networks to process the image stream and count the number of cars, pedestrians, etc. Keeping an active connection and constantly pre-processing the data requires a lot of resources.
-
-> **Note 2**:  Any task outside of the node's range can still be processed by the node but it will incur some CPU/RAM/MEM penalty. 
-
-### A Practical Example
-
-
+If a `Rule` request is placed at the node that already has the desired data then there is only one "cost", i.e., the "cost" of processing the rule. If it's placed at a node that doesn't have in cache the desired information then there is a additional "penalty cost", i.e., the cost of fetching and processing the required data.
 
 ### Goal
 
