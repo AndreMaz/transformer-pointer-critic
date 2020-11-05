@@ -79,6 +79,8 @@ The profile also contains info about the data source that the request needs. For
 
 Overall, for a specific `Rule` to be processed, there are two costs involved: one is the "cost" (CPU/RAM/MEM) involved in the reasoning over the actual `Rule` and another one is the "cost" (CPU/RAM/MEM) of keeping an active connection with an external API in order to constantly having fresh data and processing the incoming data. 
 
+> **Note**: The cost of processing the `Rule` is defined in its profile. The cost of fetching data could some constant.
+
 If a `Rule` request is placed at the node that already has the desired data then there is only one "cost", i.e., the "cost" of processing the rule. If it's placed at a node that doesn't have in cache the desired information then there is a additional "penalty cost", i.e., the cost of fetching and processing the required data.
 
 ### Goal
