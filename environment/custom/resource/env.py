@@ -92,7 +92,8 @@ class ResourceEnvironment(BaseEnvironment):
         # Class responsible form computing rewards for each placement
         self.rewarder = RewardFactory(
             opts['reward'],
-            self.penalizer
+            self.penalizer,
+            self.EOS_CODE
         )
 
         self.tasks = list(range(0, self.num_task_types))
@@ -165,17 +166,17 @@ class ResourceEnvironment(BaseEnvironment):
             )
 
             # No reward. Placed at EOS bin
-            if bin_id == 0:
-                reward = 0
-            else:
+            # if bin_id == 0:
+            #    reward = 0
+            # else:
             # Compute reward
-                reward = self.rewarder.compute_reward(
-                    self.batch[batch_id],
-                    self.bin_sample_size,
-                    bin,
-                    resource,
-                    feasible_mask
-                )
+            reward = self.rewarder.compute_reward(
+                self.batch[batch_id],
+                self.bin_sample_size,
+                bin,
+                resource,
+                feasible_mask
+            )
 
             rewards[batch_id][0] = reward
 

@@ -39,7 +39,7 @@
             "type": "greedy",
             "greedy": {
                 "reward_per_level": [ 1, 2 ],
-                "misplace_reward_penalty": 0.5,
+                "misplace_penalty_factor": 0.5,
                 "correct_place_factor": 10
             },
             "fair": {
