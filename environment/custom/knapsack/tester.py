@@ -10,7 +10,7 @@ import time
 OPTIMAL = 'Optimal'
 HEURISTIC = 'Heuristic'
 
-def test(env: KnapsackV2, agent: Agent, opt_solver, heuristic_solver, look_for_opt: bool = False):
+def test(env: KnapsackV2, agent: Agent, opts: dict, opt_solver, heuristic_solver, look_for_opt: bool = False):
     # for _ in range(32):
     # Set the agent to testing mode
     agent.training = False

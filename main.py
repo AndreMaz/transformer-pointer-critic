@@ -26,7 +26,7 @@ import math
 
 def runner(env_type="custom", env_name='Resource', agent_name="tpc"):
     # Read the configs
-    agent_config, trainer_config, env_config = get_configs(env_name, agent_name)
+    agent_config, trainer_config, env_config, tester_config = get_configs(env_name, agent_name)
 
     # Create the environment
     env, opt_solver, heuristic_solver, tester, plotter = env_factory(env_type, env_name, env_config)
@@ -50,7 +50,7 @@ def runner(env_type="custom", env_name='Resource', agent_name="tpc"):
     # Test the agent
     print("\nTesting...")
     look_for_opt = False
-    tester(env, agent, opt_solver, heuristic_solver, look_for_opt)
+    tester(env, agent, tester_config, opt_solver, heuristic_solver, look_for_opt)
     print('End... Goodbye!')
 
 def tuner(env_type="custom", env_name='CVRP', agent_name="tpc"):

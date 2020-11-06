@@ -3,14 +3,15 @@
     
     "trainer_config": {
         "description": "Trainer function configs.",
-        "n_iterations": 10,
+        "n_iterations": 1,
         "n_steps_to_update": 20
     },
 
     "tester_config": {
         "description": "Testing function configs.",
-        "backpack_sample_size": 5,
-        "item_sample_size": 20
+        "bin_sample_size": 5,
+        "resource_sample_size": 20,
+        "num_episodes": 10
     },
 
     "env_config": {

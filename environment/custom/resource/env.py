@@ -118,7 +118,7 @@ class ResourceEnvironment(BaseEnvironment):
         self.num_iterations = -1
 
     def reset(self):
-        if self.num_iterations > -1 and self.num_iterations < self.num_iterations_before_node_reset:
+        if self.num_iterations != -1 and self.num_iterations < self.num_iterations_before_node_reset:
             new_resources = self.generate_resources()
             self.batch[:, self.bin_sample_size:, :] = new_resources
         else:

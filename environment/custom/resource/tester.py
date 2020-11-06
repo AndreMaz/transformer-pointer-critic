@@ -10,23 +10,29 @@ import time
 OPTIMAL = 'Optimal'
 HEURISTIC = 'Heuristic'
 
-def test(env: ResourceEnvironment, agent: Agent, opt_solver, heuristic_solver, look_for_opt: bool = False):
+def test(env: ResourceEnvironment, agent: Agent, opts: dict, opt_solver, heuristic_solver, look_for_opt: bool = False):
     # for _ in range(32):
+
     # Set the agent to testing mode
     agent.training = False
     agent.stochastic_action_selection = False
     
-    # Increase the number for resources during testing
-    env.resource_sample_size = 5
-    agent.num_resources = 5
+    # Set the number for resources during testing
+    env.resource_sample_size = opts['resource_sample_size']
+    agent.num_resources = opts['resource_sample_size']
 
-    # Increase the number of bins during testing
-    env.bin_sample_size = 5 + 1 # Because of the EOS
-    
+    # Set the number of bins during testing
+    # + 1 Because of the EOS
+    env.bin_sample_size = opts['bin_sample_size'] + 1
+
+    num_episodes = opts['num_episodes']
+
     env.reset_num_iterations() # Reset the env
     env.batch_size  = 1
     agent.batch_size = 1
 
+
+    episode_count = 0
     training_step = 0
     isDone = False
 
@@ -39,22 +45,10 @@ def test(env: ResourceEnvironment, agent: Agent, opt_solver, heuristic_solver, l
     # # Compute optimal values
     # optimal_values = []
     # if look_for_opt:
-    #     print('Looking for Optimal Solutions...')
-    #     start = time.time()
-    #     for index in range(env.batch_size):
-    #         print(f'Solving {index} of {env.batch_size}', end='\r')
-    #         data = env.convert_to_ortools_input(index)
-    #         optimal_values.append(opt_solver(data, False))
-    #     print(f'Done! Optimal Solutions found in {time.time() - start:.2f} seconds')
+    #     optimal_values = compute_opt_solutions(env, opt_solver)
 
-    # heuristic_values = []
-    # print('Looking for Heuristic Solutions...')
-    # start = time.time()
-    # for index in range(env.batch_size):
-    #     print(f'Solving {index} of {env.batch_size}', end='\r')
-    #     prob = env.batch[index]
-    #     heuristic_values.append(heuristic_solver(prob, env.bin_sample_size))
-    # print(f'Done! Heuristic Solutions found in {time.time() - start:.2f} seconds')
+    # # Compute heuristic solutions
+    # heuristic_values = compute_heuristic_solutions(env, heuristic_solver)
 
     print('Solving with nets...')
     start = time.time()
@@ -146,3 +140,29 @@ def test(env: ResourceEnvironment, agent: Agent, opt_solver, heuristic_solver, l
     #     env.resource_normalization_factor,
     #     env.task_normalization_factor
     # )
+
+def compute_opt_solutions(env: ResourceEnvironment, opt_solver):
+    optimal_values = []
+    print('Looking for Optimal Solutions...')
+    start = time.time()
+    for index in range(env.batch_size):
+        print(f'Solving {index} of {env.batch_size}', end='\r')
+        data = env.convert_to_ortools_input(index)
+        optimal_values.append(opt_solver(data, False))
+    print(f'Done! Optimal Solutions found in {time.time() - start:.2f} seconds')
+
+    return optimal_values
+
+
+def compute_heuristic_solutions(env: ResourceEnvironment, heuristic_solver):
+    heuristic_values = []
+
+    print('Looking for Heuristic Solutions...')
+    start = time.time()
+    for index in range(env.batch_size):
+        print(f'Solving {index} of {env.batch_size}', end='\r')
+        prob = env.batch[index]
+        heuristic_values.append(heuristic_solver(prob, env.bin_sample_size))
+    print(f'Done! Heuristic Solutions found in {time.time() - start:.2f} seconds')
+
+    return heuristic_values
