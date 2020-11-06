@@ -50,7 +50,7 @@ Given a set of nodes/devices available for processing. Each node has the followi
 - `100` (or any other value) remaining units of RAM that available for processing
 - `100` (or any other value) remaining units of memory that available for processing
 
-Moreover, each node maintains a set of active connections with a set of APIs (data sources) from where it constantly getting fresh data. The set of data that's being fetched from these APIs is represented by a range:
+Moreover, each node has a set of web clients (e.g., HTTP, WebSocket) and it maintains a set of active connections with a set of APIs (data sources) from where it constantly getting fresh data. The set of data that's being fetched from these APIs is represented by a range:
 - `2` lower bound of the API (data source) that the node is connected with
 - `5` upper bound of the API (data source) that the node is connected with
 
