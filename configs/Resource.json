@@ -11,7 +11,16 @@
         "description": "Testing function configs.",
         "bin_sample_size": 5,
         "resource_sample_size": 20,
-        "num_episodes": 10
+        "num_episodes": 10,
+
+        "heuristic": {
+            "type": "greedy",
+            "greedy": {
+                "request_sorting_order": "ASC",
+                "node_sorting_order": "DESC",
+                "denormalize": true
+            }
+        }
     },
 
     "env_config": {
