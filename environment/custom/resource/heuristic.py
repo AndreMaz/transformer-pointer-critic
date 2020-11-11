@@ -15,58 +15,91 @@ class GreedyHeuristic():
                 ):
         super(GreedyHeuristic, self).__init__()
 
+        self.resource_batch_id = 0
         self.env = env
-        self.opts = opts
 
-    def solver(self, env: ResourceEnvironment, opts: dict):
+        self.penalizer = self.env.penalizer
+
+        self.task_normalization_factor = self.env.task_normalization_factor
+
+        # self.denormalize_input: bool = opts['denormalize']
+
+        self.node_list = self.parse_nodes()
+
+    def reset(self):
+        self.resource_batch_id = 0
         
-        nodes, resources = parse_input(env, opts)
+        self.node_list = []
 
-        return 1
+    def parse_nodes(self):
 
-    def parse_input(self, env: ResourceEnvironment, opts: dict):
-
-        state, _, _, _  = env.state()
+        state, _, _, _  = self.env.state()
         
         batch_size = state.shape[0]
 
         assert batch_size == 1, 'Heuristic only works for problems with batch size equal to 1!'
 
-        nodes = state[:, :env.bin_sample_size, :]
-        resources = state[:, env.bin_sample_size:, :]
+        nodes = state[0, :env.bin_sample_size, :]
+        # resources = state[:, env.bin_sample_size:, :]
         
-        if opts['denormalize'] == True:
-            nodes, resources = denormalize(nodes, resources)
-
         node_list = []
         for id, node in enumerate(nodes):
             node_list.append(
                 Node(
-                    0, # Any value
+                    0, # Nodes are created in first batch, i.e., state from env
                     id,
                     node[0],
                     node[1],
                     node[2],
                     node[3],
                     node[4],
+                    self.penalizer,
+                    self.task_normalization_factor
                 )
             )
         
+        return node_list
+
+    def parse_resources(self, state):
+        batch_size = state.shape[0]
+
+        assert batch_size == 1, 'Heuristic only works for problems with batch size equal to 1!'
+
+        resources = state[0, env.bin_sample_size:, :]
+
         resource_list = []
-        for id, node in enumerate(resources):
+        for id, resource in enumerate(resources):
             resource_list.append(
                 Resource(
-
+                    self.resource_batch_id,
+                    id,
+                    resource[0],
+                    resource[1],
+                    resource[2],
+                    resource[3],
+                    resource[4],
                 )
             )
+
+        self.resource_batch_id += 1
+
+        return resource_list
+
+
+    def solve(self, state):
         
+        resource_list = self.parse_resources(state)
 
-        return 1, 1
+        # Sort the resources
 
+        # For each resource
+        # Find appropriate nodes
+        # Sort them
 
-    def parse_resource_list(self, resources):
+        # If none found
+        # Sort all the nodes and use the first-fit approach
+
         return
-
 
 if __name__ == "__main__":
     env_name = 'Resource'
@@ -85,4 +118,8 @@ if __name__ == "__main__":
     heuristic_type = params['tester_config']['heuristic']['type']
     heuristic_opts = params['tester_config']['heuristic'][f'{heuristic_type}']
 
-    solver(env, heuristic_opts)
+    solver = GreedyHeuristic(env, heuristic_opts)
+
+    state, _, _, _ = env.state()
+
+    solver.solve(state)
