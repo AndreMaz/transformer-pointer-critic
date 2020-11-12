@@ -49,6 +49,10 @@ class Node():
 
         req = Resource(iteration_num, id, CPU, RAM, MEM, task, request_type)
 
+        return self.insert_resource(req)
+
+    def insert_resource(self, req):
+
         remaning_CPU = 0
         remaning_RAM = 0
         remaining_MEM = 0
@@ -66,6 +70,7 @@ class Node():
         self.resources.append(req)
 
         return [remaning_CPU, remaning_RAM, remaining_MEM]
+
 
     def reset(self):
         self.remaining_CPU = self.CPU

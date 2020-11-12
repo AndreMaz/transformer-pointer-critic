@@ -25,23 +25,23 @@ class TestItem(unittest.TestCase):
 
         opts = {
             "reward_per_level": [ 10, 20 ],
-            "misplace_reward_penalty": 5,
+            "misplace_penalty_factor": 0.5,
             "correct_place_factor": 1
         }
 
         self.rewarder = GreedyReward(
-            opts, penalizer
+            opts, penalizer, EOS_CODE
         )
 
     def test_constructor(self):
         expected_reward_per_level = [10, 20]
-        expected_misplace_penalty = 5
+        misplace_penalty_factor = 0.5
         self.assertEqual(
             self.rewarder.reward_per_level, expected_reward_per_level
         )
 
         self.assertEqual(
-            self.rewarder.misplace_reward_penalty, expected_misplace_penalty
+            self.rewarder.misplace_penalty_factor, misplace_penalty_factor
         )
 
         self.assertIsNotNone(self.rewarder.penalizer)
@@ -66,8 +66,12 @@ class TestItem(unittest.TestCase):
 
         expected_reward = 20
 
+        feasible_mask = np.array([
+            [0.,   0.,   0.,   1.,   1.],
+        ],dtype='float32')
+
         actual_reward = self.rewarder.compute_reward(
-            batch, total_num_nodes, bin, resource
+            batch, total_num_nodes, bin, resource, feasible_mask
         )
 
         self.assertEqual(actual_reward, expected_reward)
@@ -93,8 +97,12 @@ class TestItem(unittest.TestCase):
 
         expected_reward = 20
 
+        feasible_bin_mask = np.array([
+            [ 0.,  0.,  0.,   1.,   1.],
+        ], dtype='float32') 
+
         actual_reward = self.rewarder.compute_reward(
-            batch, total_num_nodes, bin, resource
+            batch, total_num_nodes, bin, resource, feasible_bin_mask
         )
 
         self.assertEqual(actual_reward, expected_reward)
@@ -117,10 +125,14 @@ class TestItem(unittest.TestCase):
         # Request Type: 5
         resource = [40.,  50.,  60.,   2.,   0.]
 
-        expected_reward = 10
+        feasible_bin_mask = np.array([
+            [ 0.,  0.,  0.,   1.,   1.],
+        ], dtype='float32')
 
+        expected_reward = 10
+    
         actual_reward = self.rewarder.compute_reward(
-            batch, total_num_nodes, bin, resource
+            batch, total_num_nodes, bin, resource, feasible_bin_mask
         )
 
         self.assertEqual(actual_reward, expected_reward)
@@ -143,10 +155,14 @@ class TestItem(unittest.TestCase):
         # Request Type: 5
         resource = [40.,  50.,  60.,   5.,   0.]
 
+        feasible_bin_mask = np.array([
+            [ 0.,  0.,  0.,   1.,   1.],
+        ], dtype='float32')
+
         expected_reward = 5
 
         actual_reward = self.rewarder.compute_reward(
-            batch, total_num_nodes, bin, resource
+            batch, total_num_nodes, bin, resource, feasible_bin_mask
         )
 
         self.assertEqual(actual_reward, expected_reward)

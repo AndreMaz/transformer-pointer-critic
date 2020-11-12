@@ -4,9 +4,12 @@ from tensorflow.python.ops.gen_batch_ops import batch
 sys.path.append('.')
 import json
 
+from typing import List, Tuple
+
 from environment.custom.resource.env import ResourceEnvironment
 from environment.custom.resource.node import Node
 from environment.custom.resource.resource import Resource
+from operator import itemgetter, attrgetter
 
 class GreedyHeuristic():
     def __init__(self,
@@ -31,7 +34,7 @@ class GreedyHeuristic():
         
         self.node_list = []
 
-    def parse_nodes(self):
+    def parse_nodes(self) -> List[Node]:
 
         state, _, _, _  = self.env.state()
         
@@ -82,24 +85,53 @@ class GreedyHeuristic():
             )
 
         self.resource_batch_id += 1
-
+        
         return resource_list
 
 
     def solve(self, state):
         
         resource_list = self.parse_resources(state)
-
+        # resource_list: List[Resource] = sorted(resource_list, key=attrgetter("request_type"), reverse=True)
+        resource_list: List[Resource] = sorted(resource_list, key=resource_sorting_fn, reverse=True)
+        
         # Sort the resources
+        for resource in resource_list:
+            matching_nodes = self.find_matching_nodes(resource)
+            if len(matching_nodes) != 0:
+                candidate_nodes: List[Node] = sorted(matching_nodes, key=node_sorting_fn, reverse=True)
+            else:
+                candidate_nodes: List[Node] = sorted(self.node_list, key=node_sorting_fn, reverse=True)
 
-        # For each resource
-        # Find appropriate nodes
-        # Sort them
+            for node in candidate_nodes:
+                isValid, _, _, _ = node.validate(resource)
+
+                if isValid:
+                    node.add_resource(res)
 
         # If none found
         # Sort all the nodes and use the first-fit approach
 
         return
+    
+    def find_matching_nodes(self, resource: Resource):
+        matching_nodes = []
+
+        for node in self.node_list:
+            if node.lower_task <= resource.task <= node.upper_task:
+                matching_nodes.append(node)
+
+        return matching_nodes
+    
+    def print_info(self, elem_list: list):
+        for elem in elem_list:
+            elem.print()
+
+def node_sorting_fn(node: Node):
+    return (node.remaining_CPU, node.remaining_RAM, node.remaining_MEM)
+
+def resource_sorting_fn(elem: Resource):
+    return (elem.request_type, elem.CPU, elem.RAM, elem.MEM)
 
 if __name__ == "__main__":
     env_name = 'Resource'
@@ -113,7 +145,7 @@ if __name__ == "__main__":
 
     env = ResourceEnvironment(env_name, env_config)
 
-    env.state()
+    # env.state()
 
     heuristic_type = params['tester_config']['heuristic']['type']
     heuristic_opts = params['tester_config']['heuristic'][f'{heuristic_type}']

@@ -7,8 +7,8 @@ import unittest
 
 # Custom Imports
 from environment.custom.resource.env import ResourceEnvironment
-from environment.custom.resource.reward import GreedyReward
-from environment.custom.resource.penalty import GreedyPenalty
+# from environment.custom.resource.reward import GreedyReward
+# from environment.custom.resource.penalty import GreedyPenalty
 
 
 class TestResource(unittest.TestCase):
@@ -40,7 +40,7 @@ class TestResource(unittest.TestCase):
                 "type": "greedy",
                 "greedy": {
                     "reward_per_level": [ 10, 20 ],
-                    "misplace_reward_penalty": 5,
+                    "misplace_penalty_factor": 5,
                     "correct_place_factor": 1
                 },
                 "fair": {
@@ -104,8 +104,18 @@ class TestResource(unittest.TestCase):
     def test_reset(self):
         initial_num = self.env.num_inserted_resources()
 
-        # Take 2 random step
-        self.env.step([1, 3], [6, 7])
+        feasible_bin_mask = np.array([
+            [ 0.,  0.,  0.,   1.,   1.],
+            [ 0.,  0.,  0.,   1.,   1.]
+        ], dtype='float32')
+
+        # Step 1
+        # Insert Two resources
+        self.env.step([1, 3], [6, 7], feasible_bin_mask)
+
+        # Step 2
+        # Insert Two more resources
+        self.env.step([1, 3], [6, 7], feasible_bin_mask)
         after_insertion_num = self.env.num_inserted_resources()
 
         # Reset env
@@ -114,7 +124,9 @@ class TestResource(unittest.TestCase):
         after_reset_num = self.env.num_inserted_resources()
 
         self.assertEqual(initial_num, 0)
-        self.assertEqual(after_insertion_num, 2)
+
+        # In total 4 Resources were inserted
+        self.assertEqual(after_insertion_num, 4)
         self.assertEqual(after_reset_num, 0)
 
 
@@ -147,7 +159,7 @@ class TestStepFn(unittest.TestCase):
                 "type": "greedy",
                 "greedy": {
                     "reward_per_level": [ 10, 20 ],
-                    "misplace_reward_penalty": 5,
+                    "misplace_penalty_factor": 0.5,
                     "correct_place_factor": 1
                 },
                 "fair": {
@@ -189,7 +201,7 @@ class TestStepFn(unittest.TestCase):
         }
         self.env = ResourceEnvironment('Resource', ENV_CONFIG)
 
-    def test_step_EOS_node_reward_SHOULD_be_zero(self):
+    def test_step_EOS_node_reward_SHOULD_be_negative(self):
         self.env.batch = np.array([[
                 [  0.,   0.,   0.,   0.,   0.],
                 [100., 200., 300.,   0.,   2.], # Node task range [0, 2]
@@ -209,9 +221,21 @@ class TestStepFn(unittest.TestCase):
         bin_ids =       [0 , 0]
         resource_ids =  [3 , 4]
 
+        resources = np.array([
+            [ 10.,  20.,  30.,   1.,   1.],
+            [ 400.,  500.,  600.,   4.,   1.]
+        ], dtype='float32')  
+        
+        feasible_bin_mask = self.env.build_feasible_mask(
+            self.env.batch,
+            resources,
+            self.env.bin_net_mask
+        )
+
         next_state, rewards, isDone, info = self.env.step(
             bin_ids, 
-            resource_ids
+            resource_ids,
+            feasible_bin_mask
         )
 
         expected_next_state = np.array([[
@@ -230,8 +254,8 @@ class TestStepFn(unittest.TestCase):
         self.assertEqual(next_state.tolist(),expected_next_state.tolist())
 
         expected_rewards = np.array([
-            [0],
-            [0]
+            [-20],
+            [-20]
         ], dtype="float32")
 
         self.assertEqual(rewards.tolist(), expected_rewards.tolist())
@@ -258,9 +282,21 @@ class TestStepFn(unittest.TestCase):
         bin_ids =       [1 , 2]
         resource_ids =  [3 , 4]
 
+        resources = np.array([
+            [ 10.,  20.,  30.,   1.,   1.],
+            [ 400.,  500.,  600.,   4.,   1.]
+        ], dtype='float32')  
+        
+        feasible_bin_mask = self.env.build_feasible_mask(
+            self.env.batch,
+            resources,
+            self.env.bin_net_mask
+        )
+
         next_state, rewards, isDone, info = self.env.step(
             bin_ids, 
-            resource_ids
+            resource_ids,
+            feasible_bin_mask
         )
 
         expected_next_state = np.array([[
@@ -307,9 +343,21 @@ class TestStepFn(unittest.TestCase):
         bin_ids =       [1 , 2]
         resource_ids =  [3 , 4]
 
+        resources = np.array([
+            [ 10.,  20.,  30.,   15.,   1.],
+            [ 400.,  500.,  600.,   10.,   1.]
+        ], dtype='float32')  
+        
+        feasible_bin_mask = self.env.build_feasible_mask(
+            self.env.batch,
+            resources,
+            self.env.bin_net_mask
+        )
+        
         next_state, rewards, isDone, info = self.env.step(
             bin_ids, 
-            resource_ids
+            resource_ids,
+            feasible_bin_mask
         )
 
         expected_next_state = np.array([[
@@ -328,8 +376,8 @@ class TestStepFn(unittest.TestCase):
         self.assertEqual(next_state.tolist(),expected_next_state.tolist())
 
         expected_rewards = np.array([
-            [15],
-            [15]
+            [10],
+            [10]
         ], dtype="float32")
 
         self.assertEqual(rewards.tolist(), expected_rewards.tolist())
@@ -356,9 +404,21 @@ class TestStepFn(unittest.TestCase):
         bin_ids =       [1 , 2]
         resource_ids =  [3 , 4]
 
+        resources = np.array([
+            [ 10.,  20.,  30.,   1.,   0.],
+            [ 400.,  500.,  600.,   4.,   0.]
+        ], dtype='float32')  
+        
+        feasible_bin_mask = self.env.build_feasible_mask(
+            self.env.batch,
+            resources,
+            self.env.bin_net_mask
+        )
+
         next_state, rewards, isDone, info = self.env.step(
             bin_ids, 
-            resource_ids
+            resource_ids,
+            feasible_bin_mask
         )
 
         expected_next_state = np.array([[
@@ -405,9 +465,21 @@ class TestStepFn(unittest.TestCase):
         bin_ids =       [1 , 2]
         resource_ids =  [3 , 4]
 
+        resources = np.array([
+            [ 10.,  20.,  30.,   15.,   0.],
+            [ 400.,  500.,  600.,   10.,   0.]
+        ], dtype='float32')  
+        
+        feasible_bin_mask = self.env.build_feasible_mask(
+            self.env.batch,
+            resources,
+            self.env.bin_net_mask
+        )
+
         next_state, rewards, isDone, info = self.env.step(
             bin_ids, 
-            resource_ids
+            resource_ids,
+            feasible_bin_mask
         )
 
         expected_next_state = np.array([[
@@ -471,13 +543,18 @@ class TestStepFn(unittest.TestCase):
             expected_mha_mask
         )
 
+        feasible_bin_mask = np.array([
+            [ 0.,  0.,  0.,   1.,   1.],
+            [ 0.,  0.,  0.,   1.,   1.]
+        ], dtype='float32')
 
         # First Step
         bin_ids =       [1 , 2]
         resource_ids =  [3 , 4]
         next_state, rewards, isDone, info = self.env.step(
             bin_ids, 
-            resource_ids
+            resource_ids,
+            feasible_bin_mask
         )
 
         expected_resource_mask = [
@@ -503,7 +580,8 @@ class TestStepFn(unittest.TestCase):
         resource_ids =  [4 , 3]
         next_state, rewards, isDone, info = self.env.step(
             bin_ids, 
-            resource_ids
+            resource_ids,
+            feasible_bin_mask
         )
 
         self.assertTrue(isDone)
