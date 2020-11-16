@@ -18,6 +18,8 @@ class GreedyHeuristic():
                 ):
         super(GreedyHeuristic, self).__init__()
 
+        self.EOS_CODE = env.EOS_CODE
+
         self.resource_batch_id = 0
         self.env = env
 
@@ -28,6 +30,8 @@ class GreedyHeuristic():
         # self.denormalize_input: bool = opts['denormalize']
 
         self.node_list = self.parse_nodes()
+
+        self.EOS_NODE = self.node_list[0]
 
     def reset(self):
         self.resource_batch_id = 0
@@ -97,20 +101,29 @@ class GreedyHeuristic():
         
         # Sort the resources
         for resource in resource_list:
+            # Look for nodes that have cached info
             matching_nodes = self.find_matching_nodes(resource)
+
             if len(matching_nodes) != 0:
                 candidate_nodes: List[Node] = sorted(matching_nodes, key=node_sorting_fn, reverse=True)
             else:
                 candidate_nodes: List[Node] = sorted(self.node_list, key=node_sorting_fn, reverse=True)
 
+            allocated = False
             for node in candidate_nodes:
-                isValid, _, _, _ = node.validate(resource)
+                if node.lower_task != self.EOS_CODE and node.upper_task != self.EOS_CODE:
+                    isValid, _, _, _ = node.validate(resource)
 
-                if isValid:
-                    node.add_resource(res)
+                    if isValid:
+                        allocated = True
+                        node.insert_resource(resource)
+            
+            if not allocated:
+                self.EOS_NODE.insert_resource(resource)
+            
+            allocated = False
 
-        # If none found
-        # Sort all the nodes and use the first-fit approach
+        self.print_info(self.node_list)
 
         return
     
@@ -118,8 +131,9 @@ class GreedyHeuristic():
         matching_nodes = []
 
         for node in self.node_list:
-            if node.lower_task <= resource.task <= node.upper_task:
-                matching_nodes.append(node)
+            if node.lower_task != self.EOS_CODE and node.upper_task != self.EOS_CODE:
+                if node.lower_task <= resource.task <= node.upper_task:
+                    matching_nodes.append(node)
 
         return matching_nodes
     
