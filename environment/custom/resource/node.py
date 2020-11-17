@@ -1,4 +1,5 @@
 import sys
+from typing import List
 
 sys.path.append('.')
 
@@ -37,6 +38,11 @@ class Node():
         self.resources = []
 
         self.task_normalization_factor = task_normalization_factor
+        
+        # History stats
+        self.CPU_history = [self.CPU]
+        self.RAM_history = [self.RAM]
+        self.MEM_history = [self.MEM]
 
     def add_resource(self,
                      iteration_num,
@@ -69,6 +75,11 @@ class Node():
 
         self.resources.append(req)
 
+        # History stats
+        self.CPU_history.append(self.remaining_CPU)
+        self.RAM_history.append(self.remaining_RAM)
+        self.MEM_history.append(self.remaining_MEM)
+
         return [remaning_CPU, remaning_RAM, remaining_MEM]
 
 
@@ -78,6 +89,10 @@ class Node():
         self.remaining_MEM = self.MEM
 
         self.resources = []
+
+        self.CPU_history = [self.CPU]
+        self.RAM_history = [self.RAM]
+        self.MEM_history = [self.MEM]
 
     def validate(self, resource: Resource):
         
@@ -115,6 +130,32 @@ class Node():
             print(f'Percentage of penalized resources: {0:.2f}%')
             return
 
+        # within_range = 0
+
+        # low = int(round(self.lower_task[0] * self.task_normalization_factor))
+        # up = int(round(self.upper_task[0] * self.task_normalization_factor))
+
+        # for res in self.resources:
+        #     task = int(round(res.task[0] * self.task_normalization_factor))
+        #     if low <= task <= up:
+        #         within_range += 1
+
+        percentage_penalized = self.compute_percentage_penalized_resources()
+
+        print(f'Percentage of penalized resources: {percentage_penalized:.2f}%')
+        
+        CPU_load, RAM_load, MEM_load = self.compute_node_load()
+        print(f'Load CPU {CPU_load[0]:.2f}% | RAM {RAM_load[0]:.2f}% | MEM {MEM_load[0]:.2f}%')
+    
+    def compute_node_load(self):
+        CPU_load = (1 - self.remaining_CPU / self.CPU) * 100
+        RAM_load = (1 - self.remaining_RAM / self.RAM) * 100
+        MEM_load = (1 - self.remaining_MEM / self.MEM) * 100
+
+        return CPU_load, RAM_load, MEM_load
+
+    def compute_percentage_penalized_resources(self):
+        total_nodes = len(self.resources)
         within_range = 0
 
         low = int(round(self.lower_task[0] * self.task_normalization_factor))
@@ -125,13 +166,32 @@ class Node():
             if low <= task <= up:
                 within_range += 1
 
-        print(f'Percentage of penalized resources: {(1 - (within_range/total_nodes))*100:.2f}%')
+        percentage_penalized = (1 - (within_range/total_nodes))*100
 
+        return percentage_penalized
+
+    def print_history_stats(self):
+        print('CPU History')
+        print(np.asanyarray(self.CPU_history).flatten())
+        
+        print('RAM History')
+        print(np.asanyarray(self.RAM_history).flatten())
+
+        print('MEM History')
+        print(np.asanyarray(self.MEM_history).flatten())
+    
     def is_valid(self):
         if self.remaining_CPU >= 0 and self.remaining_RAM >= 0 and self.remaining_MEM >= 0:
             return True
         
         return False
+
+
+def compute_stats(node_list: List[None]) -> None:
+    max_CPU_load = 0
+    max_RAM_load = 0
+
+    return
 
 if __name__ == "__main__":
     batch_id = 0

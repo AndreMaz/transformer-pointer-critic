@@ -26,7 +26,10 @@ def test(env: ResourceEnvironment, agent: Agent, opts: dict, opt_solver, heurist
     env.bin_sample_size = opts['bin_sample_size'] + 1
 
     num_episodes = opts['num_episodes']
-
+    
+    num_iterations_before_node_reset = opts['num_iterations_before_node_reset']
+    env.num_iterations_before_node_reset = num_iterations_before_node_reset
+    
     env.reset_num_iterations() # Reset the env
     env.batch_size  = 1
     agent.batch_size = 1
@@ -36,72 +39,73 @@ def test(env: ResourceEnvironment, agent: Agent, opts: dict, opt_solver, heurist
     training_step = 0
     isDone = False
 
-    episode_rewards = np.zeros((agent.batch_size, agent.num_resources), dtype="float32")
+    episode_rewards = np.zeros((agent.batch_size, agent.num_resources * num_episodes), dtype="float32")
     current_state, bin_net_mask, resource_net_mask, mha_used_mask = env.reset()
     dec_input = agent.generate_decoder_input(current_state)
     
-    print(f'Testing with {agent.num_resources} resources and {env.bin_sample_size} bins')
+    print(f'Testing for {num_episodes} episodes with {agent.num_resources} resources and {env.bin_sample_size} bins')
 
-    # # Compute optimal values
-    # optimal_values = []
-    # if look_for_opt:
-    #     optimal_values = compute_opt_solutions(env, opt_solver)
-
-    # # Compute heuristic solutions
-    # heuristic_values = compute_heuristic_solutions(env, heuristic_solver)
-
-    print('Solving with nets...')
+    # print('Solving with nets...')
     start = time.time()
 
-    # attention_size = env.resource_sample_size + env.bin_sample_size
-    # resource_attentions = np.zeros((env.resource_sample_size, attention_size), dtype="float32")
-    # bin_attentions = np.zeros((env.resource_sample_size, attention_size), dtype="float32")
-    
     attentions = []
 
-    while not isDone:
-        print(f'Placing step {training_step} of {agent.num_resources}', end='\r')
-        # Select an action
-        bin_id,\
-        resource_id,\
-        decoded_resource,\
-        bin_net_mask,\
-        resources_probs,\
-        bins_probs = agent.act(
-            current_state,
-            dec_input,
-            bin_net_mask,
-            resource_net_mask,
-            mha_used_mask,
-            env.build_feasible_mask
-        )
+    while episode_count < num_episodes:
+        # Reached the end of episode. Reset for the next episode
+        if isDone:
+            isDone = False
+            current_state, bin_net_mask, resource_net_mask, mha_used_mask = env.reset()
+            # SOS input for resource Ptr Net
+            dec_input = agent.generate_decoder_input(current_state)
+            training_step = 0
 
-        # Play one step
-        next_state, reward, isDone, info = env.step(
-            bin_id,
-            resource_id,
-            bin_net_mask
-        )
-                
-        # Store episode rewards
-        episode_rewards[:, training_step] = reward[:, 0]
+        while not isDone:
+            print(f'Episode {episode_count} Placing step {training_step} of {agent.num_resources}', end='\r')
+            # Select an action
+            bin_id,\
+            resource_id,\
+            decoded_resource,\
+            bin_net_mask,\
+            resources_probs,\
+            bins_probs = agent.act(
+                current_state,
+                dec_input,
+                bin_net_mask,
+                resource_net_mask,
+                mha_used_mask,
+                env.build_feasible_mask
+            )
 
-        attentions.append({
-            'resource_net_input': np.array(dec_input),
-            'bin_net_input': decoded_resource.numpy(),
-            'resource_attention': resources_probs.numpy(),
-            "bin_attention": bins_probs.numpy(),
-            "current_state": current_state.copy()
-        })
+            # Play one step
+            next_state, reward, isDone, info = env.step(
+                bin_id,
+                resource_id,
+                bin_net_mask
+            )
+                    
+            # Store episode rewards
+            episode_rewards[:, training_step] = reward[:, 0]
 
-        # Update for next iteration
-        dec_input = decoded_resource
-        current_state = next_state
-        bin_net_mask = info['bin_net_mask']
-        resource_net_mask = info['resource_net_mask']
-        mha_used_mask = info['mha_used_mask']
-        
-        training_step += 1
+            attentions.append({
+                'resource_net_input': np.array(dec_input),
+                'bin_net_input': decoded_resource.numpy(),
+                'resource_attention': resources_probs.numpy(),
+                "bin_attention": bins_probs.numpy(),
+                "current_state": current_state.copy()
+            })
+
+            # Update for next iteration
+            dec_input = decoded_resource
+            current_state = next_state
+            bin_net_mask = info['bin_net_mask']
+            resource_net_mask = info['resource_net_mask']
+            mha_used_mask = info['mha_used_mask']
+            
+            training_step += 1
+
+        episode_count += 1
+
+    env.print_history()
 
     if env.validate_history() == True:
         print('All solutions are valid!')
@@ -115,22 +119,6 @@ def test(env: ResourceEnvironment, agent: Agent, opts: dict, opt_solver, heurist
     
     if look_for_opt == False:
         optimal_values = len(episode_rewards) * [0]
-
-    # stats = zip(optimal_values, episode_rewards, heuristic_values)
-    
-    # for opt_val, net_val, heu_val in stats:
-    #     if look_for_opt == True:
-    #         # Net to Opt distance
-    #         d_from_opt_net = 100 - (net_val * 100 / opt_val)
-    #         # Heuristic to Opt distance
-    #         d_from_opt_heu = 100 - (heu_val * 100 / opt_val)
-
-    #         print(f'Opt {opt_val} \t| Net {net_val} \t| % from Opt {d_from_opt_net:.2f} \t || Heuristic {heu_val} \t| % from Opt {d_from_opt_heu:.2f}')
-    #     else:
-    #         # Net to Heuristic Distance
-    #         d_from_opt = 100 - (net_val * 100 / heu_val)
-
-    #         print(f'Net {net_val} \t| Heuristic {heu_val} \t| % from Heuristic {d_from_opt:.2f}')
 
     # Plot the attentions to visualize the policy
     # plot_attentions(
