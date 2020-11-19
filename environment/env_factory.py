@@ -1,3 +1,5 @@
+from environment.base.base import BaseEnvironment
+from typing import List
 from environment.gym.env import GymEnvironment
 
 from environment.custom.knapsack.env_v2 import KnapsackV2
@@ -11,13 +13,14 @@ from environment.custom.vrp.env import CVRP
 # from environment.custom.vrp.heuristic import solver as CVRPHeuristic
 
 from environment.custom.resource.env import ResourceEnvironment
+from environment.custom.resource.heuristic import GreedyHeuristic
 from environment.custom.resource.tester import test as ResourceTester
 from environment.custom.resource.plotter import plotter as ResourcePlotter
 
 custom_envs = {
     "KnapsackV2": (KnapsackV2, KnapsackSolver, KnapsackHeuristic, KnapsackTester, KnapsackPlotter),
     "CVRP": (CVRP, None, None),
-    "Resource": (ResourceEnvironment, None, None, ResourceTester, ResourcePlotter),
+    "Resource": (ResourceEnvironment, None, GreedyHeuristic, ResourceTester, ResourcePlotter),
 }
 
 def env_factory(type, name, opts):

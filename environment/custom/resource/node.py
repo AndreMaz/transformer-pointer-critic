@@ -1,3 +1,4 @@
+from os import stat
 import sys
 from typing import List
 
@@ -44,6 +45,9 @@ class Node():
         self.RAM_history = [self.RAM]
         self.MEM_history = [self.MEM]
 
+        self.premium_reqs = 0
+        self.free_reqs = 0
+
     def add_resource(self,
                      iteration_num,
                      id,
@@ -57,7 +61,7 @@ class Node():
 
         return self.insert_resource(req)
 
-    def insert_resource(self, req):
+    def insert_resource(self, req: Resource):
 
         remaning_CPU = 0
         remaning_RAM = 0
@@ -80,6 +84,11 @@ class Node():
         self.RAM_history.append(self.remaining_RAM)
         self.MEM_history.append(self.remaining_MEM)
 
+        if req.request_type == 1:
+            self.premium_reqs += 1
+        else:
+            self.free_reqs += 1
+
         return [remaning_CPU, remaning_RAM, remaining_MEM]
 
 
@@ -93,6 +102,9 @@ class Node():
         self.CPU_history = [self.CPU]
         self.RAM_history = [self.RAM]
         self.MEM_history = [self.MEM]
+
+        self.premium_reqs = 0
+        self.free_reqs = 0
 
     def validate(self, resource: Resource):
         
@@ -120,14 +132,14 @@ class Node():
         else:
             print(f'Node ID: {self.id} \t| Remaining CPU: {np.around(self.remaining_CPU, decimals=4)} of {self.CPU} \t| Remaining RAM: {np.around(self.remaining_RAM, decimals=4)} of {self.RAM} \t| Remaining MEM: {np.around(self.remaining_MEM, decimals=4)} of {self.MEM} \t| Lower Task: {self.lower_task[0]:1f} \t| Upper Task: {self.upper_task[0]:1f}')
         
-        print('Resources allocated to the Node:')
-        if len(self.resources) == 0: print('<Empty>')
-        for res in self.resources:
-            res.print()
+        # print('Resources allocated to the Node:')
+        # if len(self.resources) == 0: print('<Empty>')
+        # for res in self.resources:
+        #     res.print()
 
         total_nodes = len(self.resources)
         if total_nodes == 0 or self.id == 0: 
-            print(f'Percentage of penalized resources: {0:.2f}%')
+            print(f'Total Requests {total_nodes}. Premium {self.premium_reqs} and Free {self.free_reqs}. Percentage of penalized resources: {0:.2f}%')
             return
 
         # within_range = 0
@@ -142,7 +154,7 @@ class Node():
 
         percentage_penalized = self.compute_percentage_penalized_resources()
 
-        print(f'Percentage of penalized resources: {percentage_penalized:.2f}%')
+        print(f'Total Requests {total_nodes}. Premium {self.premium_reqs} and Free {self.free_reqs}. Percentage of penalized resources: {percentage_penalized:.2f}%')
         
         CPU_load, RAM_load, MEM_load = self.compute_node_load()
         print(f'Load CPU {CPU_load[0]:.2f}% | RAM {RAM_load[0]:.2f}% | MEM {MEM_load[0]:.2f}%')
@@ -156,6 +168,9 @@ class Node():
 
     def compute_percentage_penalized_resources(self):
         total_nodes = len(self.resources)
+
+        if total_nodes == 0: return 0
+
         within_range = 0
 
         low = int(round(self.lower_task[0] * self.task_normalization_factor))
@@ -186,12 +201,27 @@ class Node():
         
         return False
 
+    def get_stats(self) -> dict:
+        stats = {}
 
-def compute_stats(node_list: List[None]) -> None:
-    max_CPU_load = 0
-    max_RAM_load = 0
+        stats['node_id'] = self.id
+        stats['num_resources'] = len(self.resources)
+        stats['percentage_penalized_resources'] = self.compute_percentage_penalized_resources()
 
-    return
+        stats['CPU_History'] = np.asanyarray(self.CPU_history).flatten()
+        stats['RAM_History'] = np.asanyarray(self.RAM_history).flatten()
+        stats['MEM_History'] = np.asanyarray(self.MEM_history).flatten()
+        
+        CPU_load, RAM_load, MEM_load = self.compute_node_load()
+
+        stats['CPU_load'] = CPU_load
+        stats['RAM_load'] = RAM_load
+        stats['MEM_load'] = MEM_load
+
+        stats['premium_reqs'] = self.premium_reqs
+        stats['free_reqs'] = self.free_reqs
+
+        return stats
 
 if __name__ == "__main__":
     batch_id = 0

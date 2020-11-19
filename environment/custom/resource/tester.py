@@ -29,12 +29,11 @@ def test(env: ResourceEnvironment, agent: Agent, opts: dict, opt_solver, heurist
     
     num_iterations_before_node_reset = opts['num_iterations_before_node_reset']
     env.num_iterations_before_node_reset = num_iterations_before_node_reset
-    
+
     env.reset_num_iterations() # Reset the env
     env.batch_size  = 1
     agent.batch_size = 1
-
-
+    
     episode_count = 0
     training_step = 0
     isDone = False
@@ -50,6 +49,11 @@ def test(env: ResourceEnvironment, agent: Agent, opts: dict, opt_solver, heurist
 
     attentions = []
 
+    # Init the heuristic solver
+    # This will parse nodes/bins
+    solver = heuristic_solver(env, opts['heuristic']['greedy'])
+    state_list = [current_state]
+
     while episode_count < num_episodes:
         # Reached the end of episode. Reset for the next episode
         if isDone:
@@ -58,6 +62,9 @@ def test(env: ResourceEnvironment, agent: Agent, opts: dict, opt_solver, heurist
             # SOS input for resource Ptr Net
             dec_input = agent.generate_decoder_input(current_state)
             training_step = 0
+
+            # Store the states for the heuristic
+            state_list.append(current_state)
 
         while not isDone:
             print(f'Episode {episode_count} Placing step {training_step} of {agent.num_resources}', end='\r')
@@ -105,14 +112,20 @@ def test(env: ResourceEnvironment, agent: Agent, opts: dict, opt_solver, heurist
 
         episode_count += 1
 
-    env.print_history()
-
     if env.validate_history() == True:
         print('All solutions are valid!')
     else:
         print('Ups! Network generated invalid solutions')
 
     print(f'Done! Net solutions found in {time.time() - start:.2f} seconds')
+
+    for state in state_list:
+         solver.solve(state)
+
+
+    env.print_history()
+    print('________________________________________________________________________________')    
+    solver.print_node_stats()
 
     # print(episode_rewards)
     episode_rewards = np.sum(episode_rewards, axis=-1)

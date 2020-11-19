@@ -46,7 +46,7 @@ class GreedyHeuristic():
 
         assert batch_size == 1, 'Heuristic only works for problems with batch size equal to 1!'
 
-        nodes = state[0, :env.bin_sample_size, :]
+        nodes = state[0, :self.env.bin_sample_size, :]
         # resources = state[:, env.bin_sample_size:, :]
         
         node_list = []
@@ -72,7 +72,7 @@ class GreedyHeuristic():
 
         assert batch_size == 1, 'Heuristic only works for problems with batch size equal to 1!'
 
-        resources = state[0, env.bin_sample_size:, :]
+        resources = state[0, self.env.bin_sample_size:, :]
 
         resource_list = []
         for id, resource in enumerate(resources):
@@ -104,11 +104,13 @@ class GreedyHeuristic():
             # Look for nodes that have cached info
             matching_nodes = self.find_matching_nodes(resource)
 
-            if len(matching_nodes) != 0:
-                candidate_nodes: List[Node] = sorted(matching_nodes, key=node_sorting_fn, reverse=True)
-            else:
-                candidate_nodes: List[Node] = sorted(self.node_list, key=node_sorting_fn, reverse=True)
+            matching_nodes: List[Node] = sorted(matching_nodes, key=node_sorting_fn, reverse=True)
+            complete_list: List[Node] = sorted(self.node_list, key=node_sorting_fn, reverse=True)
 
+            # Concate matching nodes and then the complete list
+            candidate_nodes = matching_nodes + complete_list
+
+            # Now do the fit first
             allocated = False
             for node in candidate_nodes:
                 if node.lower_task != self.EOS_CODE and node.upper_task != self.EOS_CODE:
@@ -117,14 +119,15 @@ class GreedyHeuristic():
                     if isValid:
                         allocated = True
                         node.insert_resource(resource)
+                        break
             
             if not allocated:
                 self.EOS_NODE.insert_resource(resource)
             
             allocated = False
 
-        self.print_info(self.node_list)
-
+        # self.print_info(self.node_list)
+        
         return
     
     def find_matching_nodes(self, resource: Resource):
@@ -140,6 +143,11 @@ class GreedyHeuristic():
     def print_info(self, elem_list: list):
         for elem in elem_list:
             elem.print()
+            # print(elem.get_stats())
+
+    def print_node_stats(self):
+        for node in self.node_list:
+            node.print()
 
 def node_sorting_fn(node: Node):
     return (node.remaining_CPU, node.remaining_RAM, node.remaining_MEM)
