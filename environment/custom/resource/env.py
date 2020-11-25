@@ -459,9 +459,14 @@ class ResourceEnvironment(BaseEnvironment):
         in_range_mask[:, 0] = 0
 
         # Find feasible placement locations that are in range
-        feasible_in_range = (1 - feasible_mask) * in_range_mask
-        feasible_in_range = tf.maximum(feasible_in_range, bin_net_mask)
-        
+        feasible_in_range = tf.cast(
+            tf.logical_or(
+                tf.cast(feasible_mask, dtype='bool'),
+                tf.cast(in_range_mask, dtype='bool')
+            ),
+            dtype='float32'
+        )
+
         # Stack both masks
         stacked_masks = tf.concat(
             [
@@ -474,13 +479,13 @@ class ResourceEnvironment(BaseEnvironment):
         batch_indices = tf.range(batch, dtype='int32')
         
         # See if all IN_RANGE locations are masked
-        all_masked = tf.reduce_all(
-            tf.cast(feasible_in_range[:, 1:num_bins], dtype='bool'), -1)
-        
-        result_indices = tf.cast(all_masked, dtype='int32')
+        sum = tf.reduce_sum(feasible_in_range[:, 1:num_bins], axis=-1)
+        result_indices = 1 - tf.cast(tf.equal(sum, num_bins - 1), dtype='int32')
 
-        # Otherwise return the feasible mask
-        return feasible_mask
+        # result_indices = tf.cast(all_masked, dtype='int32')
+
+        return stacked_masks[batch_indices, result_indices]
+        # return feasible_mask
 
     def num_inserted_resources(self):
         num_inserted = 0
@@ -548,20 +553,27 @@ if __name__ == "__main__":
     # env.step(bin_ids, resource_ids)
     # env.rebuild_history()
 
-    state = np.array([
+    state = np.array([[
+                [  0.,   0.,   0.,   0.,   0.],     # Node EOS
+                [  1.,   2.,   3.,   0.,   2.],     # Node 1
+                [  5.,   5.,   5.,   0.,   3.],     # Node 2
+                [ 10.,  20.,  30.,   1.,   1.],     # Resource 1
+                [ 40.,  50.,  60.,   8.,   1.]],    # Resource 2
             [
-                [   0.,    0.,    0.,   0.,   0.],   # Node EOS
-                [ 1000., 2000., 3000.,   2.,   5.],  # Node 1
-                [ 4000., 5000., 6000.,   3.,   6.],  # Node 2
-                [ 100.,  200.,  300.,   0.,   1.],   # Resource 1
-                [ 400.,  500.,  600.,   8.,   1.]    # Resource 2
+                [   0.,    0.,    0.,   0.,   0.],  # Node EOS
+                [   1.,    2.,    3.,   2.,   5.],  # Node 1
+                [   4.,    5.,    6.,   3.,   6.],  # Node 2
+                [ 100.,  200.,  300.,   0.,   1.],  # Resource 1
+                [ 400.,  500.,  600.,   8.,   1.]   # Resource 2
             ]], dtype='float32')
 
     resources = np.array([
+        [10.,  20.,  30.,   1.,   1.],
         [400.,  500.,  600.,   8.,   1.]
     ], dtype='float32')    
 
     bin_net_mask = np.array([
+        [0., 0., 0., 1.,  1.],
         [0., 0., 0., 1.,  1.]
     ], dtype='float32')
     
