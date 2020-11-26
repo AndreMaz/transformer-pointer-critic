@@ -61,7 +61,8 @@ class GreedyHeuristic():
                     node[3],
                     node[4],
                     self.penalizer,
-                    self.task_normalization_factor
+                    self.task_normalization_factor,
+                    gather_stats=True
                 )
             )
         

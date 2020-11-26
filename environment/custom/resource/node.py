@@ -17,9 +17,12 @@ class Node():
                  lower_task,
                  upper_task,
                  penalizer,
-                 task_normalization_factor
+                 task_normalization_factor,
+                 gather_stats = False
                  ):
         super(Node, self).__init__()
+
+        self.gather_stats: bool = gather_stats
 
         self.batch_id = batch_id
         self.id = id
@@ -44,6 +47,7 @@ class Node():
         self.CPU_history = [self.CPU]
         self.RAM_history = [self.RAM]
         self.MEM_history = [self.MEM]
+        self.percentage_penalized_history = [0.0]
 
         self.premium_reqs = 0
         self.free_reqs = 0
@@ -80,9 +84,11 @@ class Node():
         self.resources.append(req)
 
         # History stats
-        self.CPU_history.append(self.remaining_CPU)
-        self.RAM_history.append(self.remaining_RAM)
-        self.MEM_history.append(self.remaining_MEM)
+        if self.gather_stats:
+            self.CPU_history.append(self.remaining_CPU)
+            self.RAM_history.append(self.remaining_RAM)
+            self.MEM_history.append(self.remaining_MEM)
+            self.percentage_penalized_history.append(self.compute_percentage_penalized_resources())
 
         if req.request_type == 1:
             self.premium_reqs += 1
@@ -102,6 +108,7 @@ class Node():
         self.CPU_history = [self.CPU]
         self.RAM_history = [self.RAM]
         self.MEM_history = [self.MEM]
+        self.percentage_penalized_history = [0.0]
 
         self.premium_reqs = 0
         self.free_reqs = 0
@@ -169,7 +176,7 @@ class Node():
     def compute_percentage_penalized_resources(self):
         total_nodes = len(self.resources)
 
-        if total_nodes == 0: return 0
+        if total_nodes == 0 or self.id == 0: return 0.0
 
         within_range = 0
 

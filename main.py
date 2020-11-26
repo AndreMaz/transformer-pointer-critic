@@ -41,8 +41,6 @@ def runner(env_type="custom", env_name='Resource', agent_name="tpc"):
     print('Training...')
     training_history = trainer(env, agent, trainer_config)
 
-    # env.print_history()
-
     # Plot the learning curve
     print('\nPlotting Results...')
     plotter(training_history, env, agent, agent_config, opt_solver, False)

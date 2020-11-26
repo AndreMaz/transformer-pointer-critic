@@ -3,7 +3,7 @@
     
     "trainer_config": {
         "description": "Trainer function configs.",
-        "n_iterations": 20000,
+        "n_iterations": 1,
         "n_steps_to_update": 20
     },
 
@@ -11,9 +11,9 @@
         "description": "Testing function configs.",
         "bin_sample_size": 10,
         "resource_sample_size": 40,
-        "num_episodes": 10,
-        "num_iterations_before_node_reset": 10,
-
+        "num_episodes": 15,
+        "num_iterations_before_node_reset": 15,
+        
         "heuristic": {
             "type": "greedy",
             "greedy": {
@@ -21,6 +21,10 @@
                 "node_sorting_order": "DESC",
                 "denormalize": true
             }
+        },
+
+        "export_stats": {
+            "location": "./results/resource/"
         }
     },
 
@@ -30,6 +34,8 @@
         "load_from_file": false,
         "location": "./environment/custom/knapsack/problem.json",
         
+        "gather_stats": false,
+
         "batch_size": 32,
         "num_features": 5,
         "num_resources": 200,

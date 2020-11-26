@@ -5,14 +5,14 @@ from environment.custom.resource.plotter import plot_attentions
 # from agents.optimum_solver import solver
 import numpy as np
 import time
-
+from datetime import datetime
 
 OPTIMAL = 'Optimal'
 HEURISTIC = 'Heuristic'
 
 def test(env: ResourceEnvironment, agent: Agent, opts: dict, opt_solver, heuristic_solver, look_for_opt: bool = False):
     # for _ in range(32):
-
+    
     # Set the agent to testing mode
     agent.training = False
     agent.stochastic_action_selection = False
@@ -42,6 +42,9 @@ def test(env: ResourceEnvironment, agent: Agent, opts: dict, opt_solver, heurist
     current_state, bin_net_mask, resource_net_mask, mha_used_mask = env.reset()
     dec_input = agent.generate_decoder_input(current_state)
     
+    # Allow nodes to gather the stats
+    env.set_testing_mode()
+
     print(f'Testing for {num_episodes} episodes with {agent.num_resources} resources and {env.bin_sample_size} bins')
 
     # print('Solving with nets...')
@@ -118,10 +121,12 @@ def test(env: ResourceEnvironment, agent: Agent, opts: dict, opt_solver, heurist
         print('Ups! Network generated invalid solutions')
 
     print(f'Done! Net solutions found in {time.time() - start:.2f} seconds')
+    
+    t = datetime.now().replace(microsecond=0).isoformat()
+    env.export_to_csv(f'./results/resource/net_{t}.csv')
 
     for state in state_list:
          solver.solve(state)
-
 
     env.print_history()
     print('________________________________________________________________________________')    

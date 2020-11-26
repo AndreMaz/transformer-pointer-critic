@@ -26,6 +26,8 @@ class ResourceEnvironment(BaseEnvironment):
         ##### PROBLEM CONFIGS FROM JSON FILE ######
         ###########################################
 
+        self.gather_stats: bool = opts['gather_stats']
+
         self.batch_size: int = opts['batch_size']
         self.num_features: int = opts['num_features']
         self.num_resources: int = opts['num_resources']
@@ -115,6 +117,13 @@ class ResourceEnvironment(BaseEnvironment):
         self.bin_net_mask,\
             self.resource_net_mask,\
             self.mha_used_mask = self.generate_masks()
+    
+    
+    def set_testing_mode(self) -> None:
+        node: History
+        for history_instance in self.history:
+            for node in history_instance:
+                node.gather_stats = True
 
     def reset_num_iterations(self):
         self.num_iterations = -1
@@ -536,6 +545,49 @@ class ResourceEnvironment(BaseEnvironment):
 
         return True        
 
+    def export_to_csv(self, location) -> None:
+        with open(location, 'w') as fp:
+
+            header = 'Step;Node;CPU;RAM;MEM;Percentage_Penalized\n'
+            fp.write(header)
+            for history_instance in self.history:
+                node: History
+                steps_list = []
+                for node in history_instance:
+                    steps_list.append(len(node.CPU_history))
+
+                for node in history_instance:
+                    max_steps = max(steps_list)
+                    for step in range(max_steps):
+                        try:
+                            current_CPU = node.CPU_history[step]
+                            current_RAM = node.RAM_history[step]
+                            current_MEM = node.MEM_history[step]
+                            percentage_penalized = node.percentage_penalized_history[step]
+                        except:
+                            last_step_in_node = len(node.CPU_history) - 1 
+                            current_CPU = node.CPU_history[last_step_in_node]
+                            current_RAM = node.RAM_history[last_step_in_node]
+                            current_MEM = node.MEM_history[last_step_in_node]
+                            percentage_penalized = node.percentage_penalized_history[last_step_in_node]
+
+                        CPU_load = np.array([0], dtype='float32')
+                        RAM_load = np.array([0], dtype='float32')
+                        MEM_load = np.array([0], dtype='float32')
+                        
+                        # Don't compute for EOS node
+                        if node.id != 0 and len(node.resources) != 0:
+                            CPU_load = (1 - current_CPU / node.CPU) * 100
+                            RAM_load = (1 - current_RAM / node.RAM) * 100
+                            MEM_load = (1 - current_MEM / node.MEM) * 100
+
+                        node_info = f'{step};{node.id};{CPU_load[0]:.2f};{RAM_load[0]:.2f};{MEM_load[0]:.2f};{percentage_penalized:.2f}\n'
+                        # print(node_info)
+                        fp.write(node_info)
+
+        fp.close()
+
+
 if __name__ == "__main__":
     env_name = 'Resource'
 
@@ -545,7 +597,9 @@ if __name__ == "__main__":
     env_config = params['env_config']
 
     env = ResourceEnvironment(env_name, env_config)
-    
+
+    env.export_to_csv("./results/resource/t.csv")
+
     # bin_ids = [1 , 2]
 
     # resource_ids = [3, 4]

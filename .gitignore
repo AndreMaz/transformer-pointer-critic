@@ -131,4 +131,5 @@ dmypy.json
 #
 media/plots
 logs/
+results/*
 .vscode/settings.json
