@@ -42,8 +42,8 @@ facet_labeller <- function(variable,value){
 
 ggplot(data = reshaped)+
   geom_point(aes(x=Step, y=Value, col=Type, group=Method), alpha=0.3)+
-  # geom_line(aes(x=Step, y=Value, col=Type, group=Type), linetype='dashed')+
-  # geom_line(aes(x=Step, y=Value, col=Type, group=Type), linetype='dotted')+
+  # geom_smooth(aes(x=Step, y=Value, col=Type, group=Type), alpha=0.3, span=0.3)+
+  # geom_line(aes(x=Step, y=Value, col=Type, group=Type), size=1.5, alpha=0.7)+
   facet_wrap(Node~Method, labeller = labeller(Node=label_both, Method=label_both) ,ncol = 4)+
   labs(x="Placement Step", y='Load (%)')+
   scale_x_discrete(breaks = seq(10, 600, by = 20))+
