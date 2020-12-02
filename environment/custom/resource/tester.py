@@ -1,6 +1,8 @@
 from environment.custom.resource.env import ResourceEnvironment
 from agents.agent import Agent
 from environment.custom.resource.plotter import plot_attentions
+from environment.custom.resource.utils import export_to_csv, compute_max_steps
+
 
 # from agents.optimum_solver import solver
 import numpy as np
@@ -122,15 +124,16 @@ def test(env: ResourceEnvironment, agent: Agent, opts: dict, opt_solver, heurist
 
     print(f'Done! Net solutions found in {time.time() - start:.2f} seconds')
     
-    t = datetime.now().replace(microsecond=0).isoformat()
-    env.export_to_csv(f'./results/resource/net_{t}.csv')
-
+    # Solve with Heuristic
     for state in state_list:
          solver.solve(state)
-
-    env.print_history()
-    print('________________________________________________________________________________')    
-    solver.print_node_stats()
+    
+    # Find the the node with maximum number of inserted resources
+    max_steps = compute_max_steps(env.history[0], solver.node_list)
+    # Export results to CSV
+    t = datetime.now().replace(microsecond=0).isoformat()
+    export_to_csv(env.history, max_steps, 'Neural', f'./results/resource/net_{t}.csv')
+    export_to_csv([solver.node_list], max_steps, 'Heuristic', f'./results/resource/heuristic_{t}.csv')
 
     # print(episode_rewards)
     episode_rewards = np.sum(episode_rewards, axis=-1)
