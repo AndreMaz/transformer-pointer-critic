@@ -32,20 +32,31 @@ branded_colors <- list(
 # Reshape into tall format
 reshaped <- melt(og_data, id.vars = c("Method", "Step","Node", "Percentage_Penalized"), variable.name = 'Type', value.name = 'Value')
 
+# Filter out the EOS node
 reshaped <- reshaped %>%
   # filter(Node != "Node 0")
   filter(Node != 0)
 
-facet_labeller <- function(variable,value){
-  return (value)
-}
-
+# Plot CPU, RAM and MEM utilization
 ggplot(data = reshaped)+
   geom_point(aes(x=Step, y=Value, col=Type, group=Method), alpha=0.3)+
   # geom_smooth(aes(x=Step, y=Value, col=Type, group=Type), alpha=0.3, span=0.3)+
   # geom_line(aes(x=Step, y=Value, col=Type, group=Type), size=1.5, alpha=0.7)+
   facet_wrap(Node~Method, labeller = labeller(Node=label_both, Method=label_both) ,ncol = 4)+
   labs(x="Placement Step", y='Load (%)')+
+  scale_x_discrete(breaks = seq(10, 600, by = 20))+
+  theme(
+    # legend.position="bottom",
+    # legend.title=element_blank()
+  )
+
+# Plot Resource Penalization
+ggplot(data = reshaped)+
+  geom_point(aes(x=Step, y=Percentage_Penalized, col=Method, group=Method), alpha=0.3)+
+  # geom_smooth(aes(x=Step, y=Value, col=Type, group=Type), alpha=0.3, span=0.3)+
+  # geom_line(aes(x=Step, y=Value, col=Type, group=Type), size=1.5, alpha=0.7)+
+  facet_wrap(~Node, labeller = labeller(Node=label_both) ,ncol = 4)+
+  labs(x="Placement Step", y='Penalized Resources (%)')+
   scale_x_discrete(breaks = seq(10, 600, by = 20))+
   theme(
     # legend.position="bottom",
