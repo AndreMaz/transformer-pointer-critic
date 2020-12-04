@@ -132,4 +132,5 @@ dmypy.json
 media/plots
 logs/
 results/*/*.csv
+model
 .vscode/settings.json

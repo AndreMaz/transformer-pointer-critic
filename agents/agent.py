@@ -2,7 +2,6 @@
 # from agents.transformer_pointer_critic.model.critic.model import CriticTransformer
 # from agents.transformer_pointer_critic.model.actor.model import ActorTransformer
 
-from turtle import back
 from agents.models.model_factory import model_factory
 
 import tensorflow_probability as tfp
@@ -293,3 +292,14 @@ class Agent():
             self.resource_actor.training = mode
             self.bin_actor.training = mode
             self.critic = mode
+
+    def save_weights(self, location):
+
+        self.resource_actor.save_weights(f'{location}/resource_actor')
+        self.bin_actor.save_weights(f'{location}/bin_actor')
+
+
+    def load_weights(self, location):
+
+        self.resource_actor.load_weights(f'{location}/resource_actor')
+        self.bin_actor.load_weights(f'{location}/bin_actor')
