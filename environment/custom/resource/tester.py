@@ -135,6 +135,11 @@ def test(env: ResourceEnvironment, agent: Agent, opts: dict, opt_solver, heurist
     export_to_csv(env.history, max_steps, 'Neural', f'./results/resource/net_{t}.csv')
     export_to_csv([solver.node_list], max_steps, 'Heuristic', f'./results/resource/heuristic_{t}.csv')
 
+
+    env.print_history()
+    print('________________________________________________________________________________')    
+    solver.print_node_stats()
+
     # print(episode_rewards)
     episode_rewards = np.sum(episode_rewards, axis=-1)
     

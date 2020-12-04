@@ -100,7 +100,7 @@ class ResourceEnvironment(BaseEnvironment):
             self.EOS_CODE
         )
 
-        self.tasks = list(range(0, self.num_task_types))
+        self.tasks = list(range(1, self.num_task_types + 1))
 
         self.EOS_BIN = np.full((1, self.num_features), self.EOS_CODE, dtype='float32')
         
@@ -597,6 +597,8 @@ if __name__ == "__main__":
     env_config = params['env_config']
 
     env = ResourceEnvironment(env_name, env_config)
+
+    print(env.total_bins)
 
     env.export_to_csv("./results/resource/t.csv")
 

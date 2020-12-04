@@ -11,8 +11,8 @@
         "description": "Testing function configs.",
         "bin_sample_size": 10,
         "resource_sample_size": 40,
-        "num_episodes": 15,
-        "num_iterations_before_node_reset": 15,
+        "num_episodes": 10,
+        "num_iterations_before_node_reset": 10,
         
         "heuristic": {
             "type": "greedy",
