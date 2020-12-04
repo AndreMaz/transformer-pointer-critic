@@ -53,14 +53,16 @@
         "num_task_types": 100,
 
         "reward": {
-            "type": "greedy",
+            "type": "fair",
             "greedy": {
                 "reward_per_level": [ 1, 2 ],
                 "misplace_penalty_factor": 0.5,
                 "correct_place_factor": 10
             },
             "fair": {
-
+                "reward_per_level": [ 1, 2 ],
+                "misplace_penalty_factor": 0.5,
+                "correct_place_factor": 10
             }
         },
         
