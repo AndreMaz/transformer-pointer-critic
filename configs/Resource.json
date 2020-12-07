@@ -3,7 +3,7 @@
     
     "trainer_config": {
         "description": "Trainer function configs.",
-        "n_iterations": 1000,
+        "n_iterations": 5000,
         "n_steps_to_update": 20
     },
 
@@ -55,7 +55,7 @@
         "reward": {
             "type": "greedy",
             "greedy": {
-                "reward_per_level": [ 1, 2 ],
+                "reward_per_level": [ 1, 5 ],
                 "misplace_penalty_factor": 2,
                 "correct_place_factor": 10,
                 "premium_rejected": -20,

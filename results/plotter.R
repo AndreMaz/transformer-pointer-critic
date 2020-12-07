@@ -118,7 +118,7 @@ ggplot(data = request_types_data_per_batch)+
   # geom_smooth(aes(x=Step, y=Value, col=Type, group=Type), alpha=0.3, span=0.3)+
   # geom_line(aes(x=Step, y=Value, col=Type, group=Type), size=1.5, alpha=0.7)+
   facet_wrap(Node~Method, labeller = labeller(Node=label_both) ,ncol = 4)+
-  labs(x="Placement Step", y='Cumulative Number of Resources')+
+  labs(x="Episode", y='Cumulative Number of Resources')+
   # scale_x_discrete(breaks = seq(10, 600, by = 20))+
   theme(
     # legend.position="bottom",
