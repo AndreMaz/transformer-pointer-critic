@@ -16,7 +16,7 @@ def compute_max_steps(nets, heuristic):
 def export_to_csv(history, max_steps, method: str, location) -> None:
         with open(location, 'w') as fp:
 
-            header = f'Method;Step;Node;CPU;RAM;MEM;Percentage_Penalized;Free;Premium\n'
+            header = f'Method;Step;Node;CPU;RAM;MEM;Percentage_Penalized;Free;Premium;Resource;Batch\n'
             fp.write(header)
             for history_instance in history:
                 node: Node
@@ -39,6 +39,7 @@ def export_to_csv(history, max_steps, method: str, location) -> None:
                             resource: Resource = node.resources[step]
 
                             resource_type = int(resource.request_type[0])
+                            resource_batch = resource.batch_id
                             if resource_type == 0:
                                 free_requests += 1
                             else:
@@ -50,6 +51,9 @@ def export_to_csv(history, max_steps, method: str, location) -> None:
                             current_MEM = node.MEM_history[last_step_in_node]
                             percentage_penalized = node.percentage_penalized_history[last_step_in_node]
 
+                            resource_type = 'NaN'
+                            resource_batch = 'NaN'
+
                         CPU_load = np.array([0], dtype='float32')
                         RAM_load = np.array([0], dtype='float32')
                         MEM_load = np.array([0], dtype='float32')
@@ -60,7 +64,7 @@ def export_to_csv(history, max_steps, method: str, location) -> None:
                             RAM_load = (1 - current_RAM / node.RAM) * 100
                             MEM_load = (1 - current_MEM / node.MEM) * 100
 
-                        node_info = f'{method};{step};{node.id};{CPU_load[0]:.2f};{RAM_load[0]:.2f};{MEM_load[0]:.2f};{percentage_penalized:.2f};{free_requests};{premium_request}\n'
+                        node_info = f'{method};{step};{node.id};{CPU_load[0]:.2f};{RAM_load[0]:.2f};{MEM_load[0]:.2f};{percentage_penalized:.2f};{free_requests};{premium_request};{resource_type};{resource_batch}\n'
                         # print(node_info)
                         fp.write(node_info)
 

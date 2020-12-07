@@ -3,7 +3,7 @@
     
     "trainer_config": {
         "description": "Trainer function configs.",
-        "n_iterations": 100,
+        "n_iterations": 1000,
         "n_steps_to_update": 20
     },
 
@@ -11,8 +11,8 @@
         "description": "Testing function configs.",
         "bin_sample_size": 10,
         "resource_sample_size": 40,
-        "num_episodes": 10,
-        "num_iterations_before_node_reset": 10,
+        "num_episodes": 15,
+        "num_iterations_before_node_reset": 15,
         
         "heuristic": {
             "type": "greedy",
@@ -56,8 +56,10 @@
             "type": "greedy",
             "greedy": {
                 "reward_per_level": [ 1, 2 ],
-                "misplace_penalty_factor": 0.5,
-                "correct_place_factor": 10
+                "misplace_penalty_factor": 2,
+                "correct_place_factor": 10,
+                "premium_rejected": -20,
+                "free_rejected": 0
             },
             "fair": {
                 "reward_per_level": [ 1, 2 ],

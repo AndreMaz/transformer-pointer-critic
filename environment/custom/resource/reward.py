@@ -28,6 +28,9 @@ class GreedyReward():
         self.reward_per_level = opts['reward_per_level']
         self.misplace_penalty_factor = opts['misplace_penalty_factor']
         self.correct_place_factor = opts['correct_place_factor']
+        self.premium_rejected = opts['premium_rejected']
+        self.free_rejected = opts['free_rejected']
+
         self.penalizer = penalizer
         self.EOS_CODE = EOS_CODE
 
@@ -64,7 +67,7 @@ class GreedyReward():
         # Give negative reward
         if request_type == 1 and bin_upper_type == self.EOS_CODE:
             if not np.all(feasible_mask[1:] == 1):
-                reward = -1 * reward
+                reward = self.premium_rejected
 
         # If free request is placed at EOS
         if request_type == 0 and bin_upper_type == self.EOS_CODE:
