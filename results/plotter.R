@@ -30,15 +30,15 @@ branded_colors <- list(
 )
 
 # Reshape into tall format
-reshaped <- melt(og_data, id.vars = c("Method", "Step","Node", "Percentage_Penalized"), variable.name = 'Type', value.name = 'Value')
+reshaped <- melt(og_data, id.vars = c("Method", "Step","Node", "Percentage_Penalized", "Free", "Premium"), variable.name = 'Type', value.name = 'Value')
 
 # Filter out the EOS node
-reshaped <- reshaped %>%
+resource_stats <- reshaped %>%
   # filter(Node != "Node 0")
   filter(Node != 0)
 
 # Plot CPU, RAM and MEM utilization
-ggplot(data = reshaped)+
+ggplot(data = resource_stats)+
   geom_point(aes(x=Step, y=Value, col=Type, group=Method), alpha=0.3)+
   # geom_smooth(aes(x=Step, y=Value, col=Type, group=Type), alpha=0.3, span=0.3)+
   # geom_line(aes(x=Step, y=Value, col=Type, group=Type), size=1.5, alpha=0.7)+
@@ -51,12 +51,31 @@ ggplot(data = reshaped)+
   )
 
 # Plot Resource Penalization
-ggplot(data = reshaped)+
+ggplot(data = resource_stats)+
   geom_point(aes(x=Step, y=Percentage_Penalized, col=Method, group=Method), alpha=0.3)+
   # geom_smooth(aes(x=Step, y=Value, col=Type, group=Type), alpha=0.3, span=0.3)+
   # geom_line(aes(x=Step, y=Value, col=Type, group=Type), size=1.5, alpha=0.7)+
   facet_wrap(~Node, labeller = labeller(Node=label_both) ,ncol = 4)+
   labs(x="Placement Step", y='Penalized Resources (%)')+
+  scale_x_discrete(breaks = seq(10, 600, by = 20))+
+  theme(
+    # legend.position="bottom",
+    # legend.title=element_blank()
+  )
+
+
+##### Plot the type of resources that where inserted ####
+
+# Reshape into tall format
+request_types_data <- melt(og_data, id.vars = c("Method", "Step","Node", "Percentage_Penalized", "CPU", "MEM", "RAM"), variable.name = 'Type', value.name = 'Value')
+
+# Plot Resource Type Placement
+ggplot(data = request_types_data)+
+  geom_point(aes(x=Step, y=Value, col=Type, group=Method), alpha=0.3)+
+  # geom_smooth(aes(x=Step, y=Value, col=Type, group=Type), alpha=0.3, span=0.3)+
+  # geom_line(aes(x=Step, y=Value, col=Type, group=Type), size=1.5, alpha=0.7)+
+  facet_wrap(Node~Method, labeller = labeller(Node=label_both) ,ncol = 4)+
+  labs(x="Placement Step", y='Cumulative Number of Resources')+
   scale_x_discrete(breaks = seq(10, 600, by = 20))+
   theme(
     # legend.position="bottom",

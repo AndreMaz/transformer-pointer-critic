@@ -529,12 +529,12 @@ class ResourceEnvironment(BaseEnvironment):
         
         self.history = history
 
-    def print_history(self) -> None:
+    def print_history(self, print_details = False) -> None:
 
         for batch_id in range(self.batch_size):
             print('_________________________________')
             for bp in self.history[batch_id]:
-                bp.print()
+                bp.print(print_details)
             print('_________________________________')
 
     def validate_history(self):

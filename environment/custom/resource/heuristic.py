@@ -146,9 +146,9 @@ class GreedyHeuristic():
             elem.print()
             # print(elem.get_stats())
 
-    def print_node_stats(self):
+    def print_node_stats(self, print_details = False):
         for node in self.node_list:
-            node.print()
+            node.print(print_details)
 
 def node_sorting_fn(node: Node):
     return (node.remaining_CPU, node.remaining_RAM, node.remaining_MEM)

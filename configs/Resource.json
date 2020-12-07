@@ -3,7 +3,7 @@
     
     "trainer_config": {
         "description": "Trainer function configs.",
-        "n_iterations": 1,
+        "n_iterations": 100,
         "n_steps_to_update": 20
     },
 
@@ -38,7 +38,7 @@
 
         "batch_size": 32,
         "num_features": 5,
-        "num_resources": 200,
+        "num_resources": 50,
         "num_bins": 15,
         "EOS_CODE": 0,
 
@@ -50,10 +50,10 @@
         "num_iterations_before_node_reset": 10,
         
         "num_user_levels": 1,
-        "num_task_types": 100,
+        "num_task_types": 50,
 
         "reward": {
-            "type": "fair",
+            "type": "greedy",
             "greedy": {
                 "reward_per_level": [ 1, 2 ],
                 "misplace_penalty_factor": 0.5,

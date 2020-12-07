@@ -45,6 +45,7 @@ def test(env: ResourceEnvironment, agent: Agent, opts: dict, opt_solver, heurist
     dec_input = agent.generate_decoder_input(current_state)
     
     # Allow nodes to gather the stats
+    env.rebuild_history()
     env.set_testing_mode()
 
     print(f'Testing for {num_episodes} episodes with {agent.num_resources} resources and {env.bin_sample_size} bins')
@@ -136,9 +137,9 @@ def test(env: ResourceEnvironment, agent: Agent, opts: dict, opt_solver, heurist
     export_to_csv([solver.node_list], max_steps, 'Heuristic', f'./results/resource/heuristic_{t}.csv')
 
 
-    env.print_history()
+    env.print_history(False)
     print('________________________________________________________________________________')    
-    solver.print_node_stats()
+    solver.print_node_stats(False)
 
     # print(episode_rewards)
     episode_rewards = np.sum(episode_rewards, axis=-1)
