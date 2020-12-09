@@ -27,6 +27,7 @@ class ResourceEnvironment(BaseEnvironment):
         ###########################################
 
         self.gather_stats: bool = opts['gather_stats']
+        self.unique_elements_in_batch: bool = opts['unique_elements_in_batch']
 
         self.batch_size: int = opts['batch_size']
         self.num_features: int = opts['num_features']
@@ -109,6 +110,14 @@ class ResourceEnvironment(BaseEnvironment):
         # Generate the IDs of the resources and bins
         self.binIDS = list(range(1, self.num_bins)) # Skip the 0 because it will be allways the EOS bin
         self.resourceIDS = list(range(0, self.num_resources))
+        
+        # Allow (or not) repeated nodes and requests to be in the batch
+        if self.unique_elements_in_batch:
+            self.generate_batch = self.generate_unique_batch
+            self.generate_resources = self.generate_unique_resources
+        else:
+            self.generate_batch = self.generate_repeated_batch
+            self.generate_resources = self.generate_repeated_resources
 
         # Problem batch
         self.batch, self.history = self.generate_batch()
@@ -276,7 +285,7 @@ class ResourceEnvironment(BaseEnvironment):
 
         return bins, resources
 
-    def generate_resources(self):
+    def generate_unique_resources(self):
         elem_size = self.resource_sample_size
         batch = np.zeros((self.batch_size, elem_size, self.num_features), dtype='float32')
 
@@ -300,7 +309,31 @@ class ResourceEnvironment(BaseEnvironment):
 
         return batch
 
-    def generate_batch(self):
+    def generate_repeated_resources(self):
+        elem_size = self.resource_sample_size
+        batch = np.zeros((self.batch_size, elem_size, self.num_features), dtype='float32')
+
+        for batch_id in range(self.batch_size):
+
+            # Shuffle the resources and select a sample
+            # np.random.shuffle(self.resourceIDS)
+            # resources_sample_ids = self.resourceIDS[:self.resource_sample_size]
+
+            # start = self.bin_sample_size
+            # end = self.bin_sample_size + self.resource_sample_size
+            for i in range(self.resource_sample_size):
+                # Pop the ID
+                id = randrange(0, len(self.resourceIDS))
+                # Get the resource by ID
+                resource  = self.total_resources[id]
+                batch[batch_id, i, :] = resource
+                
+                # User type. e.g. premium or free
+                batch[batch_id, i, 4] = randint(0, self.num_user_levels)
+
+        return batch
+
+    def generate_unique_batch(self):
         history = []
 
         elem_size = self.bin_sample_size + self.resource_sample_size
@@ -359,6 +392,76 @@ class ResourceEnvironment(BaseEnvironment):
             for i in range(start, end):
                 # Pop the ID
                 id = resources_sample_ids.pop(0)
+                # Get the resource by ID
+                resource  = self.total_resources[id]
+                batch[batch_id, i, :] = resource
+                
+                # User type. e.g. premium or free
+                batch[batch_id, i, 4] = randint(0, self.num_user_levels)
+
+            history.append(problem)
+
+        return batch, history
+
+    def generate_repeated_batch(self):
+        history = []
+
+        elem_size = self.bin_sample_size + self.resource_sample_size
+
+        batch = np.zeros((self.batch_size, elem_size, self.num_features), dtype='float32')
+
+        for batch_id in range(self.batch_size):
+            problem = []
+            
+            # Set the EOS bin/node
+            batch[batch_id, 0] = self.EOS_BIN
+
+            problem.append(History(
+                batch_id,
+                0,
+                self.EOS_CODE,
+                self.EOS_CODE,
+                self.EOS_CODE,
+                self.EOS_CODE,
+                self.EOS_CODE,
+                self.penalizer,
+                self.task_normalization_factor
+            ))
+
+            # Shuffle the bins and select a sample
+            # np.random.shuffle(self.binIDS)
+            # bins_sample_ids = self.binIDS[:self.bin_sample_size - 1]
+
+            for i in range(1, self.bin_sample_size):
+                # Select the ID of the bin
+                id = randrange(1, len(self.binIDS))
+                # Get the bin by ID
+                bin = self.total_bins[id]
+
+                problem.append(History(
+                    batch_id,
+                    i,
+                    bin[0], # CPU
+                    bin[1], # RAM
+                    bin[2], # MEM
+                    bin[3], # Lower task
+                    bin[4], # Upper task
+                    self.penalizer,
+                    self.task_normalization_factor
+                ))
+
+                # Set the bin/node
+                batch[batch_id, i, :] = bin
+
+            # Shuffle the resources and select a sample
+            # np.random.shuffle(self.resourceIDS)
+            # resources_sample_ids = self.resourceIDS[:self.resource_sample_size]
+
+            start = self.bin_sample_size
+            end = self.bin_sample_size + self.resource_sample_size
+            for i in range(start, end):
+                # Select the resource ID
+                id = randrange(0, len(self.resourceIDS))
                 # Get the resource by ID
                 resource  = self.total_resources[id]
                 batch[batch_id, i, :] = resource
@@ -598,7 +701,7 @@ if __name__ == "__main__":
 
     env = ResourceEnvironment(env_name, env_config)
 
-    print(env.total_bins)
+    print(env.batch)
 
     env.export_to_csv("./results/resource/t.csv")
 

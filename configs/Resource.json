@@ -35,6 +35,7 @@
         "location": "./environment/custom/knapsack/problem.json",
         
         "gather_stats": false,
+        "unique_elements_in_batch": false,
 
         "batch_size": 32,
         "num_features": 5,
