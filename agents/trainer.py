@@ -79,6 +79,8 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict):
 
             training_step += 1
 
+            # print(f'CPU {np.average(current_state[:,1:env.bin_sample_size,0]):.5f} || RAM {np.average(current_state[:,1:env.bin_sample_size,1]):.5f} || MEM {np.average(current_state[:,1:env.bin_sample_size,2]):.5f}')
+
             # Grab the stats from the current episode
             if isDone:
                 episode_count += 1
