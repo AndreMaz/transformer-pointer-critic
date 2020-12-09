@@ -39,7 +39,9 @@ def runner(env_type="custom", env_name='Resource', agent_name="tpc"):
 
     # Train
     print('Training...')
+    # tf.profiler.experimental.start('logdir')
     training_history = trainer(env, agent, trainer_config)
+    # tf.profiler.experimental.stop()
 
     # Plot the learning curve
     print('\nPlotting Results...')

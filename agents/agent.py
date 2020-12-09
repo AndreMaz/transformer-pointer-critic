@@ -237,12 +237,12 @@ class Agent():
         )
 
         if self.stochastic_action_selection:
-            resource_ids = []
-            for batch_id in range(batch_size):
-                # Stochastic resource selection
-                dist_resource = tfp.distributions.Categorical(probs = resources_probs[batch_id])
-                # Sample from distribution
-                resource_ids.append(dist_resource.sample().numpy())
+            # resource_ids = []
+            # for batch_id in range(batch_size):
+            # Stochastic resource selection
+            dist_resource = tfp.distributions.Categorical(probs = resources_probs)
+            # Sample from distribution
+            resource_ids = dist_resource.sample()
         
         # Decode the resources
         decoded_resources = state[batch_indices, resource_ids]
@@ -270,11 +270,11 @@ class Agent():
         )
 
         if self.stochastic_action_selection:
-            bin_ids = []
-            for batch_id in range(batch_size):
-                # Stochastic bin selection
-                dist_bin = tfp.distributions.Categorical(probs = bins_probs[batch_id])
-                bin_ids.append(dist_bin.sample().numpy())
+            # bin_ids = []
+            # for batch_id in range(batch_size):
+            # Stochastic bin selection
+            dist_bin = tfp.distributions.Categorical(probs = bins_probs)
+            bin_ids = dist_bin.sample()
 
         # Decode the bin
         decoded_bin = state[batch_indices, bin_ids]
