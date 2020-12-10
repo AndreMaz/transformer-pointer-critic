@@ -8,6 +8,7 @@ sys.path.append('.')
 import json
 import numpy as np
 import tensorflow as tf
+import tensorflow_probability as tfp
 from random import randint, randrange
 
 from environment.base.base import BaseEnvironment
@@ -44,8 +45,10 @@ class ResourceEnvironment(BaseEnvironment):
 
         self.resource_normalization_factor: int = opts['resource_normalization_factor']
         self.task_normalization_factor: int = opts['task_normalization_factor']
+        
         self.num_iterations_before_node_reset: int = opts['num_iterations_before_node_reset']
-        self.num_iterations = 0
+        # self.num_iterations = 0
+        self.num_isDones = 0
     
         self.num_user_levels: int = opts['num_user_levels']
         # self.reward_per_level: List[int] = opts['reward_per_level']
@@ -135,14 +138,14 @@ class ResourceEnvironment(BaseEnvironment):
                 node.gather_stats = True
 
     def reset_num_iterations(self):
-        self.num_iterations = -1
+        self.num_isDones = -1
 
     def reset(self):
-        if self.num_iterations != -1 and self.num_iterations < self.num_iterations_before_node_reset:
+        if self.num_isDones != -1 and self.num_isDones < self.num_iterations_before_node_reset:
             new_resources = self.generate_resources()
             self.batch[:, self.bin_sample_size:, :] = new_resources
         else:
-            self.num_iterations = 0
+            self.num_isDones = 0
             self.batch, self.history = self.generate_batch()
 
         self.bin_net_mask,\
@@ -176,7 +179,7 @@ class ResourceEnvironment(BaseEnvironment):
 
             # Add resource to bin
             remaining_resources = node.add_resource(
-                self.num_iterations,        
+                self.num_isDones,        
                 resource_id,
                 resource[0],
                 resource[1],
@@ -222,7 +225,7 @@ class ResourceEnvironment(BaseEnvironment):
 
         if np.all(self.resource_net_mask == 1):
             isDone = True
-            self.num_iterations += 1
+            self.num_isDones += 1
         
         return self.batch.copy(), rewards, isDone, info
     
@@ -689,6 +692,33 @@ class ResourceEnvironment(BaseEnvironment):
                         fp.write(node_info)
 
         fp.close()
+    
+    def sample_action(self):
+
+        batch_indices = tf.range(self.batch.shape[0], dtype='int32')
+
+        resources_probs = np.random.uniform(size=self.bin_net_mask.shape)
+        resources_probs = tf.nn.softmax(resources_probs - (self.resource_net_mask*10e6), axis=-1)
+        
+        dist_resource = tfp.distributions.Categorical(probs = resources_probs)
+        resource_ids = dist_resource.sample()
+
+        # Decode the resources
+        decoded_resources = self.batch[batch_indices, resource_ids]
+        
+        bins_mask = self.build_feasible_mask(self.batch,
+                                             decoded_resources,
+                                             self.bin_net_mask
+                                             )
+
+        bins_probs = np.random.uniform(size=self.bin_net_mask.shape)
+        bins_probs = tf.nn.softmax(bins_probs - (bins_mask*10e6), axis=-1)
+
+        dist_bin = tfp.distributions.Categorical(probs = bins_probs)
+
+        bin_ids = dist_bin.sample()
+
+        return bin_ids, resource_ids, bins_mask
 
 
 if __name__ == "__main__":
@@ -703,7 +733,17 @@ if __name__ == "__main__":
 
     print(env.batch)
 
-    env.export_to_csv("./results/resource/t.csv")
+    bins_ids = [1]
+    _, resource_ids, bins_mask = env.sample_action()
+    a = env.step(bins_ids, resource_ids, bins_mask)
+    print(env.batch)
+    _, resource_ids, bins_mask = env.sample_action()
+    a = env.step(bins_ids, resource_ids, bins_mask)
+    print(env.batch)
+
+
+
+    # env.export_to_csv("./results/resource/t.csv")
 
     # bin_ids = [1 , 2]
 
@@ -712,29 +752,29 @@ if __name__ == "__main__":
     # env.step(bin_ids, resource_ids)
     # env.rebuild_history()
 
-    state = np.array([[
-                [  0.,   0.,   0.,   0.,   0.],     # Node EOS
-                [  1.,   2.,   3.,   0.,   2.],     # Node 1
-                [  5.,   5.,   5.,   0.,   3.],     # Node 2
-                [ 10.,  20.,  30.,   1.,   1.],     # Resource 1
-                [ 40.,  50.,  60.,   8.,   1.]],    # Resource 2
-            [
-                [   0.,    0.,    0.,   0.,   0.],  # Node EOS
-                [   1.,    2.,    3.,   2.,   5.],  # Node 1
-                [   4.,    5.,    6.,   3.,   6.],  # Node 2
-                [ 100.,  200.,  300.,   0.,   1.],  # Resource 1
-                [ 400.,  500.,  600.,   8.,   1.]   # Resource 2
-            ]], dtype='float32')
+    # state = np.array([[
+    #             [  0.,   0.,   0.,   0.,   0.],     # Node EOS
+    #             [  1.,   2.,   3.,   0.,   2.],     # Node 1
+    #             [  5.,   5.,   5.,   0.,   3.],     # Node 2
+    #             [ 10.,  20.,  30.,   1.,   1.],     # Resource 1
+    #             [ 40.,  50.,  60.,   8.,   1.]],    # Resource 2
+    #         [
+    #             [   0.,    0.,    0.,   0.,   0.],  # Node EOS
+    #             [   1.,    2.,    3.,   2.,   5.],  # Node 1
+    #             [   4.,    5.,    6.,   3.,   6.],  # Node 2
+    #             [ 100.,  200.,  300.,   0.,   1.],  # Resource 1
+    #             [ 400.,  500.,  600.,   8.,   1.]   # Resource 2
+    #         ]], dtype='float32')
 
-    resources = np.array([
-        [10.,  20.,  30.,   1.,   1.],
-        [400.,  500.,  600.,   8.,   1.]
-    ], dtype='float32')    
+    # resources = np.array([
+    #     [10.,  20.,  30.,   1.,   1.],
+    #     [400.,  500.,  600.,   8.,   1.]
+    # ], dtype='float32')    
 
-    bin_net_mask = np.array([
-        [0., 0., 0., 1.,  1.],
-        [0., 0., 0., 1.,  1.]
-    ], dtype='float32')
+    # bin_net_mask = np.array([
+    #     [0., 0., 0., 1.,  1.],
+    #     [0., 0., 0., 1.,  1.]
+    # ], dtype='float32')
     
-    env.bin_sample_size = 3 # For this test
-    env.build_feasible_mask(state, resources, bin_net_mask)
+    # env.bin_sample_size = 3 # For this test
+    # env.build_feasible_mask(state, resources, bin_net_mask)
