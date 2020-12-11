@@ -3,7 +3,7 @@
     
     "trainer_config": {
         "description": "Trainer function configs.",
-        "n_iterations": 2000,
+        "n_iterations": 1000,
         "n_steps_to_update": 20
     },
 
@@ -54,7 +54,7 @@
         "num_task_types": 50,
 
         "reward": {
-            "type": "greedy",
+            "type": "fair",
             "greedy": {
                 "reward_per_level": [ 1, 5 ],
                 "misplace_penalty_factor": 2,
@@ -63,9 +63,11 @@
                 "free_rejected": 0
             },
             "fair": {
-                "reward_per_level": [ 1, 2 ],
-                "misplace_penalty_factor": 0.5,
-                "correct_place_factor": 10
+                "reward_per_level": [ 1, 5 ],
+                "misplace_penalty_factor": 2,
+                "correct_place_factor": 10,
+                "premium_rejected": -20,
+                "free_rejected": 0
             }
         },
         
