@@ -46,19 +46,47 @@ resource_stats <- resource_stats %>%
   # filter(Node != "Node 0")
   filter(Node != 0)
 
+# Remove NaN batch entries
+resource_stats_per_batch <- resource_stats %>%
+  filter(Batch != "NaN")
+
+##################################
+###### RESOURCE UTILIZATION ######
+##################################
+
+########### VIEW BY STEP #########
+# # Plot CPU, RAM and MEM utilization
+# ggplot(data = resource_stats)+
+#   geom_point(aes(x=Step, y=Value, col=Type, group=Method), alpha=0.3)+
+#   # geom_smooth(aes(x=Step, y=Value, col=Type, group=Type), alpha=0.3, span=0.3)+
+#   # geom_line(aes(x=Step, y=Value, col=Type, group=Type), size=1.5, alpha=0.7)+
+#   facet_wrap(Node~Method, labeller = labeller(Node=label_both, Method=label_both) ,ncol = 4)+
+#   labs(x="Placement Step", y='Load (%)')+
+#   scale_x_discrete(breaks = seq(10, 600, by = 20))+
+#   theme(
+#     # legend.position="bottom",
+#     # legend.title=element_blank()
+#   )
+
+########### VIEW BY BATCH ########
 # Plot CPU, RAM and MEM utilization
-ggplot(data = resource_stats)+
-  geom_point(aes(x=Step, y=Value, col=Type, group=Method), alpha=0.3)+
+ggplot(data = resource_stats_per_batch)+
+  geom_point(aes(x=Batch, y=Value, col=Type, group=Method), alpha=0.3)+
   # geom_smooth(aes(x=Step, y=Value, col=Type, group=Type), alpha=0.3, span=0.3)+
   # geom_line(aes(x=Step, y=Value, col=Type, group=Type), size=1.5, alpha=0.7)+
-  facet_wrap(Node~Method, labeller = labeller(Node=label_both, Method=label_both) ,ncol = 4)+
-  labs(x="Placement Step", y='Load (%)')+
-  scale_x_discrete(breaks = seq(10, 600, by = 20))+
+  facet_wrap(Node~Method, labeller = labeller(Node=label_both) ,ncol = 4)+
+  labs(x="Episode", y='Load (%)')+
+  #scale_x_discrete(breaks = seq(10, 600, by = 20))+
   theme(
     # legend.position="bottom",
     # legend.title=element_blank()
   )
 
+##################################
+###### RESOURCE PENALIZATION #####
+##################################
+
+########### VIEW BY STEP #########
 # Plot Resource Penalization
 ggplot(data = resource_stats)+
   geom_point(aes(x=Step, y=Percentage_Penalized, col=Method, group=Method), alpha=0.3)+
@@ -72,8 +100,24 @@ ggplot(data = resource_stats)+
     # legend.title=element_blank()
   )
 
+########### VIEW BY BATCH ########
+# Plot Resource Penalization
+# ggplot(data = resource_stats_per_batch)+
+#   geom_point(aes(x=Batch, y=Percentage_Penalized, col=Method, group=Method), alpha=0.3)+
+#   # geom_smooth(aes(x=Step, y=Value, col=Type, group=Type), alpha=0.3, span=0.3)+
+#   # geom_line(aes(x=Step, y=Value, col=Type, group=Type), size=1.5, alpha=0.7)+
+#   facet_wrap(~Node, labeller = labeller(Node=label_both) ,ncol = 4)+
+#   labs(x="Batch", y='Penalized Resources (%)')+
+#   # scale_x_discrete(breaks = seq(10, 600, by = 20))+
+#   theme(
+#     # legend.position="bottom",
+#     # legend.title=element_blank()
+#   )
 
-##### Plot the type of resources that where inserted ####
+
+#####################################
+###### RESOURCE TYPE PLACEMENT ######
+#####################################
 
 # Reshape into tall format
 request_types_data <- melt(og_data, id.vars = c(
@@ -87,38 +131,32 @@ request_types_data <- melt(og_data, id.vars = c(
   "Resource",
   "Batch"), variable.name = 'Type', value.name = 'Value')
 
-##################################
+
 ########### VIEW BY STEP #########
-##################################
+# # Plot Resource Type Placement
+# ggplot(data = request_types_data)+
+#   geom_point(aes(x=Step, y=Value, col=Type, group=Method), alpha=0.3)+
+#   # geom_smooth(aes(x=Step, y=Value, col=Type, group=Type), alpha=0.3, span=0.3)+
+#   # geom_line(aes(x=Step, y=Value, col=Type, group=Type), size=1.5, alpha=0.7)+
+#   facet_wrap(Node~Method, labeller = labeller(Node=label_both) ,ncol = 4)+
+#   labs(x="Placement Step", y='Cumulative Number of Resources')+
+#   scale_x_discrete(breaks = seq(10, 600, by = 20))+
+#   theme(
+#     # legend.position="bottom",
+#     # legend.title=element_blank()
+#   )
 
-# Plot Resource Type Placement
-ggplot(data = request_types_data)+
-  geom_point(aes(x=Step, y=Value, col=Type, group=Method), alpha=0.3)+
-  # geom_smooth(aes(x=Step, y=Value, col=Type, group=Type), alpha=0.3, span=0.3)+
-  # geom_line(aes(x=Step, y=Value, col=Type, group=Type), size=1.5, alpha=0.7)+
-  facet_wrap(Node~Method, labeller = labeller(Node=label_both) ,ncol = 4)+
-  labs(x="Placement Step", y='Cumulative Number of Resources')+
-  scale_x_discrete(breaks = seq(10, 600, by = 20))+
-  theme(
-    # legend.position="bottom",
-    # legend.title=element_blank()
-  )
-
-
-##################################
 #### VIEW INSERTIONS BY BATCH ####
-##################################
-
 # Filter out the EOS node
 request_types_data_per_batch <- request_types_data %>%
   filter(Batch != "NaN")
 
 ggplot(data = request_types_data_per_batch)+
-  geom_point(aes(x=Batch, y=Value, col=Type, group=Method), alpha=0.3)+
+  geom_point(aes(x=Node, y=Value, col=Type, group=Method), alpha=0.3)+
   # geom_smooth(aes(x=Step, y=Value, col=Type, group=Type), alpha=0.3, span=0.3)+
   # geom_line(aes(x=Step, y=Value, col=Type, group=Type), size=1.5, alpha=0.7)+
-  facet_wrap(Node~Method, labeller = labeller(Node=label_both) ,ncol = 4)+
-  labs(x="Episode", y='Cumulative Number of Resources')+
+  facet_wrap(Batch~Method, labeller = labeller(Batch=label_both) ,ncol = 4)+
+  labs(x="Node", y='Cumulative Number of Resources')+
   # scale_x_discrete(breaks = seq(10, 600, by = 20))+
   theme(
     # legend.position="bottom",
