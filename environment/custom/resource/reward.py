@@ -127,8 +127,7 @@ class GreedyReward():
         penalties = self.penalizer.to_penalize_batch(
             bins_lower_type,
             bins_upper_type,
-            resources_types,
-            batch_size
+            resources_types
         )
 
         tiled_factors = tf.tile(self.mis_placement_tensor, [batch_size, 1], ).numpy()

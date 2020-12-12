@@ -73,7 +73,7 @@ class GreedyPenalty():
         
         return True
     
-    def to_penalize_batch(self, bin_lower_type, bin_upper_type, resource_type, batch_size):
+    def to_penalize_batch(self, bin_lower_type, bin_upper_type, resource_type):
         
         # resource_type = np.reshape(resource_type, (batch_size, 1))
 

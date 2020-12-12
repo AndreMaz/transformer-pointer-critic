@@ -84,13 +84,6 @@ class ResourceEnvironment(BaseEnvironment):
         ################################################
         
         # Class responsible for computing penalties for each placement
-        # self.penalizer = Penalty(
-        #     self.CPU_misplace_penalty,
-        #     self.RAM_misplace_penalty,
-        #     self.MEM_misplace_penalty,
-        #     self.EOS_CODE
-        # )
-
         self.penalizer = PenaltyFactory(
             opts['penalty'],
             self.EOS_CODE,
@@ -107,7 +100,7 @@ class ResourceEnvironment(BaseEnvironment):
         self.tasks = list(range(1, self.num_task_types + 1))
 
         self.EOS_BIN = np.full((1, self.num_features), self.EOS_CODE, dtype='float32')
-        
+
         self.total_bins, self.total_resources = self.generate_dataset()
 
         # Generate the IDs of the resources and bins
