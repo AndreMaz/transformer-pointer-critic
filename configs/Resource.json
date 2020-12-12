@@ -54,7 +54,7 @@
         "num_task_types": 50,
 
         "reward": {
-            "type": "fair",
+            "type": "greedy",
             "greedy": {
                 "reward_per_level": [ 1, 5 ],
                 "misplace_penalty_factor": 2,

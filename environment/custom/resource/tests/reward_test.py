@@ -26,7 +26,9 @@ class TestItem(unittest.TestCase):
         opts = {
             "reward_per_level": [ 10, 20 ],
             "misplace_penalty_factor": 0.5,
-            "correct_place_factor": 1
+            "correct_place_factor": 1,
+            "premium_rejected": -20,
+            "free_rejected": 0
         }
 
         self.rewarder = GreedyReward(

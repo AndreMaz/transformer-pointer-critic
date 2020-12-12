@@ -188,10 +188,6 @@ class ResourceEnvironment(BaseEnvironment):
                 resource[4],
             )
 
-            # No reward. Placed at EOS bin
-            # if bin_id == 0:
-            #    reward = 0
-            # else:
             # Compute reward
             reward = self.rewarder.compute_reward(
                 self.batch[batch_id],
@@ -229,6 +225,30 @@ class ResourceEnvironment(BaseEnvironment):
         
         return self.batch.copy(), rewards, isDone, info
     
+    def step_batch(self, bin_ids: list, resource_ids: list, feasible_bin_mask):
+        batch_size = self.batch.shape[0]
+        num_elems = self.batch.shape[1]
+        batch_indices = tf.range(batch_size, dtype='int32')
+        num_bins = self.bin_sample_size
+
+        # Grab the selected nodes and resources
+        bins = self.batch[batch_indices, bin_ids]
+        resources = self.batch[batch_indices, resource_ids]
+        
+        rewards = self.rewarder.compute_reward_batch(
+            self.batch,
+            num_bins,
+            bins,
+            resources,
+            feasible_bin_mask
+        )
+
+        # Compute the remaining resources at the nodes
+
+        # Update the MHA masks
+
+        return
+
     def generate_dataset(self):
         bins = np.zeros((self.num_bins, self.num_features), dtype='float32')
 
@@ -731,50 +751,37 @@ if __name__ == "__main__":
 
     env = ResourceEnvironment(env_name, env_config)
 
-    print(env.batch)
+    bin_ids = [0 , 2]
 
-    bins_ids = [1]
-    _, resource_ids, bins_mask = env.sample_action()
-    a = env.step(bins_ids, resource_ids, bins_mask)
-    print(env.batch)
-    _, resource_ids, bins_mask = env.sample_action()
-    a = env.step(bins_ids, resource_ids, bins_mask)
-    print(env.batch)
+    resource_ids = [3, 4]
 
+    state = np.array([[
+                [  0.,   0.,   0.,   0.,   0.],     # Node EOS
+                [  1.,   2.,   3.,   0.,   2.],     # Node 1
+                [  5.,   5.,   5.,   0.,   3.],     # Node 2
+                [ 10.,  20.,  30.,   1.,   1.],     # Resource 1
+                [ 40.,  50.,  60.,   8.,   1.]],    # Resource 2
+            [
+                [   0.,    0.,    0.,   0.,   0.],  # Node EOS
+                [   1.,    2.,    3.,   2.,   5.],  # Node 1
+                [ 4000., 5000., 6000.,   3.,   6.],  # Node 2
+                [ 100.,  200.,  300.,   0.,   1.],  # Resource 1
+                [ 400.,  500.,  600.,   8.,   1.]   # Resource 2
+            ]], dtype='float32')
 
+    resources = np.array([
+        [10.,  20.,  30.,   1.,   1.],
+        [400.,  500.,  600.,   8.,   1.]
+    ], dtype='float32')    
 
-    # env.export_to_csv("./results/resource/t.csv")
-
-    # bin_ids = [1 , 2]
-
-    # resource_ids = [3, 4]
-
-    # env.step(bin_ids, resource_ids)
-    # env.rebuild_history()
-
-    # state = np.array([[
-    #             [  0.,   0.,   0.,   0.,   0.],     # Node EOS
-    #             [  1.,   2.,   3.,   0.,   2.],     # Node 1
-    #             [  5.,   5.,   5.,   0.,   3.],     # Node 2
-    #             [ 10.,  20.,  30.,   1.,   1.],     # Resource 1
-    #             [ 40.,  50.,  60.,   8.,   1.]],    # Resource 2
-    #         [
-    #             [   0.,    0.,    0.,   0.,   0.],  # Node EOS
-    #             [   1.,    2.,    3.,   2.,   5.],  # Node 1
-    #             [   4.,    5.,    6.,   3.,   6.],  # Node 2
-    #             [ 100.,  200.,  300.,   0.,   1.],  # Resource 1
-    #             [ 400.,  500.,  600.,   8.,   1.]   # Resource 2
-    #         ]], dtype='float32')
-
-    # resources = np.array([
-    #     [10.,  20.,  30.,   1.,   1.],
-    #     [400.,  500.,  600.,   8.,   1.]
-    # ], dtype='float32')    
-
-    # bin_net_mask = np.array([
-    #     [0., 0., 0., 1.,  1.],
-    #     [0., 0., 0., 1.,  1.]
-    # ], dtype='float32')
+    bin_net_mask = np.array([
+        [0., 0., 0., 1.,  1.],
+        [0., 0., 0., 1.,  1.]
+    ], dtype='float32')
     
-    # env.bin_sample_size = 3 # For this test
-    # env.build_feasible_mask(state, resources, bin_net_mask)
+    env.bin_sample_size = 3 # For this test
+    env.batch = state
+
+    feasible_bin_mask = env.build_feasible_mask(state, resources, bin_net_mask)
+    
+    env.step_batch(bin_ids, resource_ids, feasible_bin_mask)

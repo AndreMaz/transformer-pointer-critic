@@ -19,6 +19,9 @@ class TestResource(unittest.TestCase):
 
             "load_from_file": False,
             "location": "./environment/custom/knapsack/problem.json",
+            
+            "gather_stats": False,
+            "unique_elements_in_batch": True,
 
             "batch_size": 2,
             "num_features": 5,
@@ -41,7 +44,9 @@ class TestResource(unittest.TestCase):
                 "greedy": {
                     "reward_per_level": [ 10, 20 ],
                     "misplace_penalty_factor": 5,
-                    "correct_place_factor": 1
+                    "correct_place_factor": 1,
+                    "premium_rejected": -20,
+                    "free_rejected": 0
                 },
                 "fair": {
 
@@ -139,6 +144,9 @@ class TestStepFn(unittest.TestCase):
             "load_from_file": False,
             "location": "./environment/custom/knapsack/problem.json",
 
+            "gather_stats": False,
+            "unique_elements_in_batch": True,
+
             "batch_size": 2,
             "num_features": 5,
             "num_resources": 100,
@@ -160,7 +168,9 @@ class TestStepFn(unittest.TestCase):
                 "greedy": {
                     "reward_per_level": [ 10, 20 ],
                     "misplace_penalty_factor": 0.5,
-                    "correct_place_factor": 1
+                    "correct_place_factor": 1,
+                    "premium_rejected": -20,
+                    "free_rejected": 0
                 },
                 "fair": {
 
