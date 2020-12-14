@@ -219,6 +219,9 @@ class ResourceEnvironment(BaseEnvironment):
         return self.batch.copy(), rewards, isDone, info
     
     def step_batch(self, bin_ids: list, resource_ids: list, feasible_bin_mask):
+        # Default is not done
+        isDone = False
+
         batch_size = self.batch.shape[0]
         num_elems = self.batch.shape[1]
         batch_indices = tf.range(batch_size, dtype='int32')
@@ -228,7 +231,7 @@ class ResourceEnvironment(BaseEnvironment):
         bins = self.batch[batch_indices, bin_ids]
         resources = self.batch[batch_indices, resource_ids]
         
-        rewards = self.rewarder.compute_reward_batch(
+        rewards, penalties, is_eos_bin = self.rewarder.compute_reward_batch(
             self.batch,
             num_bins,
             bins,
@@ -237,10 +240,37 @@ class ResourceEnvironment(BaseEnvironment):
         )
 
         # Compute the remaining resources at the nodes
+        remaining_resources = self.compute_remaining_resources(
+            batch_size,
+            num_elems,
+            resources,
+            bins,
+            penalties,
+            is_eos_bin
+        )
+        
+        self.batch[batch_indices, bin_ids, :3] = remaining_resources
 
         # Update the MHA masks
+        # Item taken mask it
+        self.resource_net_mask[batch_indices, resource_ids] = 1
+        self.mha_used_mask[batch_indices, :, :, resource_ids] = 1
 
-        return
+        if (np.all(self.batch[batch_indices, bin_ids, :3] == 0)):
+            self.bin_net_mask[batch_indices, bin_ids] = 1
+
+        info = {
+             'bin_net_mask': self.bin_net_mask.copy(),
+             'resource_net_mask': self.resource_net_mask.copy(),
+             'mha_used_mask': self.mha_used_mask.copy(),
+             'num_resource_to_place': self.num_resources
+        }
+
+        if np.all(self.resource_net_mask == 1):
+            isDone = True
+            self.num_isDones += 1
+        
+        return self.batch.copy(), tf.expand_dims(rewards, axis=0), isDone, info
 
     def generate_dataset(self):
         bins = np.zeros((self.num_bins, self.num_features), dtype='float32')
@@ -523,6 +553,29 @@ class ResourceEnvironment(BaseEnvironment):
         agent_config['vocab_size'] = len(self.total_bins) + len(self.total_resources)
     
         return agent_config
+
+    def compute_remaining_resources(self, batch_size, num_elements, resources, bins, penalties, is_eos_bin):
+
+        num_bins = bins.shape[0]
+        penalty_tensor = self.penalizer.tensor_representation()
+        penalty_tensor = tf.tile(penalty_tensor, [num_bins, 1])
+        penalty_tensor = tf.expand_dims(penalty_tensor, 0)
+
+        resource_demands = resources[:, :3]
+        bin_remaining_resources = bins[:, :3]
+
+        in_range_one_hot = tf.expand_dims(tf.cast(penalties, dtype='float32'), -1)
+
+        # Compute remaining resources after placement
+        remaining_resources = bin_remaining_resources - (resource_demands + in_range_one_hot * penalty_tensor)
+        
+        remaining_resources = remaining_resources * \
+            (1\
+                - \
+            tf.cast(tf.expand_dims(tf.expand_dims(is_eos_bin, axis=-1),axis=0),dtype='float32')
+            )
+
+        return remaining_resources
 
     def build_feasible_mask(self, state, resources, bin_net_mask):
         batch = state.shape[0]

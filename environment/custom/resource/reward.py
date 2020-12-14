@@ -163,7 +163,7 @@ class GreedyReward():
         # Final reward
         reward = base_rewards + reward_premium_and_bins_are_full
         
-        return reward
+        return reward, penalties, is_eos_bin
 
 def is_premium_wrongly_rejected_checker(are_bins_full, users_type, is_eos_bin):
     # If placed PREMIUM REQUEST at EOS while there were available nodes

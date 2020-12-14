@@ -8,7 +8,7 @@ from tensorflow.python.keras.backend import dtype
 sys.path.append('.')
 
 # Custom Imports
-from environment.custom.resource.reward import GreedyReward, bins_full_checker, bins_eos_checker, is_premium_wrongly_rejected
+from environment.custom.resource.reward import GreedyReward, bins_full_checker, bins_eos_checker, is_premium_wrongly_rejected_checker
 from environment.custom.resource.penalty import GreedyPenalty
 
 class TestItem(unittest.TestCase):
@@ -201,7 +201,7 @@ class TestItem(unittest.TestCase):
             [0.,   0.,   0.,   1.,   1.],
         ],dtype='float32')
 
-        actual_reward = self.rewarder.compute_reward_batch(
+        actual_reward, _, _ = self.rewarder.compute_reward_batch(
             batch, total_num_nodes, bin, resource, feasible_mask
         )
 
@@ -231,7 +231,7 @@ class TestItem(unittest.TestCase):
             [ 0.,  0.,  0.,   1.,   1.],
         ], dtype='float32') 
 
-        actual_reward = self.rewarder.compute_reward_batch(
+        actual_reward, _, _ = self.rewarder.compute_reward_batch(
             batch, total_num_nodes, bin, resource, feasible_bin_mask
         )
 
@@ -261,7 +261,7 @@ class TestItem(unittest.TestCase):
 
         expected_reward = [10]
     
-        actual_reward = self.rewarder.compute_reward_batch(
+        actual_reward, _, _ = self.rewarder.compute_reward_batch(
             batch, total_num_nodes, bin, resource, feasible_bin_mask
         )
 
@@ -291,7 +291,7 @@ class TestItem(unittest.TestCase):
 
         expected_reward = [5]
 
-        actual_reward = self.rewarder.compute_reward_batch(
+        actual_reward, _, _ = self.rewarder.compute_reward_batch(
             batch, total_num_nodes, bin, resource, feasible_bin_mask
         )
 
@@ -339,7 +339,7 @@ class TestItem(unittest.TestCase):
 
         expected_reward = [20, 10]
 
-        actual_reward = self.rewarder.compute_reward_batch(
+        actual_reward, _, _ = self.rewarder.compute_reward_batch(
             batch, total_num_nodes, bin, resource, feasible_bin_mask
         )
 
@@ -385,7 +385,7 @@ class TestItem(unittest.TestCase):
 
         expected_reward = [-20, 0]
 
-        actual_reward = self.rewarder.compute_reward_batch(
+        actual_reward, _, _ = self.rewarder.compute_reward_batch(
             batch, total_num_nodes, bin, resource, feasible_bin_mask
         )
 
@@ -451,7 +451,7 @@ class TestItem(unittest.TestCase):
 
         expected_reward = [20, 0, 10, 0]
 
-        actual_reward = self.rewarder.compute_reward_batch(
+        actual_reward, _, _ = self.rewarder.compute_reward_batch(
             batch, total_num_nodes, bin, resource, feasible_bin_mask
         )
 
@@ -519,6 +519,6 @@ class TestItem(unittest.TestCase):
             0,
             1  # Rejected while there were space
         ]
-        actual_result = is_premium_wrongly_rejected(are_bins_full, user_types, is_eos_bin)
+        actual_result = is_premium_wrongly_rejected_checker(are_bins_full, user_types, is_eos_bin)
 
         self.assertEqual(actual_result.numpy().tolist(), expected_result)
