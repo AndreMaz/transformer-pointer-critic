@@ -121,6 +121,11 @@ class GreedyReward():
         users_type = tf.cast(resources[:, 4], dtype="int32")
         resources_demands = resources[:, :3]
 
+        # Check if selected bins are EOS
+        # Marked as 1 = EOS node
+        # Marked as 0 = not a EOS node
+        is_eos_bin = bins_eos_checker(bins, self.EOS_CODE, num_features)
+
         # Check for the penalty
         # Marked as 1 = there's penalty involved
         # Marked as 0 = no penalty
@@ -137,32 +142,21 @@ class GreedyReward():
         
         base_rewards = factors * tiled_rewards_per_level[batch_indices, users_type]
         
-        # Check if selected bins are EOS
-        # Marked as 1 = EOS node
-        # Marked as 0 = not a EOS node
-        is_eos_bin = tf.cast(tf.equal(bins, self.EOS_CODE), dtype="int32")
-        # if all elements are equal to EOS code
-        # the result should be equal to the number of features
-        is_eos_bin = tf.reduce_sum(is_eos_bin, axis=-1)
-        is_eos_bin = tf.cast(tf.equal(is_eos_bin, num_features), dtype="int32")
-        
         # Set reward to ZERO for EOS nodes
         # If FREE REQUEST is placed at EOS reward will be ZERO
         base_rewards = base_rewards * (1 - is_eos_bin)
 
-        # Check if all nodes are full
-        are_bins_full = tf.cast(tf.equal(feasible_mask[:, 1:], 1), dtype='int32')
-        # if all nodes are full then results should be equal to num_features - 1 
-        # num_feature - 1 because EOS is allways available
-        are_bins_full = tf.reduce_sum(are_bins_full, axis=-1)
-        are_bins_full = tf.cast(tf.equal(are_bins_full, num_features - 1), dtype="int32")
+        # Marked as 1 = All full
+        # Marked as 0 = NOT all full
+        are_bins_full = bins_full_checker(feasible_mask, num_features)
 
         # If placed PREMIUM REQUEST at EOS while there were available nodes
         # Give negative reward
-        is_premium_and_bins_are_full = tf.cast(tf.logical_and(
-            tf.equal(users_type, 1),
-            tf.equal(are_bins_full, 1)
-        ), dtype='int32')
+        # Marked as 1 = Premium and Full
+        # Marked as 0 = Not Full or Not Premium
+        is_premium_and_bins_are_full = is_premium_wrongly_rejected_checker(
+            are_bins_full, users_type, is_eos_bin
+        )
 
         reward_premium_and_bins_are_full = is_premium_and_bins_are_full * self.premium_rejected
 
@@ -170,6 +164,40 @@ class GreedyReward():
         reward = base_rewards + reward_premium_and_bins_are_full
         
         return reward
+
+def is_premium_wrongly_rejected_checker(are_bins_full, users_type, is_eos_bin):
+    # If placed PREMIUM REQUEST at EOS while there were available nodes
+    is_premium_wrongly_rejected = tf.cast(tf.logical_and(
+        # Checks if is EOS bin but there is still available nodes
+        tf.greater(is_eos_bin, are_bins_full),
+        tf.equal(users_type, 1),
+    ), dtype='int32')
+
+    return is_premium_wrongly_rejected
+
+def bins_eos_checker(bins, EOS_SYMBOL, num_features):
+    # Check if selected bins are EOS
+    # Marked as 1 = EOS node
+    # Marked as 0 = not a EOS node
+    is_eos_bin = tf.cast(tf.equal(bins, EOS_SYMBOL), dtype="int32")
+    # if all elements are equal to EOS code
+    # the result should be equal to the number of features
+    is_eos_bin = tf.reduce_sum(is_eos_bin, axis=-1)
+    is_eos_bin = tf.cast(tf.equal(is_eos_bin, num_features), dtype="int32")
+
+    return is_eos_bin
+    
+
+def bins_full_checker(feasible_mask, num_features):
+        # Check if all nodes are full
+        # if all nodes are full then results should be equal to num_features - 1 
+        # num_feature - 1 because EOS is allways available
+        # Marked as 1 = All full
+        # Marked as 0 = NOT all full
+        are_bins_full = tf.reduce_sum(feasible_mask[:, 1:], axis=-1)
+        are_bins_full = tf.cast(tf.equal(are_bins_full, num_features - 1), dtype="int32")
+
+        return are_bins_full
 
 class FairReward():
     def __init__(self,
