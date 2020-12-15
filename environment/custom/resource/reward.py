@@ -109,6 +109,7 @@ class GreedyReward():
                        ):
 
         batch_size = batch.shape[0]
+        num_elements = batch.shape[1]
         num_features = batch.shape[2]
         batch_indices = tf.range(batch_size, dtype='int32')
         all_bins = batch[:, :total_num_nodes]
@@ -149,7 +150,7 @@ class GreedyReward():
 
         # Marked as 1 = All full
         # Marked as 0 = NOT all full
-        are_bins_full = bins_full_checker(feasible_mask, num_features)
+        are_bins_full = bins_full_checker(feasible_mask, num_elements)
 
         # If placed PREMIUM REQUEST at EOS while there were available nodes
         # Give negative reward
@@ -243,7 +244,7 @@ class FairReward():
 
         reward = 0
         if bin_lower_type != self.EOS_CODE and bin_upper_type != self.EOS_CODE:
-            
+
             skewness_reward = 0
             if bin_lower_type != self.EOS_CODE and bin_upper_type != self.EOS_CODE:
 

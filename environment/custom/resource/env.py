@@ -270,7 +270,9 @@ class ResourceEnvironment(BaseEnvironment):
             isDone = True
             self.num_isDones += 1
         
-        return self.batch.copy(), tf.expand_dims(rewards, axis=0), isDone, info
+        rewards = tf.reshape(tf.expand_dims(rewards, axis=0), (batch_size, 1))
+
+        return self.batch.copy(), rewards, isDone, info
 
     def generate_dataset(self):
         bins = np.zeros((self.num_bins, self.num_features), dtype='float32')
@@ -566,15 +568,15 @@ class ResourceEnvironment(BaseEnvironment):
 
         in_range_one_hot = tf.expand_dims(tf.cast(penalties, dtype='float32'), -1)
 
-        # Compute remaining resources after placement
-        remaining_resources = bin_remaining_resources - (resource_demands + in_range_one_hot * penalty_tensor)
-        
-        remaining_resources = remaining_resources * \
+        is_eos_bins_with_batch_dim = \
             (1\
                 - \
             tf.cast(tf.expand_dims(tf.expand_dims(is_eos_bin, axis=-1),axis=0),dtype='float32')
             )
 
+        # Compute remaining resources after placement
+        remaining_resources = bin_remaining_resources - is_eos_bins_with_batch_dim * (resource_demands + in_range_one_hot * penalty_tensor)
+        
         return remaining_resources
 
     def build_feasible_mask(self, state, resources, bin_net_mask):

@@ -391,7 +391,7 @@ class TestItem(unittest.TestCase):
 
         self.assertEqual(actual_reward.numpy().tolist(), expected_reward)
     
-    def test_complex(self):
+    def test_complex_free_and_premium(self):
         batch = np.array([
             [
                 [0.,   0.,   0.,   0.,   0.],
@@ -450,6 +450,39 @@ class TestItem(unittest.TestCase):
         ], dtype='float32')
 
         expected_reward = [20, 0, 10, 0]
+
+        actual_reward, _, _ = self.rewarder.compute_reward_batch(
+            batch, total_num_nodes, bin, resource, feasible_bin_mask
+        )
+
+        self.assertEqual(actual_reward.numpy().tolist(), expected_reward)
+
+    def test_complex_all_premium(self):
+        batch = np.array([
+            [
+                [0.,   0.,   0.,   0.,   0.],
+                [100., 200., 300.,   1.,   2.],
+                [400., 500., 600.,   1.,   3.],
+                [10.,  20.,  30.,   1.,   1.],
+                [40.,  50.,  60.,   8.,   0.]
+            ]
+        ],dtype='float32')
+
+        total_num_nodes = 3
+
+        bin = np.array([
+            [  0.,   0.,   0.,   0.,   0.], # EOS node
+        ], dtype='float32')
+        
+        resource = np.array([
+            [0.0025, 0.0027, 0.002, 0.38, 1.]
+        ], dtype='float32')
+
+        feasible_bin_mask = np.array([
+            [ 0.,  1.,  1.,   1.,   1.],
+        ], dtype='float32')
+
+        expected_reward = [0]
 
         actual_reward, _, _ = self.rewarder.compute_reward_batch(
             batch, total_num_nodes, bin, resource, feasible_bin_mask
