@@ -275,8 +275,8 @@ class TestStepFn(unittest.TestCase):
     def test_step_premium_user_NO_penalty(self):
         self.env.batch = np.array([[
                 [  0.,   0.,   0.,   0.,   0.],
-                [100., 200., 300.,   0.,   2.], # Node task range [0, 2]
-                [400., 500., 600.,   0.,   3.],
+                [100., 200., 300.,   1.,   2.], # Node task range [1, 2]
+                [400., 500., 600.,   1.,   3.],
                 [ 10.,  20.,  30.,   1.,   1.], # Resource task 1
                 [ 40.,  50.,  60.,   8.,   1.]],
             [
@@ -311,8 +311,8 @@ class TestStepFn(unittest.TestCase):
 
         expected_next_state = np.array([[
                 [  0.,   0.,   0.,   0.,   0.],
-                [ 90., 180., 270.,   0.,   2.],
-                [400., 500., 600.,   0.,   3.],
+                [ 90., 180., 270.,   1.,   2.],
+                [400., 500., 600.,   1.,   3.],
                 [ 10.,  20.,  30.,   1.,   1.],
                 [ 40.,  50.,  60.,   8.,   1.]],
             [
@@ -336,8 +336,8 @@ class TestStepFn(unittest.TestCase):
     def test_step_premium_user_WITH_penalty(self):
         self.env.batch = np.array([[
                 [  0.,   0.,   0.,   0.,   0.],
-                [100., 200., 300.,   0.,   2.], # Node task range [0, 2]
-                [400., 500., 600.,   0.,   3.],
+                [100., 200., 300.,   1.,   2.], # Node task range [1, 2]
+                [400., 500., 600.,   1.,   3.],
                 [ 10.,  20.,  30.,   15.,   1.], # Resource task 15
                 [ 40.,  50.,  60.,   8.,   1.]],
             [
@@ -372,8 +372,8 @@ class TestStepFn(unittest.TestCase):
 
         expected_next_state = np.array([[
                 [  0.,   0.,   0.,   0.,   0.],
-                [ 80., 170., 260.,   0.,   2.],
-                [ 400., 500., 600.,   0.,   3.],
+                [ 80., 170., 260.,   1.,   2.],
+                [ 400., 500., 600.,   1.,   3.],
                 [ 10.,  20.,  30.,   15.,   1.],
                 [ 40.,  50.,  60.,   8.,   1.]],
             [
@@ -397,8 +397,8 @@ class TestStepFn(unittest.TestCase):
     def test_step_free_user_NO_penalty(self):
         self.env.batch = np.array([[
                 [  0.,   0.,   0.,   0.,   0.],
-                [100., 200., 300.,   0.,   2.], # Node task range [0, 2]
-                [400., 500., 600.,   0.,   3.],
+                [100., 200., 300.,   1.,   2.], # Node task range [0, 2]
+                [400., 500., 600.,   1.,   3.],
                 [ 10.,  20.,  30.,   1.,   0.], # Resource task 1
                 [ 40.,  50.,  60.,   8.,   1.]],
             [
@@ -433,8 +433,8 @@ class TestStepFn(unittest.TestCase):
 
         expected_next_state = np.array([[
                 [  0.,   0.,   0.,   0.,   0.],
-                [ 90., 180., 270.,   0.,   2.],
-                [400., 500., 600.,   0.,   3.],
+                [ 90., 180., 270.,   1.,   2.],
+                [400., 500., 600.,   1.,   3.],
                 [ 10.,  20.,  30.,   1.,   0.],
                 [ 40.,  50.,  60.,   8.,   1.]],
             [
@@ -458,8 +458,8 @@ class TestStepFn(unittest.TestCase):
     def test_step_free_user_WITH_penalty(self):
         self.env.batch = np.array([[
                 [  0.,   0.,   0.,   0.,   0.],
-                [100., 200., 300.,   0.,   2.], # Node task range [0, 2]
-                [400., 500., 600.,   0.,   3.],
+                [100., 200., 300.,   1.,   2.], # Node task range [1, 2]
+                [400., 500., 600.,   1.,   3.],
                 [ 10.,  20.,  30.,   15.,   0.], # Resource task 15
                 [ 40.,  50.,  60.,   8.,   1.]],
             [
@@ -494,8 +494,8 @@ class TestStepFn(unittest.TestCase):
 
         expected_next_state = np.array([[
                 [  0.,   0.,   0.,   0.,   0.],
-                [ 80., 170., 260.,   0.,   2.],
-                [ 400., 500., 600.,   0.,   3.],
+                [ 80., 170., 260.,   1.,   2.],
+                [ 400., 500., 600.,   1.,   3.],
                 [ 10.,  20.,  30.,   15.,   0.],
                 [ 40.,  50.,  60.,   8.,   1.]],
             [

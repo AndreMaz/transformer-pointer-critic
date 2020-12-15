@@ -65,7 +65,7 @@ class TestItem(unittest.TestCase):
 
         # Lower bound type: 0
         # Upper bound type: 3
-        bin = [400., 500., 600.,   0.,   3.]
+        bin = [400., 500., 600.,   1.,   3.]
         # Premium user: 1
         # Request Type: 2
         resource = [40.,  50.,  60.,   2.,   1.]
@@ -96,7 +96,7 @@ class TestItem(unittest.TestCase):
 
         # Lower bound type: 0
         # Upper bound type: 3
-        bin = [400., 500., 600.,   0.,   3.]
+        bin = [400., 500., 600.,   1.,   3.]
         # Premium user: 1
         # Request Type: 2
         resource = [40.,  50.,  60.,   2.,   1.]
@@ -126,7 +126,7 @@ class TestItem(unittest.TestCase):
 
         # Lower bound type: 0
         # Upper bound type: 3
-        bin = [400., 500., 600.,   0.,   3.]
+        bin = [400., 500., 600.,   1.,   3.]
         # Premium user: 0
         # Request Type: 5
         resource = [40.,  50.,  60.,   2.,   0.]
@@ -156,7 +156,7 @@ class TestItem(unittest.TestCase):
 
         # Lower bound type: 0
         # Upper bound type: 3
-        bin = [400., 500., 600.,   0.,   3.]
+        bin = [400., 500., 600.,   1.,   3.]
         # Premium user: 0
         # Request Type: 5
         resource = [40.,  50.,  60.,   5.,   0.]
