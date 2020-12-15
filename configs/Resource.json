@@ -48,7 +48,7 @@
 
         "resource_normalization_factor": 10000,
         "task_normalization_factor": 100,
-        "num_iterations_before_node_reset": 40,
+        "num_iterations_before_node_reset": 30,
         
         "num_user_levels": 1,
         "num_task_types": 50,

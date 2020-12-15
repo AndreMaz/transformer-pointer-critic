@@ -82,10 +82,11 @@ class GreedyReward():
         request_type = int(resource[4])
         
         reward = 0
-        if self.penalizer.to_penalize(bin_lower_type, bin_upper_type, resource_type):
-            reward = self.misplace_penalty_factor * self.reward_per_level[request_type]
-        else:
-            reward = self.correct_place_factor * self.reward_per_level[request_type]
+        if bin_lower_type != self.EOS_CODE and bin_upper_type != self.EOS_CODE:
+            if self.penalizer.to_penalize(bin_lower_type, bin_upper_type, resource_type):
+                reward = self.misplace_penalty_factor * self.reward_per_level[request_type]
+            else:
+                reward = self.correct_place_factor * self.reward_per_level[request_type]
         
         # If placed premium request at EOS while there were available nodes
         # Give negative reward
@@ -239,21 +240,24 @@ class FairReward():
         resource_type = resource[3]
         request_type = int(resource[4])
         
-        skewness_reward = 0
-        if bin_lower_type != self.EOS_CODE and bin_upper_type != self.EOS_CODE:
-
-            bin_resource_variance = tfp.stats.variance(bin[:3])
-        
-            if bin_resource_variance == 0:
-                bin_resource_variance = 1
-        
-            skewness_reward = math.log(bin_resource_variance, 0.5) / 10
 
         reward = 0
-        if self.penalizer.to_penalize(bin_lower_type, bin_upper_type, resource_type):
-            reward = self.misplace_penalty_factor * (self.reward_per_level[request_type] + skewness_reward)
-        else:
-            reward = self.correct_place_factor * ( self.reward_per_level[request_type] + skewness_reward)
+        if bin_lower_type != self.EOS_CODE and bin_upper_type != self.EOS_CODE:
+            
+            skewness_reward = 0
+            if bin_lower_type != self.EOS_CODE and bin_upper_type != self.EOS_CODE:
+
+                bin_resource_variance = tfp.stats.variance(bin[:3])
+        
+                if bin_resource_variance == 0:
+                    bin_resource_variance = 1
+        
+                skewness_reward = math.log(bin_resource_variance, 0.5) / 10
+
+            if self.penalizer.to_penalize(bin_lower_type, bin_upper_type, resource_type):
+                reward = self.misplace_penalty_factor * (self.reward_per_level[request_type] + skewness_reward)
+            else:
+                reward = self.correct_place_factor * ( self.reward_per_level[request_type] + skewness_reward)
         
         # If placed premium request at EOS while there were available nodes
         # Give negative reward
