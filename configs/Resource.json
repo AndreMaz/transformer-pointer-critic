@@ -36,11 +36,12 @@
         
         "gather_stats": false,
         "unique_elements_in_batch": false,
+        "use_advanced_masking": false,
 
         "batch_size": 64,
         "num_features": 5,
-        "num_resources": 50,
-        "num_bins": 15,
+        "num_resources": 20,
+        "num_bins": 5,
         "EOS_CODE": 0,
 
         "resource_sample_size": 20,
@@ -48,13 +49,13 @@
 
         "resource_normalization_factor": 10000,
         "task_normalization_factor": 100,
-        "num_iterations_before_node_reset": 40,
+        "num_iterations_before_node_reset": 30,
         
         "num_user_levels": 1,
         "num_task_types": 50,
 
         "reward": {
-            "type": "fair",
+            "type": "greedy",
             "greedy": {
                 "reward_per_level": [ 1, 5 ],
                 "misplace_penalty_factor": 2,

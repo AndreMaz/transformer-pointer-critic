@@ -73,5 +73,23 @@ class GreedyPenalty():
         
         return True
     
+    def to_penalize_batch(self, bin_lower_type, bin_upper_type, resource_type):
+        
+        # resource_type = np.reshape(resource_type, (batch_size, 1))
+
+        # Look for places that won't be penalized
+        # From: https://stackoverflow.com/a/55870586
+        lower_tensor = tf.greater_equal(resource_type, bin_lower_type)
+        upper_tensor = tf.less_equal(resource_type, bin_upper_type)
+
+        in_range = tf.logical_and(lower_tensor, upper_tensor)
+        # Marked as 1 = there's penalty involved
+        # Marked as 0 = no penalty
+        in_range = 1 - tf.cast(in_range, dtype='int32')
+
+        # in_range = np.reshape(in_range, (batch_size, 1))
+
+        return in_range
+
     def tensor_representation(self):
         return self.tensor

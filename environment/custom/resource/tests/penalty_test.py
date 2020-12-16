@@ -93,3 +93,139 @@ class TestItem(unittest.TestCase):
             self.penalizer.to_penalize(bin_lower_type, bin_upper_type, resource_type),
             True
         )
+
+    def test_batch_should_NOT_penalize(self):
+        bin_lower_type = np.array([
+            0, # node 0 lower bound
+            4, # node 1 lower bound
+        ], dtype="float32")
+
+        bin_upper_type = np.array([
+            7, # node 0 lower bound
+            6, # node 1 lower bound
+        ], dtype="float32")
+
+        resource_type = np.array([
+            5, # resource 0 type
+            6, # resource 1 type
+        ], dtype="float32")
+
+
+        expected_result = [0, 0]
+
+        actual_result = self.penalizer.to_penalize_batch(
+            bin_lower_type,
+            bin_upper_type,
+            resource_type
+        )
+
+        self.assertEqual(actual_result.numpy().tolist(), expected_result)
+
+    def test_batch_should_penalize_upper_bound(self):
+        bin_lower_type = np.array([
+            0, # node 0 lower bound
+            4, # node 1 lower bound
+        ], dtype="float32")
+
+        bin_upper_type = np.array([
+            7, # node 0 lower bound
+            6, # node 1 lower bound
+        ], dtype="float32")
+
+        resource_type = np.array([
+            55, # resource 0 type
+            65, # resource 1 type
+        ], dtype="float32")
+
+
+        expected_result = [1, 1]
+
+        actual_result = self.penalizer.to_penalize_batch(
+            bin_lower_type,
+            bin_upper_type,
+            resource_type
+        )
+
+        self.assertEqual(actual_result.numpy().tolist(), expected_result)
+
+    def test_batch_should_penalize_lower_bound(self):
+        bin_lower_type = np.array([
+            3, # node 0 lower bound
+            4, # node 1 lower bound
+        ], dtype="float32")
+
+        bin_upper_type = np.array([
+            7, # node 0 lower bound
+            6, # node 1 lower bound
+        ], dtype="float32")
+
+        resource_type = np.array([
+            1, # resource 0 type
+            1, # resource 1 type
+        ], dtype="float32")
+
+
+        expected_result = [1, 1]
+
+        actual_result = self.penalizer.to_penalize_batch(
+            bin_lower_type,
+            bin_upper_type,
+            resource_type
+        )
+
+        self.assertEqual(actual_result.numpy().tolist(), expected_result)
+
+    def test_batch_should_penalize_first_element(self):
+        bin_lower_type = np.array([
+            3, # node 0 lower bound
+            4, # node 1 lower bound
+        ], dtype="float32")
+
+        bin_upper_type = np.array([
+            7, # node 0 lower bound
+            6, # node 1 lower bound
+        ], dtype="float32")
+
+        resource_type = np.array([
+            199, # resource 0 type
+            5, # resource 1 type
+        ], dtype="float32")
+
+
+        expected_result = [1, 0]
+
+        actual_result = self.penalizer.to_penalize_batch(
+            bin_lower_type,
+            bin_upper_type,
+            resource_type
+        )
+
+        self.assertEqual(actual_result.numpy().tolist(), expected_result)
+
+    def test_batch_should_penalize_second_element(self):
+        bin_lower_type = np.array([
+            3, # node 0 lower bound
+            4, # node 1 lower bound
+        ], dtype="float32")
+
+        bin_upper_type = np.array([
+            7, # node 0 lower bound
+            6, # node 1 lower bound
+        ], dtype="float32")
+
+        resource_type = np.array([
+            4, # resource 0 type
+            588, # resource 1 type
+        ], dtype="float32")
+
+
+        expected_result = [0, 1]
+
+        actual_result = self.penalizer.to_penalize_batch(
+            bin_lower_type,
+            bin_upper_type,
+            resource_type
+        )
+
+        self.assertEqual(actual_result.numpy().tolist(), expected_result)
+
