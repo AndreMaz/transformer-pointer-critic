@@ -15,6 +15,7 @@ from environment.base.base import BaseEnvironment
 from environment.custom.resource.node import Node as History
 from environment.custom.resource.penalty import PenaltyFactory
 from environment.custom.resource.reward import RewardFactory
+from environment.custom.resource.utils import bins_eos_checker
 
 class ResourceEnvironment(BaseEnvironment):
     def __init__(self, name: str, opts: dict):
@@ -232,13 +233,20 @@ class ResourceEnvironment(BaseEnvironment):
         bins = self.batch[batch_indices, bin_ids]
         resources = self.batch[batch_indices, resource_ids]
         
-        rewards, penalties, is_eos_bin = self.rewarder.compute_reward_batch(
-            self.batch,
-            num_bins,
-            bins,
-            resources,
-            feasible_bin_mask
+        # Look for penalized placements
+        bins_lower_type = bins[:, 3]
+        bins_upper_type = bins[:, 4]
+        resources_types = resources[:, 3]
+        # Marked as 1 = there's penalty involved
+        # Marked as 0 = no penalty
+        penalties = self.penalizer.to_penalize_batch(
+            bins_lower_type,
+            bins_upper_type,
+            resources_types
         )
+        
+        # Check if some of placements is made at EOS node
+        is_eos_bin = bins_eos_checker(bins, self.EOS_CODE, self.num_features)
 
         # Compute the remaining resources at the nodes
         remaining_resources = self.compute_remaining_resources(
@@ -250,11 +258,23 @@ class ResourceEnvironment(BaseEnvironment):
             is_eos_bin
         )
         
+        # Update the state of the nodes in batch
         self.batch[batch_indices, bin_ids, :3] = remaining_resources
 
-        # Update the MHA masks
+        # Compute the rewards
+        rewards = self.rewarder.compute_reward_batch(
+            self.batch,
+            num_bins,
+            bins,
+            resources,
+            feasible_bin_mask,
+            penalties,
+            is_eos_bin
+        )
+
         # Item taken mask it
         self.resource_net_mask[batch_indices, resource_ids] = 1
+        # Update the MHA masks
         self.mha_used_mask[batch_indices, :, :, resource_ids] = 1
 
         if (np.all(self.batch[batch_indices, bin_ids, :3] == 0)):
