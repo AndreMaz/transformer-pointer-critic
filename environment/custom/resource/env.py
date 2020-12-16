@@ -29,6 +29,7 @@ class ResourceEnvironment(BaseEnvironment):
 
         self.gather_stats: bool = opts['gather_stats']
         self.unique_elements_in_batch: bool = opts['unique_elements_in_batch']
+        self.use_advanced_masking: bool = opts['use_advanced_masking']
 
         self.batch_size: int = opts['batch_size']
         self.num_features: int = opts['num_features']
@@ -629,6 +630,9 @@ class ResourceEnvironment(BaseEnvironment):
         feasible_mask = feasible_mask.numpy()
         # EOS is always available for pointing
         feasible_mask[:, 0] = 0
+
+        if not self.use_advanced_masking:
+            return feasible_mask
 
         ###################################################
         ####  Find unpenalized AND feasible locations  ####
