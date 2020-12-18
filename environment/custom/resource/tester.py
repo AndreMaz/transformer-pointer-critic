@@ -12,8 +12,36 @@ from datetime import datetime
 OPTIMAL = 'Optimal'
 HEURISTIC = 'Heuristic'
 
+
 def test(env: ResourceEnvironment, agent: Agent, opts: dict, opt_solver, heuristic_solver, look_for_opt: bool = False):
-    # for _ in range(32):
+
+    num_tests = opts['num_tests']
+    show_info = opts['show_info']
+    
+    print('Problem;Net_Total;Net_Free;Net_Premium;Net_Free_Batch;Net_Premium_Batch;Heu_Total;Net_Free;Heu_Premium;Heu_Free_Batch;Heu_Premium_Batch')
+    
+    for i in range(num_tests):
+        env_stats, solver_stats = test_single_instance(
+            env,
+            agent,
+            opts,
+            opt_solver,
+            heuristic_solver,
+            show_info=show_info
+        )
+
+        print(f'{i};{env_stats["total_nodes"]};{env_stats["num_free_rejected"]};{env_stats["num_premium_rejected"]};{env_stats["batch_free_rejected"]};{env_stats["batch_premium_rejected"]};{solver_stats["total_nodes"]};{solver_stats["num_free_rejected"]};{solver_stats["num_premium_rejected"]};{solver_stats["batch_free_rejected"]};{solver_stats["batch_premium_rejected"]}')
+
+
+def test_single_instance(
+    env: ResourceEnvironment,
+    agent: Agent,
+    opts: dict,
+    opt_solver,
+    heuristic_solver,
+    look_for_opt: bool = False,
+    show_info: bool = False
+    ):
     
     # Set the agent to testing mode
     agent.training = False
@@ -48,7 +76,8 @@ def test(env: ResourceEnvironment, agent: Agent, opts: dict, opt_solver, heurist
     env.rebuild_history()
     env.set_testing_mode()
 
-    print(f'Testing for {num_episodes} episodes with {agent.num_resources} resources and {env.bin_sample_size} bins')
+    if show_info:
+        print(f'Testing for {num_episodes} episodes with {agent.num_resources} resources and {env.bin_sample_size} bins')
 
     # print('Solving with nets...')
     start = time.time()
@@ -73,7 +102,9 @@ def test(env: ResourceEnvironment, agent: Agent, opts: dict, opt_solver, heurist
             state_list.append(current_state)
 
         while not isDone:
-            print(f'Episode {episode_count} Placing step {training_step} of {agent.num_resources}', end='\r')
+            if show_info:
+                print(f'Episode {episode_count} Placing step {training_step} of {agent.num_resources}', end='\r')
+
             # Select an action
             bin_id,\
             resource_id,\
@@ -118,12 +149,13 @@ def test(env: ResourceEnvironment, agent: Agent, opts: dict, opt_solver, heurist
 
         episode_count += 1
 
-    if env.validate_history() == True:
-        print('All solutions are valid!')
-    else:
-        print('Ups! Network generated invalid solutions')
+    if show_info:
+        if env.validate_history() == True:
+            print('All solutions are valid!')
+        else:
+            print('Ups! Network generated invalid solutions')
 
-    print(f'Done! Net solutions found in {time.time() - start:.2f} seconds')
+        print(f'Done! Net solutions found in {time.time() - start:.2f} seconds')
     
     # Solve with Heuristic
     for state in state_list:
@@ -137,9 +169,10 @@ def test(env: ResourceEnvironment, agent: Agent, opts: dict, opt_solver, heurist
     export_to_csv([solver.node_list], max_steps, 'Heuristic', f'./results/resource/heuristic_{t}.csv')
 
 
-    env.print_history(False)
-    print('________________________________________________________________________________')    
-    solver.print_node_stats(False)
+    if show_info:
+        env.print_history(False)
+        print('________________________________________________________________________________')    
+        solver.print_node_stats(False)
 
     # print(episode_rewards)
     episode_rewards = np.sum(episode_rewards, axis=-1)
@@ -156,7 +189,7 @@ def test(env: ResourceEnvironment, agent: Agent, opts: dict, opt_solver, heurist
     #     env.task_normalization_factor
     # )
 
-    return env, solver
+    return env.get_rejection_stats(), solver.get_rejection_stats()
 
 def compute_opt_solutions(env: ResourceEnvironment, opt_solver):
     optimal_values = []
