@@ -48,7 +48,7 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict):
             )
 
             # Play one step
-            next_state, reward, isDone, info = env.step_batch(
+            next_state, reward, isDone, info = env.step(
                 bin_id,
                 resource_id,
                 bin_net_mask

@@ -812,6 +812,8 @@ class ResourceEnvironment(BaseEnvironment):
 
         return bin_ids, resource_ids, bins_mask
 
+    def get_rejection_stats(self) -> dict:
+        return self.history[0][0].get_rejection_stats()
 
 if __name__ == "__main__":
     env_name = 'Resource'

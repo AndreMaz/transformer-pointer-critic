@@ -149,6 +149,9 @@ class GreedyHeuristic():
     def print_node_stats(self, print_details = False):
         for node in self.node_list:
             node.print(print_details)
+    
+    def get_rejection_stats(self) -> dict:
+        return self.EOS_NODE.get_rejection_stats()
 
 def node_sorting_fn(node: Node):
     return (node.remaining_CPU, node.remaining_RAM, node.remaining_MEM)

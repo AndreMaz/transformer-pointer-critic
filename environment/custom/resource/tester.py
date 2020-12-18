@@ -156,6 +156,8 @@ def test(env: ResourceEnvironment, agent: Agent, opts: dict, opt_solver, heurist
     #     env.task_normalization_factor
     # )
 
+    return env, solver
+
 def compute_opt_solutions(env: ResourceEnvironment, opt_solver):
     optimal_values = []
     print('Looking for Optimal Solutions...')

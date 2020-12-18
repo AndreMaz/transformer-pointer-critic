@@ -55,7 +55,7 @@
         "num_task_types": 50,
 
         "reward": {
-            "type": "greedy",
+            "type": "fair",
             "greedy": {
                 "reward_per_level": [ 1, 5 ],
                 "misplace_penalty_factor": 2,
@@ -132,7 +132,7 @@
                 "inner_layer_dim": 128,
                 "encoder_embedding_time_distributed": true,
                 "last_layer_units": 128,
-                "last_layer_activation": "relu",
+                "last_layer_activation": "linear",
                 "dropout_rate": 0.01,
 
                 "learning_rate": 0.0005
