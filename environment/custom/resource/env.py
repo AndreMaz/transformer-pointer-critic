@@ -188,6 +188,7 @@ class ResourceEnvironment(BaseEnvironment):
                 self.batch[batch_id],
                 self.bin_sample_size,
                 bin,
+                remaining_resources,
                 resource,
                 feasible_mask
             )
@@ -825,13 +826,13 @@ if __name__ == "__main__":
 
     env = ResourceEnvironment(env_name, env_config)
 
-    bin_ids = [0 , 2]
+    bin_ids = [1 , 2]
 
     resource_ids = [3, 4]
 
     state = np.array([[
                 [  0.,   0.,   0.,   0.,   0.],     # Node EOS
-                [  1.,   2.,   3.,   0.,   2.],     # Node 1
+                [100.,   200.,   300.,   1.,   2.],     # Node 1
                 [  5.,   5.,   5.,   0.,   3.],     # Node 2
                 [ 10.,  20.,  30.,   1.,   1.],     # Resource 1
                 [ 40.,  50.,  60.,   8.,   1.]],    # Resource 2
@@ -855,7 +856,9 @@ if __name__ == "__main__":
     
     env.bin_sample_size = 3 # For this test
     env.batch = state
+    env.batch_size = 2
+    env.rebuild_history()
 
     feasible_bin_mask = env.build_feasible_mask(state, resources, bin_net_mask)
     
-    env.step_batch(bin_ids, resource_ids, feasible_bin_mask)
+    env.step(bin_ids, resource_ids, feasible_bin_mask)

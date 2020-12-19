@@ -73,12 +73,15 @@ class TestItem(unittest.TestCase):
 
         expected_reward = 20
 
-        feasible_mask = np.array([
+        feasible_bin_mask = np.array([
             [0.,   0.,   0.,   1.,   1.],
         ],dtype='float32')
 
+        # Dummy values. Not used in greedy reward
+        remaining_bin_resources = [0, 0, 0]
+
         actual_reward = self.rewarder.compute_reward(
-            batch, total_num_nodes, bin, resource, feasible_mask
+            batch, total_num_nodes, bin, remaining_bin_resources, resource, feasible_bin_mask
         )
 
         self.assertEqual(actual_reward, expected_reward)
@@ -108,8 +111,11 @@ class TestItem(unittest.TestCase):
             [ 0.,  0.,  0.,   1.,   1.],
         ], dtype='float32') 
 
+        # Dummy values. Not used in greedy reward
+        remaining_bin_resources = [0, 0, 0]
+
         actual_reward = self.rewarder.compute_reward(
-            batch, total_num_nodes, bin, resource, feasible_bin_mask
+            batch, total_num_nodes, bin, remaining_bin_resources, resource, feasible_bin_mask
         )
 
         self.assertEqual(actual_reward, expected_reward)
@@ -138,8 +144,11 @@ class TestItem(unittest.TestCase):
 
         expected_reward = 10
     
+        # Dummy values. Not used in greedy reward
+        remaining_bin_resources = [0, 0, 0]
+
         actual_reward = self.rewarder.compute_reward(
-            batch, total_num_nodes, bin, resource, feasible_bin_mask
+            batch, total_num_nodes, bin, remaining_bin_resources, resource, feasible_bin_mask
         )
 
         self.assertEqual(actual_reward, expected_reward)
@@ -168,8 +177,11 @@ class TestItem(unittest.TestCase):
 
         expected_reward = 5
 
+        # Dummy values. Not used in greedy reward
+        remaining_bin_resources = [0, 0, 0]
+
         actual_reward = self.rewarder.compute_reward(
-            batch, total_num_nodes, bin, resource, feasible_bin_mask
+            batch, total_num_nodes, bin, remaining_bin_resources, resource, feasible_bin_mask
         )
 
         self.assertEqual(actual_reward, expected_reward)

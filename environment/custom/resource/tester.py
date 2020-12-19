@@ -165,8 +165,8 @@ def test_single_instance(
     max_steps = compute_max_steps(env.history[0], solver.node_list)
     # Export results to CSV
     t = datetime.now().replace(microsecond=0).isoformat()
-    export_to_csv(env.history, max_steps, 'Neural', f'./results/resource/net_{t}.csv')
-    export_to_csv([solver.node_list], max_steps, 'Heuristic', f'./results/resource/heuristic_{t}.csv')
+    export_to_csv(env.history, max_steps, 'Neural', f'./results/resource/{t}_net.csv')
+    export_to_csv([solver.node_list], max_steps, 'Heuristic', f'./results/resource/{t}_heuristic.csv')
 
 
     if show_info:

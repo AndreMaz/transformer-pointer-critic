@@ -75,7 +75,7 @@ class Node():
             isValid, remaning_CPU, remaning_RAM, remaining_MEM = self.validate(req)
 
             assert isValid == True,\
-                f'Node {self.id} is overloaded. Cannot Place Resource {CPU}|{RAM}|{MEM} to a Node with {self.remaining_CPU}/{self.CPU}|{self.remaining_RAM}/{self.RAM}|{self.remaining_MEM}/{self.MEM}'
+                f'Node {self.id} is overloaded. Cannot Place Resource {req.CPU}|{req.RAM}|{req.MEM} to a Node with {self.remaining_CPU}/{self.CPU}|{self.remaining_RAM}/{self.RAM}|{self.remaining_MEM}/{self.MEM}'
 
             self.remaining_CPU = remaning_CPU
             self.remaining_RAM = remaning_RAM

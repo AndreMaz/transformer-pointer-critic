@@ -63,6 +63,7 @@ class GreedyReward():
                        batch,
                        total_num_nodes,
                        bin,
+                       remaining_bin_resources,
                        resource,
                        feasible_mask
                        ):
@@ -199,6 +200,7 @@ class FairReward():
                        batch,
                        total_num_nodes,
                        bin,
+                       bin_remaining_resources,
                        resource,
                        feasible_mask
                        ):
@@ -206,9 +208,9 @@ class FairReward():
         bins = batch[:total_num_nodes]
         resources = batch[total_num_nodes:]
 
-        bin_remaning_CPU = bin[0]
-        bin_remaning_RAM = bin[1]
-        bin_remaning_MEM = bin[2]
+        # Current state of resources. Before inserting the Resource
+        bin_current_resources = bin[:3]
+
         bin_lower_type = bin[3]
         bin_upper_type = bin[4]
 
@@ -222,16 +224,8 @@ class FairReward():
         reward = 0
         if bin_lower_type != self.EOS_CODE and bin_upper_type != self.EOS_CODE:
 
-            skewness_reward = 0
-            if bin_lower_type != self.EOS_CODE and bin_upper_type != self.EOS_CODE:
-
-                bin_resource_variance = tfp.stats.variance(bin[:3])
-        
-                if bin_resource_variance == 0:
-                    bin_resource_variance = 1
-        
-                skewness_reward = math.log(bin_resource_variance, 0.5) / 10
-
+            skewness_reward = self.compute_skewness_reward(bin_current_resources, bin_remaining_resources)
+           
             if self.penalizer.to_penalize(bin_lower_type, bin_upper_type, resource_type):
                 reward = self.misplace_penalty_factor * (self.reward_per_level[request_type] + skewness_reward)
             else:
@@ -249,6 +243,26 @@ class FairReward():
 
         return reward
     
+    def compute_skewness_reward(self, bin_current_resources, bin_remaining_resources):
+        skewness_reward = 0
+
+        bin_current_resource_variance = tfp.stats.variance(bin_current_resources)
+        bin_remaining_resource_variance = tfp.stats.variance(bin_remaining_resources)
+
+        # Compute the variance diff
+        variance_diff = bin_remaining_resource_variance - bin_current_resource_variance
+
+        if variance_diff > 0:
+            # Variance increased. Penalize the agent
+            variance_increased = -1
+        else:
+            # Variance decreased. Give reward to the agent
+            variance_increased = 1
+        
+        skewness_reward = variance_increased * math.log10(abs(variance_diff))
+
+        return skewness_reward
+
     def compute_reward_batch(self,
                        batch,
                        total_num_nodes,
