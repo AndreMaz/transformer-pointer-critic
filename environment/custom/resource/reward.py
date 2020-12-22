@@ -250,16 +250,9 @@ class FairReward():
         bin_remaining_resource_variance = tfp.stats.variance(bin_remaining_resources)
 
         # Compute the variance diff
-        variance_diff = bin_remaining_resource_variance - bin_current_resource_variance
-
-        if variance_diff > 0:
-            # Variance increased. Penalize the agent
-            variance_increased = -1
-        else:
-            # Variance decreased. Give reward to the agent
-            variance_increased = 1
+        variance_diff = bin_current_resource_variance - bin_remaining_resource_variance
         
-        skewness_reward = variance_increased * math.log10(abs(variance_diff))
+        skewness_reward = variance_diff * 100000
 
         return skewness_reward
 

@@ -64,29 +64,31 @@ def export_to_csv(history, max_steps, method: str, location) -> None:
                     free_requests = 0
                     premium_request = 0
                     for step in range(max_steps):
+                        resource_type = 'NaN'
+                        resource_batch = 'NaN'
+
                         try:
                             current_CPU = node.CPU_history[step]
                             current_RAM = node.RAM_history[step]
                             current_MEM = node.MEM_history[step]
                             percentage_penalized = node.percentage_penalized_history[step]
+                            
+                            # At this step nothing was placed.
+                            if step != 0:
+                                resource: Resource = node.resources[step - 1]
 
-                            resource: Resource = node.resources[step]
-
-                            resource_type = int(resource.request_type[0])
-                            resource_batch = resource.batch_id
-                            if resource_type == 0:
-                                free_requests += 1
-                            else:
-                                premium_request += 1
+                                resource_type = int(resource.request_type[0])
+                                resource_batch = resource.batch_id
+                                if resource_type == 0:
+                                    free_requests += 1
+                                else:
+                                    premium_request += 1
                         except:
                             last_step_in_node = len(node.CPU_history) - 1 
                             current_CPU = node.CPU_history[last_step_in_node]
                             current_RAM = node.RAM_history[last_step_in_node]
                             current_MEM = node.MEM_history[last_step_in_node]
                             percentage_penalized = node.percentage_penalized_history[last_step_in_node]
-
-                            resource_type = 'NaN'
-                            resource_batch = 'NaN'
 
                         CPU_load = np.array([0], dtype='float32')
                         RAM_load = np.array([0], dtype='float32')

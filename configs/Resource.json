@@ -66,9 +66,9 @@
                 "free_rejected": 0
             },
             "fair": {
-                "reward_per_level": [ 1, 5 ],
-                "misplace_penalty_factor": 2,
-                "correct_place_factor": 10,
+                "reward_per_level": [ 0, 0 ],
+                "misplace_penalty_factor": 1,
+                "correct_place_factor": 1,
                 "premium_rejected": -20,
                 "free_rejected": 0
             }
