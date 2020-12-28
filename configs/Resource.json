@@ -3,7 +3,7 @@
     
     "trainer_config": {
         "description": "Trainer function configs.",
-        "n_iterations": 1000,
+        "n_iterations": 5000,
         "n_steps_to_update": 20
     },
 
@@ -11,10 +11,10 @@
         "description": "Testing function configs.",
         "num_tests": 100,
         "show_info": false,
-        "bin_sample_size": 15,
+        "bin_sample_size": 5,
         "resource_sample_size": 40,
-        "num_episodes": 20,
-        "num_iterations_before_node_reset": 20,
+        "num_episodes": 1,
+        "num_iterations_before_node_reset": 1,
         
         "heuristic": {
             "type": "greedy",
@@ -42,8 +42,8 @@
 
         "batch_size": 64,
         "num_features": 5,
-        "num_resources": 20,
-        "num_bins": 5,
+        "num_resources": 50,
+        "num_bins": 15,
         "EOS_CODE": 0,
 
         "resource_sample_size": 20,
@@ -51,17 +51,17 @@
 
         "resource_normalization_factor": 10000,
         "task_normalization_factor": 100,
-        "num_iterations_before_node_reset": 30,
+        "num_iterations_before_node_reset": 1,
         
         "num_user_levels": 1,
-        "num_task_types": 50,
+        "num_task_types": 2,
 
         "reward": {
-            "type": "fair",
+            "type": "greedy",
             "greedy": {
                 "reward_per_level": [ 1, 5 ],
-                "misplace_penalty_factor": 2,
-                "correct_place_factor": 10,
+                "misplace_penalty_factor": 1,
+                "correct_place_factor": 1,
                 "premium_rejected": -20,
                 "free_rejected": 0
             },
@@ -83,24 +83,24 @@
             }
         },
         
-        "min_resource_CPU": 10,
+        "min_resource_CPU": 20,
         "max_resource_CPU": 40,
 
-        "min_resource_RAM": 10,
+        "min_resource_RAM": 20,
         "max_resource_RAM": 40,
 
-        "min_resource_MEM": 10,
+        "min_resource_MEM": 20,
         "max_resource_MEM": 40,
         
-        "min_bin_CPU": 1000,
-        "max_bin_CPU": 2000,
-        "min_bin_RAM": 1000,
-        "max_bin_RAM": 2000,
-        "min_bin_MEM": 1000,
-        "max_bin_MEM": 2000,
+        "min_bin_CPU": 100,
+        "max_bin_CPU": 200,
+        "min_bin_RAM": 100,
+        "max_bin_RAM": 200,
+        "min_bin_MEM": 100,
+        "max_bin_MEM": 200,
         
-        "min_bin_range_type": 25,
-        "max_bin_range_type": 35
+        "min_bin_range_type": 1,
+        "max_bin_range_type": 1
     },
 
     "tpc": {
