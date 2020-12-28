@@ -10,7 +10,7 @@ import numpy as np
 def plotter(data, env, agent, agent_config, opt_solver, print_details=False):
     
     # Destructure the tuple
-    average_rewards_buffer, min_rewards_buffer, max_rewards_buffer = data
+    average_rewards_buffer, min_rewards_buffer, max_rewards_buffer, value_loss_buffer = data
 
     # Compute optimum solution
     optimum_value = 0

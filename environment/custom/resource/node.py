@@ -39,7 +39,7 @@ class Node():
         self.lower_task = np.array([lower_task], dtype='float32')
         self.upper_task = np.array([upper_task], dtype='float32')
 
-        self.resources = []
+        self.resources: List[Resource] = []
 
         self.task_normalization_factor = task_normalization_factor
         
@@ -75,7 +75,7 @@ class Node():
             isValid, remaning_CPU, remaning_RAM, remaining_MEM = self.validate(req)
 
             assert isValid == True,\
-                f'Node {self.id} is overloaded. Cannot Place Resource {CPU}|{RAM}|{MEM} to a Node with {self.remaining_CPU}/{self.CPU}|{self.remaining_RAM}/{self.RAM}|{self.remaining_MEM}/{self.MEM}'
+                f'Node {self.id} is overloaded. Cannot Place Resource {req.CPU}|{req.RAM}|{req.MEM} to a Node with {self.remaining_CPU}/{self.CPU}|{self.remaining_RAM}/{self.RAM}|{self.remaining_MEM}/{self.MEM}'
 
             self.remaining_CPU = remaning_CPU
             self.remaining_RAM = remaning_RAM
@@ -228,6 +228,42 @@ class Node():
 
         stats['premium_reqs'] = self.premium_reqs
         stats['free_reqs'] = self.free_reqs
+
+        return stats
+    
+    def get_rejection_stats(self) -> dict:
+        
+        stats = {}
+
+        total_nodes = len(self.resources)
+        num_premium_rejected = 0
+        batch_premium_rejected = 0
+
+        num_free_rejected = 0
+        batch_free_rejected = 0
+
+        stats['total_nodes'] = total_nodes
+
+        if total_nodes != 0:
+            for r in self.resources:
+                if r.request_type == 0:
+                    num_free_rejected += 1
+
+                    # Only update once
+                    if batch_free_rejected == 0:
+                        batch_free_rejected = r.batch_id
+
+                if r.request_type == 1:
+                    num_premium_rejected += 1
+                    # Only update once
+                    if batch_premium_rejected == 0:
+                        batch_premium_rejected = r.batch_id
+
+
+        stats['num_premium_rejected'] = num_premium_rejected
+        stats['batch_premium_rejected'] = batch_premium_rejected
+        stats['num_free_rejected'] = num_free_rejected
+        stats['batch_free_rejected'] = batch_free_rejected
 
         return stats
 

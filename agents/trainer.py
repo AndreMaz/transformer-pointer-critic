@@ -14,6 +14,7 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict):
     average_rewards_buffer = []
     min_rewards_buffer = []
     max_rewards_buffer = []
+    value_loss_buffer = []
     episode_count = 0
     
     # Initial vars for the initial episode
@@ -48,7 +49,7 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict):
             )
 
             # Play one step
-            next_state, reward, isDone, info = env.step_batch(
+            next_state, reward, isDone, info = env.step(
                 bin_id,
                 resource_id,
                 bin_net_mask
@@ -111,6 +112,8 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict):
                 discounted_rewards
             )
 
+        value_loss_buffer.append(value_loss)
+
         critic_grads = tape.gradient(
             value_loss,
             agent.critic.trainable_weights
@@ -172,9 +175,9 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict):
         )
 
         if isDone:
-            print(f"\rEpisode: {episode_count} took {time.time() - start:.2f} seconds. Min in Batch: {min_in_batch:.3f} Max in Batch: {max_in_batch:.3f} Average Reward: {episode_reward:.3f}", end="\n")
+            print(f"\rEpisode: {episode_count} took {time.time() - start:.2f} seconds. Min in Batch: {min_in_batch:.3f} Max in Batch: {max_in_batch:.3f} Average Reward: {episode_reward:.3f} Value Loss: {value_loss[0]:.5f}", end="\n")
 
         # Iteration complete. Clear agent's memory
         agent.clear_memory()
 
-    return average_rewards_buffer, min_rewards_buffer, max_rewards_buffer
+    return average_rewards_buffer, min_rewards_buffer, max_rewards_buffer, value_loss_buffer

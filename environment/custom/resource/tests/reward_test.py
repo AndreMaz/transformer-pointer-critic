@@ -8,8 +8,9 @@ from tensorflow.python.keras.backend import dtype
 sys.path.append('.')
 
 # Custom Imports
-from environment.custom.resource.reward import GreedyReward, bins_full_checker, bins_eos_checker, is_premium_wrongly_rejected_checker
+from environment.custom.resource.reward import GreedyReward
 from environment.custom.resource.penalty import GreedyPenalty
+from environment.custom.resource.utils import bins_eos_checker
 
 class TestItem(unittest.TestCase):
 
@@ -20,11 +21,11 @@ class TestItem(unittest.TestCase):
                 "MEM_misplace_penalty": 15
         }
 
-        EOS_CODE = 0
+        self.EOS_CODE = 0
         resource_normalization_factor = 1
 
-        penalizer = GreedyPenalty(
-            opts, EOS_CODE, resource_normalization_factor    
+        self.penalizer = GreedyPenalty(
+            opts, self.EOS_CODE, resource_normalization_factor    
         )
 
         opts = {
@@ -36,7 +37,7 @@ class TestItem(unittest.TestCase):
         }
 
         self.rewarder = GreedyReward(
-            opts, penalizer, EOS_CODE
+            opts, self.penalizer, self.EOS_CODE
         )
 
     def test_constructor(self):
@@ -72,12 +73,15 @@ class TestItem(unittest.TestCase):
 
         expected_reward = 20
 
-        feasible_mask = np.array([
+        feasible_bin_mask = np.array([
             [0.,   0.,   0.,   1.,   1.],
         ],dtype='float32')
 
+        # Dummy values. Not used in greedy reward
+        remaining_bin_resources = [0, 0, 0]
+
         actual_reward = self.rewarder.compute_reward(
-            batch, total_num_nodes, bin, resource, feasible_mask
+            batch, total_num_nodes, bin, remaining_bin_resources, resource, feasible_bin_mask
         )
 
         self.assertEqual(actual_reward, expected_reward)
@@ -107,8 +111,11 @@ class TestItem(unittest.TestCase):
             [ 0.,  0.,  0.,   1.,   1.],
         ], dtype='float32') 
 
+        # Dummy values. Not used in greedy reward
+        remaining_bin_resources = [0, 0, 0]
+
         actual_reward = self.rewarder.compute_reward(
-            batch, total_num_nodes, bin, resource, feasible_bin_mask
+            batch, total_num_nodes, bin, remaining_bin_resources, resource, feasible_bin_mask
         )
 
         self.assertEqual(actual_reward, expected_reward)
@@ -137,8 +144,11 @@ class TestItem(unittest.TestCase):
 
         expected_reward = 10
     
+        # Dummy values. Not used in greedy reward
+        remaining_bin_resources = [0, 0, 0]
+
         actual_reward = self.rewarder.compute_reward(
-            batch, total_num_nodes, bin, resource, feasible_bin_mask
+            batch, total_num_nodes, bin, remaining_bin_resources, resource, feasible_bin_mask
         )
 
         self.assertEqual(actual_reward, expected_reward)
@@ -167,8 +177,11 @@ class TestItem(unittest.TestCase):
 
         expected_reward = 5
 
+        # Dummy values. Not used in greedy reward
+        remaining_bin_resources = [0, 0, 0]
+
         actual_reward = self.rewarder.compute_reward(
-            batch, total_num_nodes, bin, resource, feasible_bin_mask
+            batch, total_num_nodes, bin, remaining_bin_resources, resource, feasible_bin_mask
         )
 
         self.assertEqual(actual_reward, expected_reward)
@@ -201,8 +214,24 @@ class TestItem(unittest.TestCase):
             [0.,   0.,   0.,   1.,   1.],
         ],dtype='float32')
 
-        actual_reward, _, _ = self.rewarder.compute_reward_batch(
-            batch, total_num_nodes, bin, resource, feasible_mask
+        
+        penalties = self.penalizer.to_penalize_batch(
+            bin[:, 3],
+            bin[:, 4],
+            resource[:, 3],
+        )
+        
+        num_features = 5
+        is_eos_bin = bins_eos_checker(bin, self.EOS_CODE, num_features)
+
+        actual_reward  = self.rewarder.compute_reward_batch(
+            batch,
+            total_num_nodes,
+            bin,
+            resource,
+            feasible_mask,
+            penalties,
+            is_eos_bin
         )
 
         self.assertEqual(actual_reward.numpy().tolist(), expected_reward)
@@ -231,8 +260,23 @@ class TestItem(unittest.TestCase):
             [ 0.,  0.,  0.,   1.,   1.],
         ], dtype='float32') 
 
-        actual_reward, _, _ = self.rewarder.compute_reward_batch(
-            batch, total_num_nodes, bin, resource, feasible_bin_mask
+        penalties = self.penalizer.to_penalize_batch(
+            bin[:, 3],
+            bin[:, 4],
+            resource[:, 3],
+        )
+        
+        num_features = 5
+        is_eos_bin = bins_eos_checker(bin, self.EOS_CODE, num_features)
+
+        actual_reward  = self.rewarder.compute_reward_batch(
+            batch,
+            total_num_nodes,
+            bin,
+            resource,
+            feasible_bin_mask,
+            penalties,
+            is_eos_bin
         )
 
         self.assertEqual(actual_reward.numpy().tolist(), expected_reward)
@@ -261,8 +305,23 @@ class TestItem(unittest.TestCase):
 
         expected_reward = [10]
     
-        actual_reward, _, _ = self.rewarder.compute_reward_batch(
-            batch, total_num_nodes, bin, resource, feasible_bin_mask
+        penalties = self.penalizer.to_penalize_batch(
+            bin[:, 3],
+            bin[:, 4],
+            resource[:, 3],
+        )
+        
+        num_features = 5
+        is_eos_bin = bins_eos_checker(bin, self.EOS_CODE, num_features)
+
+        actual_reward  = self.rewarder.compute_reward_batch(
+            batch,
+            total_num_nodes,
+            bin,
+            resource,
+            feasible_bin_mask,
+            penalties,
+            is_eos_bin
         )
 
         self.assertEqual(actual_reward.numpy().tolist(), expected_reward)
@@ -291,8 +350,23 @@ class TestItem(unittest.TestCase):
 
         expected_reward = [5]
 
-        actual_reward, _, _ = self.rewarder.compute_reward_batch(
-            batch, total_num_nodes, bin, resource, feasible_bin_mask
+        penalties = self.penalizer.to_penalize_batch(
+            bin[:, 3],
+            bin[:, 4],
+            resource[:, 3],
+        )
+        
+        num_features = 5
+        is_eos_bin = bins_eos_checker(bin, self.EOS_CODE, num_features)
+
+        actual_reward  = self.rewarder.compute_reward_batch(
+            batch,
+            total_num_nodes,
+            bin,
+            resource,
+            feasible_bin_mask,
+            penalties,
+            is_eos_bin
         )
 
         self.assertEqual(actual_reward.numpy().tolist(), expected_reward)
@@ -339,8 +413,23 @@ class TestItem(unittest.TestCase):
 
         expected_reward = [20, 10]
 
-        actual_reward, _, _ = self.rewarder.compute_reward_batch(
-            batch, total_num_nodes, bin, resource, feasible_bin_mask
+        penalties = self.penalizer.to_penalize_batch(
+            bin[:, 3],
+            bin[:, 4],
+            resource[:, 3],
+        )
+        
+        num_features = 5
+        is_eos_bin = bins_eos_checker(bin, self.EOS_CODE, num_features)
+
+        actual_reward  = self.rewarder.compute_reward_batch(
+            batch,
+            total_num_nodes,
+            bin,
+            resource,
+            feasible_bin_mask,
+            penalties,
+            is_eos_bin
         )
 
         self.assertEqual(actual_reward.numpy().tolist(), expected_reward)
@@ -385,8 +474,23 @@ class TestItem(unittest.TestCase):
 
         expected_reward = [-20, 0]
 
-        actual_reward, _, _ = self.rewarder.compute_reward_batch(
-            batch, total_num_nodes, bin, resource, feasible_bin_mask
+        penalties = self.penalizer.to_penalize_batch(
+            bin[:, 3],
+            bin[:, 4],
+            resource[:, 3],
+        )
+        
+        num_features = 5
+        is_eos_bin = bins_eos_checker(bin, self.EOS_CODE, num_features)
+
+        actual_reward  = self.rewarder.compute_reward_batch(
+            batch,
+            total_num_nodes,
+            bin,
+            resource,
+            feasible_bin_mask,
+            penalties,
+            is_eos_bin
         )
 
         self.assertEqual(actual_reward.numpy().tolist(), expected_reward)
@@ -451,8 +555,23 @@ class TestItem(unittest.TestCase):
 
         expected_reward = [20, 0, 10, 0]
 
-        actual_reward, _, _ = self.rewarder.compute_reward_batch(
-            batch, total_num_nodes, bin, resource, feasible_bin_mask
+        penalties = self.penalizer.to_penalize_batch(
+            bin[:, 3],
+            bin[:, 4],
+            resource[:, 3],
+        )
+        
+        num_features = 5
+        is_eos_bin = bins_eos_checker(bin, self.EOS_CODE, num_features)
+
+        actual_reward  = self.rewarder.compute_reward_batch(
+            batch,
+            total_num_nodes,
+            bin,
+            resource,
+            feasible_bin_mask,
+            penalties,
+            is_eos_bin
         )
 
         self.assertEqual(actual_reward.numpy().tolist(), expected_reward)
@@ -484,74 +603,24 @@ class TestItem(unittest.TestCase):
 
         expected_reward = [0]
 
-        actual_reward, _, _ = self.rewarder.compute_reward_batch(
-            batch, total_num_nodes, bin, resource, feasible_bin_mask
+        penalties = self.penalizer.to_penalize_batch(
+            bin[:, 3],
+            bin[:, 4],
+            resource[:, 3],
+        )
+        
+        num_features = 5
+        is_eos_bin = bins_eos_checker(bin, self.EOS_CODE, num_features)
+
+        actual_reward  = self.rewarder.compute_reward_batch(
+            batch,
+            total_num_nodes,
+            bin,
+            resource,
+            feasible_bin_mask,
+            penalties,
+            is_eos_bin
         )
 
         self.assertEqual(actual_reward.numpy().tolist(), expected_reward)
     
-
-    def test_bins_full_checker(self):
-        feasible_bin_mask = np.array([
-            [ 0.,  0.,  0.,   1.,   1.],
-            [ 0.,  0.,  1.,   1.,   1.],
-            [ 0.,  1.,  1.,   1.,   1.],
-        ], dtype='float32')
-
-        num_features = 5
-        excepted_result = [0, 0, 1]
-
-        actual_result = bins_full_checker(feasible_bin_mask, num_features)
-
-        self.assertEqual(actual_result.numpy().tolist(), excepted_result)
-
-    def test_bins_full_checker(self):
-        bins = np.array([
-            [ 10.,  20.,  30.,   2.,   5.],
-            [ 0.,  0.,  0.,   1.,   1.],
-            [ 0.,  10.,  10.,   1.,   1.],
-            [ 0.,  0.,  0.,   0.,   0.], # Only this one is EOS
-        ], dtype='float32')
-
-        num_features = 5
-        excepted_result = [0, 0, 0, 1]
-
-        actual_result = bins_eos_checker(bins, self.rewarder.EOS_CODE, num_features)
-
-        self.assertEqual(actual_result.numpy().tolist(), excepted_result)
-
-    def test_is_premium_and_bins_are_full_checker(self):
-        feasible_bin_mask = np.array([
-            [ 0.,  1.,  1.,   1.,   1.],
-            [ 0.,  0.,  0.,   1.,   1.],
-            [ 0.,  1.,  1.,   1.,   1.], # All Full
-            [ 0.,  0.,  0.,   1.,   1.],
-        ], dtype='float32')
-
-        num_features = 5
-
-        user_types = np.array([
-            0, # Free
-            0, # Free
-            1, # Premium
-            1  # Premium
-        ], dtype='float32')
-
-        is_eos_bin = np.array([
-            0,
-            1,
-            0,
-            1
-        ],dtype='int32')
-
-        are_bins_full = bins_full_checker(feasible_bin_mask, num_features)
-
-        expected_result = [
-            0,
-            0,
-            0,
-            1  # Rejected while there were space
-        ]
-        actual_result = is_premium_wrongly_rejected_checker(are_bins_full, user_types, is_eos_bin)
-
-        self.assertEqual(actual_result.numpy().tolist(), expected_result)

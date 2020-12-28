@@ -1,7 +1,41 @@
 import numpy as np
 from environment.custom.resource.node import Node
 from environment.custom.resource.resource import Resource
+import tensorflow as tf
 
+def is_premium_wrongly_rejected_checker(are_bins_full, users_type, is_eos_bin):
+    # If placed PREMIUM REQUEST at EOS while there were available nodes
+    is_premium_wrongly_rejected = tf.cast(tf.logical_and(
+        # Checks if is EOS bin but there is still available nodes
+        tf.greater(is_eos_bin, are_bins_full),
+        tf.equal(users_type, 1),
+    ), dtype='int32')
+
+    return is_premium_wrongly_rejected
+
+def bins_eos_checker(bins, EOS_SYMBOL, num_features):
+    # Check if selected bins are EOS
+    # Marked as 1 = EOS node
+    # Marked as 0 = not a EOS node
+    is_eos_bin = tf.cast(tf.equal(bins, EOS_SYMBOL), dtype="int32")
+    # if all elements are equal to EOS code
+    # the result should be equal to the number of features
+    is_eos_bin = tf.reduce_sum(is_eos_bin, axis=-1)
+    is_eos_bin = tf.cast(tf.equal(is_eos_bin, num_features), dtype="int32")
+
+    return is_eos_bin
+    
+
+def bins_full_checker(feasible_mask, num_features):
+        # Check if all nodes are full
+        # if all nodes are full then results should be equal to num_features - 1 
+        # num_feature - 1 because EOS is allways available
+        # Marked as 1 = All full
+        # Marked as 0 = NOT all full
+        are_bins_full = tf.reduce_sum(feasible_mask[:, 1:], axis=-1)
+        are_bins_full = tf.cast(tf.equal(are_bins_full, num_features - 1), dtype="int32")
+
+        return are_bins_full
 
 
 def compute_max_steps(nets, heuristic):
@@ -30,29 +64,31 @@ def export_to_csv(history, max_steps, method: str, location) -> None:
                     free_requests = 0
                     premium_request = 0
                     for step in range(max_steps):
+                        resource_type = 'NaN'
+                        resource_batch = 'NaN'
+
                         try:
                             current_CPU = node.CPU_history[step]
                             current_RAM = node.RAM_history[step]
                             current_MEM = node.MEM_history[step]
                             percentage_penalized = node.percentage_penalized_history[step]
+                            
+                            # At this step nothing was placed.
+                            if step != 0:
+                                resource: Resource = node.resources[step - 1]
 
-                            resource: Resource = node.resources[step]
-
-                            resource_type = int(resource.request_type[0])
-                            resource_batch = resource.batch_id
-                            if resource_type == 0:
-                                free_requests += 1
-                            else:
-                                premium_request += 1
+                                resource_type = int(resource.request_type[0])
+                                resource_batch = resource.batch_id
+                                if resource_type == 0:
+                                    free_requests += 1
+                                else:
+                                    premium_request += 1
                         except:
                             last_step_in_node = len(node.CPU_history) - 1 
                             current_CPU = node.CPU_history[last_step_in_node]
                             current_RAM = node.RAM_history[last_step_in_node]
                             current_MEM = node.MEM_history[last_step_in_node]
                             percentage_penalized = node.percentage_penalized_history[last_step_in_node]
-
-                            resource_type = 'NaN'
-                            resource_batch = 'NaN'
 
                         CPU_load = np.array([0], dtype='float32')
                         RAM_load = np.array([0], dtype='float32')

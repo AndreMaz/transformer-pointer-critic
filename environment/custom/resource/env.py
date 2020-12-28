@@ -15,6 +15,7 @@ from environment.base.base import BaseEnvironment
 from environment.custom.resource.node import Node as History
 from environment.custom.resource.penalty import PenaltyFactory
 from environment.custom.resource.reward import RewardFactory
+from environment.custom.resource.utils import bins_eos_checker
 
 class ResourceEnvironment(BaseEnvironment):
     def __init__(self, name: str, opts: dict):
@@ -187,6 +188,7 @@ class ResourceEnvironment(BaseEnvironment):
                 self.batch[batch_id],
                 self.bin_sample_size,
                 bin,
+                remaining_resources,
                 resource,
                 feasible_mask
             )
@@ -232,13 +234,20 @@ class ResourceEnvironment(BaseEnvironment):
         bins = self.batch[batch_indices, bin_ids]
         resources = self.batch[batch_indices, resource_ids]
         
-        rewards, penalties, is_eos_bin = self.rewarder.compute_reward_batch(
-            self.batch,
-            num_bins,
-            bins,
-            resources,
-            feasible_bin_mask
+        # Look for penalized placements
+        bins_lower_type = bins[:, 3]
+        bins_upper_type = bins[:, 4]
+        resources_types = resources[:, 3]
+        # Marked as 1 = there's penalty involved
+        # Marked as 0 = no penalty
+        penalties = self.penalizer.to_penalize_batch(
+            bins_lower_type,
+            bins_upper_type,
+            resources_types
         )
+        
+        # Check if some of placements is made at EOS node
+        is_eos_bin = bins_eos_checker(bins, self.EOS_CODE, self.num_features)
 
         # Compute the remaining resources at the nodes
         remaining_resources = self.compute_remaining_resources(
@@ -250,11 +259,23 @@ class ResourceEnvironment(BaseEnvironment):
             is_eos_bin
         )
         
+        # Update the state of the nodes in batch
         self.batch[batch_indices, bin_ids, :3] = remaining_resources
 
-        # Update the MHA masks
+        # Compute the rewards
+        rewards = self.rewarder.compute_reward_batch(
+            self.batch,
+            num_bins,
+            bins,
+            resources,
+            feasible_bin_mask,
+            penalties,
+            is_eos_bin
+        )
+
         # Item taken mask it
         self.resource_net_mask[batch_indices, resource_ids] = 1
+        # Update the MHA masks
         self.mha_used_mask[batch_indices, :, :, resource_ids] = 1
 
         if (np.all(self.batch[batch_indices, bin_ids, :3] == 0)):
@@ -722,48 +743,6 @@ class ResourceEnvironment(BaseEnvironment):
                     return False
 
         return True        
-
-    def export_to_csv(self, location) -> None:
-        with open(location, 'w') as fp:
-
-            header = 'Step;Node;CPU;RAM;MEM;Percentage_Penalized\n'
-            fp.write(header)
-            for history_instance in self.history:
-                node: History
-                steps_list = []
-                for node in history_instance:
-                    steps_list.append(len(node.CPU_history))
-
-                for node in history_instance:
-                    max_steps = max(steps_list)
-                    for step in range(max_steps):
-                        try:
-                            current_CPU = node.CPU_history[step]
-                            current_RAM = node.RAM_history[step]
-                            current_MEM = node.MEM_history[step]
-                            percentage_penalized = node.percentage_penalized_history[step]
-                        except:
-                            last_step_in_node = len(node.CPU_history) - 1 
-                            current_CPU = node.CPU_history[last_step_in_node]
-                            current_RAM = node.RAM_history[last_step_in_node]
-                            current_MEM = node.MEM_history[last_step_in_node]
-                            percentage_penalized = node.percentage_penalized_history[last_step_in_node]
-
-                        CPU_load = np.array([0], dtype='float32')
-                        RAM_load = np.array([0], dtype='float32')
-                        MEM_load = np.array([0], dtype='float32')
-                        
-                        # Don't compute for EOS node
-                        if node.id != 0 and len(node.resources) != 0:
-                            CPU_load = (1 - current_CPU / node.CPU) * 100
-                            RAM_load = (1 - current_RAM / node.RAM) * 100
-                            MEM_load = (1 - current_MEM / node.MEM) * 100
-
-                        node_info = f'{step};{node.id};{CPU_load[0]:.2f};{RAM_load[0]:.2f};{MEM_load[0]:.2f};{percentage_penalized:.2f}\n'
-                        # print(node_info)
-                        fp.write(node_info)
-
-        fp.close()
     
     def sample_action(self):
 
@@ -792,6 +771,8 @@ class ResourceEnvironment(BaseEnvironment):
 
         return bin_ids, resource_ids, bins_mask
 
+    def get_rejection_stats(self) -> dict:
+        return self.history[0][0].get_rejection_stats()
 
 if __name__ == "__main__":
     env_name = 'Resource'
@@ -803,13 +784,13 @@ if __name__ == "__main__":
 
     env = ResourceEnvironment(env_name, env_config)
 
-    bin_ids = [0 , 2]
+    bin_ids = [1 , 2]
 
     resource_ids = [3, 4]
 
     state = np.array([[
                 [  0.,   0.,   0.,   0.,   0.],     # Node EOS
-                [  1.,   2.,   3.,   0.,   2.],     # Node 1
+                [100.,   200.,   300.,   1.,   2.],     # Node 1
                 [  5.,   5.,   5.,   0.,   3.],     # Node 2
                 [ 10.,  20.,  30.,   1.,   1.],     # Resource 1
                 [ 40.,  50.,  60.,   8.,   1.]],    # Resource 2
@@ -833,7 +814,9 @@ if __name__ == "__main__":
     
     env.bin_sample_size = 3 # For this test
     env.batch = state
+    env.batch_size = 2
+    env.rebuild_history()
 
     feasible_bin_mask = env.build_feasible_mask(state, resources, bin_net_mask)
     
-    env.step_batch(bin_ids, resource_ids, feasible_bin_mask)
+    env.step(bin_ids, resource_ids, feasible_bin_mask)

@@ -134,3 +134,5 @@ logs/
 results/*/*.csv
 model
 .vscode/settings.json
+.Rproj.user
+.Rhistory

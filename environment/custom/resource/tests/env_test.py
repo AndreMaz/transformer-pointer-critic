@@ -22,6 +22,7 @@ class TestResource(unittest.TestCase):
             
             "gather_stats": False,
             "unique_elements_in_batch": True,
+            "use_advanced_masking": True,
 
             "batch_size": 2,
             "num_features": 5,
@@ -145,6 +146,7 @@ class TestStepFn(unittest.TestCase):
 
             "gather_stats": False,
             "unique_elements_in_batch": True,
+            "use_advanced_masking": True,
 
             "batch_size": 2,
             "num_features": 5,
@@ -625,6 +627,7 @@ class TestStepBatchFn(unittest.TestCase):
 
             "gather_stats": False,
             "unique_elements_in_batch": True,
+            "use_advanced_masking": True,
 
             "batch_size": 2,
             "num_features": 5,
@@ -1105,6 +1108,7 @@ class TestMaskingFn(unittest.TestCase):
 
             "gather_stats": False,
             "unique_elements_in_batch": True,
+            "use_advanced_masking": True,
 
             "batch_size": 2,
             "num_features": 5,

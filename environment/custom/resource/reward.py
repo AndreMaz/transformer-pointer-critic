@@ -2,6 +2,7 @@ import numpy as np
 import tensorflow as tf
 import tensorflow_probability as tfp
 import math
+from environment.custom.resource.utils import bins_eos_checker, is_premium_wrongly_rejected_checker, bins_full_checker
 
 def RewardFactory(opts: dict, penalizer, EOS_CODE):
     rewards = {
@@ -62,6 +63,7 @@ class GreedyReward():
                        batch,
                        total_num_nodes,
                        bin,
+                       remaining_bin_resources,
                        resource,
                        feasible_mask
                        ):
@@ -105,7 +107,9 @@ class GreedyReward():
                        total_num_nodes,
                        bins,
                        resources,
-                       feasible_mask
+                       feasible_mask,
+                       penalties,
+                       is_eos_bin
                        ):
 
         batch_size = batch.shape[0]
@@ -122,20 +126,6 @@ class GreedyReward():
         resources_types = resources[:, 3]
         users_type = tf.cast(resources[:, 4], dtype="int32")
         resources_demands = resources[:, :3]
-
-        # Check if selected bins are EOS
-        # Marked as 1 = EOS node
-        # Marked as 0 = not a EOS node
-        is_eos_bin = bins_eos_checker(bins, self.EOS_CODE, num_features)
-
-        # Check for the penalty
-        # Marked as 1 = there's penalty involved
-        # Marked as 0 = no penalty
-        penalties = self.penalizer.to_penalize_batch(
-            bins_lower_type,
-            bins_upper_type,
-            resources_types
-        )
 
         tiled_factors = tf.tile(self.mis_placement_tensor, [batch_size, 1], ).numpy()
         tiled_rewards_per_level = tf.tile(self.reward_per_level_tensor, [batch_size, 1], ).numpy()
@@ -165,41 +155,7 @@ class GreedyReward():
         # Final reward
         reward = base_rewards + reward_premium_and_bins_are_full
         
-        return reward, penalties, is_eos_bin
-
-def is_premium_wrongly_rejected_checker(are_bins_full, users_type, is_eos_bin):
-    # If placed PREMIUM REQUEST at EOS while there were available nodes
-    is_premium_wrongly_rejected = tf.cast(tf.logical_and(
-        # Checks if is EOS bin but there is still available nodes
-        tf.greater(is_eos_bin, are_bins_full),
-        tf.equal(users_type, 1),
-    ), dtype='int32')
-
-    return is_premium_wrongly_rejected
-
-def bins_eos_checker(bins, EOS_SYMBOL, num_features):
-    # Check if selected bins are EOS
-    # Marked as 1 = EOS node
-    # Marked as 0 = not a EOS node
-    is_eos_bin = tf.cast(tf.equal(bins, EOS_SYMBOL), dtype="int32")
-    # if all elements are equal to EOS code
-    # the result should be equal to the number of features
-    is_eos_bin = tf.reduce_sum(is_eos_bin, axis=-1)
-    is_eos_bin = tf.cast(tf.equal(is_eos_bin, num_features), dtype="int32")
-
-    return is_eos_bin
-    
-
-def bins_full_checker(feasible_mask, num_features):
-        # Check if all nodes are full
-        # if all nodes are full then results should be equal to num_features - 1 
-        # num_feature - 1 because EOS is allways available
-        # Marked as 1 = All full
-        # Marked as 0 = NOT all full
-        are_bins_full = tf.reduce_sum(feasible_mask[:, 1:], axis=-1)
-        are_bins_full = tf.cast(tf.equal(are_bins_full, num_features - 1), dtype="int32")
-
-        return are_bins_full
+        return reward
 
 class FairReward():
     def __init__(self,
@@ -244,6 +200,7 @@ class FairReward():
                        batch,
                        total_num_nodes,
                        bin,
+                       bin_remaining_resources,
                        resource,
                        feasible_mask
                        ):
@@ -251,9 +208,9 @@ class FairReward():
         bins = batch[:total_num_nodes]
         resources = batch[total_num_nodes:]
 
-        bin_remaning_CPU = bin[0]
-        bin_remaning_RAM = bin[1]
-        bin_remaning_MEM = bin[2]
+        # Current state of resources. Before inserting the Resource
+        bin_current_resources = bin[:3]
+
         bin_lower_type = bin[3]
         bin_upper_type = bin[4]
 
@@ -267,16 +224,8 @@ class FairReward():
         reward = 0
         if bin_lower_type != self.EOS_CODE and bin_upper_type != self.EOS_CODE:
 
-            skewness_reward = 0
-            if bin_lower_type != self.EOS_CODE and bin_upper_type != self.EOS_CODE:
-
-                bin_resource_variance = tfp.stats.variance(bin[:3])
-        
-                if bin_resource_variance == 0:
-                    bin_resource_variance = 1
-        
-                skewness_reward = math.log(bin_resource_variance, 0.5) / 10
-
+            skewness_reward = self.compute_skewness_reward(bin_current_resources, bin_remaining_resources)
+           
             if self.penalizer.to_penalize(bin_lower_type, bin_upper_type, resource_type):
                 reward = self.misplace_penalty_factor * (self.reward_per_level[request_type] + skewness_reward)
             else:
@@ -294,6 +243,19 @@ class FairReward():
 
         return reward
     
+    def compute_skewness_reward(self, bin_current_resources, bin_remaining_resources):
+        skewness_reward = 0
+
+        bin_current_resource_variance = tfp.stats.variance(bin_current_resources)
+        bin_remaining_resource_variance = tfp.stats.variance(bin_remaining_resources)
+
+        # Compute the variance diff
+        variance_diff = bin_current_resource_variance - bin_remaining_resource_variance
+        
+        skewness_reward = variance_diff * 100000
+
+        return skewness_reward
+
     def compute_reward_batch(self,
                        batch,
                        total_num_nodes,
