@@ -43,26 +43,14 @@ def test_single_instance(
     show_info: bool = False
     ):
     
-    # Set the agent to testing mode
-    agent.training = False
-    agent.stochastic_action_selection = False
-    
-    # Set the number for resources during testing
-    env.resource_sample_size = opts['resource_sample_size']
-    agent.num_resources = opts['resource_sample_size']
-
-    # Set the number of bins during testing
-    # + 1 Because of the EOS
-    env.bin_sample_size = opts['bin_sample_size'] + 1
-
+    batch_size = opts['batch_size']
+    req_sample_size = opts['profiles_sample_size']
+    node_sample_size = opts['node_sample_size']
     num_episodes = opts['num_episodes']
-    
-    num_iterations_before_node_reset = opts['num_iterations_before_node_reset']
-    env.num_iterations_before_node_reset = num_iterations_before_node_reset
 
-    env.reset_num_iterations() # Reset the env
-    env.batch_size  = 1
-    agent.batch_size = 1
+    # Set the agent and env to testing mode
+    env.set_testing_mode(batch_size, node_sample_size, req_sample_size)
+    agent.set_testing_mode(batch_size, req_sample_size)
     
     episode_count = 0
     training_step = 0
@@ -72,10 +60,6 @@ def test_single_instance(
     current_state, bin_net_mask, resource_net_mask, mha_used_mask = env.reset()
     dec_input = agent.generate_decoder_input(current_state)
     
-    # Allow nodes to gather the stats
-    env.rebuild_history()
-    env.set_testing_mode()
-
     if show_info:
         print(f'Testing for {num_episodes} episodes with {agent.num_resources} resources and {env.bin_sample_size} bins')
 
@@ -86,7 +70,7 @@ def test_single_instance(
 
     # Init the heuristic solver
     # This will parse nodes/bins
-    solver = heuristic_solver(env, opts['heuristic']['greedy'])
+    # solver = heuristic_solver(env, opts['heuristic']['greedy'])
     state_list = [current_state]
 
     while episode_count < num_episodes:

@@ -1,7 +1,8 @@
+from re import L
 import sys
 from typing import List
 
-from tensorflow.python.ops.gen_batch_ops import batch
+from tensorflow.python.ops.gen_array_ops import gather
 
 sys.path.append('.')
 
@@ -13,6 +14,8 @@ from random import randint, randrange
 from environment.base.base import BaseEnvironment
 from environment.custom.resource_v2.reward import RewardFactory
 from environment.custom.resource_v2.utils import compute_remaining_resources
+from environment.custom.resource_v2.node import Node as History
+from environment.custom.resource_v2.resource import Resource as Request
 
 class ResourceEnvironmentV2(BaseEnvironment):
     def __init__(self, name: str, opts: dict):
@@ -20,6 +23,8 @@ class ResourceEnvironmentV2(BaseEnvironment):
         ###########################################
         ##### PROBLEM CONFIGS FROM JSON FILE ######
         ###########################################
+
+        self.gather_stats: bool = False
 
         self.batch_size: int = opts['batch_size']
         self.num_features: int = opts['num_features']
@@ -73,7 +78,7 @@ class ResourceEnvironmentV2(BaseEnvironment):
             self.resource_net_mask.copy(),\
             self.mha_used_mask.copy()
 
-    def step(self, bin_ids: list, resource_ids: list, feasible_bin_mask):
+    def step(self, bin_ids: List[int], req_ids: List[int], feasible_bin_mask):
         # Default is not done
         isDone = False
 
@@ -82,8 +87,8 @@ class ResourceEnvironmentV2(BaseEnvironment):
         batch_indices = tf.range(batch_size, dtype='int32')
         
         # Grab the selected nodes and resources
-        nodes = self.batch[batch_indices, bin_ids]
-        reqs = self.batch[batch_indices, resource_ids]
+        nodes: np.ndarray = self.batch[batch_indices, bin_ids]
+        reqs: np.ndarray = self.batch[batch_indices, req_ids]
 
         # Compute remaining resources after placing reqs at nodes
         remaining_resources = compute_remaining_resources(nodes, reqs)
@@ -92,9 +97,9 @@ class ResourceEnvironmentV2(BaseEnvironment):
         self.batch[batch_indices, bin_ids] = remaining_resources
             
         # Item taken mask it
-        self.resource_net_mask[batch_indices, resource_ids] = 1
+        self.resource_net_mask[batch_indices, req_ids] = 1
         # Update the MHA masks
-        self.mha_used_mask[batch_indices, :, :, resource_ids] = 1
+        self.mha_used_mask[batch_indices, :, :, req_ids] = 1
 
         if np.all(self.resource_net_mask == 1):
             isDone = True
@@ -119,6 +124,9 @@ class ResourceEnvironmentV2(BaseEnvironment):
              # 'num_resource_to_place': self.num_profiles
         }
         
+        if self.gather_stats:
+            self.place_reqs(bin_ids, req_ids, reqs)
+
         return self.batch.copy(), rewards, isDone, info
     
     def generate_dataset(self):
@@ -143,7 +151,7 @@ class ResourceEnvironmentV2(BaseEnvironment):
 
         elem_size = self.node_sample_size + self.profiles_sample_size
 
-        batch = np.zeros(
+        batch: np.ndarray = np.zeros(
             (self.batch_size, elem_size, self.num_features),
             dtype="float32"
         )
@@ -156,6 +164,10 @@ class ResourceEnvironmentV2(BaseEnvironment):
             shuffled_profiles = tf.random.shuffle(self.total_profiles)
             
             batch[index, self.node_sample_size:, :] = shuffled_profiles[:self.profiles_sample_size]
+
+        # Create node instances that will gather stats
+        if self.gather_stats:
+            history = self.build_history(batch)
 
         return batch, history
 
@@ -194,11 +206,58 @@ class ResourceEnvironmentV2(BaseEnvironment):
     
         return agent_config
 
-    def compute_remaining_resources(self, batch_size, num_elements, resources, bins, penalties, is_eos_bin):
-        return
+    def set_testing_mode(self,
+            batch_size,
+            node_sample_size,
+            profiles_sample_size,
+            ) -> None:
+        
+
+        self.gather_stats = True
+        self.batch_size = batch_size
+
+        self.node_sample_size = node_sample_size
+        self.profiles_sample_size = profiles_sample_size
+
+    def build_history(self, batch):
+        history = []
+
+        for batch_id, instance in enumerate(batch):
+            nodes = []
+            for id, bin in enumerate(instance[:self.node_sample_size]):
+                nodes.append(
+                    History(
+                        batch_id,
+                        id,
+                        bin[0], # CPU
+                        bin[1], # RAM
+                        bin[2], # MEM
+                    )
+                )
+            
+            history.append(nodes)
+        
+        return history
+
+    def place_reqs(self, bin_ids: List[int], req_ids: List[int], reqs: np.ndarray):
+        for batch_index, bin_id in enumerate(bin_ids):
+
+            node: History = self.history[batch_index][bin_id]
+            
+            req_id = req_ids[batch_index]
+            req = Request(
+                batch_index,
+                req_id,
+                reqs[batch_index][0],
+                reqs[batch_index][1],
+                reqs[batch_index][2]
+            )
+
+            node.insert_req(req)
+
 
     def build_feasible_mask(self, state, resources, bin_net_mask):
-        
+        # Return as is. At this moment node can be overloaded
         return bin_net_mask
 
     def num_inserted_resources(self):

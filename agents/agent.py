@@ -303,3 +303,12 @@ class Agent():
 
         self.resource_actor.load_weights(f'{location}/resource_actor')
         self.bin_actor.load_weights(f'{location}/bin_actor')
+
+    def set_testing_mode(self, batch_size, num_resources):
+        self.training = False
+        self.stochastic_action_selection = False
+
+        self.batch_size = batch_size
+        # Set the number for resources during testing
+        # i.e, number of steps
+        self.num_resources = num_resources
