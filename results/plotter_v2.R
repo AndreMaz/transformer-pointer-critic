@@ -34,7 +34,8 @@ og_data$Method <- as.factor(og_data$Method)
 resource_stats <- melt(og_data, id.vars = c(
   "Method",
   "Step",
-  "Node"
+  "Node",
+  "Delta"
   ), variable.name = 'Type', value.name = 'Value')
 
 
@@ -50,7 +51,7 @@ ggplot(data = resource_stats)+
   # geom_line(aes(x=Step, y=Value, col=Type, group=Type), size=1.5, alpha=0.7)+
   facet_wrap(Node~Method, labeller = labeller(Node=label_both, Method=label_both) ,ncol = 4)+
   labs(x="Placement Step", y='Load (%)')+
-  scale_x_discrete(breaks = seq(10, 600, by = 20))+
+  scale_x_discrete()+
   theme(
     # legend.position="bottom",
     # legend.title=element_blank()

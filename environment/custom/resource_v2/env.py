@@ -103,19 +103,17 @@ class ResourceEnvironmentV2(BaseEnvironment):
 
         if np.all(self.resource_net_mask == 1):
             isDone = True
-            # Finished. Compute rewards
-            rewards = self.rewarder.compute_reward(
-                self.batch, # Already updated values of nodes
-                self.node_sample_size,
-                nodes,
-                reqs,
-                feasible_bin_mask,
-            )
+        
+        # Compute rewards
+        rewards = self.rewarder.compute_reward(
+            self.batch, # Already updated values of nodes
+            self.node_sample_size,
+            nodes,
+            reqs,
+            feasible_bin_mask,
+        )
 
-            rewards = tf.reshape(rewards, (batch_size, 1))
-        else:
-            # Not finished. No rewards
-            rewards = tf.zeros((batch_size, 1), dtype='float32')
+        rewards = tf.reshape(rewards, (batch_size, 1))
 
         info = {
              'bin_net_mask': self.bin_net_mask.copy(),
