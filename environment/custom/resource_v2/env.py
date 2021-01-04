@@ -267,6 +267,14 @@ class ResourceEnvironmentV2(BaseEnvironment):
        return
 
     def print_history(self, print_details = False) -> None:
+
+        for batch_id in range(self.batch_size):
+            print('_________________________________')
+            node: History
+            for node in self.history[batch_id]:
+                node.print(print_details)
+            print('_________________________________')
+
         return
 
     def validate_history(self):

@@ -18,4 +18,4 @@ class Resource():
         
 
     def print(self):
-        print(f'Batch: {self.batch_id} \t| ID : {self.id:02d} \t| CPU: {self.CPU[0]:1f} \t| RAM: {self.RAM[0]:1f} \t| MEM: {self.MEM[0]:1f} \t| Task: {self.task[0]:1f} \t| User Type: {int(self.request_type[0])}')
+        print(f'Batch: {self.batch_id} \t| ID : {self.id:02d} \t| CPU: {self.CPU[0]:1f} \t| RAM: {self.RAM[0]:1f} \t| MEM: {self.MEM[0]:1f} \t')

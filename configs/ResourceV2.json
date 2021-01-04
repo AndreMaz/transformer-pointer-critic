@@ -9,7 +9,7 @@
 
     "tester_config": {
         "description": "Testing function configs.",
-        "num_tests": 100,
+        "num_tests": 1,
         "show_info": false,
         "batch_size": 1,
         "profiles_sample_size": 20,
@@ -27,7 +27,7 @@
         },
 
         "export_stats": {
-            "location": "./results/resource/"
+            "location": "./results/resource_v2"
         }
     },
 

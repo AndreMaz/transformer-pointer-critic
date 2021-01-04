@@ -13,20 +13,21 @@ from environment.custom.vrp.env import CVRP
 # from environment.custom.vrp.heuristic import solver as CVRPHeuristic
 
 from environment.custom.resource.env import ResourceEnvironment
-from environment.custom.resource.heuristic import GreedyHeuristic
+from environment.custom.resource.heuristic import GreedyHeuristic as GreedyHeuristicV1
 from environment.custom.resource.tester import test as ResourceTester
 from environment.custom.resource.plotter import plotter as ResourcePlotter
 
 
 from environment.custom.resource_v2.env import ResourceEnvironmentV2
+from environment.custom.resource_v2.heuristic import GreedyHeuristic as GreedyHeuristicV2
 from environment.custom.resource_v2.tester import test as ResourceV2Tester
 from environment.custom.resource.plotter import plotter as ResourceV2Plotter
 
 custom_envs = {
     "KnapsackV2": (KnapsackV2, KnapsackSolver, KnapsackHeuristic, KnapsackTester, KnapsackPlotter),
     "CVRP": (CVRP, None, None),
-    "Resource": (ResourceEnvironment, None, GreedyHeuristic, ResourceTester, ResourcePlotter),
-    "ResourceV2": (ResourceEnvironmentV2, None, None, ResourceV2Tester, ResourceV2Plotter),
+    "Resource": (ResourceEnvironment, None, GreedyHeuristicV1, ResourceTester, ResourcePlotter),
+    "ResourceV2": (ResourceEnvironmentV2, None, GreedyHeuristicV2, ResourceV2Tester, ResourceV2Plotter),
 }
 
 def env_factory(type, name, opts):

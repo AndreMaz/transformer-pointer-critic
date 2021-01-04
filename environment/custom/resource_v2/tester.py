@@ -1,7 +1,7 @@
-from environment.custom.resource.env import ResourceEnvironment
+from environment.custom.resource_v2.env import ResourceEnvironmentV2
 from agents.agent import Agent
-from environment.custom.resource.plotter import plot_attentions
-from environment.custom.resource.utils import export_to_csv, compute_max_steps
+from environment.custom.resource_v2.plotter import plot_attentions
+from environment.custom.resource_v2.utils import export_to_csv, compute_max_steps
 
 
 # from agents.optimum_solver import solver
@@ -13,15 +13,15 @@ OPTIMAL = 'Optimal'
 HEURISTIC = 'Heuristic'
 
 
-def test(env: ResourceEnvironment, agent: Agent, opts: dict, opt_solver, heuristic_solver, look_for_opt: bool = False):
+def test(env: ResourceEnvironmentV2, agent: Agent, opts: dict, opt_solver, heuristic_solver, look_for_opt: bool = False):
 
     num_tests = opts['num_tests']
     show_info = opts['show_info']
     
-    print('Problem;Net_Total;Net_Free;Net_Premium;Net_Free_Batch;Net_Premium_Batch;Heu_Total;Net_Free;Heu_Premium;Heu_Free_Batch;Heu_Premium_Batch')
+    # print('Problem;Net_Total;Net_Free;Net_Premium;Net_Free_Batch;Net_Premium_Batch;Heu_Total;Net_Free;Heu_Premium;Heu_Free_Batch;Heu_Premium_Batch')
     
     for i in range(num_tests):
-        env_stats, solver_stats = test_single_instance(
+        test_single_instance(
             env,
             agent,
             opts,
@@ -30,11 +30,11 @@ def test(env: ResourceEnvironment, agent: Agent, opts: dict, opt_solver, heurist
             show_info=show_info
         )
 
-        print(f'{i};{env_stats["total_nodes"]};{env_stats["num_free_rejected"]};{env_stats["num_premium_rejected"]};{env_stats["batch_free_rejected"]};{env_stats["batch_premium_rejected"]};{solver_stats["total_nodes"]};{solver_stats["num_free_rejected"]};{solver_stats["num_premium_rejected"]};{solver_stats["batch_free_rejected"]};{solver_stats["batch_premium_rejected"]}')
+        # print(f'{i};{env_stats["total_nodes"]};{env_stats["num_free_rejected"]};{env_stats["num_premium_rejected"]};{env_stats["batch_free_rejected"]};{env_stats["batch_premium_rejected"]};{solver_stats["total_nodes"]};{solver_stats["num_free_rejected"]};{solver_stats["num_premium_rejected"]};{solver_stats["batch_free_rejected"]};{solver_stats["batch_premium_rejected"]}')
 
 
 def test_single_instance(
-    env: ResourceEnvironment,
+    env: ResourceEnvironmentV2,
     agent: Agent,
     opts: dict,
     opt_solver,
@@ -47,6 +47,7 @@ def test_single_instance(
     req_sample_size = opts['profiles_sample_size']
     node_sample_size = opts['node_sample_size']
     num_episodes = opts['num_episodes']
+    csv_write_path = opts['export_stats']['location']
 
     # Set the agent and env to testing mode
     env.set_testing_mode(batch_size, node_sample_size, req_sample_size)
@@ -60,8 +61,10 @@ def test_single_instance(
     current_state, bin_net_mask, resource_net_mask, mha_used_mask = env.reset()
     dec_input = agent.generate_decoder_input(current_state)
     
+    env.build_history(current_state)
+
     if show_info:
-        print(f'Testing for {num_episodes} episodes with {agent.num_resources} resources and {env.bin_sample_size} bins')
+        print(f'Testing for {num_episodes} episodes with {agent.num_resources} resources and {env.node_sample_size} bins')
 
     # print('Solving with nets...')
     start = time.time()
@@ -70,7 +73,7 @@ def test_single_instance(
 
     # Init the heuristic solver
     # This will parse nodes/bins
-    # solver = heuristic_solver(env, opts['heuristic']['greedy'])
+    solver = heuristic_solver(env, opts['heuristic']['greedy'])
     state_list = [current_state]
 
     while episode_count < num_episodes:
@@ -149,8 +152,8 @@ def test_single_instance(
     max_steps = compute_max_steps(env.history[0], solver.node_list)
     # Export results to CSV
     t = datetime.now().replace(microsecond=0).isoformat()
-    export_to_csv(env.history, max_steps, 'Neural', f'./results/resource/{t}_net.csv')
-    export_to_csv([solver.node_list], max_steps, 'Heuristic', f'./results/resource/{t}_heuristic.csv')
+    export_to_csv(env.history, max_steps, 'Neural', f'{csv_write_path}/{t}_net.csv')
+    export_to_csv([solver.node_list], max_steps, 'Heuristic', f'{csv_write_path}/{t}_heuristic.csv')
 
 
     if show_info:
@@ -173,30 +176,4 @@ def test_single_instance(
     #     env.task_normalization_factor
     # )
 
-    return env.get_rejection_stats(), solver.get_rejection_stats()
-
-def compute_opt_solutions(env: ResourceEnvironment, opt_solver):
-    optimal_values = []
-    print('Looking for Optimal Solutions...')
-    start = time.time()
-    for index in range(env.batch_size):
-        print(f'Solving {index} of {env.batch_size}', end='\r')
-        data = env.convert_to_ortools_input(index)
-        optimal_values.append(opt_solver(data, False))
-    print(f'Done! Optimal Solutions found in {time.time() - start:.2f} seconds')
-
-    return optimal_values
-
-
-def compute_heuristic_solutions(env: ResourceEnvironment, heuristic_solver):
-    heuristic_values = []
-
-    print('Looking for Heuristic Solutions...')
-    start = time.time()
-    for index in range(env.batch_size):
-        print(f'Solving {index} of {env.batch_size}', end='\r')
-        prob = env.batch[index]
-        heuristic_values.append(heuristic_solver(prob, env.bin_sample_size))
-    print(f'Done! Heuristic Solutions found in {time.time() - start:.2f} seconds')
-
-    return heuristic_values
+    # return env.get_rejection_stats(), solver.get_rejection_stats()
