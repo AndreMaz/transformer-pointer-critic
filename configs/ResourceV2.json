@@ -34,14 +34,14 @@
     "env_config": {
         "description": "Environment configs.",
         
-        "batch_size": 64,
+        "batch_size": 5,
 
         "num_features": 3,
 
         "num_profiles": 200,
         "num_nodes": 50,
 
-        "profiles_sample_size": 20,
+        "profiles_sample_size": 3,
         "node_sample_size": 5,
         
         "req_min_val": 0.0,

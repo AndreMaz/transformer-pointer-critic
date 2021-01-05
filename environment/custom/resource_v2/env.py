@@ -52,7 +52,8 @@ class ResourceEnvironmentV2(BaseEnvironment):
             opts['reward']
         )
 
-        self.total_nodes, self.total_profiles = self.generate_dataset()
+        # Generate req profiles
+        self.total_profiles = self.generate_dataset()
 
         # Problem batch
         self.batch, self.history = self.generate_batch()
@@ -128,13 +129,7 @@ class ResourceEnvironmentV2(BaseEnvironment):
         return self.batch.copy(), rewards, isDone, info
     
     def generate_dataset(self):
-        nodes = tf.random.uniform(
-            (self.num_nodes, self.num_features),
-            minval=self.node_min_val,
-            maxval=self.node_max_val,
-            dtype='float32'
-        )
-        
+    
         profiles = tf.random.uniform(
             (self.num_profiles, self.num_features),
             minval=self.req_min_val,
@@ -142,7 +137,7 @@ class ResourceEnvironmentV2(BaseEnvironment):
             dtype='float32'
         )
 
-        return nodes, profiles
+        return profiles
 
     def generate_batch(self):
         history = []
@@ -154,11 +149,18 @@ class ResourceEnvironmentV2(BaseEnvironment):
             dtype="float32"
         )
 
+        # Generate nodes states
+        nodes = tf.random.uniform(
+            (self.batch_size, self.node_sample_size, self.num_features),
+            minval=self.node_min_val,
+            maxval=self.node_max_val,
+            dtype="float32"
+        )
+
+        batch[:, :self.node_sample_size, :] = nodes
+
+        # Sample profiles and add them to batch instances
         for index in range(self.batch_size):
-            shuffled_nodes = tf.random.shuffle(self.total_nodes)
-
-            batch[index, :self.node_sample_size, :] = shuffled_nodes[:self.node_sample_size]
-
             shuffled_profiles = tf.random.shuffle(self.total_profiles)
             
             batch[index, self.node_sample_size:, :] = shuffled_profiles[:self.profiles_sample_size]
