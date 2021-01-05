@@ -1,7 +1,7 @@
 from environment.custom.resource_v2.env import ResourceEnvironmentV2
 from agents.agent import Agent
 from environment.custom.resource_v2.plotter import plot_attentions
-from environment.custom.resource_v2.utils import export_to_csv, compute_max_steps
+from environment.custom.resource_v2.utils import export_to_csv, compute_max_steps, compute_delta, num_overloaded_nodes
 
 
 # from agents.optimum_solver import solver
@@ -21,7 +21,8 @@ def test(env: ResourceEnvironmentV2, agent: Agent, opts: dict, opt_solver, heuri
     # print('Problem;Net_Total;Net_Free;Net_Premium;Net_Free_Batch;Net_Premium_Batch;Heu_Total;Net_Free;Heu_Premium;Heu_Free_Batch;Heu_Premium_Batch')
     
     for i in range(num_tests):
-        test_single_instance(
+        env, solver = test_single_instance(
+            i,
             env,
             agent,
             opts,
@@ -30,10 +31,16 @@ def test(env: ResourceEnvironmentV2, agent: Agent, opts: dict, opt_solver, heuri
             show_info=show_info
         )
 
+        net_delta = compute_delta(env.history[0])
+        net_over = num_overloaded_nodes(env.history[0])
+        heu_delta = compute_delta(solver.node_list)
+        heu_over = num_overloaded_nodes(solver.node_list)
+        print(f'{net_delta[0]:.5f};{net_over};{heu_delta[0]:.5f};{heu_over}')
         # print(f'{i};{env_stats["total_nodes"]};{env_stats["num_free_rejected"]};{env_stats["num_premium_rejected"]};{env_stats["batch_free_rejected"]};{env_stats["batch_premium_rejected"]};{solver_stats["total_nodes"]};{solver_stats["num_free_rejected"]};{solver_stats["num_premium_rejected"]};{solver_stats["batch_free_rejected"]};{solver_stats["batch_premium_rejected"]}')
 
 
 def test_single_instance(
+    instance_id,
     env: ResourceEnvironmentV2,
     agent: Agent,
     opts: dict,
@@ -152,8 +159,8 @@ def test_single_instance(
     max_steps = compute_max_steps(env.history[0], solver.node_list)
     # Export results to CSV
     t = datetime.now().replace(microsecond=0).isoformat()
-    export_to_csv(env.history, max_steps, 'Neural', f'{csv_write_path}/{t}_net.csv')
-    export_to_csv([solver.node_list], max_steps, 'Heuristic', f'{csv_write_path}/{t}_heuristic.csv')
+    export_to_csv(env.history, max_steps, 'Neural', f'{csv_write_path}/{t}_{instance_id}_net.csv')
+    export_to_csv([solver.node_list], max_steps, 'Heuristic', f'{csv_write_path}/{t}_{instance_id}_heuristic.csv')
 
 
     if show_info:
@@ -176,4 +183,4 @@ def test_single_instance(
     #     env.task_normalization_factor
     # )
 
-    # return env.get_rejection_stats(), solver.get_rejection_stats()
+    return env, solver
