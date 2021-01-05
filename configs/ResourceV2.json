@@ -3,7 +3,7 @@
     
     "trainer_config": {
         "description": "Trainer function configs.",
-        "n_iterations": 1000,
+        "n_iterations": 1,
         "n_steps_to_update": 20
     },
 
@@ -34,14 +34,14 @@
     "env_config": {
         "description": "Environment configs.",
         
-        "batch_size": 5,
+        "batch_size": 64,
 
         "num_features": 3,
 
         "num_profiles": 200,
         "num_nodes": 50,
 
-        "profiles_sample_size": 3,
+        "profiles_sample_size": 20,
         "node_sample_size": 5,
         
         "req_min_val": 0.0,
