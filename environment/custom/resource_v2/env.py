@@ -28,16 +28,16 @@ class ResourceEnvironmentV2(BaseEnvironment):
 
         self.batch_size: int = opts['batch_size']
         self.num_features: int = opts['num_features']
-        self.num_profiles: int = opts['num_profiles']
+        # self.num_profiles: int = opts['num_profiles']
         
         self.profiles_sample_size: int = opts['profiles_sample_size']
         
-        assert self.num_profiles >= self.profiles_sample_size, 'Resource sample size should be less than total number of resources'
+        # assert self.num_profiles >= self.profiles_sample_size, 'Resource sample size should be less than total number of resources'
 
-        self.num_nodes: int = opts['num_nodes']
+        # self.num_nodes: int = opts['num_nodes']
         self.node_sample_size: int = opts['node_sample_size']
         
-        assert self.num_nodes >= self.node_sample_size, 'Bins sample size should be less than total number of bins'
+        # assert self.num_nodes >= self.node_sample_size, 'Bins sample size should be less than total number of bins'
 
         self.req_min_val: float = opts['req_min_val']
         self.req_max_val: float = opts['req_max_val']
@@ -53,7 +53,7 @@ class ResourceEnvironmentV2(BaseEnvironment):
         )
 
         # Generate req profiles
-        self.total_profiles = self.generate_dataset()
+        # self.total_profiles = self.generate_dataset()
 
         # Problem batch
         self.batch, self.history = self.generate_batch()
@@ -158,12 +158,23 @@ class ResourceEnvironmentV2(BaseEnvironment):
         )
 
         batch[:, :self.node_sample_size, :] = nodes
+        
+        # Generate reqs
+        reqs = tf.random.uniform(
+            (self.batch_size, self.profiles_sample_size, self.num_features),
+            minval=self.req_min_val,
+            maxval=self.req_max_val,
+            dtype="float32"
+        )
+        
+        batch[:, self.node_sample_size:, :] = reqs
+        
 
         # Sample profiles and add them to batch instances
-        for index in range(self.batch_size):
-            shuffled_profiles = tf.random.shuffle(self.total_profiles)
+        # for index in range(self.batch_size):
+        #     shuffled_profiles = tf.random.shuffle(self.total_profiles)
             
-            batch[index, self.node_sample_size:, :] = shuffled_profiles[:self.profiles_sample_size]
+        #     batch[index, self.node_sample_size:, :] = shuffled_profiles[:self.profiles_sample_size]
 
         # Create node instances that will gather stats
         if self.gather_stats:
@@ -202,7 +213,9 @@ class ResourceEnvironmentV2(BaseEnvironment):
         
         agent_config['batch_size'] = self.batch_size
 
-        agent_config['vocab_size'] = self.num_nodes + self.num_profiles
+        # In this env we don't need positional encoding
+        # So this can be any value
+        agent_config['vocab_size'] = 0 # self.num_nodes + self.num_profiles
     
         return agent_config
 
