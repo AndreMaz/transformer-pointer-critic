@@ -42,14 +42,13 @@ def plotter(data, env, agent, agent_config, opt_solver, print_details=False):
     plt.xlabel('Episode')
 
     gamma = agent_config['gamma']
-    mha_mask = agent_config['use_mha_mask']
     entropy = agent_config['entropy_coefficient']
-    td = agent_config['actor']['encoder_embedding_time_distributed']
-
+    dp_rate = agent['actor']['dropout_rate']
+    
     actor_lr = agent_config['actor']['learning_rate']
     critic_lr = agent_config['critic']['learning_rate']
     
-    file_name = f"g:{gamma}|e:{entropy}|td:{td}|ac_lr:{actor_lr}|cr_lr:{critic_lr}|mha_mask:{mha_mask}"
+    file_name = f"g:{gamma}|e:{entropy}|dp:{dp_rate}|ac_lr:{actor_lr}|cr_lr:{critic_lr}"
 
     plot_title = f"{agent_name.upper()}\n|" + file_name
     plt.title(plot_title)

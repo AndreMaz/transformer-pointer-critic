@@ -53,17 +53,11 @@ def runner(env_type="custom", env_name='ResourceV2', agent_name="tpc"):
     tester(env, agent, tester_config, opt_solver, heuristic_solver, look_for_opt)
     print('End... Goodbye!')
 
-def tuner(env_type="custom", env_name='CVRP', agent_name="tpc"):
-    # Read the configs
-    agent_config, trainer_config, env_config = get_configs(env_name, agent_name)
+def tuner(env_type="custom", env_name='ResourceV2', agent_name="tpc"):
     
-    # Create the environment
-    env, opt_solver, heuristic_solver = env_factory(env_type, env_name, env_config)
-    
-    # Add info about the environmanet
-    agent_config: dict = env.add_stats_to_agent_config(agent_config)
-
+    gamma_rate = [0.9, 0.99, 0.999]
     entropy_coefficient = [ 0.00001, 0.0001, 0.001 ]
+    dropout_rate = [ 0.001, 0.01, 0.1 ]
     actor_learning_rate = [
         # 0.00001,
         0.0001,
@@ -74,42 +68,48 @@ def tuner(env_type="custom", env_name='CVRP', agent_name="tpc"):
         0.0001,
         0.0005
     ]
-    mha_mask = [ True ]
-    time_distributed = [
-        True,
-        # False
-    ]
 
-    for entropy in entropy_coefficient:
-        for actor_lr in actor_learning_rate:
-            for critic_lr in critic_learning_rate:
-                for td in time_distributed:
-                    for use_mask in mha_mask:
-                    
-                        # Swap between using and not using the MHA mask
-                        env.compute_mha_mask = use_mask
+    for gamma in gamma_rate:
+        for entropy in entropy_coefficient:
+            for actor_lr in actor_learning_rate:
+                for critic_lr in critic_learning_rate:
+                        for dp_rate in dropout_rate:
+                            # Read the configs
+                            agent_config, trainer_config, env_config, tester_config = get_configs(env_name, agent_name)
 
-                        config = agent_config.copy()
+                            # Create the environment
+                            env, opt_solver, heuristic_solver, tester, plotter = env_factory(env_type, env_name, env_config)
 
-                        config['entropy_coefficient'] = entropy
-
-                        config['actor']['learning_rate'] = actor_lr
-                        config['actor']['encoder_embedding_time_distributed'] = td
-
-                        config['critic']['learning_rate'] = critic_lr
-                        config['critic']['encoder_embedding_time_distributed'] = td
-
-                        config['use_mha_mask'] = use_mask
-
-                        agent = Agent('transformer', config)
-
-                        training_history = trainer(
-                            env, agent, trainer_config)
-
-                        plotter(training_history, env, agent, agent_config, opt_solver, False)
+                            # Add info about the environmanet
+                            agent_config: dict = env.add_stats_to_agent_config(agent_config)
 
 
+                            config = agent_config.copy()
+
+                            config['gamma'] = gamma
+                            config['entropy_coefficient'] = entropy
+
+                            config['actor']['learning_rate'] = actor_lr
+                            config['actor']['dropout_rate'] = dp_rate
+
+                            config['critic']['learning_rate'] = critic_lr
+                            config['critic']['dropout_rate'] = dp_rate
+
+                            agent = Agent('transformer', config)
+
+                            show_info = False
+
+                            training_history = trainer(
+                                env, agent, trainer_config, show_info)
+
+                            plotter(training_history, env, agent, agent_config, opt_solver, False)
+
+                            look_for_opt = False
+                            
+                            result = tester(env, agent, tester_config, opt_solver, heuristic_solver, look_for_opt, show_info)
+
+                            print(f"{result};{entropy};{actor_lr};{dp_rate};{critic_lr}")
 
 if __name__ == "__main__":
-    runner()
-    # tuner()
+    # runner()
+    tuner()

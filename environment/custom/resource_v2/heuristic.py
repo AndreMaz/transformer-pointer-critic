@@ -1,6 +1,6 @@
 import sys
 
-from tensorflow.python.ops.gen_batch_ops import batch
+import numpy as np
 sys.path.append('.')
 import json
 
@@ -88,11 +88,19 @@ class GreedyHeuristic():
         # Sort the resources
         for resource in resource_list:
             
-            # Sort the nodes by their capacities
-            sorted_nodes: List[Node] = sorted(self.node_list, key=node_sorting_fn, reverse=True)
+            # Compute dominant resource of each node
+            diffs = []
+            for node in self.node_list:
+                diffs.append( 
+                    (compute_dominant_resource(node, resource), node)
+                )
+
+            # Sort the nodes by dominant resource
+            sorted_nodes: List[Node] = sorted(diffs, key=node_sorting_fn, reverse=True)
 
             # First fit
-            sorted_nodes[0].insert_req(resource)
+            _, selected_node = sorted_nodes[0]
+            selected_node.insert_req(resource)
     
         return
     
@@ -104,12 +112,24 @@ class GreedyHeuristic():
     def print_node_stats(self, print_details = False):
         for node in self.node_list:
             node.print(print_details)
-    
-def node_sorting_fn(node: Node):
-    return (node.remaining_CPU, node.remaining_RAM, node.remaining_MEM)
+
+def compute_dominant_resource(node: Node, resource: Resource):
+        diff_cpu = node.remaining_CPU - resource.CPU
+        diff_ram = node.remaining_RAM - resource.RAM
+        diff_mem = node.remaining_MEM - resource.MEM
+
+        return min(diff_cpu, diff_ram, diff_mem)
+
+
+def node_sorting_fn(e: Tuple[float, Node]):
+    return e[0]
+    # return (node.remaining_CPU, node.remaining_RAM, node.remaining_MEM)
 
 def resource_sorting_fn(elem: Resource):
-    return (elem.CPU, elem.RAM, elem.MEM)
+    return (
+        max(elem.CPU, elem.RAM, elem.MEM),
+        ( elem.CPU + elem.RAM + elem.MEM )/3
+    )
 
 if __name__ == "__main__":
     env_name = 'Resource'
@@ -123,13 +143,25 @@ if __name__ == "__main__":
 
     env = ResourceEnvironmentV2(env_name, env_config)
 
-    # env.state()
-
     heuristic_type = params['tester_config']['heuristic']['type']
     heuristic_opts = params['tester_config']['heuristic'][f'{heuristic_type}']
 
-    solver = GreedyHeuristic(env, heuristic_opts)
-
+    dummy_state = np.array([
+        [
+            [1, 2, 3],
+            [5, 2, 6],
+            [2, 1, 4],
+            [3, 5, 8],
+        ]
+    ], dtype='float32')
+    # Dummy data
+    env.batch = dummy_state
+    env.node_sample_size = 2
+    env.batch_size = 1
+    
     state, _, _, _ = env.state()
+
+
+    solver = GreedyHeuristic(env, heuristic_opts)
 
     solver.solve(state)

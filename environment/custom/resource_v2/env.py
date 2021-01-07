@@ -28,11 +28,11 @@ class ResourceEnvironmentV2(BaseEnvironment):
 
         self.batch_size: int = opts['batch_size']
         self.num_features: int = opts['num_features']
-        # self.num_profiles: int = opts['num_profiles']
+        self.num_profiles: int = opts['num_profiles']
         
         self.profiles_sample_size: int = opts['profiles_sample_size']
         
-        # assert self.num_profiles >= self.profiles_sample_size, 'Resource sample size should be less than total number of resources'
+        assert self.num_profiles >= self.profiles_sample_size, 'Resource sample size should be less than total number of resources'
 
         # self.num_nodes: int = opts['num_nodes']
         self.node_sample_size: int = opts['node_sample_size']
@@ -53,7 +53,7 @@ class ResourceEnvironmentV2(BaseEnvironment):
         )
 
         # Generate req profiles
-        # self.total_profiles = self.generate_dataset()
+        self.total_profiles = self.generate_dataset()
 
         # Problem batch
         self.batch, self.history = self.generate_batch()
@@ -94,6 +94,9 @@ class ResourceEnvironmentV2(BaseEnvironment):
         # Compute remaining resources after placing reqs at nodes
         remaining_resources = compute_remaining_resources(nodes, reqs)
 
+        # Copy the state before updating the values
+        copy_batch = self.batch.copy()
+
         # Update the batch state
         self.batch[batch_indices, bin_ids] = remaining_resources
             
@@ -107,7 +110,8 @@ class ResourceEnvironmentV2(BaseEnvironment):
         
         # Compute rewards
         rewards = self.rewarder.compute_reward(
-            self.batch, # Already updated values of nodes
+            self.batch, # Already updated values of nodes, i.e., after insertion
+            copy_batch, # Original values of nodes, i.e., before insertion
             self.node_sample_size,
             nodes,
             reqs,
@@ -160,21 +164,21 @@ class ResourceEnvironmentV2(BaseEnvironment):
         batch[:, :self.node_sample_size, :] = nodes
         
         # Generate reqs
-        reqs = tf.random.uniform(
-            (self.batch_size, self.profiles_sample_size, self.num_features),
-            minval=self.req_min_val,
-            maxval=self.req_max_val,
-            dtype="float32"
-        )
+        # reqs = tf.random.uniform(
+        #     (self.batch_size, self.profiles_sample_size, self.num_features),
+        #     minval=self.req_min_val,
+        #     maxval=self.req_max_val,
+        #     dtype="float32"
+        # )
         
-        batch[:, self.node_sample_size:, :] = reqs
+        # batch[:, self.node_sample_size:, :] = reqs
         
 
         # Sample profiles and add them to batch instances
-        # for index in range(self.batch_size):
-        #     shuffled_profiles = tf.random.shuffle(self.total_profiles)
+        for index in range(self.batch_size):
+            shuffled_profiles = tf.random.shuffle(self.total_profiles)
             
-        #     batch[index, self.node_sample_size:, :] = shuffled_profiles[:self.profiles_sample_size]
+            batch[index, self.node_sample_size:, :] = shuffled_profiles[:self.profiles_sample_size]
 
         # Create node instances that will gather stats
         if self.gather_stats:
