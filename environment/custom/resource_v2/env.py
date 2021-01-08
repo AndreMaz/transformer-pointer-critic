@@ -9,7 +9,7 @@ sys.path.append('.')
 import json
 import numpy as np
 import tensorflow as tf
-import tensorflow_probability as tfp
+# import tensorflow_probability as tfp
 from random import randint, randrange
 from environment.base.base import BaseEnvironment
 from environment.custom.resource_v2.reward import RewardFactory
@@ -138,10 +138,10 @@ class ResourceEnvironmentV2(BaseEnvironment):
             (self.num_profiles, self.num_features),
             minval=self.req_min_val,
             maxval=self.req_max_val,
-            dtype='float32'
-        )
+            dtype='int32'
+        ) / 100
 
-        return profiles
+        return tf.cast(profiles, dtype="float32")
 
     def generate_batch(self):
         history = []
@@ -158,10 +158,10 @@ class ResourceEnvironmentV2(BaseEnvironment):
             (self.batch_size, self.node_sample_size, self.num_features),
             minval=self.node_min_val,
             maxval=self.node_max_val,
-            dtype="float32"
-        )
+            dtype="int32"
+        ) / 100
 
-        batch[:, :self.node_sample_size, :] = nodes
+        batch[:, :self.node_sample_size, :] = tf.cast(nodes, dtype="float32")
         
         # Generate reqs
         # reqs = tf.random.uniform(
