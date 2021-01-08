@@ -3,17 +3,17 @@
     
     "trainer_config": {
         "description": "Trainer function configs.",
-        "n_iterations": 25,
+        "n_iterations": 3000,
         "n_steps_to_update": 20
     },
 
     "tester_config": {
         "description": "Testing function configs.",
-        "num_tests": 10,
+        "num_tests": 100,
         "show_info": false,
         "batch_size": 1,
-        "profiles_sample_size": 40,
-        "node_sample_size": 10,
+        "profiles_sample_size": 20,
+        "node_sample_size": 5,
         "num_episodes": 1,
         
         "heuristic": {
@@ -36,15 +36,15 @@
         "batch_size": 64,
 
         "num_features": 3,
-        
-        "num_profiles": 50,
+        "num_profiles": 20,
+
         "profiles_sample_size": 20,
         "node_sample_size": 5,
         
-        "req_min_val": 0.0,
+        "req_min_val": 0.01,
         "req_max_val": 0.3,
         
-        "node_min_val": 0.8,
+        "node_min_val": 0.0,
         "node_max_val": 1.0,
 
         "reward": {

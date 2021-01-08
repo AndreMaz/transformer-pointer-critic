@@ -43,7 +43,7 @@ def plotter(data, env, agent, agent_config, opt_solver, print_details=False):
 
     gamma = agent_config['gamma']
     entropy = agent_config['entropy_coefficient']
-    dp_rate = agent['actor']['dropout_rate']
+    dp_rate = agent_config['actor']['dropout_rate']
     
     actor_lr = agent_config['actor']['learning_rate']
     critic_lr = agent_config['critic']['learning_rate']

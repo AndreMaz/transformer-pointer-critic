@@ -57,14 +57,6 @@ class Node():
         self.CPU_history.append(self.remaining_CPU.copy())
         self.RAM_history.append(self.remaining_RAM.copy())
         self.MEM_history.append(self.remaining_MEM.copy())
-        
-    
-    def compute_node_load(self):
-        CPU_load = (1 - self.remaining_CPU / self.CPU) * 100
-        RAM_load = (1 - self.remaining_RAM / self.RAM) * 100
-        MEM_load = (1 - self.remaining_MEM / self.MEM) * 100
-
-        return CPU_load, RAM_load, MEM_load
 
     def print(self, print_details = False):
         CPU_load = np.around(self.remaining_CPU, decimals=4)

@@ -21,7 +21,7 @@ from environment.custom.resource.plotter import plotter as ResourcePlotter
 from environment.custom.resource_v2.env import ResourceEnvironmentV2
 from environment.custom.resource_v2.heuristic import GreedyHeuristic as GreedyHeuristicV2
 from environment.custom.resource_v2.tester import test as ResourceV2Tester
-from environment.custom.resource.plotter import plotter as ResourceV2Plotter
+from environment.custom.resource_v2.plotter import plotter as ResourceV2Plotter
 
 custom_envs = {
     "KnapsackV2": (KnapsackV2, KnapsackSolver, KnapsackHeuristic, KnapsackTester, KnapsackPlotter),

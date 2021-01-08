@@ -87,15 +87,15 @@ class ResourceEnvironmentV2(BaseEnvironment):
         num_elems = self.batch.shape[1]
         batch_indices = tf.range(batch_size, dtype='int32')
         
+        # Copy the state before updating the values
+        copy_batch = self.batch.copy()
+
         # Grab the selected nodes and resources
         nodes: np.ndarray = self.batch[batch_indices, bin_ids]
         reqs: np.ndarray = self.batch[batch_indices, req_ids]
 
         # Compute remaining resources after placing reqs at nodes
         remaining_resources = compute_remaining_resources(nodes, reqs)
-
-        # Copy the state before updating the values
-        copy_batch = self.batch.copy()
 
         # Update the batch state
         self.batch[batch_indices, bin_ids] = remaining_resources

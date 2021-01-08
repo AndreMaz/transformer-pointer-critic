@@ -27,12 +27,10 @@ def test(
     num_tests = opts['num_tests']
     show_info = opts['show_info']
     
-    # print('Problem;Net_Total;Net_Free;Net_Premium;Net_Free_Batch;Net_Premium_Batch;Heu_Total;Net_Free;Heu_Premium;Heu_Free_Batch;Heu_Premium_Batch')
-    
     totals = 0
-    for i in range(num_tests):
+    for test_index in range(num_tests):
         env, solver = test_single_instance(
-            i,
+            test_index,
             env,
             agent,
             opts,
@@ -47,9 +45,9 @@ def test(
         if pos == 0:
             totals += 1
 
-        # print(f'{net_delta[0]:.5f};{heu_delta[0]:.5f};{pos}')
+        print(f'{net_delta[0]:.5f};{heu_delta[0]:.5f};{pos}')
     
-    # print(f"Net won in {totals/num_tests}%")
+    print(f"Net won in {totals/num_tests}%")
 
     return totals/num_tests
 

@@ -82,13 +82,12 @@ class GreedyHeuristic():
     def solve(self, state):
         
         resource_list = self.parse_resources(state)
-        # resource_list: List[Resource] = sorted(resource_list, key=attrgetter("request_type"), reverse=True)
+        # Sort the reqs in a descending order
         resource_list: List[Resource] = sorted(resource_list, key=resource_sorting_fn, reverse=True)
         
-        # Sort the resources
         for resource in resource_list:
             
-            # Compute dominant resource of each node
+            # Compute dominant resource of each node and current request
             diffs = []
             for node in self.node_list:
                 diffs.append( 
@@ -96,7 +95,7 @@ class GreedyHeuristic():
                 )
 
             # Sort the nodes by dominant resource
-            sorted_nodes: List[Node] = sorted(diffs, key=node_sorting_fn, reverse=True)
+            sorted_nodes: Tuple[float, Node] = sorted(diffs, key=node_sorting_fn, reverse=True)
 
             # First fit
             _, selected_node = sorted_nodes[0]

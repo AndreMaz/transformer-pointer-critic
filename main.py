@@ -40,7 +40,8 @@ def runner(env_type="custom", env_name='ResourceV2', agent_name="tpc"):
     # Train
     print('Training...')
     # tf.profiler.experimental.start('logdir')
-    training_history = trainer(env, agent, trainer_config)
+    show_info = True
+    training_history = trainer(env, agent, trainer_config, show_info)
     # tf.profiler.experimental.stop()
 
     # Plot the learning curve
@@ -108,8 +109,8 @@ def tuner(env_type="custom", env_name='ResourceV2', agent_name="tpc"):
                             
                             result = tester(env, agent, tester_config, opt_solver, heuristic_solver, look_for_opt, show_info)
 
-                            print(f"{result};{entropy};{actor_lr};{dp_rate};{critic_lr}")
+                            print(f"{result};{gamma};{entropy};{actor_lr};{dp_rate};{critic_lr}")
 
 if __name__ == "__main__":
-    # runner()
-    tuner()
+    runner()
+    # tuner()
