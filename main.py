@@ -40,8 +40,8 @@ def runner(env_type="custom", env_name='ResourceV2', agent_name="tpc"):
     # Train
     print('Training...')
     # tf.profiler.experimental.start('logdir')
-    show_info = True
-    training_history = trainer(env, agent, trainer_config, show_info)
+    show_progress = True
+    training_history = trainer(env, agent, trainer_config, show_progress)
     # tf.profiler.experimental.stop()
 
     # Plot the learning curve
@@ -51,23 +51,24 @@ def runner(env_type="custom", env_name='ResourceV2', agent_name="tpc"):
     # Test the agent
     print("\nTesting...")
     look_for_opt = False
-    tester(env, agent, tester_config, opt_solver, heuristic_solver, look_for_opt)
+    show_info = False
+    tester(env, agent, tester_config, opt_solver, heuristic_solver, look_for_opt, show_info)
     print('End... Goodbye!')
 
 def tuner(env_type="custom", env_name='ResourceV2', agent_name="tpc"):
     
     gamma_rate = [0.9, 0.99, 0.999]
-    entropy_coefficient = [ 0.00001, 0.0001, 0.001 ]
+    entropy_coefficient = [ 0.00001, 0.0001, 0.001, 0.01 ]
     dropout_rate = [ 0.001, 0.01, 0.1 ]
     actor_learning_rate = [
         # 0.00001,
         0.0001,
-        0.0005
+        #0.0005
     ]
     critic_learning_rate = [ 
         # 0.00001,
         0.0001,
-        0.0005
+        #0.0005
     ]
 
     for gamma in gamma_rate:

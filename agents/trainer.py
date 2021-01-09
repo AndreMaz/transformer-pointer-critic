@@ -4,7 +4,7 @@ import tensorflow as tf
 import numpy as np
 import time
 
-def trainer(env: KnapsackV2, agent: Agent, opts: dict, show_info: bool):
+def trainer(env: KnapsackV2, agent: Agent, opts: dict, show_progress: bool):
     # print(f'Training with {env.resource_sample_size} resources and {env.bin_sample_size} bins')
 
     training = True
@@ -174,7 +174,7 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict, show_info: bool):
             )
         )
 
-        if isDone and show_info:
+        if isDone and show_progress:
             print(f"\rEpisode: {episode_count} took {time.time() - start:.2f} seconds. Min in Batch: {min_in_batch:.3f} Max in Batch: {max_in_batch:.3f} Average Reward: {episode_reward:.3f} Value Loss: {value_loss[0]:.5f}", end="\n")
 
         # Iteration complete. Clear agent's memory

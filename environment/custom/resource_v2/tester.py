@@ -20,14 +20,16 @@ def test(
     opts: dict,
     opt_solver,
     heuristic_solver,
-    look_for_opt: bool = False,
-    show_info: bool = False
+    look_for_opt: bool,
+    show_info: bool
     ):
 
     num_tests = opts['num_tests']
-    show_info = opts['show_info']
+    # show_info = opts['show_info']
     
-    totals = 0
+    won = 0
+    draw = 0
+    loss = 0
     for test_index in range(num_tests):
         env, solver = test_single_instance(
             test_index,
@@ -36,20 +38,30 @@ def test(
             opts,
             opt_solver,
             heuristic_solver,
-            show_info=show_info
+            look_for_opt,
+            show_info
         )
 
         net_delta = compute_delta(env.history[0])
         heu_delta = compute_delta(solver.node_list)
-        pos = np.argmax([net_delta, heu_delta])
-        if pos == 0:
-            totals += 1
+        
+        if net_delta > heu_delta:
+            won += 1
+            res = 'Won'
+        elif net_delta == heu_delta:
+            draw += 1
+            res = 'Draw'
+        else:
+            loss += 1
+            res = 'Loss'
 
-        print(f'{net_delta[0]:.5f};{heu_delta[0]:.5f};{pos}')
+        #if show_info:
+        print(f'{net_delta[0]:.5f};{heu_delta[0]:.5f};{res}')
     
-    print(f"Net won in {totals/num_tests}%")
+    # if show_info:
+    print(f"Won {won/num_tests}% || Draw {draw/num_tests}% || Loss {loss/num_tests}%")
 
-    return totals/num_tests
+    return won/num_tests
 
 def test_single_instance(
     instance_id,
@@ -58,10 +70,11 @@ def test_single_instance(
     opts: dict,
     opt_solver,
     heuristic_solver,
-    look_for_opt: bool = False,
-    show_info: bool = False
+    look_for_opt: bool,
+    show_info: bool
     ):
     
+    plot_attentions = opts['plot_attentions']
     batch_size = opts['batch_size']
     req_sample_size = opts['profiles_sample_size']
     node_sample_size = opts['node_sample_size']
@@ -156,10 +169,10 @@ def test_single_instance(
         episode_count += 1
 
     if show_info:
-        if env.validate_history() == True:
-            print('All solutions are valid!')
-        else:
-            print('Ups! Network generated invalid solutions')
+        # if env.validate_history() == True:
+        #    print('All solutions are valid!')
+        #else:
+        #    print('Ups! Network generated invalid solutions')
 
         print(f'Done! Net solutions found in {time.time() - start:.2f} seconds')
     
@@ -180,19 +193,12 @@ def test_single_instance(
         print('________________________________________________________________________________')    
         solver.print_node_stats(False)
 
-    # print(episode_rewards)
-    episode_rewards = np.sum(episode_rewards, axis=-1)
-    
-    if look_for_opt == False:
-        optimal_values = len(episode_rewards) * [0]
-
-    # Plot the attentions to visualize the policy
-    # plot_attentions(
-    #     attentions,
-    #     env.resource_sample_size,
-    #     env.bin_sample_size,
-    #     env.resource_normalization_factor,
-    #     env.task_normalization_factor
-    # )
+    if plot_attentions:
+        # Plot the attentions to visualize the policy
+        plot_attentions(
+            attentions,
+            env.profiles_sample_size,
+            env.node_sample_size,
+        )
 
     return env, solver
