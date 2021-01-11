@@ -1,10 +1,12 @@
 import tensorflow as tf
 import numpy as np
+from tensorflow.python.keras.engine import node
 
 def RewardFactory(opts: dict):
     rewards = {
         "fair": FairReward,
-        "fair_v2": FairRewardV2
+        "fair_v2": FairRewardV2,
+        "gini": GiniReward
     }
 
     try:
@@ -82,49 +84,116 @@ class FairRewardV2():
 
         return min_resource_selected_node - min_resource_all_nodes
 
-if __name__ == "__main__":
-    reward = FairRewardV2({})
+class GiniReward():
+    def __init__(self, opts: dict):
+        super(GiniReward, self).__init__()
 
-    updated_batch = np.array([
-        [
-            [10, 20, 30],
-            [50, 20, 60],
-            [0, 0, 0],
-            [0, 0, 0],
-        ],
-        [
-            [5, 3, 7],
-            [2, 1, 8],
-            [0, 0, 0],
-            [0, 0, 0],
-        ]
-    ], dtype='float32')
-    
-    updated_batch = np.array([
-        [
-            [1, 2, 3],
-            [5, 2, 6],
-            [0, 0, 0],
-            [0, 0, 0],
-        ],
-        [
-            [5, 3, 7],
-            [2, 1, 8],
-            [0, 0, 0],
-            [0, 0, 0],
-        ]
-    ], dtype='float32')
-
-    total_num_nodes = 2
-
-    nodes = None
-    reqs = None
-    feasible_mask  = None
-
-    reward.compute_reward(
-                       batch,
+    def compute_reward(self,
+                       updated_batch,
+                       original_batch,
                        total_num_nodes,
                        nodes,
                        reqs,
                        feasible_mask
-                       )
+                       ):
+
+        batch_size = updated_batch.shape[0]
+
+        all_bins = updated_batch[:, :total_num_nodes]
+        bins_cpu = all_bins[:, :, 0]
+        bins_ram = all_bins[:, :, 1]
+        bins_mem = all_bins[:, :, 2]
+
+        gini_cpu = 1 - gini_calculator(bins_cpu, total_num_nodes)
+        gini_ram = 1 - gini_calculator(bins_ram, total_num_nodes)
+        gini_mem = 1 - gini_calculator(bins_mem, total_num_nodes)
+
+        return gini_cpu + gini_ram + gini_mem
+
+# Links: https://goodcalculators.com/gini-coefficient-calculator/
+# Links: https://shlegeris.com/gini.html
+def gini_calculator(entries, num_nodes):
+    
+    batch_size = entries.shape[0]
+
+    # Node indices from [1, num_nodes]
+    node_indices =  tf.range(1, num_nodes+1, dtype='float32')
+    
+    # Sorted
+    entries = tf.sort(entries, axis=-1, direction='ASCENDING')
+    
+    # Positive entries
+    # Set negative values to 0
+    # positives = tf.cast(tf.greater(entries, 0), dtype='float32')
+    # entries = entries * positives
+
+    numerator = 2*tf.reduce_sum(
+        (num_nodes + 1 - node_indices)*entries,
+        axis=-1
+    )
+    denominator = num_nodes * tf.reduce_sum(entries, axis=-1)
+
+    gini = (num_nodes + 1)/ num_nodes - (numerator / denominator)
+    
+    return gini
+
+
+if __name__ == "__main__":
+    entries = np.array([
+        [15, 15, 30, 40],
+        [10, 20, 35, 35],
+        [-10, -20, 35, 35],
+        [-0.01, 0, 0, 0],
+        [0, 0, 0, 0],
+    ], dtype='float32')
+
+    num_nodes = 4
+
+    gini_calculator(entries, num_nodes)
+
+    # reward = FairRewardV2({})
+
+    # updated_batch = np.array([
+    #     [
+    #         [10, 20, 30],
+    #         [50, 20, 60],
+    #         [0, 0, 0],
+    #         [0, 0, 0],
+    #     ],
+    #     [
+    #         [5, 3, 7],
+    #         [2, 1, 8],
+    #         [0, 0, 0],
+    #         [0, 0, 0],
+    #     ]
+    # ], dtype='float32')
+    
+    # original_batch = np.array([
+    #     [
+    #         [1, 2, 3],
+    #         [5, 2, 6],
+    #         [0, 0, 0],
+    #         [0, 0, 0],
+    #     ],
+    #     [
+    #         [5, 3, 7],
+    #         [2, 1, 8],
+    #         [0, 0, 0],
+    #         [0, 0, 0],
+    #     ]
+    # ], dtype='float32')
+
+    # total_num_nodes = 2
+
+    # nodes = None
+    # reqs = None
+    # feasible_mask  = None
+
+    # reward.compute_reward(
+    #                    updated_batch,
+    #                    original_batch,
+    #                    total_num_nodes,
+    #                    nodes,
+    #                    reqs,
+    #                    feasible_mask
+    #                    )

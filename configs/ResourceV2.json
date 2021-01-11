@@ -3,7 +3,7 @@
     
     "trainer_config": {
         "description": "Trainer function configs.",
-        "n_iterations": 200,
+        "n_iterations": 1000,
         "n_steps_to_update": 20
     },
 
@@ -39,19 +39,20 @@
         "num_features": 3,
         "num_profiles": 20,
 
-        "profiles_sample_size": 20,
-        "node_sample_size": 5,
+        "profiles_sample_size": 2,
+        "node_sample_size": 3,
         
         "req_min_val": 1,
-        "req_max_val": 5,
+        "req_max_val": 30,
         
-        "node_min_val": 95,
+        "node_min_val": 0,
         "node_max_val": 100,
 
         "reward": {
-            "type": "fair",
+            "type": "gini",
             "fair": {},
-            "fair_v2": {}
+            "fair_v2": {},
+            "gini": {}
         }
     },
 
