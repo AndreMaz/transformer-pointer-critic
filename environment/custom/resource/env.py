@@ -205,8 +205,9 @@ class ResourceEnvironment(BaseEnvironment):
             self.resource_net_mask[batch_id, resource_id] = 1
             self.mha_used_mask[batch_id, :, :, resource_id] = 1
 
-            if (np.all(self.batch[batch_id, bin_id, :3] == 0)):
+            if (bin_id != 0 and np.any(self.batch[batch_id, bin_id, :3] == 0)):
                 self.bin_net_mask[batch_id, bin_id] = 1
+                self.mha_used_mask[batch_id, :, :, bin_id] = 1
 
         info = {
              'bin_net_mask': self.bin_net_mask.copy(),
