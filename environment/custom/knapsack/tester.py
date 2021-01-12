@@ -10,18 +10,18 @@ import time
 OPTIMAL = 'Optimal'
 HEURISTIC = 'Heuristic'
 
-def test(env: KnapsackV2, agent: Agent, opts: dict, opt_solver, heuristic_solver, look_for_opt: bool = False):
+def test(env: KnapsackV2, agent: Agent, opts: dict, opt_solver, heuristic_solver, look_for_opt: bool = False, show_info: bool = False):
     # for _ in range(32):
     # Set the agent to testing mode
     agent.training = False
     agent.stochastic_action_selection = False
     
     # Increase the number for resources during testing
-    env.resource_sample_size = 50
-    agent.num_resources = 50
+    env.resource_sample_size = 20
+    agent.num_resources = 20
 
     # Increase the number of bins during testing
-    env.bin_sample_size = 10 + 1 # Because of the EOS
+    env.bin_sample_size = 5 + 1 # Because of the EOS
     
     # env.batch_size  = 1
     # agent.batch_size = 1
@@ -84,7 +84,8 @@ def test(env: KnapsackV2, agent: Agent, opts: dict, opt_solver, heuristic_solver
         # Play one step
         next_state, reward, isDone, info = env.step(
             bin_id,
-            resource_id
+            resource_id,
+            bin_net_mask
         )
                 
         # Store episode rewards
