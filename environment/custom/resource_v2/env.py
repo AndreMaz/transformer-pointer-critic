@@ -34,10 +34,9 @@ class ResourceEnvironmentV2(BaseEnvironment):
         
         assert self.num_profiles >= self.profiles_sample_size, 'Resource sample size should be less than total number of resources'
 
-        # self.num_nodes: int = opts['num_nodes']
-        self.node_sample_size: int = opts['node_sample_size']
-        
-        # assert self.num_nodes >= self.node_sample_size, 'Bins sample size should be less than total number of bins'
+        self.EOS_CODE: int = opts['EOS_CODE']
+        self.EOS_BIN = np.full((1, self.num_features), self.EOS_CODE, dtype='float32')
+        self.node_sample_size: int = opts['node_sample_size'] + 1 # + 1 because of the EOS bin
 
         self.req_min_val: float = opts['req_min_val']
         self.req_max_val: float = opts['req_max_val']
@@ -102,8 +101,17 @@ class ResourceEnvironmentV2(BaseEnvironment):
             
         # Item taken mask it
         self.resource_net_mask[batch_indices, req_ids] = 1
+        
+        # Update node masks
+        dominant_resource = tf.reduce_min(remaining_resources, axis=-1)
+        dominant_resource = tf.cast(tf.equal(dominant_resource, 0), dtype='float32')
+        self.bin_net_mask[batch_indices, bin_ids] = dominant_resource
+        self.bin_net_mask[:, 0] = 0 # EOS is always available
+
         # Update the MHA masks
         self.mha_used_mask[batch_indices, :, :, req_ids] = 1
+        self.mha_used_mask[batch_indices, :, :, bin_ids] = dominant_resource
+        self.mha_used_mask[batch_indices, :, :, 0] = 0 # EOS is always available
 
         if np.all(self.resource_net_mask == 1):
             isDone = True
@@ -165,6 +173,9 @@ class ResourceEnvironmentV2(BaseEnvironment):
 
         batch[:, :self.node_sample_size, :] = tf.cast(nodes, dtype="float32")
         
+        # Replace first position with EOS node
+        batch[:, 0, :] = self.EOS_BIN
+
         # Generate reqs
         # reqs = tf.random.uniform(
         #     (self.batch_size, self.profiles_sample_size, self.num_features),
@@ -276,8 +287,34 @@ class ResourceEnvironmentV2(BaseEnvironment):
 
 
     def build_feasible_mask(self, state, resources, bin_net_mask):
+        batch = state.shape[0]
+        num_elems = state.shape[1]
+        # Add batch dim to resources
+        resource_demands = np.reshape(resources, (batch, 1, self.num_features))
+        # Tile to match the num elems
+        resource_demands = tf.tile(resource_demands, [1, num_elems, 1])
+
+        # Compute remaining resources after placement
+        remaining_resources = state - resource_demands
+
+        dominant_resource = tf.reduce_min(remaining_resources, axis=-1)
+        
+        # Ensure that it's greater that 0
+        # i.e., that node is not overloaded
+        after_place = tf.less(dominant_resource, 0)
+        after_place = tf.cast(after_place, dtype='float32')
+
+        # Can't point to resources positions
+        feasible_mask = tf.maximum(after_place, bin_net_mask)
+        feasible_mask = feasible_mask.numpy()
+        
+        assert np.all(dominant_resource*(1-feasible_mask) >= 0), 'Masking Scheme Is Wrong!'
+
+        # EOS is always available for pointing
+        feasible_mask[:, 0] = 0
+
         # Return as is. At this moment node can be overloaded
-        return bin_net_mask
+        return feasible_mask
 
     def num_inserted_resources(self):
         return
@@ -315,4 +352,4 @@ if __name__ == "__main__":
 
     env = ResourceEnvironmentV2(env_name, env_configs)
 
-    env.print_history()
+    # env.print_history()

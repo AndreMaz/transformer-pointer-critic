@@ -34,7 +34,7 @@
     "env_config": {
         "description": "Environment configs.",
         
-        "batch_size": 64,
+        "batch_size": 2,
 
         "num_features": 3,
         "num_profiles": 20,
@@ -42,10 +42,11 @@
         "profiles_sample_size": 2,
         "node_sample_size": 3,
         
-        "req_min_val": 1,
+        "EOS_CODE": -2,
+        "req_min_val": 28,
         "req_max_val": 30,
         
-        "node_min_val": 0,
+        "node_min_val": 98,
         "node_max_val": 100,
 
         "reward": {
