@@ -65,24 +65,24 @@ class FairRewardV2():
         min_resource_selected_node = tf.math.reduce_min(updated_nodes, axis=1)
 
         # Find dominant resource IF the request were placed at other nodes
-        original_batch_nodes = original_batch[:, :total_num_nodes]
-        expanded_reqs = tf.tile(tf.expand_dims(reqs, 1), [1, total_num_nodes, 1])
+        # original_batch_nodes = original_batch[:, :total_num_nodes]
+        # expanded_reqs = tf.tile(tf.expand_dims(reqs, 1), [1, total_num_nodes, 1])
 
-        diff_placement = original_batch_nodes - expanded_reqs
+        # diff_placement = original_batch_nodes - expanded_reqs
 
-        bins_cpu = diff_placement[:, :, 0]
-        bins_ram = diff_placement[:, :, 1]
-        bins_mem = diff_placement[:, :, 2]
+        # bins_cpu = diff_placement[:, :, 0]
+        # bins_ram = diff_placement[:, :, 1]
+        # bins_mem = diff_placement[:, :, 2]
 
-        min_cpu = tf.math.reduce_min(bins_cpu, axis=1)
-        min_ram = tf.math.reduce_min(bins_ram, axis=1)
-        min_mem = tf.math.reduce_min(bins_mem, axis=1)
+        # min_cpu = tf.math.reduce_min(bins_cpu, axis=1)
+        # min_ram = tf.math.reduce_min(bins_ram, axis=1)
+        # min_mem = tf.math.reduce_min(bins_mem, axis=1)
 
-        min_vals = tf.convert_to_tensor([min_cpu, min_ram, min_mem])
+        # min_vals = tf.convert_to_tensor([min_cpu, min_ram, min_mem])
 
-        min_resource_all_nodes = tf.math.reduce_min(min_vals, axis=0)
+        # min_resource_all_nodes = tf.math.reduce_min(min_vals, axis=0)
 
-        return min_resource_selected_node - min_resource_all_nodes
+        return min_resource_selected_node
 
 class GiniReward():
     def __init__(self, opts: dict):

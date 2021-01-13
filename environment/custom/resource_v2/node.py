@@ -62,8 +62,9 @@ class Node():
         CPU_load = np.around(self.remaining_CPU, decimals=4)
         RAM_load = np.around(self.remaining_RAM, decimals=4)
         MEM_load = np.around(self.remaining_MEM, decimals=4)
+        dominant = min(self.remaining_CPU, self.remaining_RAM, self.remaining_MEM)
 
-        print(f'Node ID: {self.id} \t| Remaining CPU: {CPU_load} of {self.CPU} \t| Remaining RAM: {RAM_load} of {self.RAM} \t| Remaining MEM: {MEM_load} of {self.MEM} \t')
+        print(f'Node ID: {self.id} \t| Remaining CPU: {CPU_load} of {self.CPU} \t| Remaining RAM: {RAM_load} of {self.RAM} \t| Remaining MEM: {MEM_load} of {self.MEM} || Dominant {dominant[0]:.3f} \t')
         
         total_nodes = len(self.req_list)
 
@@ -79,6 +80,9 @@ class Node():
 
     def print_history_stats(self):
         print('CPU History')
+
+        np.set_printoptions(precision=4)
+
         print(np.asanyarray(self.CPU_history).flatten())
         
         print('RAM History')
