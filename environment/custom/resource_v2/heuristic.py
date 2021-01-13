@@ -98,8 +98,11 @@ class GreedyHeuristic():
             sorted_nodes: Tuple[float, Node] = sorted(diffs, key=node_sorting_fn, reverse=True)
 
             # First fit
-            _, selected_node = sorted_nodes[0]
-            selected_node.insert_req(resource)
+            diff, selected_node = sorted_nodes[0]
+            if (diff > 0):
+                selected_node.insert_req(resource)
+            else:
+                self.EOS_NODE.insert_req(resource)
     
         return
     

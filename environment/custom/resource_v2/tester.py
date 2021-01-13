@@ -42,8 +42,8 @@ def test(
             show_info
         )
 
-        net_delta = compute_delta(env.history[0])
-        heu_delta = compute_delta(solver.node_list)
+        net_delta, net_rejected = compute_delta(env.history[0])
+        heu_delta, heu_rejected = compute_delta(solver.node_list)
         
         if net_delta > heu_delta:
             won += 1
@@ -56,7 +56,7 @@ def test(
             res = 'Loss'
 
         #if show_info:
-        print(f'{net_delta[0]:.5f};{heu_delta[0]:.5f};{res}')
+        print(f'{net_delta[0]:.5f};{net_rejected}||{heu_delta[0]:.5f};{heu_rejected}||{res}')
     
     # if show_info:
     print(f"Won {won/num_tests}% || Draw {draw/num_tests}% || Loss {loss/num_tests}%")

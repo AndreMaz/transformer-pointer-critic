@@ -48,7 +48,8 @@ class ResourceEnvironmentV2(BaseEnvironment):
         ##### MATERIALIZED VARIABLES FROM CONFIGS ######
         ################################################
         self.rewarder = RewardFactory(
-            opts['reward']
+            opts['reward'],
+            self.EOS_BIN
         )
 
         # Generate req profiles
@@ -98,6 +99,8 @@ class ResourceEnvironmentV2(BaseEnvironment):
 
         # Update the batch state
         self.batch[batch_indices, bin_ids] = remaining_resources
+        # Keep EOS node intact
+        self.batch[batch_indices, 0] = self.EOS_BIN
             
         # Item taken mask it
         self.resource_net_mask[batch_indices, req_ids] = 1
@@ -110,7 +113,9 @@ class ResourceEnvironmentV2(BaseEnvironment):
 
         # Update the MHA masks
         self.mha_used_mask[batch_indices, :, :, req_ids] = 1
-        self.mha_used_mask[batch_indices, :, :, bin_ids] = dominant_resource
+        self.mha_used_mask[batch_indices, :, :, bin_ids] = tf.reshape(
+            dominant_resource, (self.batch_size, 1, 1)
+        )
         self.mha_used_mask[batch_indices, :, :, 0] = 0 # EOS is always available
 
         if np.all(self.resource_net_mask == 1):

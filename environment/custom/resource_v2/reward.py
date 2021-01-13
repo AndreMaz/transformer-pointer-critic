@@ -1,11 +1,12 @@
 import tensorflow as tf
 import numpy as np
 from tensorflow.python.keras.engine import node
+from environment.custom.resource_v2.utils import bins_eos_checker
 
-def RewardFactory(opts: dict):
+def RewardFactory(opts: dict, EOS_NODE):
     rewards = {
         "fair": FairReward,
-        "fair_v2": FairRewardV2,
+        "greedy": GreedyReward,
         "gini": GiniReward
     }
 
@@ -13,13 +14,36 @@ def RewardFactory(opts: dict):
         rewardType = opts['type']
         R = rewards[f'{rewardType}']
         print(f'"{rewardType.upper()}" reward selected.')
-        return R(opts[f'{rewardType}'])
+        return R(opts[f'{rewardType}'], EOS_NODE)
     except KeyError:
         raise NameError(f'Unknown Reward Name! Select one of {list(rewards.keys())}')
 
+class GreedyReward():
+    def __init__(self, opts: dict, EOS_NODE):
+        super(GreedyReward, self).__init__()
+        self.EOS_NODE = EOS_NODE
+
+    def compute_reward(self,
+                       updated_batch,
+                       original_batch,
+                       total_num_nodes,
+                       nodes,
+                       reqs,
+                       feasible_mask
+                       ):
+
+        batch_size = updated_batch.shape[0]
+        num_features = updated_batch.shape[2]
+
+        is_eos = bins_eos_checker(nodes, self.EOS_NODE[0], num_features)
+
+        return 1 - is_eos
+
+
 class FairReward():
-    def __init__(self, opts: dict):
+    def __init__(self, opts: dict, EOS_NODE):
         super(FairReward, self).__init__()
+        self.EOS_NODE = EOS_NODE
 
     def compute_reward(self,
                        updated_batch,
@@ -45,48 +69,10 @@ class FairReward():
 
         return min_resource
 
-class FairRewardV2():
-    def __init__(self, opts: dict):
-        super(FairRewardV2, self).__init__()
-
-    def compute_reward(self,
-                       updated_batch,
-                       original_batch,
-                       total_num_nodes,
-                       nodes,
-                       reqs,
-                       feasible_mask
-                       ):
-
-        batch_size = updated_batch.shape[0]
-
-        # Find dominant resource for the selected nodes
-        updated_nodes = nodes - reqs
-        min_resource_selected_node = tf.math.reduce_min(updated_nodes, axis=1)
-
-        # Find dominant resource IF the request were placed at other nodes
-        original_batch_nodes = original_batch[:, :total_num_nodes]
-        expanded_reqs = tf.tile(tf.expand_dims(reqs, 1), [1, total_num_nodes, 1])
-
-        diff_placement = original_batch_nodes - expanded_reqs
-
-        bins_cpu = diff_placement[:, :, 0]
-        bins_ram = diff_placement[:, :, 1]
-        bins_mem = diff_placement[:, :, 2]
-
-        min_cpu = tf.math.reduce_min(bins_cpu, axis=1)
-        min_ram = tf.math.reduce_min(bins_ram, axis=1)
-        min_mem = tf.math.reduce_min(bins_mem, axis=1)
-
-        min_vals = tf.convert_to_tensor([min_cpu, min_ram, min_mem])
-
-        min_resource_all_nodes = tf.math.reduce_min(min_vals, axis=0)
-
-        return min_resource_selected_node - min_resource_all_nodes
-
 class GiniReward():
-    def __init__(self, opts: dict):
+    def __init__(self, opts: dict, EOS_NODE):
         super(GiniReward, self).__init__()
+        self.EOS_NODE = EOS_NODE
 
     def compute_reward(self,
                        updated_batch,

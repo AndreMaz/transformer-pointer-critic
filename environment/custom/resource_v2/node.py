@@ -47,16 +47,17 @@ class Node():
 
     def insert_req(self, req: Request):
 
-        # Update the remaining resources of the Node
-        self.remaining_CPU -= req.CPU
-        self.remaining_RAM -= req.RAM
-        self.remaining_MEM -= req.MEM
+        if self.id != 0:
+            # Update the remaining resources of the Node
+            self.remaining_CPU -= req.CPU
+            self.remaining_RAM -= req.RAM
+            self.remaining_MEM -= req.MEM
+
+            self.CPU_history.append(self.remaining_CPU.copy())
+            self.RAM_history.append(self.remaining_RAM.copy())
+            self.MEM_history.append(self.remaining_MEM.copy())
 
         self.req_list.append(req)
-
-        self.CPU_history.append(self.remaining_CPU.copy())
-        self.RAM_history.append(self.remaining_RAM.copy())
-        self.MEM_history.append(self.remaining_MEM.copy())
 
     def print(self, print_details = False):
         CPU_load = np.around(self.remaining_CPU, decimals=4)

@@ -3,6 +3,18 @@ from environment.custom.resource_v2.node import Node
 from environment.custom.resource_v2.resource import Resource
 import tensorflow as tf
 
+def bins_eos_checker(bins, EOS_SYMBOL, num_features):
+    # Check if selected bins are EOS
+    # Marked as 1 = EOS node
+    # Marked as 0 = not a EOS node
+    is_eos_bin = tf.cast(tf.equal(bins, EOS_SYMBOL), dtype="int32")
+    # if all elements are equal to EOS code
+    # the result should be equal to the number of features
+    is_eos_bin = tf.reduce_sum(is_eos_bin, axis=-1)
+    is_eos_bin = tf.cast(tf.equal(is_eos_bin, num_features), dtype="int32")
+
+    return is_eos_bin
+
 def compute_remaining_resources(nodes, reqs):
     
     remaining_resources = nodes - reqs
@@ -27,7 +39,7 @@ def export_to_csv(history, max_steps, method: str, location) -> None:
             for history_instance in history:
                 node: Node
 
-                delta = compute_delta(history_instance)
+                delta, rejected = compute_delta(history_instance)
 
                 for node in history_instance:
                     for step in range(max_steps):
@@ -57,9 +69,12 @@ def compute_delta(node_list) -> float:
     nodes_cpu_stats = []
     nodes_ram_stats = []
     nodes_mem_stats = []
+    
+    node: Node = node_list[0]
+    num_rejected = len(node.req_list)
 
     node: Node
-    for node in node_list:
+    for node in node_list[1:]:
         nodes_cpu_stats.append(node.remaining_CPU)
         nodes_ram_stats.append(node.remaining_RAM)
         nodes_mem_stats.append(node.remaining_MEM)
@@ -70,7 +85,7 @@ def compute_delta(node_list) -> float:
 
     delta = min([min_cpu, min_ram, min_mem])
 
-    return delta
+    return delta, num_rejected
 
 def num_overloaded_nodes(node_list) -> int:
     num_nodes = 0
