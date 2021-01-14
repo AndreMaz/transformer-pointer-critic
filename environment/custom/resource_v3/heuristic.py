@@ -6,14 +6,14 @@ import json
 
 from typing import List, Tuple
 
-from environment.custom.resource_v3.env import ResourceEnvironmentV2
+from environment.custom.resource_v3.env import ResourceEnvironmentV3
 from environment.custom.resource_v3.node import Node
 from environment.custom.resource_v3.resource import Resource
 from operator import itemgetter, attrgetter
 
 class GreedyHeuristic():
     def __init__(self,
-                env: ResourceEnvironmentV2,
+                env: ResourceEnvironmentV3,
                 opts: dict
                 ):
         super(GreedyHeuristic, self).__init__()

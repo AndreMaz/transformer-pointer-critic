@@ -50,9 +50,9 @@
         "node_max_val": 100,
 
         "reward": {
-            "type": "greedy",
-            "greedy": {},
+            "type": "fair",
             "fair": {},
+            "fair_v2": {},
             "gini": {}
         }
     },

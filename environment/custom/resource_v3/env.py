@@ -17,9 +17,9 @@ from environment.custom.resource_v3.utils import compute_remaining_resources
 from environment.custom.resource_v3.node import Node as History
 from environment.custom.resource_v3.resource import Resource as Request
 
-class ResourceEnvironmentV2(BaseEnvironment):
+class ResourceEnvironmentV3(BaseEnvironment):
     def __init__(self, name: str, opts: dict):
-        super(ResourceEnvironmentV2, self).__init__(name)
+        super(ResourceEnvironmentV3, self).__init__(name)
         ###########################################
         ##### PROBLEM CONFIGS FROM JSON FILE ######
         ###########################################
@@ -333,13 +333,13 @@ class ResourceEnvironmentV2(BaseEnvironment):
         return
 
 if __name__ == "__main__":
-    env_name = 'ResourceEnvironmentV2'
+    env_name = 'ResourceEnvironmentV3'
     
-    with open(f"configs/ResourceV2.json") as json_file:
+    with open(f"configs/ResourceV3.json") as json_file:
         params = json.load(json_file)
 
     env_configs = params['env_config']
 
-    env = ResourceEnvironmentV2(env_name, env_configs)
+    env = ResourceEnvironmentV3(env_name, env_configs)
 
     # env.print_history()

@@ -24,7 +24,7 @@ import math
 #     # Virtual devices must be set before GPUs have been initialized
 #     print(e)
 
-def runner(env_type="custom", env_name='ResourceV3', agent_name="tpc"):
+def runner(env_type="custom", env_name='ResourceV2', agent_name="tpc"):
     # Read the configs
     agent_config, trainer_config, env_config, tester_config = get_configs(env_name, agent_name)
 
