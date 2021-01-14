@@ -1,7 +1,7 @@
 import tensorflow as tf
 import numpy as np
 from tensorflow.python.keras.engine import node
-from environment.custom.resource_v2.utils import bins_eos_checker
+from environment.custom.resource_v3.utils import bins_eos_checker
 
 def RewardFactory(opts: dict, EOS_NODE):
     rewards = {

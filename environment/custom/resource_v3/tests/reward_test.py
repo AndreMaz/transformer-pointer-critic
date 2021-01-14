@@ -4,7 +4,7 @@ import sys
 
 sys.path.append('.')
 
-from environment.custom.resource_v2.reward import gini_calculator
+from environment.custom.resource_v3.reward import gini_calculator
 
 class TestGiniCalculartor(unittest.TestCase):
     def test_gini_calculator(self):

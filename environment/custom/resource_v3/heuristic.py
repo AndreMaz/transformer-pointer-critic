@@ -6,9 +6,9 @@ import json
 
 from typing import List, Tuple
 
-from environment.custom.resource_v2.env import ResourceEnvironmentV2
-from environment.custom.resource_v2.node import Node
-from environment.custom.resource_v2.resource import Resource
+from environment.custom.resource_v3.env import ResourceEnvironmentV2
+from environment.custom.resource_v3.node import Node
+from environment.custom.resource_v3.resource import Resource
 from operator import itemgetter, attrgetter
 
 class GreedyHeuristic():

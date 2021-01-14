@@ -4,7 +4,7 @@ from typing import List
 
 sys.path.append('.')
 
-from environment.custom.resource_v2.resource import Resource as Request
+from environment.custom.resource_v3.resource import Resource as Request
 import numpy as np
 
 class Node():

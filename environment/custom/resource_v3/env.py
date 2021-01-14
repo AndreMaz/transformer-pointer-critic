@@ -12,10 +12,10 @@ import tensorflow as tf
 # import tensorflow_probability as tfp
 from random import randint, randrange
 from environment.base.base import BaseEnvironment
-from environment.custom.resource_v2.reward import RewardFactory
-from environment.custom.resource_v2.utils import compute_remaining_resources
-from environment.custom.resource_v2.node import Node as History
-from environment.custom.resource_v2.resource import Resource as Request
+from environment.custom.resource_v3.reward import RewardFactory
+from environment.custom.resource_v3.utils import compute_remaining_resources
+from environment.custom.resource_v3.node import Node as History
+from environment.custom.resource_v3.resource import Resource as Request
 
 class ResourceEnvironmentV2(BaseEnvironment):
     def __init__(self, name: str, opts: dict):

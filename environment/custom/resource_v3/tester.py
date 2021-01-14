@@ -1,8 +1,8 @@
 import numpy as np
-from environment.custom.resource_v2.env import ResourceEnvironmentV2
+from environment.custom.resource_v3.env import ResourceEnvironmentV2
 from agents.agent import Agent
-from environment.custom.resource_v2.plotter import plot_attentions
-from environment.custom.resource_v2.utils import export_to_csv, compute_max_steps, compute_delta, num_overloaded_nodes
+from environment.custom.resource_v3.plotter import plot_attentions
+from environment.custom.resource_v3.utils import export_to_csv, compute_max_steps, compute_delta, num_overloaded_nodes
 
 
 # from agents.optimum_solver import solver

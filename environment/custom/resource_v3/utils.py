@@ -1,6 +1,6 @@
 import numpy as np
-from environment.custom.resource_v2.node import Node
-from environment.custom.resource_v2.resource import Resource
+from environment.custom.resource_v3.node import Node
+from environment.custom.resource_v3.resource import Resource
 import tensorflow as tf
 
 def bins_eos_checker(bins, EOS_SYMBOL, num_features):
