@@ -143,7 +143,8 @@ class Agent():
             state_values
         )
 
-        value_loss = value_loss / self.batch_size
+        # Compute average loss for the batch
+        value_loss = tf.reduce_mean(value_loss)
 
         return value_loss, state_values
 
@@ -206,11 +207,16 @@ class Agent():
 
         policy_loss *= advantages
         policy_loss -= self.entropy_coefficient * entropy
-        total_loss = tf.reduce_mean(policy_loss)
+        
+        # Compute average policy loss per problem instance
+        policy_loss_instance = tf.reduce_mean(policy_loss, axis=-1)
 
-        total_loss = total_loss / self.batch_size
+        # Compute average policy loss for the whole batch
+        total_loss = tf.reduce_mean(policy_loss_instance)
 
-        return total_loss, dec_output, tf.reduce_mean(entropy), tf.reduce_mean(policy_loss)
+        # total_loss = total_loss / self.batch_size
+
+        return total_loss, dec_output
 
     def act(self,
             state,
