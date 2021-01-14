@@ -14,7 +14,7 @@ class TestGiniCalculartor(unittest.TestCase):
             [0, 0, 0, 1],
             [1, 1, 1, 1],
             [0.4, 0.7, 0.1, 0.3],
-            [-10, -20, 35, 35],
+            # [-10, -20, 35, 35], # Gini don't work with negatives
         ], dtype='float32')
 
         num_nodes = 4
@@ -25,7 +25,7 @@ class TestGiniCalculartor(unittest.TestCase):
             0.750,
             0.000,
             0.317,
-            0.500
+            # 0.500 # Gini don't work with negatives
         ], dtype='float32')
 
         actual = gini_calculator(entries, num_nodes)

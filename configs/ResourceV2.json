@@ -9,7 +9,7 @@
 
     "tester_config": {
         "description": "Testing function configs.",
-        "num_tests": 100,
+        "num_tests": 1,
         "show_info": false,
         "plot_attentions": false,
         "batch_size": 1,
@@ -46,7 +46,7 @@
         "req_min_val": 1,
         "req_max_val": 30,
         
-        "node_min_val": 0,
+        "node_min_val": 80,
         "node_max_val": 100,
 
         "reward": {

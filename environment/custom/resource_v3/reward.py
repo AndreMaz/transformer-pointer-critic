@@ -59,11 +59,11 @@ class FairReward():
         bins_ram = all_bins[:, :, 1]
         bins_mem = all_bins[:, :, 2]
 
-        min_cpu = tf.math.reduce_min(bins_cpu, axis=1)
-        min_ram = tf.math.reduce_min(bins_ram, axis=1)
-        min_mem = tf.math.reduce_min(bins_mem, axis=1)
+        # min_cpu = tf.math.reduce_min(bins_cpu, axis=1)
+        # min_ram = tf.math.reduce_min(bins_ram, axis=1)
+        # min_mem = tf.math.reduce_min(bins_mem, axis=1)
 
-        min_vals = tf.convert_to_tensor([min_cpu, min_ram, min_mem])
+        # min_vals = tf.convert_to_tensor([min_cpu, min_ram, min_mem])
 
         min_resource = tf.math.reduce_min(min_vals, axis=0)
 
