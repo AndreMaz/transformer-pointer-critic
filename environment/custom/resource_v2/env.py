@@ -279,12 +279,6 @@ class ResourceEnvironmentV2(BaseEnvironment):
         # Return as is. At this moment node can be overloaded
         return bin_net_mask
 
-    def num_inserted_resources(self):
-        return
-    
-    def rebuild_history(self) -> None:
-       return
-
     def print_history(self, print_details = False) -> None:
 
         for batch_id in range(self.batch_size):
@@ -294,15 +288,6 @@ class ResourceEnvironmentV2(BaseEnvironment):
                 node.print(print_details)
             print('_________________________________')
 
-        return
-
-    def validate_history(self):
-        return       
-    
-    def sample_action(self):
-        return
-
-    def get_rejection_stats(self) -> dict:
         return
 
 if __name__ == "__main__":

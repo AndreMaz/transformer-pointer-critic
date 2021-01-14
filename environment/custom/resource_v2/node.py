@@ -91,5 +91,13 @@ class Node():
         print('MEM History')
         print(np.asanyarray(self.MEM_history).flatten())    
 
+    def get_tensor_rep(self):
+
+        return np.asanyarray([
+            self.remaining_CPU,
+            self.remaining_RAM,
+            self.remaining_MEM
+        ]).flatten()
+
 if __name__ == "__main__":
     a = 1

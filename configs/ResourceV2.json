@@ -3,13 +3,13 @@
     
     "trainer_config": {
         "description": "Trainer function configs.",
-        "n_iterations": 1000,
+        "n_iterations": 0,
         "n_steps_to_update": 20
     },
 
     "tester_config": {
         "description": "Testing function configs.",
-        "num_tests": 100,
+        "num_tests": 1,
         "show_info": false,
         "plot_attentions": false,
         "batch_size": 1,
