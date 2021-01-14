@@ -1,0 +1,98 @@
+{
+    "description": "Hyper params for Multiple Knapsack problem",
+    
+    "trainer_config": {
+        "description": "Trainer function configs.",
+        "n_iterations": 5000,
+        "n_steps_to_update": 20
+    },
+
+    "tester_config": {
+        "description": "Testing function configs.",
+        "num_tests": 100,
+        "show_info": false,
+        "plot_attentions": false,
+        "batch_size": 1,
+        "profiles_sample_size": 100,
+        "node_sample_size": 10,
+        "num_episodes": 1,
+        
+        "heuristic": {
+            "type": "greedy",
+            "greedy": {
+                "request_sorting_order": "ASC",
+                "node_sorting_order": "DESC",
+                "denormalize": true
+            }
+        },
+
+        "export_stats": {
+            "location": "./results/resource_v2"
+        }
+    },
+
+    "env_config": {
+        "description": "Environment configs.",
+        
+        "batch_size": 64,
+
+        "num_features": 3,
+        "num_profiles": 500,
+
+        "profiles_sample_size": 20,
+        "node_sample_size": 5,
+        
+        "EOS_CODE": -2,
+        "req_min_val": 1,
+        "req_max_val": 30,
+        
+        "node_min_val": 0,
+        "node_max_val": 100,
+
+        "reward": {
+            "type": "greedy",
+            "greedy": {},
+            "fair": {},
+            "gini": {}
+        }
+    },
+
+    "tpc": {
+        "description": "Double Transformer Pointer Critic Agent configs.",
+        "agent_config": {
+
+            "gamma": 0.9,
+            "entropy_coefficient": 0.001,
+            "stochastic_action_selection": true,
+            "use_mha_mask": true,
+
+            "actor": {
+                "num_layers": 1,
+                "dim_model": 64,
+                "num_heads": 8,
+                "inner_layer_dim": 64,
+                "positional_encoding": false,
+                "SOS_CODE": -1,
+                "encoder_embedding_time_distributed": true,
+                "attention_dense_units": 64,
+                "dropout_rate": 0.01,
+
+                "learning_rate": 0.0001
+            },
+
+            "critic": {
+                "num_layers": 1,
+                "dim_model": 64,
+                "num_heads": 8,
+                "positional_encoding": false,
+                "inner_layer_dim": 64,
+                "encoder_embedding_time_distributed": true,
+                "last_layer_units": 64,
+                "last_layer_activation": "linear",
+                "dropout_rate": 0.01,
+
+                "learning_rate": 0.0001
+            }
+        }
+    }
+}
