@@ -39,8 +39,8 @@
         "num_features": 3,
         "num_profiles": 500,
 
-        "profiles_sample_size": 20,
-        "node_sample_size": 5,
+        "profiles_sample_size": 2,
+        "node_sample_size": 2,
         
         "EOS_CODE": -2,
         "req_min_val": 1,

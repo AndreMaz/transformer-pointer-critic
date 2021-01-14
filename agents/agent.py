@@ -210,7 +210,7 @@ class Agent():
 
         total_loss = total_loss / self.batch_size
 
-        return total_loss, dec_output
+        return total_loss, dec_output, tf.reduce_mean(entropy), tf.reduce_mean(policy_loss)
 
     def act(self,
             state,

@@ -120,7 +120,10 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict, show_progress: bool):
         )
 
         with tf.GradientTape() as tape:
-            resources_loss, decoded_resources = agent.compute_actor_loss(
+            resources_loss,\
+                decoded_resources,\
+                resources_entropy,\
+                resources_policy_loss = agent.compute_actor_loss(
                 agent.resource_actor,
                 agent.resource_masks,
                 agent.resources,
@@ -138,7 +141,10 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict, show_progress: bool):
         decoded_resources = tf.expand_dims(decoded_resources, axis=1)
 
         with tf.GradientTape() as tape:
-            bin_loss, decoded_bins = agent.compute_actor_loss(
+            bin_loss,\
+                decoded_bins,\
+                bins_entropy,\
+                bins_policy_loss = agent.compute_actor_loss(
                 agent.bin_actor,
                 agent.bin_masks,
                 agent.bins,
@@ -175,9 +181,12 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict, show_progress: bool):
         )
 
         if isDone and show_progress:
-            print(f"\rEpisode: {episode_count} took {time.time() - start:.2f} seconds. Min in Batch: {min_in_batch:.3f} Max in Batch: {max_in_batch:.3f} Average Reward: {episode_reward:.3f} Value Loss: {value_loss[0]:.5f}", end="\n")
+            print(f"\rEpisode: {episode_count} took {time.time() - start:.2f} secs. Min: {min_in_batch:.3f} Max: {max_in_batch:.3f} Avg: {episode_reward:.3f} V_Loss: {value_loss[0]:.5f}\tR_Entropy: {resources_entropy:.5f}\tR_P_Loss {resources_policy_loss:.5f}\tB_Entropy: {bins_entropy:.5f}\tB_P_Loss {bins_policy_loss:.5f}", end="\n")
 
         # Iteration complete. Clear agent's memory
         agent.clear_memory()
 
-    return average_rewards_buffer, min_rewards_buffer, max_rewards_buffer, value_loss_buffer
+    return average_rewards_buffer,\
+        min_rewards_buffer,\
+        max_rewards_buffer,\
+        value_loss_buffer
