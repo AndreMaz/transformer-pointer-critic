@@ -226,12 +226,14 @@ class Agent():
             pointers_probs
         )
 
+        # Compute average entropy loss
+        entropy_loss = tf.reduce_mean(entropy_loss)
         total_loss = policy_loss - self.entropy_coefficient * entropy_loss
 
         # Compute average loss for the batch
-        total_loss = tf.reduce_mean(total_loss)
+        # total_loss = tf.reduce_mean(total_loss)
 
-        return total_loss, dec_output
+        return total_loss, dec_output, entropy_loss
 
     def act(self,
             state,
