@@ -3,13 +3,13 @@
     
     "trainer_config": {
         "description": "Trainer function configs.",
-        "n_iterations": 5000,
+        "n_iterations": 2000,
         "n_steps_to_update": 20
     },
 
     "tester_config": {
         "description": "Testing function configs.",
-        "num_tests": 1,
+        "num_tests": 100,
         "show_info": false,
         "plot_attentions": false,
         "batch_size": 1,
@@ -44,7 +44,7 @@
         
         "EOS_CODE": -2,
         "req_min_val": 1,
-        "req_max_val": 30,
+        "req_max_val": 5,
         
         "node_min_val": 80,
         "node_max_val": 100,
@@ -63,6 +63,7 @@
 
             "gamma": 0.9,
             "entropy_coefficient": 0.001,
+            "values_loss_coefficient": 0.5,
             "stochastic_action_selection": true,
             "use_mha_mask": true,
 

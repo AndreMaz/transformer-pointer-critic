@@ -60,19 +60,19 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict, show_progress: bool):
 
             # Store in memory
             agent.store(
-                current_state,
-                dec_input,
-                bin_net_mask,
-                resource_net_mask,
-                mha_used_mask,
-                resource_id,
-                bin_id,
-                reward,
+                current_state.copy(),
+                dec_input.copy(),
+                bin_net_mask.copy(),
+                resource_net_mask.copy(),
+                mha_used_mask.copy(),
+                resource_id.numpy().copy(),
+                bin_id.numpy().copy(),
+                reward.numpy().copy(),
                 training_step
             )
 
             # Update for next iteration
-            dec_input = decoded_resource
+            dec_input = decoded_resource.numpy()
             current_state = next_state
             bin_net_mask = info['bin_net_mask']
             resource_net_mask = info['resource_net_mask']
@@ -108,7 +108,7 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict, show_progress: bool):
         
         ### Update Critic ###
         with tf.GradientTape() as tape:
-            value_loss, state_values = agent.compute_value_loss(
+            value_loss, state_values, advantages = agent.compute_value_loss(
                 discounted_rewards
             )
 
@@ -125,8 +125,7 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict, show_progress: bool):
                 agent.resource_masks,
                 agent.resources,
                 agent.decoded_resources,
-                discounted_rewards,
-                state_values
+                advantages
             )
         
         resource_grads = tape.gradient(
@@ -143,8 +142,7 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict, show_progress: bool):
                 agent.bin_masks,
                 agent.bins,
                 decoded_resources,
-                discounted_rewards,
-                state_values
+                advantages
             )
         
         bin_grads = tape.gradient(

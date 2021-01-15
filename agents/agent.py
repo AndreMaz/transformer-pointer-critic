@@ -29,6 +29,7 @@ class Agent():
         self.SOS_CODE: int = opts['actor']['SOS_CODE']
 
         self.gamma: float = opts['gamma'] # Discount factor
+        self.values_loss_coefficient: float = opts['values_loss_coefficient']
         self.entropy_coefficient: float = opts['entropy_coefficient']
         self.stochastic_action_selection: bool = opts['stochastic_action_selection']
 
@@ -38,6 +39,9 @@ class Agent():
         
         self.actor_learning_rate: float = opts['actor']['learning_rate']
         self.pointer_opt = tf.keras.optimizers.Adam(learning_rate=self.actor_learning_rate)
+
+        # Error fn for the critic
+        self.mse = tf.keras.losses.MeanSquaredError()
 
         ### Load the models
         self.resource_actor, self.bin_actor, self.critic = model_factory(
@@ -120,12 +124,15 @@ class Agent():
 
     def compute_value_loss(self, discounted_rewards):
         # Reshape data into a single forward pass format
-        states = tf.convert_to_tensor(self.states, dtype="float32")
-        batch, dec_steps, elem, features = states.shape
-        states = tf.reshape(states, [batch*dec_steps, elem, features])
+        states = tf.concat(self.states, axis=0)
+        batch_size = states.shape[0]
+        # states = tf.convert_to_tensor(self.states, dtype="float32")
+        # batch, dec_steps, elem, features = states.shape
+        # states = tf.reshape(states, [batch*dec_steps, elem, features])
 
-        mha_mask = tf.convert_to_tensor(self.mha_masks, dtype='float32')
-        mha_mask = tf.reshape(mha_mask, [batch*dec_steps, 1, 1, elem])        
+        mha_mask = tf.concat(self.mha_masks, axis=0)
+        # mha_mask = tf.convert_to_tensor(self.mha_masks, dtype='float32')
+        # mha_mask = tf.reshape(mha_mask, [batch*dec_steps, 1, 1, elem])        
 
         # Get state_values
         state_values = self.critic(
@@ -134,43 +141,51 @@ class Agent():
             enc_padding_mask = mha_mask
         )
 
-        # Reshape the rewards bach into [batch, dec_step] form
-        state_values = tf.reshape(state_values, [batch, dec_steps])
-        state_values = tf.transpose(state_values, [1, 0])
+        #a = np.array([
+        #    [1, 2],
+        #    [3, 4]
+        # ], dtype="float32")
 
-        value_loss = tf.keras.losses.mean_absolute_error(
-            discounted_rewards,
-            state_values
-        )
+        # Reshape the discounted rewards to match state values
+        discounted_rewards = tf.transpose(discounted_rewards, [1, 0])
+        discounted_rewards = tf.reshape(discounted_rewards, [batch_size, 1])
+        
+        advantages = discounted_rewards - state_values
+
+        value_loss = self.mse(discounted_rewards, state_values)
 
         # Compute average loss for the batch
-        value_loss = tf.reduce_mean(value_loss)
+        value_loss = self.values_loss_coefficient * tf.reduce_mean(value_loss)
 
-        return value_loss, state_values
+        return value_loss, state_values, advantages
 
     def compute_actor_loss(self,
                            model,
                            masks,
                            actions,
                            decoder_inputs,
-                           discounted_rewards,
-                           state_values
+                           advantages
                            ):
         
-        advantages = discounted_rewards - state_values
+        # advantages = discounted_rewards - state_values
 
-        states = tf.convert_to_tensor(self.states, dtype='float32')
-        batch, dec_steps, elem, features = states.shape
-        states = tf.reshape(states, [batch*dec_steps, elem, features])
+        states = tf.concat(self.states, axis=0)
+        batch_size = states.shape[0]
+        # states = tf.convert_to_tensor(self.states, dtype='float32')
+        # batch, dec_steps, elem, features = states.shape
+        # states = tf.reshape(states, [batch*dec_steps, elem, features])
 
-        attention_mask = tf.convert_to_tensor(masks, dtype='float32')
-        attention_mask = tf.reshape(attention_mask, [batch*dec_steps, elem])
+        attention_mask = tf.concat(masks, axis=0)
+        # attention_mask = tf.convert_to_tensor(masks, dtype='float32')
+        # attention_mask = tf.reshape(attention_mask, [batch*dec_steps, elem])
 
-        mha_mask = tf.convert_to_tensor(self.mha_masks, dtype='float32')
-        mha_mask = tf.reshape(mha_mask, [batch*dec_steps, 1, 1, elem])
+        mha_mask = tf.concat(self.mha_masks, axis=0)
+        # mha_mask = tf.convert_to_tensor(self.mha_masks, dtype='float32')
+        # mha_mask = tf.reshape(mha_mask, [batch*dec_steps, 1, 1, elem])
         
-        dec_input = tf.convert_to_tensor(decoder_inputs, dtype='float32')
-        dec_input = tf.reshape(dec_input, [batch*dec_steps, 1, features])
+        dec_input = tf.concat(decoder_inputs, axis=0)
+        # dec_input = tf.convert_to_tensor(decoder_inputs, dtype='float32')
+        # dec_input = tf.reshape(dec_input, [batch*dec_steps, 1, features])
 
         # Get logits, policy probabilities and actions
         pointer_logits, pointers_probs, point_index, dec_output = model(
@@ -182,39 +197,39 @@ class Agent():
             dec_padding_mask = mha_mask
         )
 
+        actions = tf.concat(actions, axis=0)
+        # actions = tf.transpose(actions, [1, 0])
+        actions = tf.reshape(actions, [batch_size, 1])
+
         # One hot actions that we took during an episode
         actions_one_hot = tf.one_hot(
             actions, self.tensor_size, dtype="float32")
 
-        actions_one_hot = tf.reshape(actions_one_hot, [batch*dec_steps, elem])
+        actions_one_hot = tf.squeeze(actions_one_hot, axis=1)
 
+        # actions_one_hot = tf.transpose(actions_one_hot, [1, 0])
+        # actions_one_hot = tf.reshape(actions_one_hot, [batch_size, 1])
+
+        # actions_one_hot = tf.reshape(actions_one_hot, [batch*dec_steps, elem])
+
+        loss_fn = tf.keras.losses.CategoricalCrossentropy(from_logits=True)
         # Compute the policy loss
-        policy_loss = tf.nn.softmax_cross_entropy_with_logits(
-            labels=actions_one_hot, logits=pointer_logits)
-
-        policy_loss = tf.reshape(policy_loss, [batch, dec_steps])
-        policy_loss = tf.transpose(policy_loss, [1, 0])
-
-        # Cross Entropy: Sum (Predicted_Prob_i * log(Predicted_Prob_i))
-        # This improves exploration by discouraging premature converge to suboptimal deterministic policies
-        # NOTE: Add small number to avoid doing log(0) = -Infinity
-        entropy = tf.reduce_sum(
-            pointers_probs * tf.math.log(pointers_probs + 1e-20), axis=1
+        policy_loss = loss_fn(
+            actions_one_hot,
+            pointer_logits,
+            sample_weight=advantages
+        )
+        #policy_loss = tf.nn.softmax_cross_entropy_with_logits(
+        #    labels=actions_one_hot, logits=pointer_logits)
+        entropy_loss = tf.keras.losses.categorical_crossentropy(
+            pointers_probs,
+            pointers_probs
         )
 
-        entropy = tf.reshape(entropy, [batch, dec_steps])
-        entropy = tf.transpose(entropy, [1, 0])
+        total_loss = policy_loss - self.entropy_coefficient * entropy_loss
 
-        policy_loss *= advantages
-        policy_loss -= self.entropy_coefficient * entropy
-        
-        # Compute average policy loss per problem instance
-        policy_loss_instance = tf.reduce_mean(policy_loss, axis=-1)
-
-        # Compute average policy loss for the whole batch
-        total_loss = tf.reduce_mean(policy_loss_instance)
-
-        # total_loss = total_loss / self.batch_size
+        # Compute average loss for the batch
+        total_loss = tf.reduce_mean(total_loss)
 
         return total_loss, dec_output
 

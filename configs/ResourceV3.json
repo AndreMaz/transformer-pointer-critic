@@ -3,7 +3,7 @@
     
     "trainer_config": {
         "description": "Trainer function configs.",
-        "n_iterations": 5000,
+        "n_iterations": 2000,
         "n_steps_to_update": 20
     },
 
@@ -13,8 +13,8 @@
         "show_info": false,
         "plot_attentions": false,
         "batch_size": 1,
-        "profiles_sample_size": 100,
-        "node_sample_size": 10,
+        "profiles_sample_size": 20,
+        "node_sample_size": 5,
         "num_episodes": 1,
         
         "heuristic": {
@@ -39,8 +39,8 @@
         "num_features": 3,
         "num_profiles": 500,
 
-        "profiles_sample_size": 2,
-        "node_sample_size": 2,
+        "profiles_sample_size": 20,
+        "node_sample_size": 5,
         
         "EOS_CODE": -2,
         "req_min_val": 1,
@@ -61,7 +61,8 @@
         "description": "Double Transformer Pointer Critic Agent configs.",
         "agent_config": {
 
-            "gamma": 0.9,
+            "gamma": 0.999,
+            "values_loss_coefficient": 0.5,
             "entropy_coefficient": 0.001,
             "stochastic_action_selection": true,
             "use_mha_mask": true,
@@ -88,7 +89,7 @@
                 "inner_layer_dim": 64,
                 "encoder_embedding_time_distributed": true,
                 "last_layer_units": 64,
-                "last_layer_activation": "linear",
+                "last_layer_activation": "relu",
                 "dropout_rate": 0.01,
 
                 "learning_rate": 0.0001
