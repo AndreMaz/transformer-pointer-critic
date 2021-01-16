@@ -3,14 +3,14 @@
     
     "trainer_config": {
         "description": "Trainer function configs.",
-        "n_iterations": 5000,
+        "n_iterations": 2000,
         "n_steps_to_update": 20
     },
 
     "tester_config": {
         "description": "Testing function configs.",
-        "backpack_sample_size": 5,
-        "item_sample_size": 20
+        "backpack_sample_size": 10,
+        "item_sample_size": 100
     },
 
     "env_config": {
@@ -79,7 +79,8 @@
         "agent_config": {
 
             "gamma": 0.999,
-            "entropy_coefficient": 0.00001,
+            "values_loss_coefficient": 0.5,
+            "entropy_coefficient": 0.0001,
             "stochastic_action_selection": true,
             "use_mha_mask": true,
 
