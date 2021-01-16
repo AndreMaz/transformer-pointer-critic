@@ -43,6 +43,11 @@ class Agent():
         # Error fn for the critic
         self.mse = tf.keras.losses.MeanSquaredError()
 
+        # Error fn for the actor
+        self.loss_fn = tf.keras.losses.CategoricalCrossentropy(
+            from_logits=True
+        )
+
         ### Load the models
         self.resource_actor, self.bin_actor, self.critic = model_factory(
             name,
@@ -124,15 +129,12 @@ class Agent():
 
     def compute_value_loss(self, discounted_rewards):
         # Reshape data into a single forward pass format
+        # shape=(batch_steps * num_resources, total_elems, features)
         states = tf.concat(self.states, axis=0)
         batch_size = states.shape[0]
-        # states = tf.convert_to_tensor(self.states, dtype="float32")
-        # batch, dec_steps, elem, features = states.shape
-        # states = tf.reshape(states, [batch*dec_steps, elem, features])
 
+        # shape=(batch_steps * num_resources, 1, 1, total_elems)
         mha_mask = tf.concat(self.mha_masks, axis=0)
-        # mha_mask = tf.convert_to_tensor(self.mha_masks, dtype='float32')
-        # mha_mask = tf.reshape(mha_mask, [batch*dec_steps, 1, 1, elem])        
 
         # Get state_values
         state_values = self.critic(
@@ -152,12 +154,14 @@ class Agent():
         
         advantages = discounted_rewards - state_values
 
-        value_loss = self.mse(discounted_rewards, state_values)
-
         # Compute average loss for the batch
-        value_loss = self.values_loss_coefficient * tf.reduce_mean(value_loss)
+        # value_loss = self.mse(discounted_rewards, state_values)
+        value_loss = tf.keras.losses.mean_squared_error(discounted_rewards, state_values)
 
-        return value_loss, state_values, advantages
+        # Apply a constant factor
+        value_loss = self.values_loss_coefficient * value_loss
+
+        return value_loss, state_values, advantages, tf.reduce_mean(value_loss).numpy()
 
     def compute_actor_loss(self,
                            model,
@@ -207,33 +211,24 @@ class Agent():
 
         actions_one_hot = tf.squeeze(actions_one_hot, axis=1)
 
-        # actions_one_hot = tf.transpose(actions_one_hot, [1, 0])
-        # actions_one_hot = tf.reshape(actions_one_hot, [batch_size, 1])
-
-        # actions_one_hot = tf.reshape(actions_one_hot, [batch*dec_steps, elem])
-
-        loss_fn = tf.keras.losses.CategoricalCrossentropy(from_logits=True)
         # Compute the policy loss
-        policy_loss = loss_fn(
+        policy_loss = self.loss_fn(
             actions_one_hot,
             pointer_logits,
             sample_weight=advantages
         )
-        #policy_loss = tf.nn.softmax_cross_entropy_with_logits(
-        #    labels=actions_one_hot, logits=pointer_logits)
+        
+        # Entropy loss can be calculated as cross-entropy over itself.
         entropy_loss = tf.keras.losses.categorical_crossentropy(
             pointers_probs,
             pointers_probs
         )
 
         # Compute average entropy loss
-        entropy_loss = tf.reduce_mean(entropy_loss)
+        # entropy_loss = tf.reduce_mean(entropy_loss)
         total_loss = policy_loss - self.entropy_coefficient * entropy_loss
 
-        # Compute average loss for the batch
-        # total_loss = tf.reduce_mean(total_loss)
-
-        return total_loss, dec_output, entropy_loss
+        return total_loss, dec_output, tf.reduce_mean(total_loss).numpy()
 
     def act(self,
             state,

@@ -133,7 +133,7 @@ class KnapsackV2(BaseEnvironment):
         if np.all(self.resource_net_mask == 1):
             isDone = True
         
-        return self.batch.copy(), rewards, isDone, info
+        return self.batch.copy(), tf.convert_to_tensor(rewards), isDone, info
 
     def generate_dataset(self):
         # Num bins + 1 for EOS
@@ -290,7 +290,7 @@ class KnapsackV2(BaseEnvironment):
         # Merge the masks
         mask = tf.maximum(binary_masks, bin_net_mask)
 
-        return tf.cast(mask, dtype="float32")
+        return tf.cast(mask, dtype="float32").numpy()
 
     def convert_to_ortools_input(self, problem_id = 0):
 
