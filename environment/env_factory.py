@@ -17,11 +17,6 @@ from environment.custom.resource.heuristic import GreedyHeuristic as GreedyHeuri
 from environment.custom.resource.tester import test as ResourceTester
 from environment.custom.resource.plotter import plotter as ResourcePlotter
 
-from environment.custom.resource_v2.env import ResourceEnvironmentV2
-from environment.custom.resource_v2.heuristic import GreedyHeuristic as GreedyHeuristicV2
-from environment.custom.resource_v2.tester import test as ResourceV2Tester
-from environment.custom.resource_v2.plotter import plotter as ResourceV2Plotter
-
 from environment.custom.resource_v3.env import ResourceEnvironmentV3
 from environment.custom.resource_v3.heuristic import GreedyHeuristic as GreedyHeuristicV3
 from environment.custom.resource_v3.tester import test as ResourceV3Tester
@@ -32,7 +27,6 @@ custom_envs = {
     "KnapsackV2": (KnapsackV2, KnapsackSolver, KnapsackHeuristic, KnapsackTester, KnapsackPlotter),
     "CVRP": (CVRP, None, None),
     "Resource": (ResourceEnvironment, None, GreedyHeuristicV1, ResourceTester, ResourcePlotter),
-    "ResourceV2": (ResourceEnvironmentV2, None, GreedyHeuristicV2, ResourceV2Tester, ResourceV2Plotter),
     "ResourceV3": (ResourceEnvironmentV3, None, GreedyHeuristicV3, ResourceV3Tester, ResourceV3Plotter),
 }
 
