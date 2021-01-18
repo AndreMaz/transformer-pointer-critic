@@ -13,7 +13,7 @@ OPTIMAL = 'Optimal'
 HEURISTIC = 'Heuristic'
 
 
-def test(env: ResourceEnvironment, agent: Agent, opts: dict, opt_solver, heuristic_solver, look_for_opt: bool = False):
+def test(env: ResourceEnvironment, agent: Agent, opts: dict, opt_solver, heuristic_solver, look_for_opt: bool = False, show_info: bool = False):
 
     num_tests = opts['num_tests']
     show_info = opts['show_info']

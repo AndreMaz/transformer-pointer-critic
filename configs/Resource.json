@@ -108,7 +108,8 @@
         "agent_config": {
 
             "gamma": 0.999,
-            "entropy_coefficient": 0.00001,
+            "values_loss_coefficient": 0.5,
+            "entropy_coefficient": 0.001,
             "stochastic_action_selection": true,
             "use_mha_mask": true,
 

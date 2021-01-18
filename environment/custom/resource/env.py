@@ -220,7 +220,7 @@ class ResourceEnvironment(BaseEnvironment):
             isDone = True
             self.num_isDones += 1
         
-        return self.batch.copy(), rewards, isDone, info
+        return self.batch.copy(), tf.convert_to_tensor(rewards), isDone, info
     
     def step_batch(self, bin_ids: list, resource_ids: list, feasible_bin_mask):
         # Default is not done
