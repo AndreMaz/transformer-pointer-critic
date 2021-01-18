@@ -9,7 +9,7 @@ sys.path.append('.')
 import json
 import numpy as np
 import tensorflow as tf
-# import tensorflow_probability as tfp
+import tensorflow_probability as tfp
 from random import randint, randrange
 from environment.base.base import BaseEnvironment
 from environment.custom.resource_v3.reward import RewardFactory
@@ -25,6 +25,9 @@ class ResourceEnvironmentV3(BaseEnvironment):
         ###########################################
 
         self.gather_stats: bool = False
+
+        self.normalization_factor: int = opts['normalization_factor']
+        self.decimal_precision: int = opts['decimal_precision']
 
         self.batch_size: int = opts['batch_size']
         self.num_features: int = opts['num_features']
@@ -154,7 +157,7 @@ class ResourceEnvironmentV3(BaseEnvironment):
             minval=self.req_min_val,
             maxval=self.req_max_val,
             dtype='int32'
-        ) / 100
+        ) / self.normalization_factor
 
         return tf.cast(profiles, dtype="float32")
 
@@ -174,7 +177,7 @@ class ResourceEnvironmentV3(BaseEnvironment):
             minval=self.node_min_val,
             maxval=self.node_max_val,
             dtype="int32"
-        ) / 100
+        ) / self.normalization_factor
 
         batch[:, :self.node_sample_size, :] = tf.cast(nodes, dtype="float32")
         
@@ -226,7 +229,36 @@ class ResourceEnvironmentV3(BaseEnvironment):
         mha_used_mask = mha_used_mask[:, np.newaxis, np.newaxis, :]
 
         return nodes_net_mask, profiles_net_mask, mha_used_mask
+    
+    def sample_action(self):
+
+        batch_indices = tf.range(self.batch.shape[0], dtype='int32')
+
+        resources_probs = np.random.uniform(size=self.bin_net_mask.shape)
+        resources_probs = tf.nn.softmax(
+            resources_probs - (self.resource_net_mask*10e6), axis=-1
+        )
         
+        dist_resource = tfp.distributions.Categorical(probs = resources_probs)
+        resource_ids = dist_resource.sample()
+
+        # Decode the resources
+        decoded_resources = self.batch[batch_indices, resource_ids]
+        
+        bins_mask = self.build_feasible_mask(self.batch,
+                                             decoded_resources,
+                                             self.bin_net_mask
+                                             )
+
+        bins_probs = np.random.uniform(size=self.bin_net_mask.shape)
+        bins_probs = tf.nn.softmax(bins_probs - (bins_mask*10e6), axis=-1)
+
+        dist_bin = tfp.distributions.Categorical(probs = bins_probs)
+
+        bin_ids = dist_bin.sample()
+
+        return bin_ids, resource_ids, bins_mask
+
     def add_stats_to_agent_config(self, agent_config: dict):
         agent_config['num_resources'] = self.profiles_sample_size
         agent_config['num_bins'] = self.node_sample_size
@@ -251,7 +283,7 @@ class ResourceEnvironmentV3(BaseEnvironment):
         self.gather_stats = True
         self.batch_size = batch_size
 
-        self.node_sample_size = node_sample_size
+        self.node_sample_size = node_sample_size + 1 # +1 For EOS node
         self.profiles_sample_size = profiles_sample_size
 
     def build_history(self, batch):

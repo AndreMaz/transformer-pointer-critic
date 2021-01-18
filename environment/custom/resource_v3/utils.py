@@ -3,6 +3,11 @@ from environment.custom.resource_v3.node import Node
 from environment.custom.resource_v3.resource import Resource
 import tensorflow as tf
 
+def round_half_up(n, decimals=0):
+    multiplier = 10 ** decimals
+    # Replace math.floor with np.floor
+    return np.floor(n*multiplier + 0.5) / multiplier
+
 def bins_eos_checker(bins, EOS_SYMBOL, num_features):
     # Check if selected bins are EOS
     # Marked as 1 = EOS node

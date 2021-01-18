@@ -131,11 +131,8 @@ In other words, the nodes won't be full after a single episode. However, we want
 ```bash
 python environment/custom/resource/tests/runner.py
 ```
-or 
+or to generate an HTML-based coverage file
 ```bash
-coverage run environment/custom/resource/tests/runner.py 
-```
-
-```bash
-coverage html --include=environment/*
+coverage run environment/custom/resource_v3/tests/runner.py
+coverage html --include=environment/custom/resource_v3/*
 ```

@@ -35,6 +35,9 @@
         "description": "Environment configs.",
         
         "batch_size": 64,
+        
+        "normalization_factor": 100,
+        "decimal_precision": 2,
 
         "num_features": 3,
         "num_profiles": 500,
