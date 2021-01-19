@@ -5,16 +5,14 @@ class Resource():
     def __init__(self,
                 batch_id,
                 id,
-                CPU,
-                RAM,
-                MEM,):
+                resource_representation):
         super(Resource, self).__init__()
 
         self.batch_id = batch_id
         self.id = id
-        self.CPU = np.array([CPU], dtype='float32')
-        self.RAM = np.array([RAM], dtype='float32')
-        self.MEM = np.array([MEM], dtype='float32')
+        self.CPU = np.array([resource_representation[0]], dtype='float32')
+        self.RAM = np.array([resource_representation[1]], dtype='float32')
+        self.MEM = np.array([resource_representation[2]], dtype='float32')
         
 
     def print(self):

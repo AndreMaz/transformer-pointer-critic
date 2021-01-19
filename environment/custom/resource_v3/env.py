@@ -296,9 +296,7 @@ class ResourceEnvironmentV3(BaseEnvironment):
                     History(
                         batch_id,
                         id,
-                        bin[0], # CPU
-                        bin[1], # RAM
-                        bin[2], # MEM
+                        bin
                     )
                 )
             
@@ -315,9 +313,7 @@ class ResourceEnvironmentV3(BaseEnvironment):
             req = Request(
                 batch_index,
                 req_id,
-                reqs[batch_index][0],
-                reqs[batch_index][1],
-                reqs[batch_index][2]
+                reqs[batch_index]
             )
 
             node.insert_req(req)
