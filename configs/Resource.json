@@ -3,7 +3,7 @@
     
     "trainer_config": {
         "description": "Trainer function configs.",
-        "n_iterations": 5000,
+        "n_iterations": 20000,
         "n_steps_to_update": 20
     },
 
@@ -12,7 +12,7 @@
         "num_tests": 100,
         "show_info": false,
         "bin_sample_size": 5,
-        "resource_sample_size": 40,
+        "resource_sample_size": 20,
         "num_episodes": 1,
         "num_iterations_before_node_reset": 1,
         
@@ -49,7 +49,7 @@
         "resource_sample_size": 20,
         "bin_sample_size": 5,
 
-        "resource_normalization_factor": 10000,
+        "resource_normalization_factor": 1000,
         "task_normalization_factor": 100,
         "num_iterations_before_node_reset": 1,
         
@@ -59,10 +59,10 @@
         "reward": {
             "type": "greedy",
             "greedy": {
-                "reward_per_level": [ 1, 5 ],
-                "misplace_penalty_factor": 1,
+                "reward_per_level": [ 1, 3 ],
+                "misplace_penalty_factor": 0.5,
                 "correct_place_factor": 1,
-                "premium_rejected": -20,
+                "premium_rejected": -2,
                 "free_rejected": 0
             },
             "fair": {
