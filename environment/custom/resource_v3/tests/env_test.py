@@ -168,7 +168,12 @@ class TestResource(unittest.TestCase):
 
     def test_step(self):
         # state, bin_net_mask, resource_net_mask, mha_used_mask = self.env.state()
-
+        self.env.set_testing_mode(
+            batch_size=2,
+            node_sample_size=3,
+            profiles_sample_size=2
+        )
+        
         fake_state = np.array([[[-2.  , -2.  , -2.  ],
                                 [ 0.84,  0.9 ,  0.85],
                                 [ 0.89,  0.87,  0.89],
@@ -195,7 +200,9 @@ class TestResource(unittest.TestCase):
             [[[0., 0., 0., 0., 0., 0.]]],
             [[[0., 0., 0., 0., 0., 0.]]]], dtype="float32")
 
-        # Set the fake states
+        # Set the fake states and build the history
+        self.env.history = self.env.build_history(fake_state)
+
         self.env.batch = fake_state
         self.env.bin_net_mask = fake_bin_net_mask
         self.env.resource_net_mask = fake_resource_net_mask
@@ -251,6 +258,55 @@ class TestResource(unittest.TestCase):
         # Don't test values reward here.
         # It will be tested in it's own test suite
         self.assertEqual(rewards.shape, (2, 1))
+
+        # Ensure that history is also working properly
+        # Problem instance 0. Req was placed at EOS node (index 0)
+        self.assertEqual( len(self.env.history[0][0].req_list), 1 )
+        # Others nodes should be empty
+        self.assertEqual( len(self.env.history[0][1].req_list), 0 )
+        self.assertEqual( len(self.env.history[0][2].req_list), 0 )
+        self.assertEqual( len(self.env.history[0][3].req_list), 0 )
+
+        # Check the actual request values
+        # Should be equal to the fake selected one
+        instance_0_actual_req = self.env.history[0][0].req_list[0]
+        self.assertEqual(
+                instance_0_actual_req.CPU.tolist() +
+                instance_0_actual_req.RAM.tolist() +
+                instance_0_actual_req.MEM.tolist()
+            ,
+            fake_selected_reqs[0].tolist()
+        )
+
+        # Problem instance 1. Req was placed at EOS node (index 2)
+        self.assertEqual( len(self.env.history[1][0].req_list), 0 )
+        # Others nodes should be empty
+        self.assertEqual( len(self.env.history[1][1].req_list), 0 )
+        self.assertEqual( len(self.env.history[1][2].req_list), 1 )
+        self.assertEqual( len(self.env.history[1][3].req_list), 0 )
+
+        instance_1_actual_req = self.env.history[1][2].req_list[0]
+        self.assertEqual(
+                instance_1_actual_req.CPU.tolist() +
+                instance_1_actual_req.RAM.tolist() +
+                instance_1_actual_req.MEM.tolist()
+            ,
+            fake_selected_reqs[1].tolist()
+        )
+    
+    def test_is_done(self):
+        self.env.reset()
+
+        bin_ids, resource_ids, bins_mask = self.env.sample_action()
+        _, _, is_done, _ = self.env.step(bin_ids, resource_ids, bins_mask)
+
+        self.assertFalse(is_done)
+
+        bin_ids, resource_ids, bins_mask = self.env.sample_action()
+        _, _, is_done, _ = self.env.step(bin_ids, resource_ids, bins_mask)
+
+        self.assertTrue(is_done)
+
 
     def test_build_feasible_mask_ALL_SHOULD_be_unmasked(self):
         fake_state = np.array([[[-2.  , -2.  , -2.  ],
