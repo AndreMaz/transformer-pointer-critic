@@ -2,8 +2,7 @@ import numpy as np
 from environment.custom.resource_v3.env import ResourceEnvironmentV3
 from agents.agent import Agent
 from environment.custom.resource_v3.plotter import plot_attentions
-from environment.custom.resource_v3.utils import export_to_csv, compute_max_steps, compute_delta, num_overloaded_nodes
-
+from environment.custom.resource_v3.utils import export_to_csv, compute_max_steps, compute_delta, round_half_up
 
 # from agents.optimum_solver import solver
 import numpy as np
@@ -45,6 +44,10 @@ def test(
         net_delta, net_rejected = compute_delta(env.history[0])
         heu_delta, heu_rejected = compute_delta(solver.node_list)
         
+        # Round to 2 decimals
+        net_delta = round_half_up(net_delta, 2)
+        heu_delta = round_half_up(heu_delta, 2)
+
         if net_delta > heu_delta:
             won += 1
             res = 'Won'
@@ -56,7 +59,7 @@ def test(
             res = 'Loss'
 
         #if show_info:
-        print(f'{net_delta[0]:.5f};{net_rejected}||{heu_delta[0]:.5f};{heu_rejected}||{res}')
+        print(f'{net_delta[0]:.2f};{net_rejected}||{heu_delta[0]:.2f};{heu_rejected}||{res}')
     
     # if show_info:
     print(f"Won {won/num_tests}% || Draw {draw/num_tests}% || Loss {loss/num_tests}%")

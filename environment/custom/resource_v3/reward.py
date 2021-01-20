@@ -5,8 +5,9 @@ from environment.custom.resource_v3.utils import bins_eos_checker
 
 def RewardFactory(opts: dict, EOS_NODE):
     rewards = {
-        "fair": FairReward,
         "greedy": GreedyReward,
+        "single_node_dominant": SingleNodeDominantReward,
+        "global_dominant": GlobalDominantReward,
         "gini": GiniReward
     }
 
@@ -40,10 +41,11 @@ class GreedyReward():
         return 1 - is_eos
 
 
-class FairReward():
+class SingleNodeDominantReward():
     def __init__(self, opts: dict, EOS_NODE):
-        super(FairReward, self).__init__()
+        super(SingleNodeDominantReward, self).__init__()
         self.EOS_NODE = EOS_NODE
+        self.rejection_penalty: int = opts['rejection_penalty']
 
     def compute_reward(self,
                        updated_batch,
@@ -59,15 +61,63 @@ class FairReward():
         bins_ram = all_bins[:, :, 1]
         bins_mem = all_bins[:, :, 2]
 
+        num_features = updated_batch.shape[2]
+        is_eos = bins_eos_checker(nodes, self.EOS_NODE[0], num_features, result_dtype="float32") 
+
+        penalties = is_eos * self.rejection_penalty
+
+        dominant_resource = tf.reduce_min(nodes - reqs, axis=-1)
+
+        reward = dominant_resource * (1 - is_eos) + penalties
+
         # min_cpu = tf.math.reduce_min(bins_cpu, axis=1)
         # min_ram = tf.math.reduce_min(bins_ram, axis=1)
         # min_mem = tf.math.reduce_min(bins_mem, axis=1)
 
         # min_vals = tf.convert_to_tensor([min_cpu, min_ram, min_mem])
 
-        min_resource = tf.math.reduce_min(min_vals, axis=0)
+        # min_resource = tf.math.reduce_min(min_vals, axis=0)
 
-        return min_resource
+        return reward
+
+class GlobalDominantReward():
+    def __init__(self, opts: dict, EOS_NODE):
+        super(GlobalDominantReward, self).__init__()
+        self.EOS_NODE = EOS_NODE
+        self.rejection_penalty: int = opts['rejection_penalty']
+
+    def compute_reward(self,
+                       updated_batch,
+                       original_batch,
+                       total_num_nodes,
+                       nodes,
+                       reqs,
+                       feasible_mask
+                       ):
+
+        all_bins_min_eos = updated_batch[:, 1:total_num_nodes]
+        dominant_resource = tf.reduce_min(
+            tf.reduce_min(all_bins_min_eos, axis=-1), axis=-1
+        )
+
+        num_features = updated_batch.shape[2]
+        is_eos = bins_eos_checker(nodes, self.EOS_NODE[0], num_features, result_dtype="float32") 
+
+        penalties = is_eos * self.rejection_penalty
+
+        # dominant_resource = tf.reduce_min(nodes - reqs, axis=-1)
+
+        reward = dominant_resource * (1 - is_eos) + penalties
+
+        # min_cpu = tf.math.reduce_min(bins_cpu, axis=1)
+        # min_ram = tf.math.reduce_min(bins_ram, axis=1)
+        # min_mem = tf.math.reduce_min(bins_mem, axis=1)
+
+        # min_vals = tf.convert_to_tensor([min_cpu, min_ram, min_mem])
+
+        # min_resource = tf.math.reduce_min(min_vals, axis=0)
+
+        return reward
 
 class GiniReward():
     def __init__(self, opts: dict, EOS_NODE):

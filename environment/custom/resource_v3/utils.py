@@ -8,15 +8,15 @@ def round_half_up(n, decimals=0):
     # Replace math.floor with np.floor
     return np.floor(n*multiplier + 0.5) / multiplier
 
-def bins_eos_checker(bins, EOS_SYMBOL, num_features):
+def bins_eos_checker(bins, EOS_SYMBOL, num_features, result_dtype = 'int32'):
     # Check if selected bins are EOS
     # Marked as 1 = EOS node
     # Marked as 0 = not a EOS node
-    is_eos_bin = tf.cast(tf.equal(bins, EOS_SYMBOL), dtype="int32")
+    is_eos_bin = tf.cast(tf.equal(bins, EOS_SYMBOL), dtype = result_dtype)
     # if all elements are equal to EOS code
     # the result should be equal to the number of features
     is_eos_bin = tf.reduce_sum(is_eos_bin, axis=-1)
-    is_eos_bin = tf.cast(tf.equal(is_eos_bin, num_features), dtype="int32")
+    is_eos_bin = tf.cast(tf.equal(is_eos_bin, num_features), dtype = result_dtype)
 
     return is_eos_bin
 

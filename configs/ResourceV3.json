@@ -9,7 +9,7 @@
 
     "tester_config": {
         "description": "Testing function configs.",
-        "num_tests": 100,
+        "num_tests": 1000,
         "show_info": false,
         "plot_attentions": false,
         "batch_size": 1,
@@ -40,7 +40,7 @@
         "decimal_precision": 2,
 
         "num_features": 3,
-        "num_profiles": 500,
+        "num_profiles": 20,
 
         "profiles_sample_size": 20,
         "node_sample_size": 5,
@@ -49,13 +49,18 @@
         "req_min_val": 1,
         "req_max_val": 30,
         
-        "node_min_val": 0,
+        "node_min_val": 80,
         "node_max_val": 100,
 
         "reward": {
-            "type": "greedy",
+            "type": "global_dominant",
             "greedy": {},
-            "fair": {},
+            "single_node_dominant": {
+                "rejection_penalty": -1
+            },
+            "global_dominant": {
+                "rejection_penalty": -1
+            },
             "gini": {}
         }
     },
@@ -66,19 +71,19 @@
 
             "gamma": 0.999,
             "values_loss_coefficient": 0.5,
-            "entropy_coefficient": 0.001,
+            "entropy_coefficient": 0.01,
             "stochastic_action_selection": true,
             "use_mha_mask": true,
 
             "actor": {
                 "num_layers": 1,
-                "dim_model": 64,
+                "dim_model": 128,
                 "num_heads": 8,
-                "inner_layer_dim": 64,
+                "inner_layer_dim": 128,
                 "positional_encoding": false,
                 "SOS_CODE": -1,
                 "encoder_embedding_time_distributed": true,
-                "attention_dense_units": 64,
+                "attention_dense_units": 128,
                 "dropout_rate": 0.01,
 
                 "learning_rate": 0.0001
@@ -86,13 +91,13 @@
 
             "critic": {
                 "num_layers": 1,
-                "dim_model": 64,
+                "dim_model": 128,
                 "num_heads": 8,
                 "positional_encoding": false,
-                "inner_layer_dim": 64,
+                "inner_layer_dim": 128,
                 "encoder_embedding_time_distributed": true,
-                "last_layer_units": 64,
-                "last_layer_activation": "relu",
+                "last_layer_units": 128,
+                "last_layer_activation": "linear",
                 "dropout_rate": 0.01,
 
                 "learning_rate": 0.0001

@@ -47,9 +47,7 @@ class GreedyHeuristic():
                 Node(
                     0, # Nodes are created in first batch, i.e., state from env
                     id,
-                    node[0],
-                    node[1],
-                    node[2],
+                    node
                 )
             )
         
@@ -68,9 +66,7 @@ class GreedyHeuristic():
                 Resource(
                     self.resource_batch_id,
                     id,
-                    resource[0],
-                    resource[1],
-                    resource[2],
+                    resource
                 )
             )
 
