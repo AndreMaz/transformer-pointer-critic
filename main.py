@@ -55,10 +55,10 @@ def runner(env_type="custom", env_name='ResourceV3', agent_name="tpc"):
     tester(env, agent, tester_config, opt_solver, heuristic_solver, look_for_opt, show_info)
     print('End... Goodbye!')
 
-def tuner(env_type="custom", env_name='ResourceV2', agent_name="tpc"):
+def tuner(env_type="custom", env_name='ResourceV3', agent_name="tpc"):
     
     gamma_rate = [0.9, 0.99, 0.999]
-    entropy_coefficient = [ 0.00001, 0.0001, 0.001, 0.01 ]
+    entropy_coefficient = [ 0.0001, 0.001, 0.01 ]
     dropout_rate = [ 0.001, 0.01, 0.1 ]
     actor_learning_rate = [
         # 0.00001,
@@ -104,14 +104,14 @@ def tuner(env_type="custom", env_name='ResourceV2', agent_name="tpc"):
                             training_history = trainer(
                                 env, agent, trainer_config, show_info)
 
-                            plotter(training_history, env, agent, agent_config, opt_solver, False)
+                            plotter(training_history, env, agent, config, opt_solver, False)
 
                             look_for_opt = False
-                            
+                            show_info = False
                             result = tester(env, agent, tester_config, opt_solver, heuristic_solver, look_for_opt, show_info)
 
-                            print(f"{result};{gamma};{entropy};{actor_lr};{dp_rate};{critic_lr}")
+                            print(f"{result};{gamma};{entropy};{dp_rate};{actor_lr};{critic_lr}")
 
 if __name__ == "__main__":
-    runner()
-    # tuner()
+    # runner()
+    tuner()
