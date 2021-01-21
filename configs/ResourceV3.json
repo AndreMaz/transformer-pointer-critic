@@ -3,14 +3,17 @@
     
     "trainer_config": {
         "description": "Trainer function configs.",
-        "n_iterations": 5000,
+        "n_iterations": 0,
         "n_steps_to_update": 20
     },
 
     "tester_config": {
         "description": "Testing function configs.",
-        "num_tests": 1000,
-        "show_info": false,
+        "num_tests": 100,
+        "show_per_test_stats": true,
+        "show_inference_progress": false,
+        "show_solutions": false,
+        "show_detailed_solutions": false,
         "plot_attentions": false,
         "batch_size": 1,
         "profiles_sample_size": 20,
@@ -27,7 +30,36 @@
         },
 
         "export_stats": {
-            "location": "./results/resource_v2"
+            "export_stats": true,
+            "location": "./results/resource_v3"
+        }
+    },
+
+    "tuner_config": {
+        "description": "Tunning function configs.",
+        "num_tests": 1000,
+        "show_per_test_stats": false,
+        "show_inference_progress": false,
+        "show_solutions": false,
+        "show_detailed_solutions": false,
+        "plot_attentions": false,
+        "batch_size": 1,
+        "profiles_sample_size": 20,
+        "node_sample_size": 5,
+        "num_episodes": 1,
+        
+        "heuristic": {
+            "type": "greedy",
+            "greedy": {
+                "request_sorting_order": "ASC",
+                "node_sorting_order": "DESC",
+                "denormalize": true
+            }
+        },
+
+        "export_stats": {
+            "export_stats": false,
+            "location": "./results/resource_v3"
         }
     },
 
@@ -53,7 +85,7 @@
         "node_max_val": 100,
 
         "reward": {
-            "type": "single_node_dominant",
+            "type": "global_dominant",
             "greedy": {},
             "single_node_dominant": {
                 "rejection_penalty": -1
@@ -69,7 +101,7 @@
         "description": "Double Transformer Pointer Critic Agent configs.",
         "agent_config": {
 
-            "gamma": 0.999,
+            "gamma": 0.99,
             "values_loss_coefficient": 0.5,
             "entropy_coefficient": 0.01,
             "stochastic_action_selection": true,

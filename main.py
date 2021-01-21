@@ -26,7 +26,7 @@ import math
 
 def runner(env_type="custom", env_name='ResourceV3', agent_name="tpc"):
     # Read the configs
-    agent_config, trainer_config, env_config, tester_config = get_configs(env_name, agent_name)
+    agent_config, trainer_config, env_config, tester_config, _ = get_configs(env_name, agent_name)
 
     # Create the environment
     env, opt_solver, heuristic_solver, tester, plotter = env_factory(env_type, env_name, env_config)
@@ -51,23 +51,22 @@ def runner(env_type="custom", env_name='ResourceV3', agent_name="tpc"):
     # Test the agent
     print("\nTesting...")
     look_for_opt = False
-    show_info = False
-    tester(env, agent, tester_config, opt_solver, heuristic_solver, look_for_opt, show_info)
+    tester(env, agent, tester_config, opt_solver, heuristic_solver, look_for_opt)
     print('End... Goodbye!')
 
 def tuner(env_type="custom", env_name='ResourceV3', agent_name="tpc"):
     
-    gamma_rate = [0.9, 0.99, 0.999]
+    gamma_rate = [0.99, 0.999]
     entropy_coefficient = [ 0.0001, 0.001, 0.01 ]
     dropout_rate = [ 0.001, 0.01, 0.1 ]
     actor_learning_rate = [
         # 0.00001,
-        0.0001,
+        0.0005,
         #0.0005
     ]
     critic_learning_rate = [ 
         # 0.00001,
-        0.0001,
+        0.0005,
         #0.0005
     ]
 
@@ -77,7 +76,7 @@ def tuner(env_type="custom", env_name='ResourceV3', agent_name="tpc"):
                 for critic_lr in critic_learning_rate:
                         for dp_rate in dropout_rate:
                             # Read the configs
-                            agent_config, trainer_config, env_config, tester_config = get_configs(env_name, agent_name)
+                            agent_config, trainer_config, env_config, _, tuner_config = get_configs(env_name, agent_name)
 
                             # Create the environment
                             env, opt_solver, heuristic_solver, tester, plotter = env_factory(env_type, env_name, env_config)
@@ -100,17 +99,15 @@ def tuner(env_type="custom", env_name='ResourceV3', agent_name="tpc"):
                             agent = Agent('transformer', config)
 
                             show_info = False
-
                             training_history = trainer(
                                 env, agent, trainer_config, show_info)
 
                             plotter(training_history, env, agent, config, opt_solver, False)
 
                             look_for_opt = False
-                            show_info = False
-                            result = tester(env, agent, tester_config, opt_solver, heuristic_solver, look_for_opt, show_info)
+                            win, loss, draw = tester(env, agent, tuner_config, opt_solver, heuristic_solver, look_for_opt)
 
-                            print(f"{result};{gamma};{entropy};{dp_rate};{actor_lr};{critic_lr}")
+                            print(f"{win};{loss};{draw};{gamma};{entropy};{dp_rate};{actor_lr};{critic_lr}")
 
 if __name__ == "__main__":
     # runner()

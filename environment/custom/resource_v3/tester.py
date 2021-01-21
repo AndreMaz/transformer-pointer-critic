@@ -20,11 +20,11 @@ def test(
     opt_solver,
     heuristic_solver,
     look_for_opt: bool,
-    show_info: bool
     ):
 
     num_tests = opts['num_tests']
-    # show_info = opts['show_info']
+    show_per_test_stats = opts['show_per_test_stats']
+
     
     won = 0
     draw = 0
@@ -37,8 +37,7 @@ def test(
             opts,
             opt_solver,
             heuristic_solver,
-            look_for_opt,
-            show_info
+            look_for_opt
         )
 
         net_delta, net_rejected = compute_delta(env.history[0])
@@ -58,13 +57,13 @@ def test(
             loss += 1
             res = 'Loss'
 
-        #if show_info:
-        print(f'{net_delta[0]:.2f};{net_rejected}||{heu_delta[0]:.2f};{heu_rejected}||{res}')
+        if show_per_test_stats:
+            print(f'{net_delta[0]:.2f};{net_rejected}||{heu_delta[0]:.2f};{heu_rejected}||{res}')
     
-    # if show_info:
-    print(f"Won {won/num_tests}% || Draw {draw/num_tests}% || Loss {loss/num_tests}%")
+    if show_per_test_stats:
+        print(f"Won {(won/num_tests)*100}% || Draw {(draw/num_tests)*100}% || Loss {(loss/num_tests)*100}%")
 
-    return won/num_tests
+    return won/num_tests, draw/ num_tests, loss / num_tests
 
 def test_single_instance(
     instance_id,
@@ -73,8 +72,7 @@ def test_single_instance(
     opts: dict,
     opt_solver,
     heuristic_solver,
-    look_for_opt: bool,
-    show_info: bool
+    look_for_opt: bool
     ):
     
     plot_attentions = opts['plot_attentions']
@@ -82,7 +80,13 @@ def test_single_instance(
     req_sample_size = opts['profiles_sample_size']
     node_sample_size = opts['node_sample_size']
     num_episodes = opts['num_episodes']
+
     csv_write_path = opts['export_stats']['location']
+    export_stats = opts['export_stats']['export_stats']
+
+    show_inference_progress = opts['show_inference_progress']
+    show_solutions = opts['show_solutions']
+    show_detailed_solutions = opts['show_detailed_solutions']
 
     # Set the agent and env to testing mode
     env.set_testing_mode(batch_size, node_sample_size, req_sample_size)
@@ -96,9 +100,7 @@ def test_single_instance(
     current_state, bin_net_mask, resource_net_mask, mha_used_mask = env.reset()
     dec_input = agent.generate_decoder_input(current_state)
     
-    env.build_history(current_state)
-
-    if show_info:
+    if show_inference_progress:
         print(f'Testing for {num_episodes} episodes with {agent.num_resources} resources and {env.node_sample_size} bins')
 
     # print('Solving with nets...')
@@ -124,7 +126,7 @@ def test_single_instance(
             state_list.append(current_state)
 
         while not isDone:
-            if show_info:
+            if show_inference_progress:
                 print(f'Episode {episode_count} Placing step {training_step} of {agent.num_resources}', end='\r')
 
             # Select an action
@@ -171,7 +173,7 @@ def test_single_instance(
 
         episode_count += 1
 
-    if show_info:
+    if show_inference_progress:
         # if env.validate_history() == True:
         #    print('All solutions are valid!')
         #else:
@@ -183,18 +185,19 @@ def test_single_instance(
     for state in state_list:
          solver.solve(state)
     
-    # Find the the node with maximum number of inserted resources
-    max_steps = compute_max_steps(env.history[0], solver.node_list)
-    # Export results to CSV
-    t = datetime.now().replace(microsecond=0).isoformat()
-    export_to_csv(env.history, max_steps, 'Neural', f'{csv_write_path}/{t}_{instance_id}_net.csv')
-    export_to_csv([solver.node_list], max_steps, 'Heuristic', f'{csv_write_path}/{t}_{instance_id}_heuristic.csv')
+    if export_stats:
+        # Find the the node with maximum number of inserted resources
+        max_steps = compute_max_steps(env.history[0], solver.node_list)
+        # Export results to CSV
+        t = datetime.now().replace(microsecond=0).isoformat()
+        export_to_csv(env.history, max_steps, 'Neural', f'{csv_write_path}/{t}_{instance_id}_net.csv')
+        export_to_csv([solver.node_list], max_steps, 'Heuristic', f'{csv_write_path}/{t}_{instance_id}_heuristic.csv')
 
 
-    if show_info:
-        env.print_history(False)
+    if show_solutions:
+        env.print_history(show_detailed_solutions)
         print('________________________________________________________________________________')    
-        solver.print_node_stats(False)
+        solver.print_node_stats(show_detailed_solutions)
 
     if plot_attentions:
         # Plot the attentions to visualize the policy

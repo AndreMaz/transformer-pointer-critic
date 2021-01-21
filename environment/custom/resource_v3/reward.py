@@ -14,7 +14,7 @@ def RewardFactory(opts: dict, EOS_NODE):
     try:
         rewardType = opts['type']
         R = rewards[f'{rewardType}']
-        print(f'"{rewardType.upper()}" reward selected.')
+        # print(f'"{rewardType.upper()}" reward selected.')
         return R(opts[f'{rewardType}'], EOS_NODE)
     except KeyError:
         raise NameError(f'Unknown Reward Name! Select one of {list(rewards.keys())}')

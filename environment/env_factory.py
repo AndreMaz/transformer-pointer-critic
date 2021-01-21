@@ -35,6 +35,7 @@ def env_factory(type, name, opts):
 
     #try:
     Environment, optimum_solver, heuristic, tester, plotter = custom_envs[f"{name}"]
+    # print(f'"{name.upper()}" environment selected.')
     return Environment(name, opts), optimum_solver, heuristic, tester, plotter
     # except KeyError:
     #    raise NameError(f'Unknown Environment Name! Select one of {list(custom_envs.keys())}')
