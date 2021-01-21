@@ -219,16 +219,16 @@ class Agent():
         )
         
         # Entropy loss can be calculated as cross-entropy over itself.
-        entropy_loss = tf.keras.losses.categorical_crossentropy(
+        entropy = tf.keras.losses.categorical_crossentropy(
             pointers_probs,
             pointers_probs
         )
 
         # Compute average entropy loss
         # entropy_loss = tf.reduce_mean(entropy_loss)
-        total_loss = policy_loss - self.entropy_coefficient * entropy_loss
+        total_loss = policy_loss - self.entropy_coefficient * entropy
 
-        return total_loss, dec_output, tf.reduce_mean(total_loss).numpy()
+        return total_loss, dec_output, entropy
 
     def act(self,
             state,

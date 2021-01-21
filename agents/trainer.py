@@ -120,7 +120,7 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict, show_progress: bool):
         )
 
         with tf.GradientTape() as tape:
-            resources_loss, decoded_resources, avg_resource_loss  = agent.compute_actor_loss(
+            resources_loss, decoded_resources, resources_entropy  = agent.compute_actor_loss(
                 agent.resource_actor,
                 agent.resource_masks,
                 agent.resources,
@@ -137,7 +137,7 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict, show_progress: bool):
         decoded_resources = tf.expand_dims(decoded_resources, axis=1)
 
         with tf.GradientTape() as tape:
-            bin_loss, decoded_bins, avg_bins_loss = agent.compute_actor_loss(
+            bin_loss, decoded_bins, bin_entropy = agent.compute_actor_loss(
                 agent.bin_actor,
                 agent.bin_masks,
                 agent.bins,
@@ -173,7 +173,15 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict, show_progress: bool):
         )
 
         if isDone and show_progress:
-            print(f"\rEpisode: {episode_count} took {time.time() - start:.2f} sec.\t Min in Batch: {min_in_batch:.3f}\t Max in Batch: {max_in_batch:.3f}\t Batch Avg: {episode_reward:.3f}\t Avg V_Loss: {avg_value_loss:.5f}\t Avg R_Loss: {avg_resource_loss:.5f}\t Avg B_Loss: {avg_bins_loss:.5f}", end="\n")
+            print(f"\rEp: {episode_count} took {time.time() - start:.2f} sec.\t" +
+            f"Min@Batch: {min_in_batch:.3f}\t" +
+            f"Max@Batch: {max_in_batch:.3f}\t" +
+            f"Avg@Batch: {episode_reward:.3f}\t" +
+            f"Avg V_Loss: {avg_value_loss:.4f}\t" +
+            f"Avg R_Loss: {tf.reduce_mean(resources_loss):.4f}\t" +
+            f"Entr R: {tf.reduce_mean(resources_entropy):.4f}\t" +
+            f"Avg B_Loss: {tf.reduce_mean(bin_loss):.4f}\t" + 
+            f"Entr B: {tf.reduce_mean(bin_entropy):.4f}", end="\n")
 
         # Iteration complete. Clear agent's memory
         agent.clear_memory()

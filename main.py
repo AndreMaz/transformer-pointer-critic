@@ -110,5 +110,5 @@ def tuner(env_type="custom", env_name='ResourceV3', agent_name="tpc"):
                             print(f"{win};{loss};{draw};{gamma};{entropy};{dp_rate};{actor_lr};{critic_lr}")
 
 if __name__ == "__main__":
-    # runner()
-    tuner()
+    runner()
+    # tuner()
