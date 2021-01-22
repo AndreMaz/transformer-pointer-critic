@@ -124,7 +124,7 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict, show_progress: bool):
                 agent.resource_actor,
                 agent.resource_masks,
                 agent.resources,
-                agent.decoded_resources,
+                agent.resource_net_decoder_input,
                 advantages
             )
         

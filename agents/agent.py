@@ -56,7 +56,7 @@ class Agent():
 
         # Init memory
         self.states = []
-        self.decoded_resources = []
+        self.resource_net_decoder_input = []
         self.resources = []
         self.bins = []
         self.bin_masks = []
@@ -66,7 +66,7 @@ class Agent():
     
     def store(self,
               state,
-              decoded_resource,
+              dec_input,
               bin_mask,
               resources_masks,
               mha_mask,
@@ -78,7 +78,7 @@ class Agent():
 
         self.states.append(state)
         
-        self.decoded_resources.append(decoded_resource)
+        self.resource_net_decoder_input.append(dec_input)
 
         self.bin_masks.append(bin_mask)
         self.resource_masks.append(resources_masks)
@@ -91,7 +91,7 @@ class Agent():
 
     def clear_memory(self):
         self.states = []
-        self.decoded_resources = []
+        self.resource_net_decoder_input = []
         
         self.bin_masks = []
         self.resource_masks = []
@@ -219,6 +219,7 @@ class Agent():
         )
         
         # Entropy loss can be calculated as cross-entropy over itself.
+        # The greater the entropy, the more random the actions an agent takes.
         entropy = tf.keras.losses.categorical_crossentropy(
             pointers_probs,
             pointers_probs

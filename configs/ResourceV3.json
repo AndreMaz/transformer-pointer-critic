@@ -3,7 +3,7 @@
     
     "trainer_config": {
         "description": "Trainer function configs.",
-        "n_iterations": 100,
+        "n_iterations": 60000,
         "n_steps_to_update": 20
     },
 
@@ -16,8 +16,8 @@
         "show_detailed_solutions": false,
         "plot_attentions": false,
         "batch_size": 1,
-        "profiles_sample_size": 20,
-        "node_sample_size": 5,
+        "profiles_sample_size": 40,
+        "node_sample_size": 10,
         "num_episodes": 1,
         
         "heuristic": {
@@ -72,16 +72,16 @@
         "decimal_precision": 2,
 
         "num_features": 3,
-        "num_profiles": 20,
+        "num_profiles": 40,
 
         "profiles_sample_size": 20,
-        "node_sample_size": 5,
+        "node_sample_size": 10,
         
         "EOS_CODE": -2,
         "req_min_val": 1,
         "req_max_val": 30,
         
-        "node_min_val": 80,
+        "node_min_val": 0,
         "node_max_val": 100,
 
         "reward": {
