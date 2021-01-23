@@ -102,7 +102,9 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict, show_progress: bool):
             bootstrap_state_value = tf.zeros([agent.batch_size, 1],dtype="float32")
         else:
             # Not done. Ask model to generate the state value
-            bootstrap_state_value = agent.critic(current_state, agent.training)
+            bootstrap_state_value = agent.critic(
+                current_state, agent.training, enc_padding_mask = mha_used_mask
+            )
 
         discounted_rewards = agent.compute_discounted_rewards(bootstrap_state_value)
         

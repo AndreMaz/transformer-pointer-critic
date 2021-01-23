@@ -74,14 +74,14 @@
         "num_features": 3,
         "num_profiles": 40,
 
-        "profiles_sample_size": 20,
-        "node_sample_size": 10,
+        "profiles_sample_size": 2,
+        "node_sample_size": 2,
         
         "EOS_CODE": -2,
-        "req_min_val": 1,
+        "req_min_val": 29,
         "req_max_val": 30,
         
-        "node_min_val": 0,
+        "node_min_val": 99,
         "node_max_val": 100,
 
         "reward": {
@@ -102,7 +102,7 @@
         "agent_config": {
 
             "gamma": 0.99,
-            "values_loss_coefficient": 0.5,
+            "values_loss_coefficient": 1.0,
             "entropy_coefficient": 0.01,
             "stochastic_action_selection": true,
             "use_mha_mask": true,
