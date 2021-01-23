@@ -3,6 +3,7 @@
 # from agents.transformer_pointer_critic.model.actor.model import ActorTransformer
 
 from agents.models.model_factory import model_factory
+from environment.custom.resource_v3.utils import reshape_into_vertical_format, reshape_into_horizontal_format
 
 import tensorflow_probability as tfp
 import tensorflow as tf
@@ -128,6 +129,8 @@ class Agent():
         return discounted_rewards
 
     def compute_value_loss(self, discounted_rewards):
+        og_batch_size = self.states[0].shape[0]
+
         # Reshape data into a single forward pass format
         # shape=(batch_steps * num_resources, total_elems, features)
         states = tf.concat(self.states, axis=0)
@@ -149,20 +152,32 @@ class Agent():
         # ], dtype="float32")
 
         # Reshape the discounted rewards to match state values
-        discounted_rewards = tf.transpose(discounted_rewards, [1, 0])
-        discounted_rewards = tf.reshape(discounted_rewards, [batch_size, 1])
-        
+        discounted_rewards = reshape_into_vertical_format(
+            discounted_rewards, batch_size
+        )
+
         advantages = discounted_rewards - state_values
 
         # Compute average loss for the batch
         # value_loss = self.mse(discounted_rewards, state_values)
         value_loss = tf.keras.losses.mean_squared_error(discounted_rewards, state_values)
 
+        # Reshape value loss into (batch, decoding_step) form
+        # value_loss = tf.reshape(value_loss, [og_batch_size, self.num_resources])
+        # value_loss = tf.transpose(value_loss, [1, 0])
+        value_loss = reshape_into_horizontal_format(
+            value_loss, og_batch_size, self.num_resources
+        )
+
         # Apply a constant factor
-        value_loss = self.values_loss_coefficient * value_loss
+        # value_loss = self.values_loss_coefficient * value_loss
+
+        value_loss = tf.reduce_sum(value_loss, axis=-1)
+        value_loss = tf.reduce_mean(value_loss)
+        # a = tf.reduce_sum(re, axis=-1)
 
         return value_loss, state_values, advantages, tf.reduce_mean(value_loss).numpy()
-
+    
     def compute_actor_loss(self,
                            model,
                            masks,
@@ -170,7 +185,8 @@ class Agent():
                            decoder_inputs,
                            advantages
                            ):
-        
+
+        og_batch_size = self.states[0].shape[0]
         # advantages = discounted_rewards - state_values
 
         states = tf.concat(self.states, axis=0)
@@ -203,20 +219,37 @@ class Agent():
 
         actions = tf.concat(actions, axis=0)
         # actions = tf.transpose(actions, [1, 0])
-        actions = tf.reshape(actions, [batch_size, 1])
+        # actions = tf.reshape(actions, [batch_size, 1])
 
         # One hot actions that we took during an episode
         actions_one_hot = tf.one_hot(
             actions, self.tensor_size, dtype="float32")
 
-        actions_one_hot = tf.squeeze(actions_one_hot, axis=1)
+        # actions_one_hot = tf.squeeze(actions_one_hot, axis=1)
 
         # Compute the policy loss
-        policy_loss = self.loss_fn(
-            actions_one_hot,
-            pointer_logits,
-            sample_weight=advantages
+        # policy_loss = self.loss_fn(
+        #     actions_one_hot,
+        #     pointer_logits,
+        #     sample_weight=advantages
+        # )
+
+        # Compute the policy loss
+        policy_loss = tf.nn.softmax_cross_entropy_with_logits(
+            labels=actions_one_hot, logits=pointer_logits)
+
+        policy_loss = reshape_into_horizontal_format(
+            policy_loss, og_batch_size, self.num_resources
         )
+
+        advantages = reshape_into_horizontal_format(
+            advantages, og_batch_size, self.num_resources
+        )
+
+        policy_loss = policy_loss * advantages
+
+        # policy_loss = tf.reduce_sum(policy_loss, axis=-1)
+        # policy_loss = tf.reduce_mean(policy_loss)
         
         # Entropy loss can be calculated as cross-entropy over itself.
         # The greater the entropy, the more random the actions an agent takes.
@@ -225,9 +258,19 @@ class Agent():
             pointers_probs
         )
 
+        entropy = reshape_into_horizontal_format(
+            entropy, og_batch_size, self.num_resources
+        )
+
+        # entropy = tf.reduce_sum(entropy, axis=-1)
+        # entropy = tf.reduce_mean(entropy)
+
         # Compute average entropy loss
         # entropy_loss = tf.reduce_mean(entropy_loss)
-        total_loss = policy_loss - self.entropy_coefficient * entropy
+        total_loss = tf.reduce_mean(
+            tf.reduce_sum(
+                policy_loss - self.entropy_coefficient * entropy, axis=-1)
+        )
 
         return total_loss, dec_output, entropy
 

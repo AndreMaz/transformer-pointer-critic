@@ -66,7 +66,7 @@
     "env_config": {
         "description": "Environment configs.",
         
-        "batch_size": 64,
+        "batch_size": 2,
         
         "normalization_factor": 100,
         "decimal_precision": 2,
@@ -81,11 +81,11 @@
         "req_min_val": 29,
         "req_max_val": 30,
         
-        "node_min_val": 99,
+        "node_min_val": 0,
         "node_max_val": 100,
 
         "reward": {
-            "type": "global_dominant",
+            "type": "greedy",
             "greedy": {},
             "single_node_dominant": {
                 "rejection_penalty": -1

@@ -3,6 +3,18 @@ from environment.custom.resource_v3.node import Node
 from environment.custom.resource_v3.resource import Resource
 import tensorflow as tf
 
+def reshape_into_horizontal_format(data, batch_size, decoding_steps):
+    reshaped = tf.reshape(data, [batch_size, decoding_steps])
+    reshaped = tf.transpose(reshaped, [1, 0])
+
+    return reshaped
+
+def reshape_into_vertical_format(data, batch_size):
+    reshaped = tf.transpose(data, [1, 0])
+    reshaped = tf.reshape(reshaped, [batch_size, 1])
+
+    return reshaped
+
 def round_half_up(n, decimals=0):
     multiplier = 10 ** decimals
     # Replace math.floor with np.floor
