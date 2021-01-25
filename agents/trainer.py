@@ -110,7 +110,7 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict, show_progress: bool):
         
         ### Update Critic ###
         with tf.GradientTape() as tape:
-            value_loss, state_values, advantages, avg_value_loss = agent.compute_value_loss(
+            value_loss, state_values, advantages = agent.compute_value_loss(
                 discounted_rewards
             )
 
@@ -179,7 +179,7 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict, show_progress: bool):
             f"Min@Batch: {min_in_batch:.3f}\t" +
             f"Max@Batch: {max_in_batch:.3f}\t" +
             f"Avg@Batch: {episode_reward:.3f}\t" +
-            f"Avg V_Loss: {avg_value_loss:.4f}\t" +
+            f"Avg V_Loss: {value_loss:.4f}\t" +
             f"Avg R_Loss: {tf.reduce_mean(resources_loss):.4f}\t" +
             f"Entr R: {tf.reduce_mean(resources_entropy):.4f}\t" +
             f"Avg B_Loss: {tf.reduce_mean(bin_loss):.4f}\t" + 
