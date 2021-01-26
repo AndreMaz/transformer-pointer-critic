@@ -30,17 +30,19 @@ class TestUtils(unittest.TestCase):
     
     def test_reshape_into_vertical_format(self):
         fake_input = np.array([
-            [1, 2],
-            [3, 4]
+            [1, 2, 3],
+            [4, 5, 6]
         ], dtype='float32')
 
-        batch_size = 4
+        batch_size = 6
 
         expected = np.array([
             [1],
-            [3],
+            [4],
             [2],
-            [4]
+            [5],
+            [3],
+            [6],
         ], dtype='float32')
 
 
@@ -53,16 +55,18 @@ class TestUtils(unittest.TestCase):
     def test_reshape_into_horizontal_format(self):
         fake_input = np.array([
             [1],
-            [3],
+            [4],
             [2],
-            [4]
+            [5],
+            [3],
+            [6],
         ], dtype='float32')
         batch_size = 2
-        decoding_steps =2
+        decoding_steps = 3
 
         expected = np.array([
-            [1, 2],
-            [3, 4]
+            [1, 2, 3],
+            [4, 5, 6]
         ], dtype='float32')
 
         actual = reshape_into_horizontal_format(fake_input, batch_size, decoding_steps)

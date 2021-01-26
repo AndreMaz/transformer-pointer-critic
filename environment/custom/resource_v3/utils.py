@@ -4,7 +4,7 @@ from environment.custom.resource_v3.resource import Resource
 import tensorflow as tf
 
 def reshape_into_horizontal_format(data, batch_size, decoding_steps):
-    reshaped = tf.reshape(data, [batch_size, decoding_steps])
+    reshaped = tf.reshape(data, [decoding_steps, batch_size])
     reshaped = tf.transpose(reshaped, [1, 0])
 
     return reshaped
