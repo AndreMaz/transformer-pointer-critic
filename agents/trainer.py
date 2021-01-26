@@ -127,7 +127,7 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict, show_progress: bool):
                 agent.resource_masks,
                 agent.resources,
                 agent.resource_net_decoder_input,
-                advantages
+                tf.stop_gradient(advantages)
             )
         
         resource_grads = tape.gradient(
@@ -144,7 +144,7 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict, show_progress: bool):
                 agent.bin_masks,
                 agent.bins,
                 decoded_resources,
-                advantages
+                tf.stop_gradient(advantages)
             )
         
         bin_grads = tape.gradient(

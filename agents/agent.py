@@ -64,7 +64,7 @@ class Agent():
         self.resource_masks = []
         self.mha_masks = [] # <= ToDo
         self.rewards = np.zeros((self.batch_size, self.num_resources), dtype="float32")
-    
+
     def store(self,
               state,
               dec_input,
