@@ -109,8 +109,7 @@ def test_single_instance(
     attentions = []
 
     # Init the heuristic solver
-    # This will parse nodes/bins
-    solver = heuristic_solver(env, opts['heuristic']['greedy'])
+    solver = heuristic_solver(env.node_sample_size, opts['heuristic']['greedy'])
     state_list = [current_state]
 
     while episode_count < num_episodes:

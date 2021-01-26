@@ -13,32 +13,26 @@ from operator import itemgetter, attrgetter
 
 class GreedyHeuristic():
     def __init__(self,
-                env: ResourceEnvironmentV3,
+                num_nodes: int,
                 opts: dict
                 ):
         super(GreedyHeuristic, self).__init__()
 
         self.resource_batch_id = 0
-        self.env = env
-
-        self.node_list = self.parse_nodes()
-
-        self.EOS_NODE = self.node_list[0]
+        self.num_nodes = num_nodes
 
     def reset(self):
         self.resource_batch_id = 0
         
         self.node_list = []
 
-    def parse_nodes(self) -> List[Node]:
+    def parse_nodes(self, state) -> List[Node]:
 
-        state, _, _, _  = self.env.state()
-        
         batch_size = state.shape[0]
 
         assert batch_size == 1, 'Heuristic only works for problems with batch size equal to 1!'
 
-        nodes = state[0, :self.env.node_sample_size, :]
+        nodes = state[0, :self.num_nodes, :]
         # resources = state[:, env.bin_sample_size:, :]
         
         node_list = []
@@ -58,7 +52,7 @@ class GreedyHeuristic():
 
         assert batch_size == 1, 'Heuristic only works for problems with batch size equal to 1!'
 
-        resources = state[0, self.env.node_sample_size:, :]
+        resources = state[0, self.num_nodes:, :]
 
         resource_list = []
         for id, resource in enumerate(resources):
@@ -77,31 +71,35 @@ class GreedyHeuristic():
 
     def solve(self, state):
         
+        node_list = self.parse_nodes(state)
+        
         resource_list = self.parse_resources(state)
-        # Sort the reqs in a descending order
+        
+        # Sort the resources in a descending order
         resource_list: List[Resource] = sorted(resource_list, key=resource_sorting_fn, reverse=True)
         
         for resource in resource_list:
+            self.place_single_resource(resource, node_list)
             
-            # Compute dominant resource of each node and current request
-            diffs = []
-            for node in self.node_list:
-                diffs.append( 
-                    (compute_dominant_resource(node, resource), node)
-                )
 
-            # Sort the nodes by dominant resource
-            sorted_nodes: Tuple[float, Node] = sorted(diffs, key=node_sorting_fn, reverse=True)
+        # Store a reference with the solution
+        self.node_list = node_list
+    
+    def place_single_resource(self, resource, node_list):
+        
+        diffs = compute_potential_placement_diffs(resource, node_list)
 
-            # First fit
-            diff, selected_node = sorted_nodes[0]
-            if (diff > 0):
-                selected_node.insert_req(resource)
-            else:
-                self.EOS_NODE.insert_req(resource)
-    
-        return
-    
+        # Sort the nodes by dominant resource
+        sorted_nodes: Tuple[float, Node] = sorted(diffs, key=node_sorting_fn, reverse=True)
+
+        # First fit
+        diff, selected_node = sorted_nodes[0]
+        if (diff > 0):
+            selected_node.insert_req(resource)
+        else:
+            # Place at EOS node
+            node_list[0].insert_req(resource)
+
     def print_info(self, elem_list: list):
         for elem in elem_list:
             elem.print()
@@ -111,13 +109,22 @@ class GreedyHeuristic():
         for node in self.node_list:
             node.print(print_details)
 
+def compute_potential_placement_diffs(resource, node_list) -> Tuple[float, Node]:
+        # Compute dominant resource of each node and current request
+        diffs = []
+        for node in node_list:
+            diffs.append( 
+                (compute_dominant_resource(node, resource), node)
+            )
+
+        return diffs
+
 def compute_dominant_resource(node: Node, resource: Resource):
         diff_cpu = node.remaining_CPU - resource.CPU
         diff_ram = node.remaining_RAM - resource.RAM
         diff_mem = node.remaining_MEM - resource.MEM
 
         return min(diff_cpu, diff_ram, diff_mem)
-
 
 def node_sorting_fn(e: Tuple[float, Node]):
     return e[0]
@@ -132,34 +139,24 @@ def resource_sorting_fn(elem: Resource):
 if __name__ == "__main__":
     env_name = 'Resource'
 
-    with open(f"configs/ResourceV2.json") as json_file:
+    with open(f"configs/ResourceV3.json") as json_file:
         params = json.load(json_file)
-
-    env_config = params['env_config']
-
-    env_config['batch_size'] = 1
-
-    env = ResourceEnvironmentV2(env_name, env_config)
 
     heuristic_type = params['tester_config']['heuristic']['type']
     heuristic_opts = params['tester_config']['heuristic'][f'{heuristic_type}']
 
     dummy_state = np.array([
         [
-            [1, 2, 3],
-            [5, 2, 6],
-            [2, 1, 4],
-            [3, 5, 8],
+            [-2, -2, -2],
+            [ 1,  2,  3],
+            [ 5,  2,  6],
+            [ 2,  1,  4],
+            [ 3,  5,  8],
         ]
     ], dtype='float32')
-    # Dummy data
-    env.batch = dummy_state
-    env.node_sample_size = 2
-    env.batch_size = 1
     
-    state, _, _, _ = env.state()
+    node_sample_size = 3
+    
+    solver = GreedyHeuristic(node_sample_size, heuristic_opts)
 
-
-    solver = GreedyHeuristic(env, heuristic_opts)
-
-    solver.solve(state)
+    solver.solve(dummy_state)
