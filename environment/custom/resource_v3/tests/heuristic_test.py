@@ -142,6 +142,14 @@ class TestHeuristic(unittest.TestCase):
             expected_num_reqs_at_node0
         )
 
+        actual_resource_at_node0 = self.solver.node_list[0].req_list[0]
+        expected_resource_at_node0 = np.array([3, 5, 8], dtype="float32")
+
+        self.assertEqual(
+            actual_resource_at_node0.get_tensor_rep().tolist(),
+            expected_resource_at_node0.tolist()
+        )
+
         expected_num_reqs_at_node1 = 0
         self.assertEqual(
             len(self.solver.node_list[1].req_list),
@@ -152,4 +160,11 @@ class TestHeuristic(unittest.TestCase):
         self.assertEqual(
             len(self.solver.node_list[2].req_list),
             expected_num_reqs_at_node2
+        )
+        actual_resource_at_node2 = self.solver.node_list[2].req_list[0]
+        expected_resource_at_node2 = np.array([2, 1, 4], dtype="float32")
+        
+        self.assertEqual(
+            actual_resource_at_node2.get_tensor_rep().tolist(),
+            expected_resource_at_node2.tolist()
         )

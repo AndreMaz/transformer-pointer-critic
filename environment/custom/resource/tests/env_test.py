@@ -269,7 +269,7 @@ class TestStepFn(unittest.TestCase):
             [-20]
         ], dtype="float32")
 
-        self.assertEqual(rewards.tolist(), expected_rewards.tolist())
+        self.assertEqual(rewards.numpy().tolist(), expected_rewards.tolist())
 
         self.assertFalse(isDone)
 
@@ -330,7 +330,7 @@ class TestStepFn(unittest.TestCase):
             [20]
         ], dtype="float32")
 
-        self.assertEqual(rewards.tolist(), expected_rewards.tolist())
+        self.assertEqual(rewards.numpy().tolist(), expected_rewards.tolist())
 
         self.assertFalse(isDone)
 
@@ -391,7 +391,7 @@ class TestStepFn(unittest.TestCase):
             [10]
         ], dtype="float32")
 
-        self.assertEqual(rewards.tolist(), expected_rewards.tolist())
+        self.assertEqual(rewards.numpy().tolist(), expected_rewards.tolist())
         
         self.assertFalse(isDone)
 
@@ -452,7 +452,7 @@ class TestStepFn(unittest.TestCase):
             [10]
         ], dtype="float32")
 
-        self.assertEqual(rewards.tolist(), expected_rewards.tolist())
+        self.assertEqual(rewards.numpy().tolist(), expected_rewards.tolist())
 
         self.assertFalse(isDone)
 
@@ -513,7 +513,7 @@ class TestStepFn(unittest.TestCase):
             [5]
         ], dtype="float32")
 
-        self.assertEqual(rewards.tolist(), expected_rewards.tolist())
+        self.assertEqual(rewards.numpy().tolist(), expected_rewards.tolist())
         
         self.assertFalse(isDone)
     
