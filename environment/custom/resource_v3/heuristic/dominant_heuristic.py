@@ -57,11 +57,15 @@ class DominantResourceHeuristic(BaseHeuristic):
             reverse=self.node_sort_descending
         )
 
-        # First fit
-        diff, selected_node = sorted_nodes[0]
-        if (diff > 0):
-            selected_node.insert_req(resource)
-        else:
+        # Now do the fit first
+        allocated = False
+        for diff, node in sorted_nodes:
+            if (diff > 0):
+                node.insert_req(resource)
+                allocated = True
+                break
+
+        if not allocated:
             # Place at EOS node
             EOS_NODE.insert_req(resource)
 

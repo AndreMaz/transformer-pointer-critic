@@ -28,8 +28,8 @@
                 "node_sort_descending": false
             },
             "dominant_resource": {
-                "resource_sort_descending": false,
-                "node_sort_descending": false
+                "resource_sort_descending": true,
+                "node_sort_descending": true
             },
             "random": {}
         },
@@ -84,9 +84,9 @@
         
         "EOS_CODE": -2,
         "req_min_val": 1,
-        "req_max_val": 30,
+        "req_max_val": 3,
         
-        "node_min_val": 0,
+        "node_min_val": 99,
         "node_max_val": 100,
 
         "reward": {

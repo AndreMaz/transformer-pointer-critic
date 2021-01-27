@@ -101,8 +101,7 @@ def test_single_instance(
     attentions = []
 
     # Init the heuristic solvers 
-    # solver = heuristic_solvers(env.node_sample_size, opts['heuristic']['greedy'])
-    heuristic_solvers = heuristic_factory(node_sample_size, opts['heuristic'])
+    heuristic_solvers = heuristic_factory(env.node_sample_size, opts['heuristic'])
     state_list = [current_state]
 
     while episode_count < num_episodes:

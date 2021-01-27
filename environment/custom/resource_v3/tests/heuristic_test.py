@@ -9,7 +9,10 @@ from environment.custom.resource_v3.heuristic.dominant_heuristic import Dominant
 class TestHeuristic(unittest.TestCase):
     def setUp(self) -> None:
     
-        heuristic_opts = {}
+        heuristic_opts = {
+                "resource_sort_descending": True,
+                "node_sort_descending": True
+            }
 
         self.dummy_state = np.array([
             [
