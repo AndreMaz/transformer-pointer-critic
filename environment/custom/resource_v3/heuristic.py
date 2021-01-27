@@ -6,7 +6,6 @@ import json
 
 from typing import List, Tuple
 
-from environment.custom.resource_v3.env import ResourceEnvironmentV3
 from environment.custom.resource_v3.node import Node
 from environment.custom.resource_v3.resource import Resource
 from operator import itemgetter, attrgetter
@@ -21,10 +20,12 @@ class GreedyHeuristic():
         self.resource_batch_id = 0
         self.num_nodes = num_nodes
 
+        self.solution = []
+
     def reset(self):
         self.resource_batch_id = 0
         
-        self.node_list = []
+        self.solution = []
 
     def parse_nodes(self, state) -> List[Node]:
 
@@ -72,20 +73,21 @@ class GreedyHeuristic():
     def solve(self, state):
         
         node_list = self.parse_nodes(state)
-        
+        EOS_NODE = node_list.pop(0)
+
         resource_list = self.parse_resources(state)
         
         # Sort the resources in a descending order
         resource_list: List[Resource] = sorted(resource_list, key=resource_sorting_fn, reverse=True)
         
         for resource in resource_list:
-            self.place_single_resource(resource, node_list)
+            self.place_single_resource(resource, node_list, EOS_NODE)
             
 
         # Store a reference with the solution
-        self.node_list = node_list
+        self.solution = [EOS_NODE] + node_list
     
-    def place_single_resource(self, resource, node_list):
+    def place_single_resource(self, resource, node_list, EOS_NODE):
         
         diffs = compute_potential_placement_diffs(resource, node_list)
 
@@ -98,7 +100,7 @@ class GreedyHeuristic():
             selected_node.insert_req(resource)
         else:
             # Place at EOS node
-            node_list[0].insert_req(resource)
+            EOS_NODE.insert_req(resource)
 
     def print_info(self, elem_list: list):
         for elem in elem_list:
@@ -106,7 +108,7 @@ class GreedyHeuristic():
             # print(elem.get_stats())
 
     def print_node_stats(self, print_details = False):
-        for node in self.node_list:
+        for node in self.solution:
             node.print(print_details)
 
 def compute_potential_placement_diffs(resource, node_list) -> Tuple[float, Node]:
@@ -131,11 +133,8 @@ def node_sorting_fn(e: Tuple[float, Node]):
     # return (node.remaining_CPU, node.remaining_RAM, node.remaining_MEM)
 
 def resource_sorting_fn(elem: Resource):
-    return (
-        max(elem.CPU, elem.RAM, elem.MEM),
-        ( elem.CPU + elem.RAM + elem.MEM )/3
-    )
-
+    return max(elem.CPU, elem.RAM, elem.MEM)
+    
 if __name__ == "__main__":
     env_name = 'Resource'
 

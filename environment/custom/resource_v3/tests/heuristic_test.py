@@ -107,12 +107,16 @@ class TestHeuristic(unittest.TestCase):
 
     def test_place_single_resource(self):
         node_list = self.solver.parse_nodes(self.dummy_state)
+        EOS_NODE = node_list.pop(0)
         resource_list = self.solver.parse_resources(self.dummy_state)
 
         self.solver.place_single_resource(
             resource_list[0],
-            node_list
+            node_list,
+            EOS_NODE
         )
+
+        node_list = [EOS_NODE] + node_list
 
         expected_num_reqs_at_node0 = 0
         self.assertEqual(
@@ -138,11 +142,11 @@ class TestHeuristic(unittest.TestCase):
 
         expected_num_reqs_at_node0 = 1
         self.assertEqual(
-            len(self.solver.node_list[0].req_list),
+            len(self.solver.solution[0].req_list),
             expected_num_reqs_at_node0
         )
 
-        actual_resource_at_node0 = self.solver.node_list[0].req_list[0]
+        actual_resource_at_node0 = self.solver.solution[0].req_list[0]
         expected_resource_at_node0 = np.array([3, 5, 8], dtype="float32")
 
         self.assertEqual(
@@ -152,16 +156,16 @@ class TestHeuristic(unittest.TestCase):
 
         expected_num_reqs_at_node1 = 0
         self.assertEqual(
-            len(self.solver.node_list[1].req_list),
+            len(self.solver.solution[1].req_list),
             expected_num_reqs_at_node1
         )
 
         expected_num_reqs_at_node2 = 1
         self.assertEqual(
-            len(self.solver.node_list[2].req_list),
+            len(self.solver.solution[2].req_list),
             expected_num_reqs_at_node2
         )
-        actual_resource_at_node2 = self.solver.node_list[2].req_list[0]
+        actual_resource_at_node2 = self.solver.solution[2].req_list[0]
         expected_resource_at_node2 = np.array([2, 1, 4], dtype="float32")
         
         self.assertEqual(

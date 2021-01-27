@@ -22,8 +22,15 @@
         
         "heuristic": {
             "type": "greedy",
-            "greedy": {
-            }
+            "first_fit": {
+                "resource_sort_descending": false,
+                "node_sort_descending": false
+            },
+            "dominant_resource": {
+                "resource_sort_descending": false,
+                "node_sort_descending": false
+            },
+            "random": {}
         },
 
         "export_stats": {

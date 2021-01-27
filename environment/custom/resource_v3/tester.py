@@ -41,7 +41,7 @@ def test(
         )
 
         net_delta, net_rejected = compute_delta(env.history[0])
-        heu_delta, heu_rejected = compute_delta(solver.node_list)
+        heu_delta, heu_rejected = compute_delta(solver.solution)
         
         # Round to 2 decimals
         net_delta = round_half_up(net_delta, 2)
@@ -186,11 +186,11 @@ def test_single_instance(
     
     if export_stats:
         # Find the the node with maximum number of inserted resources
-        max_steps = compute_max_steps(env.history[0], solver.node_list)
+        max_steps = compute_max_steps(env.history[0], solver.solution)
         # Export results to CSV
         t = datetime.now().replace(microsecond=0).isoformat()
         export_to_csv(env.history, max_steps, 'Neural', f'{csv_write_path}/{t}_{instance_id}_net.csv')
-        export_to_csv([solver.node_list], max_steps, 'Heuristic', f'{csv_write_path}/{t}_{instance_id}_heuristic.csv')
+        export_to_csv([solver.solution], max_steps, 'Heuristic', f'{csv_write_path}/{t}_{instance_id}_heuristic.csv')
 
 
     if show_solutions:
