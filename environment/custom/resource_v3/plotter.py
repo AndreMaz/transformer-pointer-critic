@@ -7,7 +7,7 @@ import numpy as np
 # from agents.optimum_solver import solver
 
 
-def plotter(data, env, agent, agent_config, opt_solver, print_details=False):
+def plotter(data, env, agent, agent_config, print_details=False):
     
     # Destructure the tuple
     average_rewards_buffer,\

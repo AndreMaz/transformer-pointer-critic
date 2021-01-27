@@ -29,7 +29,7 @@ def runner(env_type="custom", env_name='ResourceV3', agent_name="tpc"):
     agent_config, trainer_config, env_config, tester_config, _ = get_configs(env_name, agent_name)
 
     # Create the environment
-    env, opt_solver, heuristic_solver, tester, plotter = env_factory(env_type, env_name, env_config)
+    env, tester, plotter = env_factory(env_type, env_name, env_config)
 
     # Add info about the environment
     agent_config = env.add_stats_to_agent_config(agent_config)
@@ -46,12 +46,11 @@ def runner(env_type="custom", env_name='ResourceV3', agent_name="tpc"):
 
     # Plot the learning curve
     print('\nPlotting Results...')
-    plotter(training_history, env, agent, agent_config, opt_solver, False)
+    plotter(training_history, env, agent, agent_config, False)
 
     # Test the agent
     print("\nTesting...")
-    look_for_opt = False
-    tester(env, agent, tester_config, opt_solver, heuristic_solver, look_for_opt)
+    tester(env, agent, tester_config)
     print('End... Goodbye!')
 
 def tuner(env_type="custom", env_name='ResourceV3', agent_name="tpc"):

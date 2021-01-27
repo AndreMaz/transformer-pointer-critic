@@ -6,69 +6,25 @@ import json
 
 from typing import List, Tuple
 
+from environment.custom.resource_v3.heuristic.base_heuristic import BaseHeuristic
 from environment.custom.resource_v3.node import Node
 from environment.custom.resource_v3.resource import Resource
 from operator import itemgetter, attrgetter
 
-class GreedyHeuristic():
+class DominantResourceHeuristic(BaseHeuristic):
     def __init__(self,
                 num_nodes: int,
                 opts: dict
                 ):
-        super(GreedyHeuristic, self).__init__()
+        super(DominantResourceHeuristic, self).__init__(num_nodes)
 
-        self.resource_batch_id = 0
-        self.num_nodes = num_nodes
+        self.resource_sort_descending = opts['resource_sort_descending']
+        self.node_sort_descending = opts['node_sort_descending']
 
-        self.solution = []
-
-    def reset(self):
-        self.resource_batch_id = 0
-        
-        self.solution = []
-
-    def parse_nodes(self, state) -> List[Node]:
-
-        batch_size = state.shape[0]
-
-        assert batch_size == 1, 'Heuristic only works for problems with batch size equal to 1!'
-
-        nodes = state[0, :self.num_nodes, :]
-        # resources = state[:, env.bin_sample_size:, :]
-        
-        node_list = []
-        for id, node in enumerate(nodes):
-            node_list.append(
-                Node(
-                    0, # Nodes are created in first batch, i.e., state from env
-                    id,
-                    node
-                )
-            )
-        
-        return node_list
-
-    def parse_resources(self, state):
-        batch_size = state.shape[0]
-
-        assert batch_size == 1, 'Heuristic only works for problems with batch size equal to 1!'
-
-        resources = state[0, self.num_nodes:, :]
-
-        resource_list = []
-        for id, resource in enumerate(resources):
-            resource_list.append(
-                Resource(
-                    self.resource_batch_id,
-                    id,
-                    resource
-                )
-            )
-
-        self.resource_batch_id += 1
-        
-        return resource_list
-
+        self.generate_name()
+    
+    def generate_name(self):
+        self.name = f'dominant_resource_ASC_{self.resource_sort_descending}_node_ASC_{self.node_sort_descending}'
 
     def solve(self, state):
         
@@ -78,12 +34,15 @@ class GreedyHeuristic():
         resource_list = self.parse_resources(state)
         
         # Sort the resources in a descending order
-        resource_list: List[Resource] = sorted(resource_list, key=resource_sorting_fn, reverse=True)
+        resource_list: List[Resource] = sorted(
+            resource_list,
+            key=resource_sorting_fn,
+            reverse=self.resource_sort_descending
+        )
         
         for resource in resource_list:
             self.place_single_resource(resource, node_list, EOS_NODE)
             
-
         # Store a reference with the solution
         self.solution = [EOS_NODE] + node_list
     
@@ -92,7 +51,11 @@ class GreedyHeuristic():
         diffs = compute_potential_placement_diffs(resource, node_list)
 
         # Sort the nodes by dominant resource
-        sorted_nodes: Tuple[float, Node] = sorted(diffs, key=node_sorting_fn, reverse=True)
+        sorted_nodes: Tuple[float, Node] = sorted(
+            diffs,
+            key=node_sorting_fn,
+            reverse=self.node_sort_descending
+        )
 
         # First fit
         diff, selected_node = sorted_nodes[0]
@@ -101,15 +64,6 @@ class GreedyHeuristic():
         else:
             # Place at EOS node
             EOS_NODE.insert_req(resource)
-
-    def print_info(self, elem_list: list):
-        for elem in elem_list:
-            elem.print()
-            # print(elem.get_stats())
-
-    def print_node_stats(self, print_details = False):
-        for node in self.solution:
-            node.print(print_details)
 
 def compute_potential_placement_diffs(resource, node_list) -> Tuple[float, Node]:
         # Compute dominant resource of each node and current request
@@ -156,6 +110,6 @@ if __name__ == "__main__":
     
     node_sample_size = 3
     
-    solver = GreedyHeuristic(node_sample_size, heuristic_opts)
+    solver = DominantResourceHeuristic(node_sample_size, heuristic_opts)
 
     solver.solve(dummy_state)

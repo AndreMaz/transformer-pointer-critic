@@ -22,6 +22,7 @@
         
         "heuristic": {
             "type": "greedy",
+            "generate_params_combos": true,
             "first_fit": {
                 "resource_sort_descending": false,
                 "node_sort_descending": false

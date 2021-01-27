@@ -4,8 +4,7 @@ import unittest
 import numpy as np
 
 # Custom Imports
-from environment.custom.resource_v3.env import ResourceEnvironmentV3
-from environment.custom.resource_v3.heuristic import GreedyHeuristic, compute_dominant_resource, node_sorting_fn, resource_sorting_fn
+from environment.custom.resource_v3.heuristic.dominant_heuristic import DominantResourceHeuristic, compute_dominant_resource, node_sorting_fn, resource_sorting_fn
 
 class TestHeuristic(unittest.TestCase):
     def setUp(self) -> None:
@@ -24,7 +23,7 @@ class TestHeuristic(unittest.TestCase):
         
         node_sample_size = 3
         
-        self.solver = GreedyHeuristic(
+        self.solver = DominantResourceHeuristic(
             node_sample_size,
             heuristic_opts
         )

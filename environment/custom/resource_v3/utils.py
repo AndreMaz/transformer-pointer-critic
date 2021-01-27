@@ -38,8 +38,11 @@ def compute_remaining_resources(nodes, reqs):
 
     return remaining_resources
 
-def compute_max_steps(nets, heuristic):
-    concat_history = nets + heuristic
+def compute_max_steps(nets, heuristic_solvers):
+    concat_history = nets
+
+    for solver in heuristic_solvers:
+        concat_history = concat_history + solver.solution
 
     steps_list = []
     for node in concat_history:
@@ -49,7 +52,7 @@ def compute_max_steps(nets, heuristic):
 
 
 def export_to_csv(history, max_steps, method: str, location) -> None:
-        with open(location, 'w') as fp:
+        with open(f"{location}_{method}.csv", 'w') as fp:
 
             header = f'Method;Step;Node;CPU;RAM;MEM;Delta\n'
             fp.write(header)

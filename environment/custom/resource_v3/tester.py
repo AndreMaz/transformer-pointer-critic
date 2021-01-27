@@ -5,6 +5,7 @@ from environment.custom.resource_v3.plotter import plot_attentions
 from environment.custom.resource_v3.utils import export_to_csv, compute_max_steps, compute_delta, round_half_up
 
 # from agents.optimum_solver import solver
+from environment.custom.resource_v3.heuristic.factory import heuristic_factory
 import numpy as np
 import time
 from datetime import datetime
@@ -17,9 +18,6 @@ def test(
     env: ResourceEnvironmentV3,
     agent: Agent,
     opts: dict,
-    opt_solver,
-    heuristic_solver,
-    look_for_opt: bool,
     ):
 
     num_tests = opts['num_tests']
@@ -35,9 +33,6 @@ def test(
             env,
             agent,
             opts,
-            opt_solver,
-            heuristic_solver,
-            look_for_opt
         )
 
         net_delta, net_rejected = compute_delta(env.history[0])
@@ -69,10 +64,7 @@ def test_single_instance(
     instance_id,
     env: ResourceEnvironmentV3,
     agent: Agent,
-    opts: dict,
-    opt_solver,
-    heuristic_solver,
-    look_for_opt: bool
+    opts: dict
     ):
     
     plot_attentions = opts['plot_attentions']
@@ -108,8 +100,9 @@ def test_single_instance(
 
     attentions = []
 
-    # Init the heuristic solver
-    solver = heuristic_solver(env.node_sample_size, opts['heuristic']['greedy'])
+    # Init the heuristic solvers 
+    # solver = heuristic_solvers(env.node_sample_size, opts['heuristic']['greedy'])
+    heuristic_solvers = heuristic_factory(node_sample_size, opts['heuristic'])
     state_list = [current_state]
 
     while episode_count < num_episodes:
@@ -182,21 +175,24 @@ def test_single_instance(
     
     # Solve with Heuristic
     for state in state_list:
-         solver.solve(state)
+        for solver in heuristic_solvers:
+            solver.solve(state)
     
     if export_stats:
         # Find the the node with maximum number of inserted resources
-        max_steps = compute_max_steps(env.history[0], solver.solution)
+        max_steps = compute_max_steps(env.history[0], heuristic_solvers)
         # Export results to CSV
         t = datetime.now().replace(microsecond=0).isoformat()
-        export_to_csv(env.history, max_steps, 'Neural', f'{csv_write_path}/{t}_{instance_id}_net.csv')
-        export_to_csv([solver.solution], max_steps, 'Heuristic', f'{csv_write_path}/{t}_{instance_id}_heuristic.csv')
+        export_to_csv(env.history, max_steps, agent.name, f'{csv_write_path}/{t}_{instance_id}')
+        for solver in heuristic_solvers:
+            export_to_csv([solver.solution], max_steps, solver.name, f'{csv_write_path}/{t}_{instance_id}')
 
 
     if show_solutions:
         env.print_history(show_detailed_solutions)
         print('________________________________________________________________________________')    
-        solver.print_node_stats(show_detailed_solutions)
+        for solver in heuristic_solvers:
+            solver.print_node_stats(show_detailed_solutions)
 
     if plot_attentions:
         # Plot the attentions to visualize the policy
