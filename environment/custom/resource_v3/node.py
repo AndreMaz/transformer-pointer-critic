@@ -31,7 +31,16 @@ class Node():
         self.CPU_history = [self.CPU]
         self.RAM_history = [self.RAM]
         self.MEM_history = [self.MEM]
-        
+
+    def can_fit_resource(self, req: Request):
+        new_remaining_CPU = self.remaining_CPU - req.CPU
+        new_remaining_RAM = self.remaining_RAM - req.RAM
+        new_remaining_MEM = self.remaining_MEM - req.MEM
+
+        min_resource = min(new_remaining_CPU, new_remaining_RAM, new_remaining_MEM)
+
+        return min_resource >= 0
+
     def reset(self):
         self.remaining_CPU = self.CPU.copy()
         self.remaining_RAM = self.RAM.copy()
@@ -46,6 +55,8 @@ class Node():
     def insert_req(self, req: Request):
 
         if self.id != 0:
+
+            assert self.can_fit_resource(req), f'Node {self.id} is overloaded'
             # Update the remaining resources of the Node
             self.remaining_CPU -= req.CPU
             self.remaining_RAM -= req.RAM
