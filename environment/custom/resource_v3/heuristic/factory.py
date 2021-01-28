@@ -2,25 +2,28 @@ import sys
 sys.path.append('.')
 import json
 from environment.custom.resource_v3.heuristic.dominant_heuristic import DominantResourceHeuristic
-
+from environment.custom.resource_v3.heuristic.random_heuristic import RandomHeuristic
 
 
 def heuristic_factory(num_nodes: int, opts: dict):
-    generate_combos = opts['generate_params_combos']
-
     heuristic_list = []
     
-    dominant_list = generate_dominant_combos(num_nodes,
-                                            opts['dominant_resource'], 
-                                            generate_combos
+    dominant_solvers = generate_dominant_combos(num_nodes,
+                                            opts['dominant_resource']
                                         )
 
+    random_solvers = [
+        RandomHeuristic(num_nodes, opts['random'])
+    ]
     
-    heuristic_list = heuristic_list + dominant_list
+    # Concat the array with the solvers
+    heuristic_list = heuristic_list + dominant_solvers + random_solvers
 
     return heuristic_list
 
-def generate_dominant_combos(num_nodes: int, opts: dict, generate_combos: bool, ):
+def generate_dominant_combos(num_nodes: int, opts: dict):
+    generate_combos: bool = opts['generate_params_combos']
+
     # Return as is
     if not generate_combos:
         return [

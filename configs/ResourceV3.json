@@ -22,12 +22,12 @@
         
         "heuristic": {
             "type": "greedy",
-            "generate_params_combos": true,
             "first_fit": {
                 "resource_sort_descending": false,
                 "node_sort_descending": false
             },
             "dominant_resource": {
+                "generate_params_combos": true,
                 "resource_sort_descending": true,
                 "node_sort_descending": true
             },
