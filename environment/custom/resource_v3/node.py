@@ -32,14 +32,17 @@ class Node():
         self.RAM_history = [self.RAM]
         self.MEM_history = [self.MEM]
 
+    def compute_dominant_resource(self, req: Request):
+        diff_cpu = self.remaining_CPU - req.CPU
+        diff_ram = self.remaining_RAM - req.RAM
+        diff_mem = self.remaining_MEM - req.MEM
+
+        return min(diff_cpu, diff_ram, diff_mem)
+
     def can_fit_resource(self, req: Request):
-        new_remaining_CPU = self.remaining_CPU - req.CPU
-        new_remaining_RAM = self.remaining_RAM - req.RAM
-        new_remaining_MEM = self.remaining_MEM - req.MEM
-
-        min_resource = min(new_remaining_CPU, new_remaining_RAM, new_remaining_MEM)
-
-        return min_resource >= 0
+        dominant_resource = self.compute_dominant_resource(req)
+        
+        return dominant_resource >= 0
 
     def reset(self):
         self.remaining_CPU = self.CPU.copy()

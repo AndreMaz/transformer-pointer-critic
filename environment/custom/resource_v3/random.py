@@ -61,30 +61,6 @@ class RandomHeuristic(BaseHeuristic):
             # Place at EOS node
             EOS_NODE.insert_req(resource)
 
-def compute_potential_placement_diffs(resource, node_list) -> Tuple[float, Node]:
-        # Compute dominant resource of each node and current request
-        diffs = []
-        for node in node_list:
-            diffs.append( 
-                (compute_dominant_resource(node, resource), node)
-            )
-
-        return diffs
-
-def compute_dominant_resource(node: Node, resource: Resource):
-        diff_cpu = node.remaining_CPU - resource.CPU
-        diff_ram = node.remaining_RAM - resource.RAM
-        diff_mem = node.remaining_MEM - resource.MEM
-
-        return min(diff_cpu, diff_ram, diff_mem)
-
-def node_sorting_fn(e: Tuple[float, Node]):
-    return e[0]
-    # return (node.remaining_CPU, node.remaining_RAM, node.remaining_MEM)
-
-def resource_sorting_fn(elem: Resource):
-    return max(elem.CPU, elem.RAM, elem.MEM)
-    
 if __name__ == "__main__":
     with open(f"configs/ResourceV3.json") as json_file:
         params = json.load(json_file)

@@ -4,7 +4,7 @@ import unittest
 import numpy as np
 
 # Custom Imports
-from environment.custom.resource_v3.heuristic.dominant_heuristic import DominantResourceHeuristic, compute_dominant_resource, node_sorting_fn, resource_sorting_fn
+from environment.custom.resource_v3.heuristic.dominant_heuristic import DominantResourceHeuristic, compute_potential_placement_diffs
 
 class TestHeuristic(unittest.TestCase):
     def setUp(self) -> None:
@@ -95,9 +95,9 @@ class TestHeuristic(unittest.TestCase):
         node_list = self.solver.parse_nodes(self.dummy_state)
         resource_list = self.solver.parse_resources(self.dummy_state)
 
-        dominant_resource = compute_dominant_resource(
-            node_list[1], # First node that's node EOS ||   [ 1,  2,  3]
-            resource_list[0] #                              [ 2,  1,  4]
+        # First node that's node EOS ||   [ 1,  2,  3]
+        dominant_resource = node_list[1].compute_dominant_resource(
+            resource_list[0] # [ 2,  1,  4]
         )
 
         expected_dominant = np.array([-1], dtype='float32')
@@ -137,7 +137,17 @@ class TestHeuristic(unittest.TestCase):
             len(node_list[2].req_list),
             expected_num_reqs_at_node2
         )
-    
+
+    def test_compute_potential_placement_diffs(self):
+        node_list = self.solver.parse_nodes(self.dummy_state)
+        EOS_NODE = node_list.pop(0)
+        resource_list = self.solver.parse_resources(self.dummy_state)
+
+        actual = compute_potential_placement_diffs(resource_list[0], node_list)
+
+        self.assertEqual(actual[0][0], -1)
+        self.assertEqual(actual[1][0], 1)
+
     def test_solver(self):
         
         self.solver.solve(self.dummy_state)

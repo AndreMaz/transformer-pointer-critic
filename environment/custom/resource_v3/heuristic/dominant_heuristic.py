@@ -74,17 +74,10 @@ def compute_potential_placement_diffs(resource, node_list) -> Tuple[float, Node]
         diffs = []
         for node in node_list:
             diffs.append( 
-                (compute_dominant_resource(node, resource), node)
+                (node.compute_dominant_resource(resource), node)
             )
 
         return diffs
-
-def compute_dominant_resource(node: Node, resource: Resource):
-        diff_cpu = node.remaining_CPU - resource.CPU
-        diff_ram = node.remaining_RAM - resource.RAM
-        diff_mem = node.remaining_MEM - resource.MEM
-
-        return min(diff_cpu, diff_ram, diff_mem)
 
 def node_sorting_fn(e: Tuple[float, Node]):
     return e[0]
