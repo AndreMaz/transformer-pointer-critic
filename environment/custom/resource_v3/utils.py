@@ -1,3 +1,4 @@
+from typing import List
 import numpy as np
 from environment.custom.resource_v3.node import Node
 from environment.custom.resource_v3.resource import Resource
@@ -59,7 +60,7 @@ def export_to_csv(history, max_steps, method: str, location) -> None:
             for history_instance in history:
                 node: Node
 
-                delta, rejected = compute_delta(history_instance)
+                delta, rejected = compute_stats(history_instance)
 
                 for node in history_instance:
                     for step in range(max_steps):
@@ -85,7 +86,7 @@ def export_to_csv(history, max_steps, method: str, location) -> None:
 
         fp.close()
 
-def compute_delta(node_list) -> float:
+def compute_stats(node_list) -> float:
     nodes_cpu_stats = []
     nodes_ram_stats = []
     nodes_mem_stats = []
@@ -122,3 +123,45 @@ def num_overloaded_nodes(node_list) -> int:
             num_nodes += 1
 
     return num_nodes
+
+def log_stats(global_stats, location, file_name):
+
+    with open(f"./{location}/{file_name}.csv", 'w') as fp:
+        # First passage to generate the header
+        header = ''
+
+        for entry in global_stats[0]:
+            keys = list(entry.keys())
+            header = header + f"{' '.join(keys[0].split('_'))};{' '.join(keys[1].split('_'))};"
+        fp.write(f"{header}\n")
+
+        
+        for instance_stats in global_stats:
+            data = ''
+            for entry in instance_stats:
+                dominant, rejected = list(entry.values())
+                # dominant = round_half_up(dominant, 2)
+                data = data + f"{dominant[0]:.3f};{rejected};"
+            # print(data)
+            fp.write(f"{data}\n")
+
+        fp.close()
+
+def gather_stats_from_solutions(env, heuristic_solvers) -> List[dict]:
+    stats = []
+    
+    net_dominant, net_rejected = compute_stats(env.history[0])
+
+    stats.append({
+            'net_dominant': net_dominant,
+            'net_rejected': net_rejected
+    })
+    
+    for solver in heuristic_solvers:
+        solver_dominant, solver_rejected = compute_stats(solver.solution)
+        stats.append({
+            f'{solver.name}_dominant': solver_dominant,
+            f'{solver.name}_rejected': solver_rejected,
+        })
+
+    return stats

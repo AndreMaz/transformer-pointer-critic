@@ -9,7 +9,7 @@
 
     "tester_config": {
         "description": "Testing function configs.",
-        "num_tests": 100,
+        "num_tests": 2,
         "show_per_test_stats": true,
         "show_inference_progress": false,
         "show_solutions": false,
@@ -21,11 +21,6 @@
         "num_episodes": 1,
         
         "heuristic": {
-            "type": "greedy",
-            "first_fit": {
-                "resource_sort_descending": false,
-                "node_sort_descending": false
-            },
             "dominant_resource": {
                 "generate_params_combos": true,
                 "resource_sort_descending": true,
@@ -35,8 +30,15 @@
         },
 
         "export_stats": {
-            "export_stats": true,
-            "location": "./results/resource_v3"
+            "global_stats": {
+                "export_stats": true,
+                "location": "./results",
+                "filename": "test"
+            },
+            "per_problem_stats": {
+                "export_stats": false,
+                "location": "./results/resource_v3"
+            }
         }
     },
 
@@ -84,9 +86,9 @@
         
         "EOS_CODE": -2,
         "req_min_val": 1,
-        "req_max_val": 3,
+        "req_max_val": 30,
         
-        "node_min_val": 99,
+        "node_min_val": 0,
         "node_max_val": 100,
 
         "reward": {
@@ -113,7 +115,7 @@
             "use_mha_mask": true,
 
             "actor": {
-                "num_layers": 1,
+                "num_layers": 2,
                 "dim_model": 128,
                 "num_heads": 8,
                 "inner_layer_dim": 128,
@@ -127,7 +129,7 @@
             },
 
             "critic": {
-                "num_layers": 1,
+                "num_layers": 2,
                 "dim_model": 128,
                 "num_heads": 8,
                 "positional_encoding": false,

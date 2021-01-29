@@ -2,7 +2,7 @@ import numpy as np
 from environment.custom.resource_v3.env import ResourceEnvironmentV3
 from agents.agent import Agent
 from environment.custom.resource_v3.plotter import plot_attentions
-from environment.custom.resource_v3.utils import export_to_csv, compute_max_steps, compute_delta, round_half_up
+from environment.custom.resource_v3.utils import export_to_csv, compute_max_steps, gather_stats_from_solutions, log_stats
 
 # from agents.optimum_solver import solver
 from environment.custom.resource_v3.heuristic.factory import heuristic_factory
@@ -23,42 +23,19 @@ def test(
     num_tests = opts['num_tests']
     show_per_test_stats = opts['show_per_test_stats']
 
-    
-    won = 0
-    draw = 0
-    loss = 0
-    for test_index in range(num_tests):
-        env, solver = test_single_instance(
-            test_index,
-            env,
-            agent,
-            opts,
-        )
+    export_stats = opts['export_stats']['global_stats']['export_stats']
+    csv_write_path = opts['export_stats']['global_stats']['location']
+    filename = opts['export_stats']['global_stats']['filename']
 
-        net_delta, net_rejected = compute_delta(env.history[0])
-        heu_delta, heu_rejected = compute_delta(solver.solution)
-        
-        # Round to 2 decimals
-        net_delta = round_half_up(net_delta, 2)
-        heu_delta = round_half_up(heu_delta, 2)
+    global_stats = []
 
-        if net_delta > heu_delta:
-            won += 1
-            res = 'Won'
-        elif net_delta == heu_delta:
-            draw += 1
-            res = 'Draw'
-        else:
-            loss += 1
-            res = 'Loss'
+    for index in range(num_tests):
+        instance_stats = test_single_instance(index, env, agent, opts)
 
-        if show_per_test_stats:
-            print(f'{net_delta[0]:.2f};{net_rejected}||{heu_delta[0]:.2f};{heu_rejected}||{res}')
-    
-    if show_per_test_stats:
-        print(f"Won {(won/num_tests)*100}% || Draw {(draw/num_tests)*100}% || Loss {(loss/num_tests)*100}%")
+        global_stats.append(instance_stats)
 
-    return won/num_tests, draw/ num_tests, loss / num_tests
+    if export_stats:
+        log_stats(global_stats, csv_write_path, filename)
 
 def test_single_instance(
     instance_id,
@@ -73,8 +50,8 @@ def test_single_instance(
     node_sample_size = opts['node_sample_size']
     num_episodes = opts['num_episodes']
 
-    csv_write_path = opts['export_stats']['location']
-    export_stats = opts['export_stats']['export_stats']
+    csv_write_path = opts['export_stats']['per_problem_stats']['location']
+    export_stats = opts['export_stats']['per_problem_stats']['export_stats']
 
     show_inference_progress = opts['show_inference_progress']
     show_solutions = opts['show_solutions']
@@ -180,8 +157,8 @@ def test_single_instance(
     if export_stats:
         # Find the the node with maximum number of inserted resources
         max_steps = compute_max_steps(env.history[0], heuristic_solvers)
-        # Export results to CSV
         t = datetime.now().replace(microsecond=0).isoformat()
+        # Export results to CSV
         export_to_csv(env.history, max_steps, agent.name, f'{csv_write_path}/{t}_{instance_id}')
         for solver in heuristic_solvers:
             export_to_csv([solver.solution], max_steps, solver.name, f'{csv_write_path}/{t}_{instance_id}')
@@ -200,5 +177,7 @@ def test_single_instance(
             env.profiles_sample_size,
             env.node_sample_size,
         )
+    
+    stats = gather_stats_from_solutions(env, heuristic_solvers)
 
-    return env, solver
+    return stats
