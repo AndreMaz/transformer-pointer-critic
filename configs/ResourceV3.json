@@ -3,21 +3,21 @@
     
     "trainer_config": {
         "description": "Trainer function configs.",
-        "n_iterations": 2000,
+        "n_iterations": 30000,
         "n_steps_to_update": 20
     },
 
     "tester_config": {
         "description": "Testing function configs.",
-        "num_tests": 2,
+        "num_tests": 100,
         "show_per_test_stats": true,
         "show_inference_progress": false,
         "show_solutions": false,
         "show_detailed_solutions": false,
         "plot_attentions": false,
         "batch_size": 1,
-        "profiles_sample_size": 40,
-        "node_sample_size": 10,
+        "profiles_sample_size": 100,
+        "node_sample_size": 20,
         "num_episodes": 1,
         
         "heuristic": {
@@ -74,13 +74,13 @@
         "description": "Environment configs.",
         
         "mask_nodes_in_mha": false,
-        "batch_size": 2,
+        "batch_size": 64,
         
         "normalization_factor": 100,
         "decimal_precision": 2,
 
         "num_features": 3,
-        "num_profiles": 40,
+        "num_profiles": 500,
 
         "profiles_sample_size": 20,
         "node_sample_size": 5,
@@ -93,7 +93,7 @@
         "node_max_val": 100,
 
         "reward": {
-            "type": "greedy",
+            "type": "global_dominant",
             "greedy": {},
             "single_node_dominant": {
                 "rejection_penalty": -1
