@@ -6,35 +6,44 @@ import numpy as np
 # Import Google OR Tools Solver
 # from agents.optimum_solver import solver
 
+STEPS = 100
 
 def plotter(data, env, agent, agent_config, print_details=False):
+    plotter_leaning(data, env, agent, agent_config, print_details)
+
+    plotter_rewards(data, env, agent, agent_config, print_details)
+
+def plotter_leaning(data, env, agent, agent_config, print_details=False):
+# Destructure the tuple
+    _,\
+        _,\
+        _,\
+        value_loss_buffer, \
+        resources_loss_buffer,\
+        resources_entropy_buffer,\
+        bins_loss_buffer,\
+        bins_entropy_buffer = data
     
-    # Destructure the tuple
-    average_rewards_buffer,\
-        min_rewards_buffer,\
-        max_rewards_buffer,\
-        value_loss_buffer = data
+    value_loss_buffer = average_per_steps(value_loss_buffer, STEPS)
+    resources_loss_buffer = average_per_steps(resources_loss_buffer, STEPS)
+    resources_entropy_buffer = average_per_steps(resources_entropy_buffer, STEPS)
+    bins_loss_buffer = average_per_steps(bins_loss_buffer, STEPS)
+    bins_entropy_buffer = average_per_steps(bins_entropy_buffer, STEPS)
+
+    x_values = [i for i in range(len(value_loss_buffer))]
 
     agent_name = agent.name
     env_name = env.name
-
-    x_values = [i for i in range(len(average_rewards_buffer))]
     
-    plt.plot(x_values, average_rewards_buffer, label="Average (in batch) Double Pointer Critic")
-    plt.plot(x_values, min_rewards_buffer, label="Minimum (in Batch) Double Pointer Critic")
-    plt.plot(x_values, max_rewards_buffer, label="Maximum (in batch) Double Pointer Critic")
+    plt.plot(x_values, value_loss_buffer, label="Value Loss")
+    plt.plot(x_values, resources_loss_buffer, label="Resource Net Loss")
+    plt.plot(x_values, resources_entropy_buffer, label="Resource Net Entropy")
+    plt.plot(x_values, bins_loss_buffer, label="Bin Net Loss")
+    plt.plot(x_values, bins_entropy_buffer, label="Bin Net Entropy")
 
-    plt.ylabel('Collected Reward')
     plt.xlabel('Episode')
 
-    gamma = agent_config['gamma']
-    entropy = agent_config['entropy_coefficient']
-    dp_rate = agent_config['actor']['dropout_rate']
-    
-    actor_lr = agent_config['actor']['learning_rate']
-    critic_lr = agent_config['critic']['learning_rate']
-    
-    file_name = f"g:{gamma}|e:{entropy}|dp:{dp_rate}|ac_lr:{actor_lr}|cr_lr:{critic_lr}"
+    file_name = generate_file_name(agent_config) + 'learning'
 
     plot_title = f"{agent_name.upper()}\n|" + file_name
     plt.title(plot_title)
@@ -55,6 +64,80 @@ def plotter(data, env, agent, agent_config, print_details=False):
     )
 
     plt.close()
+    
+def plotter_rewards(data, env, agent, agent_config, print_details=False):
+    
+    # Destructure the tuple
+    average_rewards_buffer,\
+        min_rewards_buffer,\
+        max_rewards_buffer,\
+        _, \
+        _,\
+        _,\
+        _,\
+        _ = data
+
+    average_rewards_buffer = average_per_steps(average_rewards_buffer, STEPS)
+    min_rewards_buffer = average_per_steps(min_rewards_buffer, STEPS)
+    max_rewards_buffer = average_per_steps(max_rewards_buffer, STEPS)
+
+    agent_name = agent.name
+    env_name = env.name
+
+    x_values = [i for i in range(len(average_rewards_buffer))]
+    
+    plt.plot(x_values, average_rewards_buffer, label="Average (in batch) Double Pointer Critic")
+    plt.plot(x_values, min_rewards_buffer, label="Minimum (in Batch) Double Pointer Critic")
+    plt.plot(x_values, max_rewards_buffer, label="Maximum (in batch) Double Pointer Critic")
+
+    plt.ylabel('Collected Reward')
+    plt.xlabel('Episode')
+
+    file_name = generate_file_name(agent_config) + 'reward'
+
+    plot_title = f"{agent_name.upper()}\n|" + file_name
+    plt.title(plot_title)
+
+    saveDir = f"./media/plots/{env_name}/{agent_name}"
+    # Check if dir exists. If not, create it
+    if not os.path.isdir(saveDir):
+        os.makedirs(saveDir)
+
+    # Show legend info
+    plt.legend()
+
+    # plt.show(block=blockPlot)
+    plt.savefig(
+        f"{saveDir}/{file_name.replace(' ', '')}.png",
+        dpi = 200,
+        bbox_inches = "tight"
+    )
+
+    plt.close()
+
+def generate_file_name(agent_config):
+    gamma = agent_config['gamma']
+    entropy = agent_config['entropy_coefficient']
+    dp_rate = agent_config['actor']['dropout_rate']
+    
+    actor_lr = agent_config['actor']['learning_rate']
+    critic_lr = agent_config['critic']['learning_rate']
+
+    file_name = f"g:{gamma}|e:{entropy}|dp:{dp_rate}|ac_lr:{actor_lr}|cr_lr:{critic_lr}"
+
+    return file_name
+
+def average_per_steps(data, steps):
+    assert steps <= len(data), 'Steps is larger that the size of the array'
+
+    new_data = []
+    for i in range(steps, len(data)+1):
+        # print(data[i-steps: i])
+        new_data.append(
+            np.average(data[i-steps: i])
+        )
+
+    return new_data
 
 def plot_attentions(attentions,
                     num_resources,
@@ -131,5 +214,10 @@ def plot_attentions(attentions,
 
 if __name__ == "__main__":
     
-    plot_attentions()
+    # plot_attentions()
     # tuner()
+
+    data = [1,2,3,4,5,6]
+    steps = 6
+
+    average_per_steps(data, steps)

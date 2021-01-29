@@ -15,6 +15,11 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict, show_progress: bool):
     min_rewards_buffer = []
     max_rewards_buffer = []
     value_loss_buffer = []
+    resources_loss_buffer = []
+    resources_entropy_buffer = []
+    bins_loss_buffer = []
+    bins_entropy_buffer = []
+
     episode_count = 0
     
     # Initial vars for the initial episode
@@ -114,8 +119,6 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict, show_progress: bool):
                 discounted_rewards
             )
 
-        value_loss_buffer.append(value_loss)
-
         critic_grads = tape.gradient(
             value_loss,
             agent.critic.trainable_weights
@@ -174,6 +177,13 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict, show_progress: bool):
             )
         )
 
+        # Store the stats
+        value_loss_buffer.append(value_loss.numpy())
+        resources_loss_buffer.append(resources_loss.numpy())
+        resources_entropy_buffer.append(np.mean(resources_entropy))
+        bins_loss_buffer.append(bin_loss.numpy())
+        bins_entropy_buffer.append(np.mean(bin_entropy))
+
         if isDone and show_progress:
             print(f"\rEp: {episode_count} took {time.time() - start:.2f} sec.\t" +
             f"Min@Batch: {min_in_batch:.3f}\t" +
@@ -191,4 +201,8 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict, show_progress: bool):
     return average_rewards_buffer,\
         min_rewards_buffer,\
         max_rewards_buffer,\
-        value_loss_buffer
+        value_loss_buffer, \
+        resources_loss_buffer,\
+        resources_entropy_buffer,\
+        bins_loss_buffer,\
+        bins_entropy_buffer
