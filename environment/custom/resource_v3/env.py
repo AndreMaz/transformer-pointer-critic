@@ -25,6 +25,7 @@ class ResourceEnvironmentV3(BaseEnvironment):
         ###########################################
 
         self.gather_stats: bool = False
+        self.mask_nodes_in_mha: bool = opts['mask_nodes_in_mha']
 
         self.normalization_factor: int = opts['normalization_factor']
         self.decimal_precision: int = opts['decimal_precision']
@@ -116,10 +117,13 @@ class ResourceEnvironmentV3(BaseEnvironment):
 
         # Update the MHA masks
         self.mha_used_mask[batch_indices, :, :, req_ids] = 1
-        self.mha_used_mask[batch_indices, :, :, bin_ids] = tf.reshape(
-            dominant_resource, (self.batch_size, 1, 1)
-        )
-        self.mha_used_mask[batch_indices, :, :, 0] = 0 # EOS is always available
+        if self.mask_nodes_in_mha:
+            self.mha_used_mask[batch_indices, :, :, bin_ids] = tf.reshape(
+                dominant_resource, (self.batch_size, 1, 1)
+            )
+        
+        # EOS is always available
+        self.mha_used_mask[batch_indices, :, :, 0] = 0
 
         if np.all(self.resource_net_mask == 1):
             isDone = True

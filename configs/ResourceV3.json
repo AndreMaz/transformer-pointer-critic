@@ -3,7 +3,7 @@
     
     "trainer_config": {
         "description": "Trainer function configs.",
-        "n_iterations": 0,
+        "n_iterations": 2000,
         "n_steps_to_update": 20
     },
 
@@ -73,6 +73,7 @@
     "env_config": {
         "description": "Environment configs.",
         
+        "mask_nodes_in_mha": false,
         "batch_size": 2,
         
         "normalization_factor": 100,
