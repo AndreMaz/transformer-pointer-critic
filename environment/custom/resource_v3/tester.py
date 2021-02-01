@@ -2,7 +2,7 @@ import numpy as np
 from environment.custom.resource_v3.env import ResourceEnvironmentV3
 from agents.agent import Agent
 from environment.custom.resource_v3.plotter import plot_attentions
-from environment.custom.resource_v3.utils import export_to_csv, compute_max_steps, gather_stats_from_solutions, log_stats
+from environment.custom.resource_v3.utils import export_to_csv, compute_max_steps, gather_stats_from_solutions, log_testing_stats
 
 # from agents.optimum_solver import solver
 from environment.custom.resource_v3.heuristic.factory import heuristic_factory
@@ -35,7 +35,7 @@ def test(
         global_stats.append(instance_stats)
 
     if export_stats:
-        log_stats(global_stats, csv_write_path, filename)
+        log_testing_stats(global_stats, csv_write_path, filename)
 
 def test_single_instance(
     instance_id,

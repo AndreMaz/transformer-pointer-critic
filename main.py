@@ -46,7 +46,8 @@ def runner(env_type="custom", env_name='ResourceV3', agent_name="tpc"):
 
     # Plot the learning curve
     print('\nPlotting Results...')
-    plotter(training_history, env, agent, agent_config, False)
+    write_data_to_file = True
+    plotter(training_history, env, agent, agent_config, write_data_to_file)
 
     # Test the agent
     print("\nTesting...")

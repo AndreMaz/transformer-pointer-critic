@@ -3,17 +3,24 @@
 import matplotlib.pyplot as plt
 import os
 import numpy as np
+from environment.custom.resource_v3.utils import log_training_stats
 # Import Google OR Tools Solver
 # from agents.optimum_solver import solver
 
-STEPS = 100
+STEPS = 2
 
-def plotter(data, env, agent, agent_config, print_details=False):
-    plotter_leaning(data, env, agent, agent_config, print_details)
+def plotter(data, env, agent, agent_config, write_data_to_file = True):
+    file_name = generate_file_name(agent_config) 
+    location = f"./media/plots/{env.name}/{agent.name}"
 
-    plotter_rewards(data, env, agent, agent_config, print_details)
+    plotter_leaning(data, location, file_name+'learning', agent.name)
 
-def plotter_leaning(data, env, agent, agent_config, print_details=False):
+    plotter_rewards(data, location, file_name+'rewards', agent.name)
+
+    if write_data_to_file:
+        log_training_stats(data, location, file_name+'logs')
+
+def plotter_leaning(data, location, file_name, agent_name ):
 # Destructure the tuple
     _,\
         _,\
@@ -24,17 +31,14 @@ def plotter_leaning(data, env, agent, agent_config, print_details=False):
         bins_loss_buffer,\
         bins_entropy_buffer = data
     
-    value_loss_buffer = average_per_steps(value_loss_buffer, STEPS)
-    resources_loss_buffer = average_per_steps(resources_loss_buffer, STEPS)
-    resources_entropy_buffer = average_per_steps(resources_entropy_buffer, STEPS)
-    bins_loss_buffer = average_per_steps(bins_loss_buffer, STEPS)
-    bins_entropy_buffer = average_per_steps(bins_entropy_buffer, STEPS)
+    # value_loss_buffer = average_per_steps(value_loss_buffer, STEPS)
+    # resources_loss_buffer = average_per_steps(resources_loss_buffer, STEPS)
+    # resources_entropy_buffer = average_per_steps(resources_entropy_buffer, STEPS)
+    # bins_loss_buffer = average_per_steps(bins_loss_buffer, STEPS)
+    # bins_entropy_buffer = average_per_steps(bins_entropy_buffer, STEPS)
 
     x_values = [i for i in range(len(value_loss_buffer))]
 
-    agent_name = agent.name
-    env_name = env.name
-    
     plt.plot(x_values, value_loss_buffer, label="Value Loss")
     plt.plot(x_values, resources_loss_buffer, label="Resource Net Loss")
     plt.plot(x_values, resources_entropy_buffer, label="Resource Net Entropy")
@@ -43,29 +47,26 @@ def plotter_leaning(data, env, agent, agent_config, print_details=False):
 
     plt.xlabel('Episode')
 
-    file_name = generate_file_name(agent_config) + 'learning'
-
     plot_title = f"{agent_name.upper()}\n|" + file_name
     plt.title(plot_title)
 
-    saveDir = f"./media/plots/{env_name}/{agent_name}"
     # Check if dir exists. If not, create it
-    if not os.path.isdir(saveDir):
-        os.makedirs(saveDir)
+    if not os.path.isdir(location):
+        os.makedirs(location)
 
     # Show legend info
     plt.legend()
 
     # plt.show(block=blockPlot)
     plt.savefig(
-        f"{saveDir}/{file_name.replace(' ', '')}.png",
+        f"{location}/{file_name.replace(' ', '')}.png",
         dpi = 200,
         bbox_inches = "tight"
     )
 
     plt.close()
     
-def plotter_rewards(data, env, agent, agent_config, print_details=False):
+def plotter_rewards(data, location, file_name, agent_name ):
     
     # Destructure the tuple
     average_rewards_buffer,\
@@ -77,12 +78,9 @@ def plotter_rewards(data, env, agent, agent_config, print_details=False):
         _,\
         _ = data
 
-    average_rewards_buffer = average_per_steps(average_rewards_buffer, STEPS)
-    min_rewards_buffer = average_per_steps(min_rewards_buffer, STEPS)
-    max_rewards_buffer = average_per_steps(max_rewards_buffer, STEPS)
-
-    agent_name = agent.name
-    env_name = env.name
+    # average_rewards_buffer = average_per_steps(average_rewards_buffer, STEPS)
+    # min_rewards_buffer = average_per_steps(min_rewards_buffer, STEPS)
+    # max_rewards_buffer = average_per_steps(max_rewards_buffer, STEPS)
 
     x_values = [i for i in range(len(average_rewards_buffer))]
     
@@ -93,22 +91,19 @@ def plotter_rewards(data, env, agent, agent_config, print_details=False):
     plt.ylabel('Collected Reward')
     plt.xlabel('Episode')
 
-    file_name = generate_file_name(agent_config) + 'reward'
-
     plot_title = f"{agent_name.upper()}\n|" + file_name
     plt.title(plot_title)
 
-    saveDir = f"./media/plots/{env_name}/{agent_name}"
     # Check if dir exists. If not, create it
-    if not os.path.isdir(saveDir):
-        os.makedirs(saveDir)
+    if not os.path.isdir(location):
+        os.makedirs(location)
 
     # Show legend info
     plt.legend()
 
     # plt.show(block=blockPlot)
     plt.savefig(
-        f"{saveDir}/{file_name.replace(' ', '')}.png",
+        f"{location}/{file_name.replace(' ', '')}.png",
         dpi = 200,
         bbox_inches = "tight"
     )

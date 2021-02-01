@@ -124,7 +124,7 @@ def num_overloaded_nodes(node_list) -> int:
 
     return num_nodes
 
-def log_stats(global_stats, location, file_name):
+def log_testing_stats(global_stats, location, file_name):
 
     with open(f"./{location}/{file_name}.csv", 'w') as fp:
         # First passage to generate the header
@@ -146,6 +146,37 @@ def log_stats(global_stats, location, file_name):
             fp.write(f"{data}\n")
 
         fp.close()
+
+def log_training_stats(data, location, file_name):
+    average_rewards_buffer,\
+        min_rewards_buffer,\
+        max_rewards_buffer,\
+        value_loss_buffer, \
+        resources_loss_buffer,\
+        resources_entropy_buffer,\
+        bins_loss_buffer,\
+        bins_entropy_buffer = data
+
+    with open(f"{location}/{file_name}.csv", 'w') as fp:
+        header = 'Step;Avg Reward;Max Reward;Min Reward;Value Loss;Resource Entropy;Resource Loss;Bin Entropy;Bin Loss'
+
+        fp.write(f'{header}\n')
+
+        for index in range(len(average_rewards_buffer)):
+            avg = average_rewards_buffer[index]
+            min = min_rewards_buffer[index]
+            max = max_rewards_buffer[index]
+            v_loss = value_loss_buffer[index]
+            r_loss = resources_loss_buffer[index]
+            r_entr = resources_entropy_buffer[index]
+            b_loss = bins_loss_buffer[index]
+            b_entr = bins_entropy_buffer[index]
+
+            data = f"{index};{avg};{max};{min};{v_loss};{r_entr};{r_loss};{b_entr};{b_loss}"
+
+            fp.write(f"{data}\n")
+
+    fp.close()
 
 def gather_stats_from_solutions(env, heuristic_solvers) -> List[dict]:
     stats = []
