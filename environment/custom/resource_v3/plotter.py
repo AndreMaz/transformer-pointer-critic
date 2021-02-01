@@ -3,7 +3,7 @@
 import matplotlib.pyplot as plt
 import os
 import numpy as np
-from environment.custom.resource_v3.utils import log_training_stats
+from environment.custom.resource_v3.utils import log_training_stats, generate_file_name
 # Import Google OR Tools Solver
 # from agents.optimum_solver import solver
 
@@ -110,17 +110,7 @@ def plotter_rewards(data, location, file_name, agent_name ):
 
     plt.close()
 
-def generate_file_name(agent_config):
-    gamma = agent_config['gamma']
-    entropy = agent_config['entropy_coefficient']
-    dp_rate = agent_config['actor']['dropout_rate']
-    
-    actor_lr = agent_config['actor']['learning_rate']
-    critic_lr = agent_config['critic']['learning_rate']
 
-    file_name = f"g:{gamma}|e:{entropy}|dp:{dp_rate}|ac_lr:{actor_lr}|cr_lr:{critic_lr}"
-
-    return file_name
 
 def average_per_steps(data, steps):
     assert steps <= len(data), 'Steps is larger that the size of the array'

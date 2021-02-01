@@ -17,6 +17,7 @@ class Agent():
         super(Agent, self).__init__()
 
         self.name = name
+        self.agent_config = opts
 
         # Default training mode
         self.training = True

@@ -57,15 +57,15 @@ def runner(env_type="custom", env_name='ResourceV3', agent_name="tpc"):
 def tuner(env_type="custom", env_name='ResourceV3', agent_name="tpc"):
     
     gamma_rate = [0.99, 0.999]
-    entropy_coefficient = [ 0.0001, 0.001, 0.01 ]
+    entropy_coefficient = [ 0.001, 0.01 ]
     dropout_rate = [ 0.001, 0.01, 0.1 ]
     actor_learning_rate = [
-        # 0.00001,
+        0.00001,
         0.0005,
         #0.0005
     ]
     critic_learning_rate = [ 
-        # 0.00001,
+        0.00001,
         0.0005,
         #0.0005
     ]
@@ -79,7 +79,7 @@ def tuner(env_type="custom", env_name='ResourceV3', agent_name="tpc"):
                             agent_config, trainer_config, env_config, _, tuner_config = get_configs(env_name, agent_name)
 
                             # Create the environment
-                            env, opt_solver, heuristic_solver, tester, plotter = env_factory(env_type, env_name, env_config)
+                            env, tester, plotter = env_factory(env_type, env_name, env_config)
 
                             # Add info about the environmanet
                             agent_config: dict = env.add_stats_to_agent_config(agent_config)
@@ -102,13 +102,14 @@ def tuner(env_type="custom", env_name='ResourceV3', agent_name="tpc"):
                             training_history = trainer(
                                 env, agent, trainer_config, show_info)
 
-                            plotter(training_history, env, agent, config, opt_solver, False)
+                            write_data_to_file = True
+                            plotter(training_history, env, agent, agent_config, write_data_to_file)
 
                             look_for_opt = False
-                            win, loss, draw = tester(env, agent, tuner_config, opt_solver, heuristic_solver, look_for_opt)
+                            dominant_results, rejected_results = tester(env, agent, tuner_config)
 
-                            print(f"{win};{loss};{draw};{gamma};{entropy};{dp_rate};{actor_lr};{critic_lr}")
+                            print(f"{dominant_results};{rejected_results};{gamma};{entropy};{dp_rate};{actor_lr};{critic_lr}")
 
 if __name__ == "__main__":
-    runner()
-    # tuner()
+    # runner()
+    tuner()

@@ -181,18 +181,68 @@ def log_training_stats(data, location, file_name):
 def gather_stats_from_solutions(env, heuristic_solvers) -> List[dict]:
     stats = []
     
+    won = 0
+    lost = 0
+    draw = 0
+
     net_dominant, net_rejected = compute_stats(env.history[0])
+    net_dominant = round_half_up(net_dominant, 2)
 
     stats.append({
             'net_dominant': net_dominant,
             'net_rejected': net_rejected
     })
     
+    max_dominant = -1
+    min_rejected = 9999
+
     for solver in heuristic_solvers:
         solver_dominant, solver_rejected = compute_stats(solver.solution)
+
+        max_dominant = max(max_dominant, round_half_up(solver_dominant, 2))
+        min_rejected = min(min_rejected, solver_rejected)
+
         stats.append({
             f'{solver.name}_dominant': solver_dominant,
             f'{solver.name}_rejected': solver_rejected,
         })
 
-    return stats
+    dominant_result = np.array([
+        0, # Won
+        0, # Draw
+        0, # Loss
+    ])
+
+    if max_dominant > net_dominant:
+        dominant_result[2] = 1 # Lost
+    elif max_dominant == net_dominant:
+        dominant_result[1] = 1 
+    else: 
+        dominant_result[0] = 1
+
+    rejected_result = np.array([
+        0, # Won
+        0, # Draw
+        0, # Loss
+    ])
+
+    if min_rejected < net_rejected:
+        rejected_result[2] = 1 # Lost
+    elif min_rejected == net_rejected:
+        rejected_result[1]  = 1
+    else:
+        rejected_result[0] = 1
+
+    return stats, dominant_result, rejected_result
+
+def generate_file_name(agent_config):
+    gamma = agent_config['gamma']
+    entropy = agent_config['entropy_coefficient']
+    dp_rate = agent_config['actor']['dropout_rate']
+    
+    actor_lr = agent_config['actor']['learning_rate']
+    critic_lr = agent_config['critic']['learning_rate']
+
+    file_name = f"g:{gamma}|e:{entropy}|dp:{dp_rate}|ac_lr:{actor_lr}|cr_lr:{critic_lr}"
+
+    return file_name

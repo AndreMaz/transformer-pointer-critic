@@ -6,6 +6,7 @@ from environment.custom.resource_v3.utils import export_to_csv, compute_max_step
 
 # from agents.optimum_solver import solver
 from environment.custom.resource_v3.heuristic.factory import heuristic_factory
+from environment.custom.resource_v3.utils import generate_file_name
 import numpy as np
 import time
 from datetime import datetime
@@ -25,17 +26,38 @@ def test(
 
     export_stats = opts['export_stats']['global_stats']['export_stats']
     csv_write_path = opts['export_stats']['global_stats']['location']
+    
     filename = opts['export_stats']['global_stats']['filename']
+    if filename == None:
+        filename = generate_file_name(agent.agent_config)
 
     global_stats = []
+    dominant_results = np.array([
+        0, # Won
+        0, # Draw
+        0, # Loss
+    ])
+
+    rejected_results = np.array([
+        0, # Won
+        0, # Draw
+        0, # Loss
+    ])
 
     for index in range(num_tests):
-        instance_stats = test_single_instance(index, env, agent, opts)
+        instance_stats,\
+        dominant_instance_result,\
+        rejected_instance_result = test_single_instance(index, env, agent, opts)
+
+        dominant_results += dominant_instance_result
+        rejected_results += rejected_instance_result
 
         global_stats.append(instance_stats)
 
     if export_stats:
         log_testing_stats(global_stats, csv_write_path, filename)
+
+    return dominant_results, rejected_results
 
 def test_single_instance(
     instance_id,
@@ -181,6 +203,8 @@ def test_single_instance(
             env.node_sample_size,
         )
     
-    stats = gather_stats_from_solutions(env, heuristic_solvers)
+    stats,\
+        dominant_result,\
+        rejected_result = gather_stats_from_solutions(env, heuristic_solvers)
 
-    return stats
+    return stats, dominant_result, rejected_result
