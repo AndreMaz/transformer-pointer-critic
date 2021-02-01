@@ -44,6 +44,7 @@ def test_single_instance(
     opts: dict
     ):
     
+    update_resource_decoder_input: bool = opts['update_resource_decoder_input']
     plot_attentions = opts['plot_attentions']
     batch_size = opts['batch_size']
     req_sample_size = opts['profiles_sample_size']
@@ -131,7 +132,9 @@ def test_single_instance(
             })
 
             # Update for next iteration
-            dec_input = decoded_resource
+            if update_resource_decoder_input:
+                dec_input = decoded_resource
+
             current_state = next_state
             bin_net_mask = info['bin_net_mask']
             resource_net_mask = info['resource_net_mask']

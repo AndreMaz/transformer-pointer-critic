@@ -11,6 +11,8 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict, show_progress: bool):
     # General training vars
     n_iterations: int = opts['n_iterations']
     n_steps_to_update: int = opts['n_steps_to_update']
+    update_resource_decoder_input: bool = opts['update_resource_decoder_input']
+
     average_rewards_buffer = []
     min_rewards_buffer = []
     max_rewards_buffer = []
@@ -77,7 +79,9 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict, show_progress: bool):
             )
 
             # Update for next iteration
-            dec_input = decoded_resource.numpy()
+            if update_resource_decoder_input:
+                dec_input = decoded_resource.numpy()
+
             current_state = next_state
             bin_net_mask = info['bin_net_mask']
             resource_net_mask = info['resource_net_mask']
