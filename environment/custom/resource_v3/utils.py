@@ -172,7 +172,7 @@ def log_training_stats(data, location, file_name):
             b_loss = bins_loss_buffer[index]
             b_entr = bins_entropy_buffer[index]
 
-            data = f"{index};{avg};{max};{min};{v_loss};{r_entr};{r_loss};{b_entr};{b_loss}"
+            data = f"{index};{avg:.3f};{max:.3f};{min:.3f};{v_loss:.3f};{r_entr:.3f};{r_loss:.3f};{b_entr:.3f};{b_loss:.3f}"
 
             fp.write(f"{data}\n")
 

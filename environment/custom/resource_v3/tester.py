@@ -79,7 +79,7 @@ def test_single_instance(
 
     # Init the heuristic solvers 
     heuristic_solvers = heuristic_factory(env.node_sample_size, opts['heuristic'])
-    state_list = [current_state]
+    state_list = [current_state.copy()]
 
     while episode_count < num_episodes:
         # Reached the end of episode. Reset for the next episode

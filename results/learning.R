@@ -18,10 +18,10 @@ reward_stats <- melt(learning_data, id.vars = c(
   "Bin.Entropy",
   "Bin.Loss"), variable.name = 'Type', value.name = 'Value')
 
-# Plot Losses and entropy
+# Plot rewards
 ggplot(data = reward_stats, aes(x=Step, y=Value, col=Type, group = Type))+
-  geom_point(alpha=0.3)+
-  geom_smooth(alpha=0.3, method = "loess", span=0.3, se = FALSE)+
+  geom_point(alpha=0.2)+
+  geom_smooth(alpha=1.0, method = "loess", span=0.3, se = FALSE)+
   # geom_line(aes(x=Step, y=Value, col=Type, group=Type), size=1.5, alpha=0.7)+
   labs(x="Episode", y='Reward')+
   # scale_x_discrete()+

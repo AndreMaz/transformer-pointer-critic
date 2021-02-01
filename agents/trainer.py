@@ -114,17 +114,17 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict, show_progress: bool):
         discounted_rewards = agent.compute_discounted_rewards(bootstrap_state_value)
         
         ### Update Critic ###
-        with tf.GradientTape() as tape:
+        with tf.GradientTape() as tape_value:
             value_loss, state_values, advantages = agent.compute_value_loss(
                 discounted_rewards
             )
 
-        critic_grads = tape.gradient(
+        critic_grads = tape_value.gradient(
             value_loss,
             agent.critic.trainable_weights
         )
 
-        with tf.GradientTape() as tape:
+        with tf.GradientTape() as tape_resource:
             resources_loss, decoded_resources, resources_entropy  = agent.compute_actor_loss(
                 agent.resource_actor,
                 agent.resource_masks,
@@ -133,7 +133,7 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict, show_progress: bool):
                 tf.stop_gradient(advantages)
             )
         
-        resource_grads = tape.gradient(
+        resource_grads = tape_resource.gradient(
             resources_loss,
             agent.resource_actor.trainable_weights
         )
@@ -141,7 +141,7 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict, show_progress: bool):
         # Add time dimension
         decoded_resources = tf.expand_dims(decoded_resources, axis=1)
 
-        with tf.GradientTape() as tape:
+        with tf.GradientTape() as tape_bin:
             bin_loss, decoded_bins, bin_entropy = agent.compute_actor_loss(
                 agent.bin_actor,
                 agent.bin_masks,
@@ -150,7 +150,7 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict, show_progress: bool):
                 tf.stop_gradient(advantages)
             )
         
-        bin_grads = tape.gradient(
+        bin_grads = tape_bin.gradient(
             bin_loss,
             agent.bin_actor.trainable_weights
         )
@@ -190,9 +190,9 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict, show_progress: bool):
             f"Max@Batch: {max_in_batch:.3f}\t" +
             f"Avg@Batch: {episode_reward:.3f}\t" +
             f"Avg V_Loss: {value_loss:.4f}\t" +
-            f"Avg R_Loss: {tf.reduce_mean(resources_loss):.4f}\t" +
+            f"Avg R_Loss: {resources_loss:.4f}\t" +
             f"Entr R: {tf.reduce_mean(resources_entropy):.4f}\t" +
-            f"Avg B_Loss: {tf.reduce_mean(bin_loss):.4f}\t" + 
+            f"Avg B_Loss: {bin_loss:.4f}\t" + 
             f"Entr B: {tf.reduce_mean(bin_entropy):.4f}", end="\n")
 
         # Iteration complete. Clear agent's memory

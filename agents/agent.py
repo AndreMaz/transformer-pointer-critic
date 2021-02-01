@@ -162,19 +162,10 @@ class Agent():
         # value_loss = self.mse(discounted_rewards, state_values)
         value_loss = tf.keras.losses.mean_squared_error(discounted_rewards, state_values)
 
-        # Reshape value loss into (batch, decoding_step) form
-        # value_loss = tf.reshape(value_loss, [og_batch_size, self.num_resources])
-        # value_loss = tf.transpose(value_loss, [1, 0])
-        # value_loss = reshape_into_horizontal_format(
-        #     value_loss, og_batch_size, self.num_resources
-        # )
-
         # Apply a constant factor
         value_loss = self.values_loss_coefficient * value_loss
 
         value_loss = tf.reduce_mean(value_loss, axis=-1)
-        # value_loss = tf.reduce_mean(value_loss)
-        # a = tf.reduce_sum(re, axis=-1)
 
         return value_loss, state_values, advantages
     
@@ -186,12 +177,7 @@ class Agent():
                            advantages
                            ):
 
-        og_batch_size = self.states[0].shape[0]
-        # advantages = discounted_rewards - state_values
-
         states = tf.concat(self.states, axis=0)
-        batch_size = states.shape[0]
-
         attention_mask = tf.concat(masks, axis=0)
         mha_mask = tf.concat(self.mha_masks, axis=0)
         dec_input = tf.concat(decoder_inputs, axis=0)
@@ -212,13 +198,10 @@ class Agent():
 
         # One hot actions that we took during an episode
         actions = tf.concat(actions, axis=0)
-        actions_one_hot = tf.one_hot(
-            actions, self.tensor_size, dtype="float32")
+        # actions_one_hot = tf.one_hot(
+        #    actions, self.tensor_size, dtype="float32")
 
         # Compute the policy loss
-        # policy_loss = tf.nn.softmax_cross_entropy_with_logits(
-        #    labels=tf.stop_gradient(actions_one_hot), logits=pointer_logits)
-
         policy_loss_fn = tf.keras.losses.SparseCategoricalCrossentropy(
             from_logits=True, reduction=tf.keras.losses.Reduction.NONE
         )
@@ -230,10 +213,6 @@ class Agent():
 
         # Entropy loss can be calculated as cross-entropy over itself.
         # The greater the entropy, the more random the actions an agent takes.
-        # entropy = tf.keras.losses.categorical_crossentropy(
-        #     pointers_probs,
-        #     pointers_probs
-        # )
         entropy_fn = tf.keras.losses.CategoricalCrossentropy(
             from_logits=True, reduction=tf.keras.losses.Reduction.NONE
         )
