@@ -23,7 +23,7 @@ ggplot(data = reward_stats, aes(x=Step, y=Value, col=Type, group = Type))+
   geom_point(alpha=0.3)+
   geom_smooth(alpha=0.3, method = "loess", span=0.3, se = FALSE)+
   # geom_line(aes(x=Step, y=Value, col=Type, group=Type), size=1.5, alpha=0.7)+
-  labs(x="Episode", y='Loss and Entropy value')+
+  labs(x="Episode", y='Reward')+
   # scale_x_discrete()+
   theme(
     # legend.position="bottom",
