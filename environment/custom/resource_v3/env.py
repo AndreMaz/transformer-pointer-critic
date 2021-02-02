@@ -25,6 +25,7 @@ class ResourceEnvironmentV3(BaseEnvironment):
         ###########################################
 
         self.gather_stats: bool = False
+        self.generate_request_on_the_fly: bool = opts['generate_request_on_the_fly']
         self.mask_nodes_in_mha: bool = opts['mask_nodes_in_mha']
 
         self.normalization_factor: int = opts['normalization_factor']
@@ -188,22 +189,22 @@ class ResourceEnvironmentV3(BaseEnvironment):
         # Replace first position with EOS node
         batch[:, 0, :] = self.EOS_BIN
 
-        # Generate reqs
-        # reqs = tf.random.uniform(
-        #     (self.batch_size, self.profiles_sample_size, self.num_features),
-        #     minval=self.req_min_val,
-        #     maxval=self.req_max_val,
-        #     dtype="float32"
-        # )
-        
-        # batch[:, self.node_sample_size:, :] = reqs
-        
-
-        # Sample profiles and add them to batch instances
-        for index in range(self.batch_size):
-            shuffled_profiles = tf.random.shuffle(self.total_profiles)
+        if self.generate_request_on_the_fly:
+            # Generate reqs
+            reqs = tf.random.uniform(
+                (self.batch_size, self.profiles_sample_size, self.num_features),
+                minval=self.req_min_val,
+                maxval=self.req_max_val,
+                dtype="int32"
+            ) / self.normalization_factor
             
-            batch[index, self.node_sample_size:, :] = shuffled_profiles[:self.profiles_sample_size]
+            batch[:, self.node_sample_size:, :] = tf.cast(reqs, dtype="float32")
+        else:
+            # Sample profiles and add them to batch instances
+            for index in range(self.batch_size):
+                shuffled_profiles = tf.random.shuffle(self.total_profiles)
+                
+                batch[index, self.node_sample_size:, :] = shuffled_profiles[:self.profiles_sample_size]
 
         # Create node instances that will gather stats
         if self.gather_stats:

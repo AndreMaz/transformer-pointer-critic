@@ -83,8 +83,9 @@
     "env_config": {
         "description": "Environment configs.",
         
-        "mask_nodes_in_mha": false,
         "batch_size": 64,
+        "mask_nodes_in_mha": false,
+        "generate_request_on_the_fly": true,
         
         "normalization_factor": 100,
         "decimal_precision": 2,

@@ -13,6 +13,7 @@ class TestResource(unittest.TestCase):
             "description": "Environment configs.",
 
             "mask_nodes_in_mha": False,
+            "generate_request_on_the_fly": True,
             "batch_size": 2,
 
             "normalization_factor": 100,
@@ -108,7 +109,7 @@ class TestResource(unittest.TestCase):
         )
 
         self.assertTrue(
-            np.all(reqs < 0.3)
+            np.all(reqs < 0.3) and np.all(reqs > 0.0)
         )
 
     def test_testing_mode(self):
@@ -447,6 +448,43 @@ class TestResource(unittest.TestCase):
 
         expected = np.array([
             [0., 1., 0., 1., 1., 1.],
+            [0., 0., 1., 1., 1., 1.]], dtype="float32")
+        
+        actual = self.env.build_feasible_mask(
+            fake_state, fake_selected_resources, fake_bin_net_mask)
+
+        self.assertEqual(
+            actual.tolist(),
+            expected.tolist()
+        )
+    
+    def test_build_feasible_mask_SHOULD_mask_2_nodes_single_resource_overloaded(self):
+        fake_state = np.array([[[-2.  , -2.  , -2.  ],
+                                [ 0.9,  0.0 , 0.8],
+                                [ 0.7,  0.8,  0.0],
+                                [ 0.3,  0.3,  0.3],
+                                [ 0.1,  0.1,  0.1],
+                                [ 0.3,  0.3,  0.3]],
+
+                                [[-2.  , -2.  , -2.  ],
+                                [ 0.7,  0.7,  0.7],
+                                [ 0.3,  0.0,  0.3],
+                                [ 0.0,  0.7 , 0.7],
+                                [ 0.2,  0.2,  0.2],
+                                [ 0.5 , 0.5,  0.5]]], dtype="float32")
+
+        fake_bin_net_mask = np.array([
+            [0., 0., 0., 0., 1., 1.],
+            [0., 0., 0., 0., 1., 1.]], dtype="float32")
+        
+        fake_selected_resources = np.array([
+            [ 0.3,  0.3,  0.3],
+            [ 0.5,  0.5,  0.5],
+        ], dtype='float32')
+
+
+        expected = np.array([
+            [0., 1., 1., 0., 1., 1.],
             [0., 0., 1., 1., 1., 1.]], dtype="float32")
         
         actual = self.env.build_feasible_mask(
