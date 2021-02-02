@@ -12,6 +12,7 @@ class TestResource(unittest.TestCase):
         ENV_CONFIG = {
             "description": "Environment configs.",
 
+            "mask_nodes_in_mha": False,
             "batch_size": 2,
 
             "normalization_factor": 100,
@@ -310,32 +311,143 @@ class TestResource(unittest.TestCase):
 
     def test_build_feasible_mask_ALL_SHOULD_be_unmasked(self):
         fake_state = np.array([[[-2.  , -2.  , -2.  ],
-                                [ 0.84,  0.9 ,  0.85],
-                                [ 0.89,  0.87,  0.89],
-                                [ 0.94,  0.86,  0.95],
-                                [ 0.29,  0.17,  0.13],
-                                [ 0.19,  0.29,  0.22]],
+                                [ 0.8,  0.9 , 0.8],
+                                [ 0.8,  0.8,  0.8],
+                                [ 0.9,  0.8,  0.9],
+                                [ 0.1,  0.1,  0.1],
+                                [ 0.3,  0.3,  0.3]],
 
                                 [[-2.  , -2.  , -2.  ],
-                                [ 0.89,  0.95,  0.97],
-                                [ 0.99,  0.95,  0.87],
-                                [ 0.89,  0.9 ,  0.82],
-                                [ 0.26,  0.23,  0.22],
-                                [ 0.1 ,  0.19,  0.25]]], dtype="float32")
+                                [ 0.8,  0.9,  0.9],
+                                [ 0.9,  0.9,  0.8],
+                                [ 0.8,  0.9 , 0.8],
+                                [ 0.2,  0.2,  0.2],
+                                [ 0.5 , 0.5,  0.5]]], dtype="float32")
 
         fake_bin_net_mask = np.array([
             [0., 0., 0., 0., 1., 1.],
             [0., 0., 0., 0., 1., 1.]], dtype="float32")
         
         fake_selected_resources = np.array([
-            [ 0.29,  0.17,  0.13],
-            [ 0.26,  0.23,  0.22],
+            [ 0.1,  0.1,  0.1],
+            [ 0.2,  0.2,  0.2],
         ], dtype='float32')
 
 
         expected = np.array([
             [0., 0., 0., 0., 1., 1.],
             [0., 0., 0., 0., 1., 1.]], dtype="float32")
+        
+        actual = self.env.build_feasible_mask(
+            fake_state, fake_selected_resources, fake_bin_net_mask)
+
+        self.assertEqual(
+            actual.tolist(),
+            expected.tolist()
+        )
+    
+    def test_build_feasible_mask_ALL_SHOULD_be_masked(self):
+        fake_state = np.array([[[-2.  , -2.  , -2.  ],
+                                [ 0.0,  0.0 , 0.0],
+                                [ 0.1,  0.1,  0.1],
+                                [ 0.2,  0.2,  0.2],
+                                [ 0.1,  0.1,  0.1],
+                                [ 0.3,  0.3,  0.3]],
+
+                                [[-2.  , -2.  , -2.  ],
+                                [ 0.2,  0.2,  0.2],
+                                [ 0.3,  0.3,  0.3],
+                                [ 0.4,  0.4 , 0.4],
+                                [ 0.2,  0.2,  0.2],
+                                [ 0.5 , 0.5,  0.5]]], dtype="float32")
+
+        fake_bin_net_mask = np.array([
+            [0., 0., 0., 0., 1., 1.],
+            [0., 0., 0., 0., 1., 1.]], dtype="float32")
+        
+        fake_selected_resources = np.array([
+            [ 0.3,  0.3,  0.3],
+            [ 0.5,  0.5,  0.5],
+        ], dtype='float32')
+
+
+        expected = np.array([
+            [0., 1., 1., 1., 1., 1.],
+            [0., 1., 1., 1., 1., 1.]], dtype="float32")
+        
+        actual = self.env.build_feasible_mask(
+            fake_state, fake_selected_resources, fake_bin_net_mask)
+
+        self.assertEqual(
+            actual.tolist(),
+            expected.tolist()
+        )
+    
+    def test_build_feasible_mask_2nd_and_3rd_SHOULD_be_unmasked(self):
+        fake_state = np.array([[[-2.  , -2.  , -2.  ],
+                                [ 0.0,  0.0 , 0.0],
+                                [ 0.4,  0.4,  0.4],
+                                [ 0.3,  0.3,  0.3],
+                                [ 0.1,  0.1,  0.1],
+                                [ 0.3,  0.3,  0.3]],
+
+                                [[-2.  , -2.  , -2.  ],
+                                [ 0.2,  0.2,  0.2],
+                                [ 0.5,  0.5,  0.5],
+                                [ 0.6,  0.7 , 0.8],
+                                [ 0.2,  0.2,  0.2],
+                                [ 0.5 , 0.5,  0.5]]], dtype="float32")
+
+        fake_bin_net_mask = np.array([
+            [0., 0., 0., 0., 1., 1.],
+            [0., 0., 0., 0., 1., 1.]], dtype="float32")
+        
+        fake_selected_resources = np.array([
+            [ 0.3,  0.3,  0.3],
+            [ 0.5,  0.5,  0.5],
+        ], dtype='float32')
+
+
+        expected = np.array([
+            [0., 1., 0., 0., 1., 1.],
+            [0., 1., 0., 0., 1., 1.]], dtype="float32")
+        
+        actual = self.env.build_feasible_mask(
+            fake_state, fake_selected_resources, fake_bin_net_mask)
+
+        self.assertEqual(
+            actual.tolist(),
+            expected.tolist()
+        )
+
+    def test_build_feasible_mask_SHOULD_mask_2_nodes(self):
+        fake_state = np.array([[[-2.  , -2.  , -2.  ],
+                                [ 0.0,  0.0 , 0.0],
+                                [ 0.4,  0.4,  0.4],
+                                [ 0.03, 0.03, 0.03],
+                                [ 0.1,  0.1,  0.1],
+                                [ 0.3,  0.3,  0.3]],
+
+                                [[-2.  , -2.  , -2.  ],
+                                [ 0.7,  0.7,  0.7],
+                                [ 0.3,  0.3,  0.3],
+                                [ 0.1,  0.1 , 0.1],
+                                [ 0.2,  0.2,  0.2],
+                                [ 0.5 , 0.5,  0.5]]], dtype="float32")
+
+        fake_bin_net_mask = np.array([
+            [0., 0., 0., 0., 1., 1.],
+            [0., 0., 0., 0., 1., 1.]], dtype="float32")
+        
+        fake_selected_resources = np.array([
+            [ 0.3,  0.3,  0.3],
+            [ 0.5,  0.5,  0.5],
+        ], dtype='float32')
+
+
+        expected = np.array([
+            [0., 1., 0., 1., 1., 1.],
+            [0., 0., 1., 1., 1., 1.]], dtype="float32")
         
         actual = self.env.build_feasible_mask(
             fake_state, fake_selected_resources, fake_bin_net_mask)
