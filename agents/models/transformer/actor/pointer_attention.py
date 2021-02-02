@@ -1,16 +1,19 @@
 from tensorflow.keras.layers import Layer, Dense, Softmax
 import tensorflow as tf
 import numpy as np
+from agents.models.transformer.common.utils import get_initializer
 
 class PointerAttention(Layer):
-  def __init__(self, dense_units: int):
+  def __init__(self, dense_units: int, use_default_initializer: bool = True):
     super(PointerAttention, self).__init__()
 
     self.dense_units = dense_units
+    self.use_default_initializer = use_default_initializer
+    self.initializer = get_initializer(self.dense_units, self.use_default_initializer)
 
-    self.W1 = Dense(self.dense_units)
-    self.W2 = Dense(self.dense_units)
-    self.V = Dense(1)
+    self.W1 = Dense(self.dense_units, kernel_initializer=self.initializer)
+    self.W2 = Dense(self.dense_units, kernel_initializer=self.initializer)
+    self.V = Dense(1, kernel_initializer=self.initializer)
 
     self.BIG_NUMBER = 1e6
 

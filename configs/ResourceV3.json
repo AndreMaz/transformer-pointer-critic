@@ -126,6 +126,7 @@
             "use_mha_mask": true,
 
             "actor": {
+                "use_default_initializer": false,
                 "num_layers": 1,
                 "dim_model": 128,
                 "num_heads": 8,
@@ -140,6 +141,7 @@
             },
 
             "critic": {
+                "use_default_initializer": false,
                 "num_layers": 1,
                 "dim_model": 128,
                 "num_heads": 8,

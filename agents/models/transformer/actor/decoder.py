@@ -3,7 +3,7 @@ from tensorflow.keras.layers import TimeDistributed, Dense
 import numpy as np
 
 from agents.models.transformer.actor.decoder_layer import DecoderLayer
-from agents.models.transformer.common.utils import positional_encoding
+from agents.models.transformer.common.utils import positional_encoding, get_initializer
 
 from agents.models.transformer.actor.last_decoder_layer import LastDecoderLayer
 
@@ -18,7 +18,8 @@ class Decoder(tf.keras.layers.Layer):
                vocab_size,
                embedding_time_distributed: bool,
                attention_dense_units,
-               rate=0.1):
+               rate=0.1,
+               use_default_initializer: bool = True):
     super(Decoder, self).__init__()
 
     self.d_model: int = d_model
@@ -32,29 +33,35 @@ class Decoder(tf.keras.layers.Layer):
     self.d_model: int = d_model
     self.num_layers: int = num_layers
     
+    self.use_default_initializer = use_default_initializer
+    self.initializer = get_initializer(self.d_model, self.use_default_initializer)
+
     # self.embedding = tf.keras.layers.Embedding(target_vocab_size, d_model)
     if self.embedding_time_distributed:
       self.embedding = TimeDistributed(
           Dense(
-              self.d_model
+              self.d_model,
+              kernel_initializer=self.initializer
           )
       )
     else:
       self.embedding = Dense(
-          self.d_model
+          self.d_model,
+          kernel_initializer=self.initializer
       )
 
     if self.use_positional_encoding:
       self.pos_encoding = positional_encoding(self.vocab_size, d_model)
     
-    self.dec_layers = [DecoderLayer(d_model, num_heads, dff, rate) 
+    self.dec_layers = [DecoderLayer(d_model, num_heads, dff, rate, use_default_initializer) 
                        for _ in range(num_layers)]
 
     self.last_decoder_layer = LastDecoderLayer(d_model,
                                                num_heads,
                                                dff,
                                                attention_dense_units,
-                                               rate)
+                                               rate,
+                                               use_default_initializer)
 
     self.dropout = tf.keras.layers.Dropout(rate)
     

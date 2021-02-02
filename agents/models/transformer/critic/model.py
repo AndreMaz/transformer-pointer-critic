@@ -1,5 +1,6 @@
 import tensorflow as tf
 from agents.models.transformer.common.encoder import Encoder
+from agents.models.transformer.common.utils import get_initializer
 
 class CriticTransformer(tf.keras.Model):
     def __init__(self,
@@ -12,7 +13,8 @@ class CriticTransformer(tf.keras.Model):
                  embedding_time_distributed,
                  last_layer_units,
                  last_layer_activation,
-                 dropout_rate=0.1
+                 dropout_rate=0.1,
+                 use_default_initializer:bool = True
                  ):
         super(CriticTransformer, self).__init__()
 
@@ -26,6 +28,9 @@ class CriticTransformer(tf.keras.Model):
         self.embedding_time_distributed = embedding_time_distributed
         self.dropout_rate = dropout_rate
 
+        self.use_default_initializer = use_default_initializer
+        self.initializer = get_initializer(self.d_model, self.use_default_initializer)
+
         self.encoder = Encoder(self.num_layers,
                                self.d_model,
                                self.num_heads,
@@ -33,15 +38,17 @@ class CriticTransformer(tf.keras.Model):
                                self.positional_encoding,
                                self.vocab_size,
                                self.embedding_time_distributed,
-                               self.dropout_rate
+                               self.dropout_rate,
+                               use_default_initializer
                                )
         
         self.flat_layer = tf.keras.layers.Flatten()
 
         self.final_layer0 = tf.keras.layers.Dense(last_layer_units,
-                                                  activation=last_layer_activation
+                                                  activation=last_layer_activation,
+                                                  kernel_initializer=self.initializer
                                                   )
-        self.final_layer = tf.keras.layers.Dense(1)
+        self.final_layer = tf.keras.layers.Dense(1, kernel_initializer=self.initializer)
 
     def call(self,
              encoder_input,
