@@ -21,7 +21,7 @@ reward_stats <- melt(learning_data, id.vars = c(
 # Plot rewards
 ggplot(data = reward_stats, aes(x=Step, y=Value, col=Type, group = Type))+
   geom_point(alpha=0.2)+
-  geom_smooth(alpha=1.0, method = "loess", span=0.3, se = FALSE)+
+  geom_smooth(alpha=1.0, span=0.3, se = FALSE)+
   # geom_line(aes(x=Step, y=Value, col=Type, group=Type), size=1.5, alpha=0.7)+
   labs(x="Episode", y='Reward')+
   # scale_x_discrete()+
@@ -43,7 +43,7 @@ learning_stats <- melt(learning_data, id.vars = c(
 ggplot(data = learning_stats, aes(x=Step, y=Value, col=Type, group = Type))+
   #geom_point(alpha=0.3)+
   #geom_line(alpha=1.0)+
-  geom_smooth(alpha=0.3, method = "loess", span=0.3, se = FALSE)+
+  geom_smooth(alpha=0.3, span=0.3, se = FALSE)+
   # geom_line(aes(x=Step, y=Value, col=Type, group=Type), size=1.5, alpha=0.7)+
   labs(x="Episode", y='Value')+
   # scale_x_discrete()+
