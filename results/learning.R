@@ -38,10 +38,14 @@ learning_stats <- melt(learning_data, id.vars = c(
   "Max.Reward"
   ), variable.name = 'Type', value.name = 'Value')
 
+## Filter out by Types of Sets
+#learning_stats <- learning_stats %>%
+# filter( Type == 'Value.Loss') %>%
+# filter( Step > 5000)
 
 # Plot Losses and entropy
 ggplot(data = learning_stats, aes(x=Step, y=Value, col=Type, group = Type))+
-  #geom_point(alpha=0.3)+
+  # geom_point(alpha=0.3)+
   #geom_line(alpha=1.0)+
   geom_smooth(alpha=0.3, span=0.3, se = FALSE)+
   # geom_line(aes(x=Step, y=Value, col=Type, group=Type), size=1.5, alpha=0.7)+
