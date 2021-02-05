@@ -143,7 +143,7 @@
 
             "critic": {
                 "use_default_initializer": false,
-                "num_layers": 1,
+                "num_layers": 3,
                 "dim_model": 128,
                 "num_heads": 8,
                 "positional_encoding": false,

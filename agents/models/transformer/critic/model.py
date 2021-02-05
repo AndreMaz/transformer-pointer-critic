@@ -19,7 +19,7 @@ class CriticTransformer(tf.keras.Model):
         super(CriticTransformer, self).__init__()
 
         # Store the values
-        self.num_layers = num_heads
+        self.num_layers = num_layers
         self.d_model = d_model
         self.num_heads = num_heads
         self.dff = dff
@@ -54,7 +54,8 @@ class CriticTransformer(tf.keras.Model):
                                                   )
 
         self.final_layer = tf.keras.layers.Dense(1, kernel_initializer=self.initializer)
-
+    
+    @tf.function
     def call(self,
              encoder_input,
              training: bool,
