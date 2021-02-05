@@ -14,9 +14,11 @@ reward_stats <- melt(learning_data, id.vars = c(
   "Step",
   "Value.Loss",
   "Resource.Entropy",
-  "Resource.Loss",
+  "Total.Resource.Loss",
+  "Resource.Policy.Loss",
   "Bin.Entropy",
-  "Bin.Loss"), variable.name = 'Type', value.name = 'Value')
+  "Total.Bin.Loss",
+  "Bin.Policy.Loss"), variable.name = 'Type', value.name = 'Value')
 
 # Plot rewards
 ggplot(data = reward_stats, aes(x=Step, y=Value, col=Type, group = Type))+
@@ -39,8 +41,8 @@ learning_stats <- melt(learning_data, id.vars = c(
   ), variable.name = 'Type', value.name = 'Value')
 
 ## Filter out by Types of Sets
-#learning_stats <- learning_stats %>%
-# filter( Type == 'Value.Loss') %>%
+learning_stats <- learning_stats %>%
+ filter( Type != 'Value.Loss' & Type != 'Total.Bin.Loss' & Type != 'Total.Resource.Loss')
 # filter( Step > 5000)
 
 # Plot Losses and entropy

@@ -152,13 +152,15 @@ def log_training_stats(data, location, file_name):
         min_rewards_buffer,\
         max_rewards_buffer,\
         value_loss_buffer, \
-        resources_loss_buffer,\
+        resources_policy_loss_buffer,\
+        resources_total_loss_buffer,\
         resources_entropy_buffer,\
-        bins_loss_buffer,\
+        bins_policy_loss_buffer,\
+        bins_total_loss_buffer,\
         bins_entropy_buffer = data
 
     with open(f"{location}/{file_name}.csv", 'w') as fp:
-        header = 'Step;Avg Reward;Max Reward;Min Reward;Value Loss;Resource Entropy;Resource Loss;Bin Entropy;Bin Loss'
+        header = 'Step;Avg Reward;Max Reward;Min Reward;Value Loss;Resource Entropy;Total Resource Loss;Resource Policy Loss;Bin Entropy;Total Bin Loss;Bin Policy Loss'
 
         fp.write(f'{header}\n')
 
@@ -167,12 +169,16 @@ def log_training_stats(data, location, file_name):
             min = min_rewards_buffer[index]
             max = max_rewards_buffer[index]
             v_loss = value_loss_buffer[index]
-            r_loss = resources_loss_buffer[index]
+            
+            r_policy_loss = resources_policy_loss_buffer[index]
+            r_total_loss = resources_total_loss_buffer[index]
             r_entr = resources_entropy_buffer[index]
-            b_loss = bins_loss_buffer[index]
+
+            b_policy_loss = bins_policy_loss_buffer[index]
+            b_total_loss = bins_total_loss_buffer[index]
             b_entr = bins_entropy_buffer[index]
 
-            data = f"{index};{avg:.3f};{max:.3f};{min:.3f};{v_loss:.3f};{r_entr:.3f};{r_loss:.3f};{b_entr:.3f};{b_loss:.3f}"
+            data = f"{index};{avg:.3f};{max:.3f};{min:.3f};{v_loss:.3f};{r_entr:.3f};{r_total_loss:.3f};{r_policy_loss:.3f};{b_entr:.3f};{b_total_loss:.3f};{b_policy_loss:.3f}"
 
             fp.write(f"{data}\n")
 

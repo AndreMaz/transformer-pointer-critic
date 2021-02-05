@@ -216,7 +216,7 @@ class Agent():
             actions, pointer_logits
         )
 
-        policy_loss = policy_loss * tf.squeeze(advantages,axis=-1)
+        policy_loss_times_adv = policy_loss * tf.squeeze(advantages,axis=-1)
 
         # Entropy loss can be calculated as cross-entropy over itself.
         # The greater the entropy, the more random the actions an agent takes.
@@ -231,11 +231,11 @@ class Agent():
         # Compute average entropy loss
         # entropy_loss = tf.reduce_mean(entropy_loss)
         total_loss = tf.reduce_mean(
-            policy_loss - self.entropy_coefficient * entropy, axis=-1
+        policy_loss_times_adv - self.entropy_coefficient * entropy, axis=-1
             )
         
 
-        return total_loss, dec_output, entropy
+        return total_loss, dec_output, entropy, policy_loss
 
     def act(self,
             state,

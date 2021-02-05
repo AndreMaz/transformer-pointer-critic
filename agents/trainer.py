@@ -17,9 +17,13 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict, show_progress: bool):
     min_rewards_buffer = []
     max_rewards_buffer = []
     value_loss_buffer = []
-    resources_loss_buffer = []
+
+    resources_policy_loss_buffer = []
+    resources_total_loss_buffer = []
     resources_entropy_buffer = []
-    bins_loss_buffer = []
+    
+    bins_policy_loss_buffer = []
+    bins_total_loss_buffer = []
     bins_entropy_buffer = []
 
     episode_count = 0
@@ -129,7 +133,10 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict, show_progress: bool):
         )
 
         with tf.GradientTape() as tape_resource:
-            resources_loss, decoded_resources, resources_entropy  = agent.compute_actor_loss(
+            resources_loss,\
+                decoded_resources,\
+                resources_entropy,\
+                resource_policy_loss  = agent.compute_actor_loss(
                 agent.resource_actor,
                 agent.resource_masks,
                 agent.resources,
@@ -146,7 +153,10 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict, show_progress: bool):
         decoded_resources = tf.expand_dims(decoded_resources, axis=1)
 
         with tf.GradientTape() as tape_bin:
-            bin_loss, decoded_bins, bin_entropy = agent.compute_actor_loss(
+            bin_loss,\
+                decoded_bins,\
+                bin_entropy,\
+                bin_policy_loss = agent.compute_actor_loss(
                 agent.bin_actor,
                 agent.bin_masks,
                 agent.bins,
@@ -183,9 +193,11 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict, show_progress: bool):
 
         # Store the stats
         value_loss_buffer.append(value_loss.numpy())
-        resources_loss_buffer.append(resources_loss.numpy())
+        resources_policy_loss_buffer.append(np.mean(resource_policy_loss))
+        resources_total_loss_buffer.append(resources_loss.numpy())
         resources_entropy_buffer.append(np.mean(resources_entropy))
-        bins_loss_buffer.append(bin_loss.numpy())
+        bins_policy_loss_buffer.append(np.mean(bin_policy_loss))
+        bins_total_loss_buffer.append(bin_loss.numpy())
         bins_entropy_buffer.append(np.mean(bin_entropy))
 
         if isDone and show_progress:
@@ -206,7 +218,9 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict, show_progress: bool):
         min_rewards_buffer,\
         max_rewards_buffer,\
         value_loss_buffer, \
-        resources_loss_buffer,\
+        resources_policy_loss_buffer,\
+        resources_total_loss_buffer,\
         resources_entropy_buffer,\
-        bins_loss_buffer,\
+        bins_policy_loss_buffer,\
+        bins_total_loss_buffer,\
         bins_entropy_buffer

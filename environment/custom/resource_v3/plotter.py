@@ -26,9 +26,11 @@ def plotter_leaning(data, location, file_name, agent_name ):
         _,\
         _,\
         value_loss_buffer, \
-        resources_loss_buffer,\
+        resources_policy_loss_buffer,\
+        resources_total_loss_buffer,\
         resources_entropy_buffer,\
-        bins_loss_buffer,\
+        bins_policy_loss_buffer,\
+        bins_total_loss_buffer,\
         bins_entropy_buffer = data
     
     # value_loss_buffer = average_per_steps(value_loss_buffer, STEPS)
@@ -40,9 +42,13 @@ def plotter_leaning(data, location, file_name, agent_name ):
     x_values = [i for i in range(len(value_loss_buffer))]
 
     plt.plot(x_values, value_loss_buffer, label="Value Loss")
-    plt.plot(x_values, resources_loss_buffer, label="Resource Net Loss")
+
+    plt.plot(x_values, resources_policy_loss_buffer, label="Resource Policy Net Loss")
+    plt.plot(x_values, resources_total_loss_buffer, label="Total Resource Net Loss")
     plt.plot(x_values, resources_entropy_buffer, label="Resource Net Entropy")
-    plt.plot(x_values, bins_loss_buffer, label="Bin Net Loss")
+    
+    plt.plot(x_values, bins_policy_loss_buffer, label="Bin Policy Net Loss")
+    plt.plot(x_values, bins_total_loss_buffer, label="Total Bin Net Loss")
     plt.plot(x_values, bins_entropy_buffer, label="Bin Net Entropy")
 
     plt.xlabel('Episode')
@@ -76,7 +82,9 @@ def plotter_rewards(data, location, file_name, agent_name ):
         _,\
         _,\
         _,\
-        _ = data
+        _,\
+        _,\
+        _, = data
 
     # average_rewards_buffer = average_per_steps(average_rewards_buffer, STEPS)
     # min_rewards_buffer = average_per_steps(min_rewards_buffer, STEPS)
