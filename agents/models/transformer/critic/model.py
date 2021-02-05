@@ -48,6 +48,11 @@ class CriticTransformer(tf.keras.Model):
                                                   activation=last_layer_activation,
                                                   kernel_initializer=self.initializer
                                                   )
+        self.final_layer1 = tf.keras.layers.Dense(last_layer_units,
+                                                  activation=last_layer_activation,
+                                                  kernel_initializer=self.initializer
+                                                  )
+
         self.final_layer = tf.keras.layers.Dense(1, kernel_initializer=self.initializer)
 
     def call(self,
@@ -64,14 +69,17 @@ class CriticTransformer(tf.keras.Model):
             enc_padding_mask = enc_padding_mask
         )
 
-        # Pass trough first dense layer
-        final_out = self.final_layer0(enc_output)
-
         # flatten_output.shape = (batch_size, inp_seq_len * d_model)
-        flatten_output = self.flat_layer(final_out)
+        flatten_output = self.flat_layer(enc_output)
+
+        # Pass trough first dense layer
+        final_out = self.final_layer0(flatten_output)
+        
+        # Pass trough second dense layer
+        final_out = self.final_layer1(final_out)
 
         # Generate an estimated state value
         # state_value.shape = (1, 1)
-        state_value = self.final_layer(flatten_output)
+        state_value = self.final_layer(final_out)
 
         return state_value
