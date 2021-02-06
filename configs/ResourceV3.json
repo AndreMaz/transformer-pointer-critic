@@ -85,13 +85,13 @@
         
         "batch_size": 64,
         "mask_nodes_in_mha": false,
-        "generate_request_on_the_fly": true,
+        "generate_request_on_the_fly": false,
         
         "normalization_factor": 100,
         "decimal_precision": 2,
 
         "num_features": 3,
-        "num_profiles": 20,
+        "num_profiles": 5000,
 
         "profiles_sample_size": 20,
         "node_sample_size": 10,

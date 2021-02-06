@@ -60,10 +60,10 @@ def tuner(env_type="custom", env_name='ResourceV3', agent_name="tpc"):
     entropy_coefficient = [ 0.0025, 0.025 ]
     dropout_rate = [ 0.1 ]
     actor_learning_rate = [
-        0.00001, 0.000025
+        0.000025, 0.00005
     ]
     critic_learning_rate = [ 
-        0.00001, 0.000025
+        0.000025, 0.00005
     ]
 
     for gamma in gamma_rate:
