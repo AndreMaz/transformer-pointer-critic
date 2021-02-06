@@ -56,18 +56,14 @@ def runner(env_type="custom", env_name='ResourceV3', agent_name="tpc"):
 
 def tuner(env_type="custom", env_name='ResourceV3', agent_name="tpc"):
     
-    gamma_rate = [0.99, 0.999]
-    entropy_coefficient = [ 0.001, 0.01 ]
-    dropout_rate = [ 0.001, 0.01, 0.1 ]
+    gamma_rate = [0.99]
+    entropy_coefficient = [ 0.0025, 0.025 ]
+    dropout_rate = [ 0.1 ]
     actor_learning_rate = [
-        0.00001,
-        0.0005,
-        #0.0005
+        0.00001, 0.000025
     ]
     critic_learning_rate = [ 
-        0.00001,
-        0.0005,
-        #0.0005
+        0.00001, 0.000025
     ]
 
     for gamma in gamma_rate:
@@ -103,7 +99,7 @@ def tuner(env_type="custom", env_name='ResourceV3', agent_name="tpc"):
                                 env, agent, trainer_config, show_info)
 
                             write_data_to_file = True
-                            plotter(training_history, env, agent, agent_config, write_data_to_file)
+                            plotter(training_history, env, agent, config, write_data_to_file)
 
                             look_for_opt = False
                             dominant_results, rejected_results = tester(env, agent, tuner_config)
@@ -111,5 +107,5 @@ def tuner(env_type="custom", env_name='ResourceV3', agent_name="tpc"):
                             print(f"{dominant_results};{rejected_results};{gamma};{entropy};{dp_rate};{actor_lr};{critic_lr}")
 
 if __name__ == "__main__":
-    runner()
-    # tuner()
+    # runner()
+    tuner()
