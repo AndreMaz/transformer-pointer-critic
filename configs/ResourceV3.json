@@ -136,7 +136,7 @@
                 "SOS_CODE": -1,
                 "encoder_embedding_time_distributed": true,
                 "attention_dense_units": 128,
-                "dropout_rate": 0.01,
+                "dropout_rate": 0.1,
 
                 "learning_rate": 0.0001
             },
@@ -151,7 +151,7 @@
                 "encoder_embedding_time_distributed": true,
                 "last_layer_units": 128,
                 "last_layer_activation": "linear",
-                "dropout_rate": 0.01,
+                "dropout_rate": 0.1,
 
                 "learning_rate": 0.0001
             }
