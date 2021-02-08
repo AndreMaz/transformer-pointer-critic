@@ -205,11 +205,13 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict, show_progress: bool):
             f"Min@Batch: {min_in_batch:.3f}\t" +
             f"Max@Batch: {max_in_batch:.3f}\t" +
             f"Avg@Batch: {episode_reward:.3f}\t" +
-            f"Avg V_Loss: {value_loss:.4f}\t" +
-            f"Avg R_Loss: {resources_loss:.4f}\t" +
-            f"Entr R: {tf.reduce_mean(resources_entropy):.4f}\t" +
-            f"Avg B_Loss: {bin_loss:.4f}\t" + 
-            f"Entr B: {tf.reduce_mean(bin_entropy):.4f}", end="\n")
+            f"V_Loss: {value_loss:.3f}\t" +
+            f"R_Tot_Loss: {resources_loss:.3f}\t" +
+            f"R_Pol_Loss: {tf.reduce_mean(resource_policy_loss):.3f}\t" +
+            f"Entr R: {tf.reduce_mean(resources_entropy):.3f}\t" +
+            f"B_Tot_Loss: {bin_loss:.3f}\t" + 
+            f"B_Pol_Loss: {tf.reduce_mean(bin_policy_loss):.3f}\t" +
+            f"Entr B: {tf.reduce_mean(bin_entropy):.3f}", end="\n")
 
         # Iteration complete. Clear agent's memory
         agent.clear_memory()
