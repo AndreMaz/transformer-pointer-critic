@@ -351,3 +351,23 @@ class Agent():
         # Set the number for resources during testing
         # i.e, number of steps
         self.num_resources = num_resources
+    
+def process_logits(pointer_logits, enc_input):
+    batch_size = enc_input.shape[0]
+    # Create a tensor with the batch indices
+    batch_indices = tf.range(batch_size, dtype='int32')
+
+    # Apply softmax
+    pointer_probs = tf.nn.softmax(pointer_logits, axis=-1)
+
+    # Grab the indice of the values pointed by the pointer
+    # pointer_index = pointer_probs.numpy().argmax(-1)
+    pointer_index = tf.argmax(pointer_probs, axis=-1, output_type='int32')
+
+    # Grab decoded element
+    # dec_output = enc_input.numpy()[batch_indices, pointer_index]
+    dec_output = tf.gather_nd(
+        enc_input, tf.stack((batch_indices, pointer_index), -1)
+    )
+
+    return pointer_probs, pointer_index, dec_output

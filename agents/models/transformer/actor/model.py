@@ -10,6 +10,7 @@ class ActorTransformer(tf.keras.Model):
                dff,
                positional_encoding: bool,
                vocab_size,
+               logit_clipping_C: int,
                SOS_CODE,
                encoder_embedding_time_distributed,
                attention_dense_units,
@@ -36,6 +37,7 @@ class ActorTransformer(tf.keras.Model):
                            positional_encoding,
                            SOS_CODE,
                            vocab_size,
+                           logit_clipping_C,
                            encoder_embedding_time_distributed,
                            attention_dense_units,
                            rate,
@@ -43,7 +45,7 @@ class ActorTransformer(tf.keras.Model):
 
     # self.final_layer = tf.keras.layers.Dense(target_vocab_size)
   
-  @tf.function
+  #@tf.function
   def call(self,
            enc_input,
            dec_input,

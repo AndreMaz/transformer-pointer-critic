@@ -16,6 +16,7 @@ class Decoder(tf.keras.layers.Layer):
                use_positional_encoding,
                SOS_CODE,
                vocab_size,
+               logit_clipping_C: int,
                embedding_time_distributed: bool,
                attention_dense_units,
                rate=0.1,
@@ -59,6 +60,7 @@ class Decoder(tf.keras.layers.Layer):
     self.last_decoder_layer = LastDecoderLayer(d_model,
                                                num_heads,
                                                dff,
+                                               logit_clipping_C,
                                                attention_dense_units,
                                                rate,
                                                use_default_initializer)

@@ -4,10 +4,11 @@ import numpy as np
 from agents.models.transformer.common.utils import get_initializer
 
 class PointerAttention(Layer):
-  def __init__(self, dense_units: int, use_default_initializer: bool = True):
+  def __init__(self, dense_units: int, logit_clipping_C: int, use_default_initializer: bool = True):
     super(PointerAttention, self).__init__()
 
     self.dense_units = dense_units
+    self.logit_clipping_C = logit_clipping_C
     self.use_default_initializer = use_default_initializer
     self.initializer = get_initializer(self.dense_units, self.use_default_initializer)
 
@@ -41,6 +42,12 @@ class PointerAttention(Layer):
 
     # Remove last dim
     pointer_logits = tf.squeeze(score, axis=2)
+
+    # Logits clipping
+    # More info: https://arxiv.org/pdf/1611.09940.pdf
+    # Appendix, Improving Exploration
+    if self.logit_clipping_C is not None:
+      pointer_logits = self.logit_clipping_C * tf.nn.tanh(pointer_logits)
 
     # Apply the mask
     pointer_logits -= mask * self.BIG_NUMBER

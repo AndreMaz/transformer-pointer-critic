@@ -10,6 +10,7 @@ class LastDecoderLayer(tf.keras.layers.Layer):
                d_model,
                num_heads,
                dff,
+               logit_clipping_C,
                attention_dense_units,
                rate=0.1,
                use_default_initializer: bool = True):
@@ -17,7 +18,11 @@ class LastDecoderLayer(tf.keras.layers.Layer):
 
     self.mha1 = MultiHeadAttention(d_model, num_heads, use_default_initializer)
 
-    self.pointer_attention = PointerAttention(attention_dense_units, use_default_initializer)
+    self.pointer_attention = PointerAttention(
+      attention_dense_units,
+      logit_clipping_C,
+      use_default_initializer
+    )
 
     self.layernorm1 = tf.keras.layers.LayerNormalization(epsilon=1e-6)
     
