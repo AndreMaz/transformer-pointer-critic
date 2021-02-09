@@ -216,6 +216,20 @@ class Agent():
             actions, pointer_logits
         )
 
+        # # # # # # # # # # # # # # 
+        # for debugging purposes #
+        # # # # # # # # # # # # # # 
+        # mean_allowed = tf.reduce_mean(policy_loss)
+        # if mean_allowed > 10:
+        #     max_index = tf.argmax(policy_loss)
+        #     print(max_index)
+        #     print(policy_loss[max_index])
+        #     print(actions[max_index])
+        #     print(attention_mask[max_index])
+        #     print(pointers_probs[max_index])
+        #     print(pointer_logits[max_index])
+        #     assert False, "EXIT"
+
         policy_loss_times_adv = policy_loss * tf.squeeze(advantages,axis=-1)
 
         # Entropy loss can be calculated as cross-entropy over itself.
