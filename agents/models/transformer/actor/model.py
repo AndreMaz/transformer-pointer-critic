@@ -45,7 +45,7 @@ class ActorTransformer(tf.keras.Model):
 
     # self.final_layer = tf.keras.layers.Dense(target_vocab_size)
   
-  #@tf.function
+  @tf.function
   def call(self,
            enc_input,
            dec_input,

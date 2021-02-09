@@ -6,6 +6,7 @@ from agents.models.transformer.actor.decoder_layer import DecoderLayer
 from agents.models.transformer.common.utils import positional_encoding, get_initializer
 
 from agents.models.transformer.actor.last_decoder_layer import LastDecoderLayer
+from agents.models.transformer.actor.pointer_attention import PointerAttention
 
 class Decoder(tf.keras.layers.Layer):
   def __init__(self,
@@ -57,13 +58,19 @@ class Decoder(tf.keras.layers.Layer):
     self.dec_layers = [DecoderLayer(d_model, num_heads, dff, rate, use_default_initializer) 
                        for _ in range(num_layers)]
 
-    self.last_decoder_layer = LastDecoderLayer(d_model,
-                                               num_heads,
-                                               dff,
-                                               logit_clipping_C,
-                                               attention_dense_units,
-                                               rate,
-                                               use_default_initializer)
+    # self.last_decoder_layer = LastDecoderLayer(d_model,
+    #                                            num_heads,
+    #                                            dff,
+    #                                            logit_clipping_C,
+    #                                            attention_dense_units,
+    #                                            rate,
+    #                                            use_default_initializer)
+
+    self.last_decoder_layer = PointerAttention(
+      attention_dense_units,
+      logit_clipping_C,
+      use_default_initializer
+    )
 
     self.dropout = tf.keras.layers.Dropout(rate)
     
@@ -100,11 +107,16 @@ class Decoder(tf.keras.layers.Layer):
     p_logits, p_probs, p_index, p_value = self.last_decoder_layer(dec_input,
                                                                   enc_input,
                                                                   enc_output,
-                                                                  training,
                                                                   attention_mask,
-                                                                  look_ahead_mask,
-                                                                  padding_mask
                                                                   )
 
+    # p_logits, p_probs, p_index, p_value = self.last_decoder_layer(dec_input,
+    #                                                               enc_input,
+    #                                                               enc_output,
+    #                                                               training,
+    #                                                               attention_mask,
+    #                                                               look_ahead_mask,
+    #                                                               padding_mask
+    #                                                               )
 
     return p_logits, p_probs, p_index, p_value
