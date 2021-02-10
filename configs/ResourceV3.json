@@ -3,7 +3,7 @@
     
     "trainer_config": {
         "description": "Trainer function configs.",
-        "n_iterations": 20,
+        "n_iterations": 20000,
         "n_steps_to_update": 30,
         "update_resource_decoder_input": false
     },
@@ -122,20 +122,20 @@
 
             "gamma": 0.99,
             "values_loss_coefficient": 1.0,
-            "entropy_coefficient": 0.01,
+            "entropy_coefficient": 0.1,
             "stochastic_action_selection": true,
             "use_mha_mask": true,
 
             "actor": {
                 "use_default_initializer": false,
                 "num_layers": 1,
-                "dim_model": 128,
+                "dim_model": 256,
                 "num_heads": 8,
-                "inner_layer_dim": 128,
+                "inner_layer_dim": 256,
                 "positional_encoding": false,
                 "SOS_CODE": -1,
                 "encoder_embedding_time_distributed": true,
-                "attention_dense_units": 128,
+                "attention_dense_units": 256,
                 "dropout_rate": 0.1,
                 "logit_clipping_C": null,
 
@@ -144,13 +144,13 @@
 
             "critic": {
                 "use_default_initializer": false,
-                "num_layers": 3,
-                "dim_model": 128,
+                "num_layers": 2,
+                "dim_model": 256,
                 "num_heads": 8,
                 "positional_encoding": false,
-                "inner_layer_dim": 128,
+                "inner_layer_dim": 256,
                 "encoder_embedding_time_distributed": true,
-                "last_layer_units": 128,
+                "last_layer_units": 256,
                 "last_layer_activation": "linear",
                 "dropout_rate": 0.1,
 
