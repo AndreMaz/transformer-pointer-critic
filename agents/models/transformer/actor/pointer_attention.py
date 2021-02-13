@@ -4,7 +4,7 @@ import numpy as np
 from agents.models.transformer.common.utils import get_initializer
 
 class PointerAttention(Layer):
-  def __init__(self, dense_units: int, logit_clipping_C: int, use_default_initializer: bool = True):
+  def __init__(self, dense_units: int, logit_clipping_C: float, use_default_initializer: bool = True):
     super(PointerAttention, self).__init__()
 
     self.dense_units = dense_units
@@ -16,7 +16,7 @@ class PointerAttention(Layer):
     self.W2 = Dense(self.dense_units, kernel_initializer=self.initializer)
     self.V = Dense(1, kernel_initializer=self.initializer)
 
-    self.BIG_NUMBER = 1e6
+    self.BIG_NUMBER = 1e9
 
   def call(self,
            dec_output,

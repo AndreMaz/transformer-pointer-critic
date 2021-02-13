@@ -10,7 +10,7 @@ class ActorTransformer(tf.keras.Model):
                dff,
                positional_encoding: bool,
                vocab_size,
-               logit_clipping_C: int,
+               logit_clipping_C: float,
                SOS_CODE,
                encoder_embedding_time_distributed,
                attention_dense_units,

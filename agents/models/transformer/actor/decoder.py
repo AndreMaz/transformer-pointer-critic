@@ -17,7 +17,7 @@ class Decoder(tf.keras.layers.Layer):
                use_positional_encoding,
                SOS_CODE,
                vocab_size,
-               logit_clipping_C: int,
+               logit_clipping_C: float,
                embedding_time_distributed: bool,
                attention_dense_units,
                rate=0.1,

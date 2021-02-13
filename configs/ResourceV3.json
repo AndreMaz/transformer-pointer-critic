@@ -137,7 +137,7 @@
                 "encoder_embedding_time_distributed": true,
                 "attention_dense_units": 128,
                 "dropout_rate": 0.0,
-                "logit_clipping_C": null,
+                "logit_clipping_C": 10.0,
 
                 "learning_rate": 0.0001
             },
