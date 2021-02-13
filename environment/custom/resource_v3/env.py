@@ -112,15 +112,15 @@ class ResourceEnvironmentV3(BaseEnvironment):
         
         # Update node masks
         dominant_resource = tf.reduce_min(remaining_resources, axis=-1)
-        dominant_resource = tf.cast(tf.equal(dominant_resource, 0), dtype='float32')
-        self.bin_net_mask[batch_indices, bin_ids] = dominant_resource
+        is_full = tf.cast(tf.equal(dominant_resource, 0), dtype='float32')
+        self.bin_net_mask[batch_indices, bin_ids] = is_full
         self.bin_net_mask[:, 0] = 0 # EOS is always available
 
         # Update the MHA masks
         self.mha_used_mask[batch_indices, :, :, req_ids] = 1
         if self.mask_nodes_in_mha:
             self.mha_used_mask[batch_indices, :, :, bin_ids] = tf.reshape(
-                dominant_resource, (self.batch_size, 1, 1)
+                is_full, (self.batch_size, 1, 1)
             )
         
         # EOS is always available
@@ -333,7 +333,10 @@ class ResourceEnvironmentV3(BaseEnvironment):
         resource_demands = tf.tile(resource_demands, [1, num_elems, 1])
 
         # Compute remaining resources after placement
-        remaining_resources = state - resource_demands
+        # remaining_resources = state - resource_demands
+        remaining_resources = compute_remaining_resources(
+            state, resource_demands, self.decimal_precision
+        )
 
         dominant_resource = tf.reduce_min(remaining_resources, axis=-1)
         

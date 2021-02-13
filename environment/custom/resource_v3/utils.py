@@ -33,9 +33,11 @@ def bins_eos_checker(bins, EOS_SYMBOL, num_features, result_dtype = 'int32'):
 
     return is_eos_bin
 
-def compute_remaining_resources(nodes, reqs):
+def compute_remaining_resources(nodes, reqs, decimal_precision = 2):
     
     remaining_resources = nodes - reqs
+    
+    remaining_resources = round_half_up(remaining_resources, decimal_precision)
 
     return remaining_resources
 

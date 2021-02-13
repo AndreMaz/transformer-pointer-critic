@@ -144,13 +144,13 @@
 
             "critic": {
                 "use_default_initializer": false,
-                "num_layers": 8,
-                "dim_model": 128,
+                "num_layers": 2,
+                "dim_model": 256,
                 "num_heads": 8,
                 "positional_encoding": false,
-                "inner_layer_dim": 128,
+                "inner_layer_dim": 256,
                 "encoder_embedding_time_distributed": true,
-                "last_layer_units": 128,
+                "last_layer_units": 256,
                 "last_layer_activation": "linear",
                 "dropout_rate": 0.0,
 
