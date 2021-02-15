@@ -104,7 +104,7 @@ class ResourceEnvironmentV3(BaseEnvironment):
         # Default is not done
         isDone = False
 
-        if req_ids is None:
+        if np.all(req_ids == None):
             req_ids = tf.fill(self.batch_size, self.decoding_step)
 
         batch_size = self.batch.shape[0]
@@ -316,7 +316,7 @@ class ResourceEnvironmentV3(BaseEnvironment):
         # So this can be any value
         agent_config['vocab_size'] = 0 # self.num_nodes + self.num_profiles
         
-        agent_config['single_actor'] = self.generate_decoder_input
+        agent_config['generate_decoder_input'] = self.generate_decoder_input
 
         return agent_config
 

@@ -22,6 +22,10 @@ class Agent():
         # Default training mode
         self.training = True
 
+        self.single_actor: bool = opts['single_actor']
+
+        assert self.single_actor and opts['generate_decoder_input'], "For using single actor set generate_decoder_input in env. config to True"
+
         self.batch_size: int = opts['batch_size']
         self.num_resources: int = opts['num_resources']
 
@@ -263,38 +267,45 @@ class Agent():
         # Create a tensor with the batch indices
         batch_indices = tf.range(batch_size, dtype='int32')
 
-        #########################################
-        ############ SELECT AN resource ############
-        #########################################
-        resources_logits, resources_probs, resource_ids, decoded_resources = self.resource_actor(
-            state,
-            dec_input,
-            resources_mask,
-            self.training,
-            enc_padding_mask = mha_used_mask,
-            dec_padding_mask = mha_used_mask
-        )
+        if not self.single_actor:
+            #########################################
+            ############ SELECT AN resource ############
+            #########################################
+            resources_logits, resources_probs, resource_ids, decoded_resources = self.resource_actor(
+                state,
+                dec_input,
+                resources_mask,
+                self.training,
+                enc_padding_mask = mha_used_mask,
+                dec_padding_mask = mha_used_mask
+            )
 
-        if self.stochastic_action_selection:
-            # resource_ids = []
-            # for batch_id in range(batch_size):
-            # Stochastic resource selection
-            dist_resource = tfp.distributions.Categorical(probs = resources_probs)
-            # Sample from distribution
-            resource_ids = dist_resource.sample()
-        
-        # Decode the resources
-        decoded_resources = state[batch_indices, resource_ids]
-        
-        # Add time step dim
-        decoded_resources = tf.expand_dims(decoded_resources, axis = 1)
+            if self.stochastic_action_selection:
+                # resource_ids = []
+                # for batch_id in range(batch_size):
+                # Stochastic resource selection
+                dist_resource = tfp.distributions.Categorical(probs = resources_probs)
+                # Sample from distribution
+                resource_ids = dist_resource.sample()
+            
+            resource_ids = resource_ids.numpy()
+            # Decode the resources
+            decoded_resources = state[batch_indices, resource_ids]
+            
+            # Add time step dim
+            decoded_resources = tf.expand_dims(decoded_resources, axis = 1)
+        else:
+            resource_ids = np.array(None)
+            resources_probs = None
+            # Resource are provided by the environment
+            decoded_resources = dec_input.copy()
 
         # Update the masks for the bin
         # This will only allow to point to feasible solutions
         bins_mask = build_feasible_mask(state,
-                                             decoded_resources,
-                                             bins_mask
-                                             )
+                                            decoded_resources,
+                                            bins_mask
+                                            )
 
         #########################################
         ### SELECT bin TO PLACE THE resource ###

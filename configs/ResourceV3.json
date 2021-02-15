@@ -121,6 +121,7 @@
         "description": "Double Transformer Pointer Critic Agent configs.",
         "agent_config": {
 
+            "single_actor": true,
             "gamma": 0.99,
             "values_loss_coefficient": 1.0,
             "entropy_coefficient": 0.1,
