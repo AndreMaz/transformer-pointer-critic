@@ -333,7 +333,7 @@ class TestResource(unittest.TestCase):
             [ 0.1,  0.1,  0.1],
             [ 0.2,  0.2,  0.2],
         ], dtype='float32')
-
+        fake_selected_resources = np.expand_dims(fake_selected_resources, axis=1)
 
         expected = np.array([
             [0., 0., 0., 0., 1., 1.],
@@ -370,7 +370,7 @@ class TestResource(unittest.TestCase):
             [ 0.3,  0.3,  0.3],
             [ 0.5,  0.5,  0.5],
         ], dtype='float32')
-
+        fake_selected_resources = np.expand_dims(fake_selected_resources, axis=1)
 
         expected = np.array([
             [0., 1., 1., 1., 1., 1.],
@@ -407,7 +407,7 @@ class TestResource(unittest.TestCase):
             [ 0.3,  0.3,  0.3],
             [ 0.5,  0.5,  0.5],
         ], dtype='float32')
-
+        fake_selected_resources = np.expand_dims(fake_selected_resources, axis=1)
 
         expected = np.array([
             [0., 1., 0., 0., 1., 1.],
@@ -444,7 +444,7 @@ class TestResource(unittest.TestCase):
             [ 0.3,  0.3,  0.3],
             [ 0.5,  0.5,  0.5],
         ], dtype='float32')
-
+        fake_selected_resources = np.expand_dims(fake_selected_resources, axis=1)
 
         expected = np.array([
             [0., 1., 0., 1., 1., 1.],
@@ -481,7 +481,7 @@ class TestResource(unittest.TestCase):
             [ 0.3,  0.3,  0.3],
             [ 0.5,  0.5,  0.5],
         ], dtype='float32')
-
+        fake_selected_resources = np.expand_dims(fake_selected_resources, axis=1)
 
         expected = np.array([
             [0., 1., 1., 0., 1., 1.],

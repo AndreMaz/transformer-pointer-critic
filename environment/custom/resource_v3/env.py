@@ -249,7 +249,9 @@ class ResourceEnvironmentV3(BaseEnvironment):
 
         # Decode the resources
         decoded_resources = self.batch[batch_indices, resource_ids]
-        
+        # Add time step dim
+        decoded_resources = tf.expand_dims(decoded_resources, axis = 1)
+
         bins_mask = self.build_feasible_mask(self.batch,
                                              decoded_resources,
                                              self.bin_net_mask
@@ -328,9 +330,10 @@ class ResourceEnvironmentV3(BaseEnvironment):
         batch = state.shape[0]
         num_elems = state.shape[1]
         # Add batch dim to resources
-        resource_demands = np.reshape(resources, (batch, 1, self.num_features))
+        # resource_demands = np.reshape(resources, (batch, 1, self.num_features))
+        
         # Tile to match the num elems
-        resource_demands = tf.tile(resource_demands, [1, num_elems, 1])
+        resource_demands = tf.tile(resources, [1, num_elems, 1])
 
         # Compute remaining resources after placement
         # remaining_resources = state - resource_demands

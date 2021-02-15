@@ -285,6 +285,9 @@ class Agent():
         
         # Decode the resources
         decoded_resources = state[batch_indices, resource_ids]
+        
+        # Add time step dim
+        decoded_resources = tf.expand_dims(decoded_resources, axis = 1)
 
         # Update the masks for the bin
         # This will only allow to point to feasible solutions
@@ -293,9 +296,6 @@ class Agent():
                                              bins_mask
                                              )
 
-        # Add time step dim
-        decoded_resources = tf.expand_dims(decoded_resources, axis = 1)
-        
         #########################################
         ### SELECT bin TO PLACE THE resource ###
         #########################################
