@@ -49,9 +49,13 @@ class ResourceEnvironmentV3(BaseEnvironment):
         self.node_min_val: float = opts['node_min_val']
         self.node_max_val: float = opts['node_max_val']
 
+        self.generate_decoder_input: bool = opts['generate_decoder_input']
+
         ################################################
         ##### MATERIALIZED VARIABLES FROM CONFIGS ######
         ################################################
+        self.decoding_step = self.node_sample_size
+
         self.rewarder = RewardFactory(
             opts['reward'],
             self.EOS_BIN
@@ -70,6 +74,9 @@ class ResourceEnvironmentV3(BaseEnvironment):
             self.mha_used_mask = self.generate_masks()
 
     def reset(self):
+        # Reset decoding step
+        self.decoding_step = self.node_sample_size
+
         self.batch, self.history = self.generate_batch()
 
         self.bin_net_mask,\
@@ -79,6 +86,15 @@ class ResourceEnvironmentV3(BaseEnvironment):
         return self.state()
 
     def state(self):
+        if self.generate_decoder_input:
+            decoder_input = self.batch[:, self.decoding_step]
+            decoder_input = np.expand_dims(decoder_input, axis=1)
+
+            return self.batch.copy(),\
+                decoder_input,\
+                self.bin_net_mask.copy(),\
+                self.mha_used_mask.copy()
+
         return self.batch.copy(),\
             self.bin_net_mask.copy(),\
             self.resource_net_mask.copy(),\
@@ -87,6 +103,9 @@ class ResourceEnvironmentV3(BaseEnvironment):
     def step(self, bin_ids: List[int], req_ids: List[int], feasible_bin_mask):
         # Default is not done
         isDone = False
+
+        if req_ids is None:
+            req_ids = tf.fill(self.batch_size, self.decoding_step)
 
         batch_size = self.batch.shape[0]
         num_elems = self.batch.shape[1]
@@ -100,7 +119,8 @@ class ResourceEnvironmentV3(BaseEnvironment):
         reqs: np.ndarray = self.batch[batch_indices, req_ids]
 
         # Compute remaining resources after placing reqs at nodes
-        remaining_resources = compute_remaining_resources(nodes, reqs)
+        remaining_resources = compute_remaining_resources(
+            nodes, reqs, self.decimal_precision)
 
         # Update the batch state
         self.batch[batch_indices, bin_ids] = remaining_resources
@@ -113,6 +133,7 @@ class ResourceEnvironmentV3(BaseEnvironment):
         # Update node masks
         dominant_resource = tf.reduce_min(remaining_resources, axis=-1)
         is_full = tf.cast(tf.equal(dominant_resource, 0), dtype='float32')
+        # Mask full nodes/bins
         self.bin_net_mask[batch_indices, bin_ids] = is_full
         self.bin_net_mask[:, 0] = 0 # EOS is always available
 
@@ -152,7 +173,19 @@ class ResourceEnvironmentV3(BaseEnvironment):
         
         if self.gather_stats:
             self.place_reqs(bin_ids, req_ids, reqs)
+        
+        # Pick next decoder_input
+        if self.generate_decoder_input:
+            self.decoding_step += 1
+            if self.decoding_step < self.node_sample_size + self.profiles_sample_size:
+                decoder_input = self.batch[:, self.decoding_step]
+                decoder_input = np.expand_dims(decoder_input, axis=1)
+            else:
+                # We are done. No need to generate decoder input
+                decoder_input = np.array([None])
 
+            return self.batch.copy(), decoder_input, rewards, isDone, info
+        
         return self.batch.copy(), rewards, isDone, info
     
     def generate_dataset(self):
@@ -239,18 +272,20 @@ class ResourceEnvironmentV3(BaseEnvironment):
 
         batch_indices = tf.range(self.batch.shape[0], dtype='int32')
 
-        resources_probs = np.random.uniform(size=self.bin_net_mask.shape)
-        resources_probs = tf.nn.softmax(
-            resources_probs - (self.resource_net_mask*10e6), axis=-1
-        )
-        
-        dist_resource = tfp.distributions.Categorical(probs = resources_probs)
-        resource_ids = dist_resource.sample()
+        if self.generate_decoder_input:
+            resource_ids = tf.fill(self.batch_size, self.decoding_step)   
+        else:
+            resources_probs = np.random.uniform(size=self.bin_net_mask.shape)
+            resources_probs = tf.nn.softmax(
+                resources_probs - (self.resource_net_mask*10e6), axis=-1
+            )
+            
+            dist_resource = tfp.distributions.Categorical(probs = resources_probs)
+            resource_ids = dist_resource.sample()
 
         # Decode the resources
         decoded_resources = self.batch[batch_indices, resource_ids]
-        # Add time step dim
-        decoded_resources = tf.expand_dims(decoded_resources, axis = 1)
+        decoded_resources = np.expand_dims(decoded_resources, axis=1)
 
         bins_mask = self.build_feasible_mask(self.batch,
                                              decoded_resources,
@@ -263,6 +298,9 @@ class ResourceEnvironmentV3(BaseEnvironment):
         dist_bin = tfp.distributions.Categorical(probs = bins_probs)
 
         bin_ids = dist_bin.sample()
+
+        if self.generate_decoder_input:
+            return bin_ids, bins_mask
 
         return bin_ids, resource_ids, bins_mask
 
@@ -277,7 +315,9 @@ class ResourceEnvironmentV3(BaseEnvironment):
         # In this env we don't need positional encoding
         # So this can be any value
         agent_config['vocab_size'] = 0 # self.num_nodes + self.num_profiles
-    
+        
+        agent_config['single_actor'] = self.generate_decoder_input
+
         return agent_config
 
     def set_testing_mode(self,
@@ -331,7 +371,6 @@ class ResourceEnvironmentV3(BaseEnvironment):
         num_elems = state.shape[1]
         # Add batch dim to resources
         # resource_demands = np.reshape(resources, (batch, 1, self.num_features))
-        
         # Tile to match the num elems
         resource_demands = tf.tile(resources, [1, num_elems, 1])
 
@@ -339,7 +378,7 @@ class ResourceEnvironmentV3(BaseEnvironment):
         # remaining_resources = state - resource_demands
         remaining_resources = compute_remaining_resources(
             state, resource_demands, self.decimal_precision
-        )
+            )
 
         dominant_resource = tf.reduce_min(remaining_resources, axis=-1)
         
@@ -381,4 +420,22 @@ if __name__ == "__main__":
 
     env = ResourceEnvironmentV3(env_name, env_configs)
 
+    state, dec, bin_net_mask, mha_mask = env.state()
     # env.print_history()
+
+    feasible_net_mask = env.build_feasible_mask(state, dec, bin_net_mask)
+
+    bin_ids = [0,1]
+    resource_ids = None
+    next, decoder_input, rewards, isDone, info = env.step(bin_ids, resource_ids, feasible_net_mask)
+
+    next, decoder_input, rewards, isDone, info = env.step(bin_ids, resource_ids, feasible_net_mask)
+    
+    env.reset()
+
+    next, decoder_input, rewards, isDone, info = env.step(bin_ids, resource_ids, feasible_net_mask)
+
+    next, decoder_input, rewards, isDone, info = env.step(bin_ids, resource_ids, feasible_net_mask)
+
+
+    a = 1
