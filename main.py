@@ -56,56 +56,55 @@ def runner(env_type="custom", env_name='ResourceV3', agent_name="tpc"):
 
 def tuner(env_type="custom", env_name='ResourceV3', agent_name="tpc"):
     
-    gamma_rate = [0.99]
-    entropy_coefficient = [ 0.0025, 0.025 ]
-    dropout_rate = [ 0.1 ]
+    entropy_coefficient = [ 0.01, 0.02, 0.1 ]
+    actor_layers = [
+        1,
+        # 2
+    ]
     actor_learning_rate = [
-        0.000025, 0.00005
+        0.0001, 0.0002
     ]
     critic_learning_rate = [ 
-        0.000025, 0.00005
+        0.0001, 0.0002
     ]
 
-    for gamma in gamma_rate:
+    for actor_layer in actor_layers:
         for entropy in entropy_coefficient:
             for actor_lr in actor_learning_rate:
                 for critic_lr in critic_learning_rate:
-                        for dp_rate in dropout_rate:
-                            # Read the configs
-                            agent_config, trainer_config, env_config, _, tuner_config = get_configs(env_name, agent_name)
+                        # Read the configs
+                        agent_config, trainer_config, env_config, _, tuner_config = get_configs(env_name, agent_name)
 
-                            # Create the environment
-                            env, tester, plotter = env_factory(env_type, env_name, env_config)
+                        # Create the environment
+                        env, tester, plotter = env_factory(env_type, env_name, env_config)
 
-                            # Add info about the environmanet
-                            agent_config: dict = env.add_stats_to_agent_config(agent_config)
+                        # Add info about the environmanet
+                        agent_config: dict = env.add_stats_to_agent_config(agent_config)
 
 
-                            config = agent_config.copy()
+                        config = agent_config.copy()
 
-                            config['gamma'] = gamma
-                            config['entropy_coefficient'] = entropy
+                        config['entropy_coefficient'] = entropy
 
-                            config['actor']['learning_rate'] = actor_lr
-                            config['actor']['dropout_rate'] = dp_rate
+                        config['actor']['num_layers'] = actor_layer
+                        config['actor']['learning_rate'] = actor_lr
 
-                            config['critic']['learning_rate'] = critic_lr
-                            config['critic']['dropout_rate'] = dp_rate
+                        config['critic']['learning_rate'] = critic_lr
 
-                            agent = Agent('transformer', config)
+                        agent = Agent('transformer', config)
 
-                            show_info = False
-                            training_history = trainer(
-                                env, agent, trainer_config, show_info)
+                        show_info = False
+                        training_history = trainer(
+                            env, agent, trainer_config, show_info)
 
-                            write_data_to_file = True
-                            plotter(training_history, env, agent, config, write_data_to_file)
+                        write_data_to_file = True
+                        plotter(training_history, env, agent, config, write_data_to_file)
 
-                            look_for_opt = False
-                            dominant_results, rejected_results = tester(env, agent, tuner_config)
+                        look_for_opt = False
+                        dominant_results, rejected_results = tester(env, agent, tuner_config)
 
-                            print(f"{dominant_results};{rejected_results};{gamma};{entropy};{dp_rate};{actor_lr};{critic_lr}")
+                        print(f"{dominant_results};{rejected_results};{actor_layer};{entropy};{actor_lr};{critic_lr}")
 
 if __name__ == "__main__":
-    runner()
-    # tuner()
+    # runner()
+    tuner()

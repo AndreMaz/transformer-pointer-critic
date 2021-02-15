@@ -20,10 +20,10 @@ learning_stats <- melt(learning_data, id.vars = c(
 learning_stats <- learning_stats %>%
   filter(
     Type != 'Value.Loss' &
-      Type != 'Total.Bin.Loss' &
-      Type != 'Bin.Policy.Loss' # &
-    # Type != 'Bin.Entropy' &
-    # Type != 'Total.Resource.Loss' &
+    Type != 'Total.Bin.Loss' &
+    Type != 'Total.Resource.Loss' &
+    Type != 'Bin.Policy.Loss'  &
+    Type != 'Bin.Entropy' #&
     # Type != 'Resource.Policy.Loss' &
     # Type != 'Resource.Entropy'
   )

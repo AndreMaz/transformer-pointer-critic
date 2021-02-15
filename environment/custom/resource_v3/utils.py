@@ -37,7 +37,7 @@ def compute_remaining_resources(nodes, reqs, decimal_precision = 2):
     
     remaining_resources = nodes - reqs
     
-    remaining_resources = round_half_up(remaining_resources, decimal_precision)
+    # remaining_resources = round_half_up(remaining_resources, decimal_precision)
 
     return remaining_resources
 
@@ -247,10 +247,11 @@ def generate_file_name(agent_config):
     gamma = agent_config['gamma']
     entropy = agent_config['entropy_coefficient']
     dp_rate = agent_config['actor']['dropout_rate']
+    num_layers = agent_config['actor']['num_layers']
     
     actor_lr = agent_config['actor']['learning_rate']
     critic_lr = agent_config['critic']['learning_rate']
 
-    file_name = f"g:{gamma}|e:{entropy}|dp:{dp_rate}|ac_lr:{actor_lr}|cr_lr:{critic_lr}"
+    file_name = f"num_l:{num_layers}|e:{entropy}|ac_lr:{actor_lr}|cr_lr:{critic_lr}"
 
     return file_name
