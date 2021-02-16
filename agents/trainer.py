@@ -58,7 +58,7 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict, show_progress: bool):
             training_step = 0
             start = time.time()
 
-        while not isDone or training_step > n_steps_to_update:
+        while not isDone or training_step < n_steps_to_update:
             # Select an action
             bin_id, resource_id, decoded_resource, bin_net_mask, _, _ = agent.act(
                 current_state,
@@ -69,8 +69,11 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict, show_progress: bool):
                 env.build_feasible_mask
             )
 
+            # Store the resource that was fed to bin-net
+            bin_net_dec_input = decoded_resource.copy()
+
             if single_actor:
-                next_state, decoded_resource, reward, isDone, info = env.step(
+                next_state, next_dec_input, reward, isDone, info = env.step(
                     bin_id,
                     resource_id,
                     bin_net_mask
@@ -89,7 +92,8 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict, show_progress: bool):
             # Store in memory
             agent.store(
                 current_state.copy(),
-                dec_input.copy(),
+                dec_input.copy(), # Resource fed to resource-net decoder
+                bin_net_dec_input.copy(), # Resource fed to bin-net decoder
                 bin_net_mask.copy(),
                 resource_net_mask.copy(),
                 mha_used_mask.copy(),
@@ -101,7 +105,7 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict, show_progress: bool):
 
             # Update for next iteration
             if single_actor:
-                dec_input = decoded_resource.copy()
+                dec_input = next_dec_input.copy()
             else:
                 if update_resource_decoder_input:
                     dec_input = decoded_resource.numpy()
@@ -171,13 +175,13 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict, show_progress: bool):
             )
 
             # Add time dimension
-            decoded_resources = tf.expand_dims(decoded_resources, axis=1)
+            # decoded_resources = tf.expand_dims(decoded_resources, axis=1)
         else:
             resource_policy_loss = np.array([0], dtype="float32")
             resources_entropy = np.array([0], dtype="float32")
             resources_loss = tf.constant(0, dtype="float32")
-            
-            decoded_resources = agent.resource_net_decoder_input
+
+            # decoded_resources = agent.bin_net_decoder_input
         
         with tf.GradientTape() as tape_bin:
             bin_loss,\
@@ -187,7 +191,7 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict, show_progress: bool):
                 agent.bin_actor,
                 agent.bin_masks,
                 agent.bins,
-                decoded_resources,
+                agent.bin_net_decoder_input,
                 tf.stop_gradient(advantages)
             )
         

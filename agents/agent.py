@@ -24,7 +24,8 @@ class Agent():
 
         self.single_actor: bool = opts['single_actor']
 
-        assert self.single_actor and opts['generate_decoder_input'], "For using single actor set generate_decoder_input in env. config to True"
+        if self.single_actor:
+            assert self.single_actor and opts['generate_decoder_input'], "For using single actor set generate_decoder_input in env. config to True"
 
         self.batch_size: int = opts['batch_size']
         self.num_resources: int = opts['num_resources']
@@ -69,6 +70,7 @@ class Agent():
         # Init memory
         self.states = []
         self.resource_net_decoder_input = []
+        self.bin_net_decoder_input = []
         self.resources = []
         self.bins = []
         self.bin_masks = []
@@ -78,7 +80,8 @@ class Agent():
 
     def store(self,
               state,
-              dec_input,
+              resource_net_dec_input,
+              bin_net_dec_input,
               bin_mask,
               resources_masks,
               mha_mask,
@@ -90,21 +93,24 @@ class Agent():
 
         self.states.append(state)
         
-        self.resource_net_decoder_input.append(dec_input)
+        self.resource_net_decoder_input.append(resource_net_dec_input)
+        self.bin_net_decoder_input.append(bin_net_dec_input)
 
         self.bin_masks.append(bin_mask)
         self.resource_masks.append(resources_masks)
         self.mha_masks.append(mha_mask)
 
-        self.resources.append(resource)
-        self.bins.append(bin)
+        self.resources.append(resource) # Resource IDs, a.k.a, resource actions
+        self.bins.append(bin) # Bind IDs, a.k.a, bin actions
         
         self.rewards[:, training_step] = reward[:, 0]
 
     def clear_memory(self):
         self.states = []
+
         self.resource_net_decoder_input = []
-        
+        self.bin_net_decoder_input = []
+
         self.bin_masks = []
         self.resource_masks = []
         self.mha_masks = []
@@ -293,7 +299,7 @@ class Agent():
             decoded_resources = state[batch_indices, resource_ids]
             
             # Add time step dim
-            decoded_resources = tf.expand_dims(decoded_resources, axis = 1)
+            decoded_resources = tf.expand_dims(decoded_resources, axis = 1).numpy()
         else:
             resource_ids = np.array(None)
             resources_probs = None
