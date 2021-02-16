@@ -25,7 +25,9 @@ class Agent():
         self.single_actor: bool = opts['single_actor']
 
         if self.single_actor:
-            assert self.single_actor and opts['generate_decoder_input'], "For using single actor set generate_decoder_input in env. config to True"
+            assert opts['generate_decoder_input'] is True, "For using single-actor set generate_decoder_input in env. config to True"
+        else:
+            assert opts['generate_decoder_input'] is False, "For using dual-actor set generate_decoder_input in env. config to False"
 
         self.batch_size: int = opts['batch_size']
         self.num_resources: int = opts['num_resources']
@@ -306,7 +308,7 @@ class Agent():
             # Resource are provided by the environment
             decoded_resources = dec_input.copy()
 
-        # Update the masks for the bin
+        # Update the masks for the bin-net
         # This will only allow to point to feasible solutions
         bins_mask = build_feasible_mask(state,
                                             decoded_resources,
