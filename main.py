@@ -52,7 +52,7 @@ def runner(env_type="custom", env_name='ResourceV3', agent_name="tpc"):
     # Test the agent
     print("\nTesting...")
     tester(env, agent, tester_config)
-    print('End... Goodbye!')
+    print('\nEnd... Goodbye!')
 
 def tuner(env_type="custom", env_name='ResourceV3', agent_name="tpc"):
     

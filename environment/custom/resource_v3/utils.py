@@ -132,15 +132,26 @@ def log_testing_stats(global_stats, location, file_name):
         # First passage to generate the header
         header = ''
 
+        # Place Node and Resource stats into header
         for entry in global_stats[0]:
+            if entry != 'instance':
+                header = header + f"{entry};"
+
+        # Place Heuristic method name into header
+        for entry in global_stats[0]['instance']:
             keys = list(entry.keys())
             header = header + f"{' '.join(keys[0].split('_'))};{' '.join(keys[1].split('_'))};"
         fp.write(f"{header}\n")
 
         
         for instance_stats in global_stats:
-            data = ''
-            for entry in instance_stats:
+            data = f"{instance_stats['test_instance']};" \
+                   f"{instance_stats['node_sample_size']};" \
+                   f"{instance_stats['node_min_value']};" \
+                   f"{instance_stats['node_max_value']};" \
+                   f"{instance_stats['resource_sample_size']};"
+
+            for entry in instance_stats['instance']:
                 dominant, rejected = list(entry.values())
                 # dominant = round_half_up(dominant, 2)
                 data = data + f"{dominant[0]:.3f};{rejected};"

@@ -43,11 +43,11 @@ class ResourceEnvironmentV3(BaseEnvironment):
         self.EOS_BIN = np.full((1, self.num_features), self.EOS_CODE, dtype='float32')
         self.node_sample_size: int = opts['node_sample_size'] + 1 # + 1 because of the EOS bin
 
-        self.req_min_val: float = opts['req_min_val']
-        self.req_max_val: float = opts['req_max_val']
+        self.req_min_val: int = opts['req_min_val']
+        self.req_max_val: int = opts['req_max_val']
 
-        self.node_min_val: float = opts['node_min_val']
-        self.node_max_val: float = opts['node_max_val']
+        self.node_min_val: int = opts['node_min_val']
+        self.node_max_val: int = opts['node_max_val']
 
         self.generate_decoder_input: bool = opts['generate_decoder_input']
 
@@ -324,11 +324,16 @@ class ResourceEnvironmentV3(BaseEnvironment):
             batch_size,
             node_sample_size,
             profiles_sample_size,
+            node_min_val,
+            node_max_val
             ) -> None:
         
 
         self.gather_stats = True
         self.batch_size = batch_size
+
+        self.node_min_val = node_min_val
+        self.node_max_val = node_max_val
 
         self.node_sample_size = node_sample_size + 1 # +1 For EOS node
         self.profiles_sample_size = profiles_sample_size

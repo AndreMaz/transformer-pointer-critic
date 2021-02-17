@@ -21,13 +21,30 @@ def test(
     opts: dict,
     ):
 
-    num_tests = opts['num_tests']
-    show_per_test_stats = opts['show_per_test_stats']
+    num_tests: int = opts['testbed']['num_tests']
+    node_configs: dict = opts['testbed']['node_configs']
+    node_size_min = node_configs['min']
+    node_size_max = node_configs['max']
+    node_size_step = node_configs['step']
 
-    export_stats = opts['export_stats']['global_stats']['export_stats']
-    csv_write_path = opts['export_stats']['global_stats']['location']
+    node_available_resource: dict = opts['testbed']['node_available_resources']
+    node_min_resource = node_available_resource['min']
+    node_max_resource = node_available_resource['max']
+    node_step_resource = node_available_resource['step']
+
+    resource_configs: dict = opts['testbed']['request_configs']
+    resource_size_min = resource_configs['min']
+    resource_size_max = resource_configs['max']
+    resource_size_step = resource_configs['step']
     
-    filename = opts['export_stats']['global_stats']['filename']
+    batch_size: int = opts['batch_size']
+
+    show_per_test_stats: bool = opts['show_per_test_stats']
+
+    export_stats: bool = opts['export_stats']['global_stats']['export_stats']
+    csv_write_path: str = opts['export_stats']['global_stats']['location']
+    
+    filename: str = opts['export_stats']['global_stats']['filename']
     if filename == None:
         filename = generate_file_name(agent.agent_config)
 
@@ -35,24 +52,46 @@ def test(
     dominant_results = np.array([
         0, # Won
         0, # Draw
-        0, # Loss
+        0, # Lost
     ])
 
     rejected_results = np.array([
         0, # Won
         0, # Draw
-        0, # Loss
+        0, # Lost
     ])
 
-    for index in range(num_tests):
-        instance_stats,\
-        dominant_instance_result,\
-        rejected_instance_result = test_single_instance(index, env, agent, opts)
+    for resource_sample_size in range(resource_size_min, resource_size_max+1, resource_size_step):
+        for node_sample_size in range(node_size_min, node_size_max+1, node_size_step):
+            for node_min_value in range(node_min_resource, node_max_resource, node_step_resource):
+                # print(f'{node_min_value}||{node_min_value + node_step_resource}')
+                for index in range(num_tests):
 
-        dominant_results += dominant_instance_result
-        rejected_results += rejected_instance_result
+                    instance_stats,\
+                    dominant_instance_result,\
+                    rejected_instance_result = test_single_instance(
+                        index,
+                        env,
+                        agent,
+                        opts,
+                        batch_size,
+                        node_sample_size, # Number of nodes
+                        node_min_value, # Min resources available in each node
+                        node_min_value + node_step_resource, # Max resources available in each node
+                        resource_sample_size # Number of resources
+                    )
 
-        global_stats.append(instance_stats)
+                    dominant_results += dominant_instance_result
+                    rejected_results += rejected_instance_result
+
+                    global_stats.append({
+                        "test_instance": index,
+                        "node_sample_size": node_sample_size,
+                        "node_min_value": node_min_value,
+                        "node_max_value": node_min_value + node_step_resource,
+                        "resource_sample_size": resource_sample_size,
+                        "instance": instance_stats
+                    })
 
     if export_stats:
         log_testing_stats(global_stats, csv_write_path, filename)
@@ -63,108 +102,117 @@ def test_single_instance(
     instance_id,
     env: ResourceEnvironmentV3,
     agent: Agent,
-    opts: dict
+    opts: dict,
+    batch_size: int,
+    node_sample_size: int,
+    node_min_val: int,
+    node_max_val: int,
+    req_sample_size: int,
     ):
     
     update_resource_decoder_input: bool = opts['update_resource_decoder_input']
-    plot_attentions = opts['plot_attentions']
-    batch_size = opts['batch_size']
-    req_sample_size = opts['profiles_sample_size']
-    node_sample_size = opts['node_sample_size']
-    num_episodes = opts['num_episodes']
+    plot_attentions: bool = opts['plot_attentions']
 
-    csv_write_path = opts['export_stats']['per_problem_stats']['location']
-    export_stats = opts['export_stats']['per_problem_stats']['export_stats']
+    # batch_size: int = opts['batch_size']
+    # req_sample_size: int = opts['profiles_sample_size']
+    # node_sample_size: int = opts['node_sample_size']
 
-    show_inference_progress = opts['show_inference_progress']
-    show_solutions = opts['show_solutions']
-    show_detailed_solutions = opts['show_detailed_solutions']
+    csv_write_path: str = opts['export_stats']['per_problem_stats']['location']
+    export_stats: bool = opts['export_stats']['per_problem_stats']['export_stats']
+
+    show_inference_progress: bool = opts['show_inference_progress']
+    show_solutions: bool = opts['show_solutions']
+    show_detailed_solutions: bool = opts['show_detailed_solutions']
 
     # Set the agent and env to testing mode
-    env.set_testing_mode(batch_size, node_sample_size, req_sample_size)
+    env.set_testing_mode(
+        batch_size,
+        node_sample_size,
+        req_sample_size,
+        node_min_val,
+        node_max_val
+    )
     agent.set_testing_mode(batch_size, req_sample_size)
     
-    episode_count = 0
     training_step = 0
     isDone = False
-
-    episode_rewards = np.zeros((agent.batch_size, agent.num_resources * num_episodes), dtype="float32")
-    current_state, bin_net_mask, resource_net_mask, mha_used_mask = env.reset()
-    dec_input = agent.generate_decoder_input(current_state)
+    episode_rewards = np.zeros((agent.batch_size, agent.num_resources), dtype="float32")
+    
+    single_actor: bool = agent.single_actor
+    if single_actor:
+        current_state, dec_input, bin_net_mask, mha_used_mask = env.reset()
+        resource_net_mask = np.array(None)
+    else:
+        current_state, bin_net_mask, resource_net_mask, mha_used_mask = env.reset()
+        dec_input = agent.generate_decoder_input(current_state)
     
     if show_inference_progress:
-        print(f'Testing for {num_episodes} episodes with {agent.num_resources} resources and {env.node_sample_size} bins')
-
-    # print('Solving with nets...')
-    start = time.time()
-
-    attentions = []
+        print(f'Testing with {agent.num_resources} resources and {env.node_sample_size} bins', end='\r')
 
     # Init the heuristic solvers 
     heuristic_solvers = heuristic_factory(env.node_sample_size, opts['heuristic'])
-    state_list = [current_state.copy()]
+    heuristic_input_state = current_state.copy()
 
-    while episode_count < num_episodes:
-        # Reached the end of episode. Reset for the next episode
-        if isDone:
-            isDone = False
-            current_state, bin_net_mask, resource_net_mask, mha_used_mask = env.reset()
-            # SOS input for resource Ptr Net
-            dec_input = agent.generate_decoder_input(current_state)
-            training_step = 0
+    start = time.time()
+    attentions = []
 
-            # Store the states for the heuristic
-            state_list.append(current_state)
+    while not isDone:
+        if show_inference_progress:
+            print(f'Placing step {training_step} of {agent.num_resources}', end='\r')
 
-        while not isDone:
-            if show_inference_progress:
-                print(f'Episode {episode_count} Placing step {training_step} of {agent.num_resources}', end='\r')
+        # Select an action
+        bin_id,\
+        resource_id,\
+        decoded_resource,\
+        bin_net_mask,\
+        resources_probs,\
+        bins_probs = agent.act(
+            current_state,
+            dec_input,
+            bin_net_mask,
+            resource_net_mask,
+            mha_used_mask,
+            env.build_feasible_mask
+        )
 
-            # Select an action
-            bin_id,\
-            resource_id,\
-            decoded_resource,\
-            bin_net_mask,\
-            resources_probs,\
-            bins_probs = agent.act(
-                current_state,
-                dec_input,
-                bin_net_mask,
-                resource_net_mask,
-                mha_used_mask,
-                env.build_feasible_mask
-            )
-
+        if single_actor:
+                next_state, next_dec_input, reward, isDone, info = env.step(
+                    bin_id,
+                    resource_id,
+                    bin_net_mask
+                )
+        else:
             # Play one step
             next_state, reward, isDone, info = env.step(
                 bin_id,
                 resource_id,
                 bin_net_mask
             )
-                    
-            # Store episode rewards
-            episode_rewards[:, training_step] = reward[:, 0]
+                
+        # Store episode rewards
+        episode_rewards[:, training_step] = reward[:, 0]
 
-            attentions.append({
-                'resource_net_input': np.array(dec_input),
-                'bin_net_input': decoded_resource.numpy(),
-                'resource_attention': resources_probs.numpy(),
-                "bin_attention": bins_probs.numpy(),
-                "current_state": current_state.copy()
-            })
+        attentions.append({
+            'resource_net_input': np.array(dec_input),
+            'bin_net_input': decoded_resource,
+            'resource_attention': resources_probs,
+            "bin_attention": bins_probs.numpy(),
+            "current_state": current_state.copy()
+        })
 
-            # Update for next iteration
+        # Update for next iteration
+        if single_actor:
+            dec_input = next_dec_input.copy()
+        else:
             if update_resource_decoder_input:
-                dec_input = decoded_resource
+                dec_input = decoded_resource.numpy()
 
-            current_state = next_state
-            bin_net_mask = info['bin_net_mask']
-            resource_net_mask = info['resource_net_mask']
-            mha_used_mask = info['mha_used_mask']
-            
-            training_step += 1
-
-        episode_count += 1
+        current_state = next_state
+        bin_net_mask = info['bin_net_mask']
+        resource_net_mask = info['resource_net_mask']
+        mha_used_mask = info['mha_used_mask']
+        
+        training_step += 1
 
     if show_inference_progress:
         # if env.validate_history() == True:
@@ -172,12 +220,11 @@ def test_single_instance(
         #else:
         #    print('Ups! Network generated invalid solutions')
 
-        print(f'Done! Net solutions found in {time.time() - start:.2f} seconds')
+        print(f'Net solution found in {time.time() - start:.2f} seconds', end='\r')
     
     # Solve with Heuristic
-    for state in state_list:
-        for solver in heuristic_solvers:
-            solver.solve(state)
+    for solver in heuristic_solvers:
+        solver.solve(heuristic_input_state)
     
     if export_stats:
         # Find the the node with maximum number of inserted resources
