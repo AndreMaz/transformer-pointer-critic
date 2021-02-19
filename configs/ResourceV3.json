@@ -101,7 +101,7 @@
     "env_config": {
         "description": "Environment configs.",
         
-        "generate_decoder_input": true,
+        "generate_decoder_input": false,
         "batch_size": 64,
         "mask_nodes_in_mha": false,
         "generate_request_on_the_fly": false,
@@ -139,7 +139,7 @@
         "description": "Double Transformer Pointer Critic Agent configs.",
         "agent_config": {
 
-            "single_actor": true,
+            "single_actor": false,
             "gamma": 0.99,
             "values_loss_coefficient": 1.0,
             "entropy_coefficient": 0.1,
