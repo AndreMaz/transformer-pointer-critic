@@ -10,10 +10,12 @@ class ActorTransformer(tf.keras.Model):
                dff,
                positional_encoding: bool,
                vocab_size,
+               logit_clipping_C: float,
                SOS_CODE,
                encoder_embedding_time_distributed,
                attention_dense_units,
-               rate=0.1
+               rate=0.1,
+               use_default_initializer:bool = True
                ):
 
     super(ActorTransformer, self).__init__()
@@ -25,7 +27,8 @@ class ActorTransformer(tf.keras.Model):
                            positional_encoding,
                            vocab_size,
                            encoder_embedding_time_distributed,
-                           rate)
+                           rate,
+                           use_default_initializer)
 
     self.decoder = Decoder(num_layers, 
                            d_model,
@@ -34,12 +37,15 @@ class ActorTransformer(tf.keras.Model):
                            positional_encoding,
                            SOS_CODE,
                            vocab_size,
+                           logit_clipping_C,
                            encoder_embedding_time_distributed,
                            attention_dense_units,
-                           rate)
+                           rate,
+                           use_default_initializer)
 
     # self.final_layer = tf.keras.layers.Dense(target_vocab_size)
-
+  
+  @tf.function
   def call(self,
            enc_input,
            dec_input,

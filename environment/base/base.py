@@ -2,7 +2,6 @@
 class BaseEnvironment():
     def __init__(self, name: str):
         self.name = name
-        print(f'"{name.upper()}" environment selected.')
 
     def reset(self):
         raise NotImplementedError('Method "reset" not implemented')

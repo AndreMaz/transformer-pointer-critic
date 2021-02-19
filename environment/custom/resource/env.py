@@ -205,8 +205,9 @@ class ResourceEnvironment(BaseEnvironment):
             self.resource_net_mask[batch_id, resource_id] = 1
             self.mha_used_mask[batch_id, :, :, resource_id] = 1
 
-            if (np.all(self.batch[batch_id, bin_id, :3] == 0)):
+            if (bin_id != 0 and np.any(self.batch[batch_id, bin_id, :3] == 0)):
                 self.bin_net_mask[batch_id, bin_id] = 1
+                self.mha_used_mask[batch_id, :, :, bin_id] = 1
 
         info = {
              'bin_net_mask': self.bin_net_mask.copy(),
@@ -219,7 +220,7 @@ class ResourceEnvironment(BaseEnvironment):
             isDone = True
             self.num_isDones += 1
         
-        return self.batch.copy(), rewards, isDone, info
+        return self.batch.copy(), tf.convert_to_tensor(rewards), isDone, info
     
     def step_batch(self, bin_ids: list, resource_ids: list, feasible_bin_mask):
         # Default is not done

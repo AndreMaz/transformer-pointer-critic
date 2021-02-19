@@ -4,24 +4,41 @@ import tensorflow as tf
 import numpy as np
 import time
 
-def trainer(env: KnapsackV2, agent: Agent, opts: dict):
+def trainer(env: KnapsackV2, agent: Agent, opts: dict, show_progress: bool):
     # print(f'Training with {env.resource_sample_size} resources and {env.bin_sample_size} bins')
 
     training = True
+
+    single_actor: bool = agent.single_actor
     # General training vars
     n_iterations: int = opts['n_iterations']
     n_steps_to_update: int = opts['n_steps_to_update']
+    update_resource_decoder_input: bool = opts['update_resource_decoder_input']
+
     average_rewards_buffer = []
     min_rewards_buffer = []
     max_rewards_buffer = []
     value_loss_buffer = []
+
+    resources_policy_loss_buffer = []
+    resources_total_loss_buffer = []
+    resources_entropy_buffer = []
+    
+    bins_policy_loss_buffer = []
+    bins_total_loss_buffer = []
+    bins_entropy_buffer = []
+
     episode_count = 0
     
     # Initial vars for the initial episode
     isDone = False
     episode_rewards = np.zeros((agent.batch_size, agent.num_resources), dtype="float32")
-    current_state, bin_net_mask, resource_net_mask, mha_used_mask = env.reset()
-    dec_input = agent.generate_decoder_input(current_state)
+    if single_actor:
+        current_state, dec_input, bin_net_mask, mha_used_mask = env.reset()
+        resource_net_mask = np.array(None)
+    else:
+        current_state, bin_net_mask, resource_net_mask, mha_used_mask = env.reset()
+        dec_input = agent.generate_decoder_input(current_state)
     training_step = 0
     start = time.time()
 
@@ -31,13 +48,17 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict):
         if isDone:
             isDone = False
             episode_rewards = np.zeros((agent.batch_size, agent.num_resources), dtype="float32")
-            current_state, bin_net_mask, resource_net_mask, mha_used_mask = env.reset()
-            # SOS input for resource Ptr Net
-            dec_input = agent.generate_decoder_input(current_state)
+            if single_actor:
+                current_state, dec_input, bin_net_mask, mha_used_mask = env.reset()
+                resource_net_mask = np.array(None)
+            else:
+                current_state, bin_net_mask, resource_net_mask, mha_used_mask = env.reset()
+                # SOS input for resource Ptr Net
+                dec_input = agent.generate_decoder_input(current_state)
             training_step = 0
             start = time.time()
 
-        while not isDone or training_step > n_steps_to_update:
+        while not isDone or training_step < n_steps_to_update:
             # Select an action
             bin_id, resource_id, decoded_resource, bin_net_mask, _, _ = agent.act(
                 current_state,
@@ -48,31 +69,47 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict):
                 env.build_feasible_mask
             )
 
-            # Play one step
-            next_state, reward, isDone, info = env.step(
-                bin_id,
-                resource_id,
-                bin_net_mask
-            )
+            # Store the resource that was fed to bin-net
+            bin_net_dec_input = decoded_resource.copy()
+
+            if single_actor:
+                next_state, next_dec_input, reward, isDone, info = env.step(
+                    bin_id,
+                    resource_id,
+                    bin_net_mask
+                )
+            else:
+                # Play one step
+                next_state, reward, isDone, info = env.step(
+                    bin_id,
+                    resource_id,
+                    bin_net_mask
+                )
             
             # Store episode rewards
             episode_rewards[:, training_step] = reward[:, 0]
 
             # Store in memory
             agent.store(
-                current_state,
-                dec_input,
-                bin_net_mask,
-                resource_net_mask,
-                mha_used_mask,
-                resource_id,
-                bin_id,
-                reward,
+                current_state.copy(),
+                dec_input.copy(), # Resource fed to resource-net decoder
+                bin_net_dec_input.copy(), # Resource fed to bin-net decoder
+                bin_net_mask.copy(),
+                resource_net_mask.copy(),
+                mha_used_mask.copy(),
+                resource_id.copy(),
+                bin_id.numpy().copy(),
+                reward.numpy().copy(),
                 training_step
             )
 
             # Update for next iteration
-            dec_input = decoded_resource
+            if single_actor:
+                dec_input = next_dec_input.copy()
+            else:
+                if update_resource_decoder_input:
+                    dec_input = decoded_resource.numpy()
+
             current_state = next_state
             bin_net_mask = info['bin_net_mask']
             resource_net_mask = info['resource_net_mask']
@@ -102,52 +139,63 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict):
             bootstrap_state_value = tf.zeros([agent.batch_size, 1],dtype="float32")
         else:
             # Not done. Ask model to generate the state value
-            bootstrap_state_value = agent.critic(current_state, agent.training)
+            bootstrap_state_value = agent.critic(
+                current_state, agent.training, enc_padding_mask = mha_used_mask
+            )
 
         discounted_rewards = agent.compute_discounted_rewards(bootstrap_state_value)
         
         ### Update Critic ###
-        with tf.GradientTape() as tape:
-            value_loss, state_values = agent.compute_value_loss(
+        with tf.GradientTape() as tape_value:
+            value_loss, state_values, advantages = agent.compute_value_loss(
                 discounted_rewards
             )
 
-        value_loss_buffer.append(value_loss)
-
-        critic_grads = tape.gradient(
+        critic_grads = tape_value.gradient(
             value_loss,
             agent.critic.trainable_weights
         )
 
-        with tf.GradientTape() as tape:
-            resources_loss, decoded_resources = agent.compute_actor_loss(
-                agent.resource_actor,
-                agent.resource_masks,
-                agent.resources,
-                agent.decoded_resources,
-                discounted_rewards,
-                state_values
+        if not single_actor:
+            with tf.GradientTape() as tape_resource:
+                resources_loss,\
+                    decoded_resources,\
+                    resources_entropy,\
+                    resource_policy_loss  = agent.compute_actor_loss(
+                    agent.resource_actor,
+                    agent.resource_masks,
+                    agent.resources,
+                    agent.resource_net_decoder_input,
+                    tf.stop_gradient(advantages)
+                )
+            
+            resource_grads = tape_resource.gradient(
+                resources_loss,
+                agent.resource_actor.trainable_weights
             )
+
+            # Add time dimension
+            # decoded_resources = tf.expand_dims(decoded_resources, axis=1)
+        else:
+            resource_policy_loss = np.array([0], dtype="float32")
+            resources_entropy = np.array([0], dtype="float32")
+            resources_loss = tf.constant(0, dtype="float32")
+
+            # decoded_resources = agent.bin_net_decoder_input
         
-        resource_grads = tape.gradient(
-            resources_loss,
-            agent.resource_actor.trainable_weights
-        )
-
-        # Add time dimension
-        decoded_resources = tf.expand_dims(decoded_resources, axis=1)
-
-        with tf.GradientTape() as tape:
-            bin_loss, decoded_bins = agent.compute_actor_loss(
+        with tf.GradientTape() as tape_bin:
+            bin_loss,\
+                decoded_bins,\
+                bin_entropy,\
+                bin_policy_loss = agent.compute_actor_loss(
                 agent.bin_actor,
                 agent.bin_masks,
                 agent.bins,
-                decoded_resources,
-                discounted_rewards,
-                state_values
+                agent.bin_net_decoder_input,
+                tf.stop_gradient(advantages)
             )
         
-        bin_grads = tape.gradient(
+        bin_grads = tape_bin.gradient(
             bin_loss,
             agent.bin_actor.trainable_weights
         )
@@ -160,12 +208,13 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict):
             )
         )
 
-        agent.pointer_opt.apply_gradients(
-            zip(
-                resource_grads,
-                agent.resource_actor.trainable_weights
+        if not single_actor:
+            agent.pointer_opt.apply_gradients(
+                zip(
+                    resource_grads,
+                    agent.resource_actor.trainable_weights
+                )
             )
-        )
 
         agent.pointer_opt.apply_gradients(
             zip(
@@ -174,10 +223,38 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict):
             )
         )
 
-        if isDone:
-            print(f"\rEpisode: {episode_count} took {time.time() - start:.2f} seconds. Min in Batch: {min_in_batch:.3f} Max in Batch: {max_in_batch:.3f} Average Reward: {episode_reward:.3f} Value Loss: {value_loss[0]:.5f}", end="\n")
+        # Store the stats
+        value_loss_buffer.append(value_loss.numpy())
+        resources_policy_loss_buffer.append(np.mean(resource_policy_loss))
+        resources_total_loss_buffer.append(resources_loss.numpy())
+        resources_entropy_buffer.append(np.mean(resources_entropy))
+        bins_policy_loss_buffer.append(np.mean(bin_policy_loss))
+        bins_total_loss_buffer.append(bin_loss.numpy())
+        bins_entropy_buffer.append(np.mean(bin_entropy))
+
+        if isDone and show_progress:
+            print(f"\rEp: {episode_count} took {time.time() - start:.2f} sec.\t" +
+            f"Min@Batch: {min_in_batch:.3f}\t" +
+            f"Max@Batch: {max_in_batch:.3f}\t" +
+            f"Avg@Batch: {episode_reward:.3f}\t" +
+            f"V_Loss: {value_loss:.3f}\t" +
+            f"R_Tot_Loss: {resources_loss:.3f}\t" +
+            f"R_Pol_Loss: {tf.reduce_mean(resource_policy_loss):.3f}\t" +
+            f"Entr R: {tf.reduce_mean(resources_entropy):.3f}\t" +
+            f"B_Tot_Loss: {bin_loss:.3f}\t" + 
+            f"B_Pol_Loss: {tf.reduce_mean(bin_policy_loss):.3f}\t" +
+            f"Entr B: {tf.reduce_mean(bin_entropy):.3f}", end="\n")
 
         # Iteration complete. Clear agent's memory
         agent.clear_memory()
 
-    return average_rewards_buffer, min_rewards_buffer, max_rewards_buffer, value_loss_buffer
+    return average_rewards_buffer,\
+        min_rewards_buffer,\
+        max_rewards_buffer,\
+        value_loss_buffer, \
+        resources_policy_loss_buffer,\
+        resources_total_loss_buffer,\
+        resources_entropy_buffer,\
+        bins_policy_loss_buffer,\
+        bins_total_loss_buffer,\
+        bins_entropy_buffer

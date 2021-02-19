@@ -132,7 +132,10 @@ dmypy.json
 media/plots
 logs/
 results/*/*.csv
+results/*.csv
+results/*.pdf
 model
 .vscode/settings.json
 .Rproj.user
 .Rhistory
+*ods

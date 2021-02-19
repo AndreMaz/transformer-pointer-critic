@@ -2,7 +2,7 @@ import tensorflow as tf
 from tensorflow.keras.layers import TimeDistributed, Dense
 
 from agents.models.transformer.common.encoder_layer import EncoderLayer
-from agents.models.transformer.common.utils import positional_encoding
+from agents.models.transformer.common.utils import positional_encoding, get_initializer
 
 class Encoder(tf.keras.layers.Layer):
   def __init__(self,
@@ -13,7 +13,8 @@ class Encoder(tf.keras.layers.Layer):
                use_positional_encoding,
                vocab_size,
                embedding_time_distributed: bool,
-               dropout_rate=0.1):
+               dropout_rate=0.1,
+               use_default_initializer:bool = True):
     super(Encoder, self).__init__()
 
     self.d_model = d_model
@@ -22,23 +23,28 @@ class Encoder(tf.keras.layers.Layer):
     self.vocab_size = vocab_size
     self.use_positional_encoding = use_positional_encoding
 
+    self.use_default_initializer = use_default_initializer
+    self.initializer = get_initializer(self.d_model, self.use_default_initializer)
+
     # self.embedding = tf.keras.layers.Embedding(input_vocab_size, d_model)
     if self.embedding_time_distributed:
       self.embedding = TimeDistributed(
           Dense(
-              self.d_model
+              self.d_model,
+              kernel_initializer=self.initializer
           )
       )
     else:
       self.embedding = Dense(
-          self.d_model
+          self.d_model,
+          kernel_initializer=self.initializer
       )
     
     if use_positional_encoding:
     # Shape is (1, vocab_size, d_model)
       self.pos_encoding = positional_encoding(self.vocab_size, self.d_model)
     
-    self.enc_layers = [EncoderLayer(d_model, num_heads, dff, dropout_rate) 
+    self.enc_layers = [EncoderLayer(d_model, num_heads, dff, dropout_rate, use_default_initializer) 
                        for _ in range(num_layers)]
   
     self.dropout = tf.keras.layers.Dropout(dropout_rate)

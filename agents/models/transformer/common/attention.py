@@ -1,8 +1,8 @@
 import tensorflow as tf
-from agents.models.transformer.common.utils import scaled_dot_product_attention
+from agents.models.transformer.common.utils import scaled_dot_product_attention, get_initializer
 
 class MultiHeadAttention(tf.keras.layers.Layer):
-  def __init__(self, d_model, num_heads):
+  def __init__(self, d_model, num_heads, use_default_initializer: bool = True):
     super(MultiHeadAttention, self).__init__()
     self.num_heads = num_heads
     self.d_model = d_model
@@ -11,11 +11,14 @@ class MultiHeadAttention(tf.keras.layers.Layer):
     
     self.depth = d_model // self.num_heads
     
-    self.wq = tf.keras.layers.Dense(d_model)
-    self.wk = tf.keras.layers.Dense(d_model)
-    self.wv = tf.keras.layers.Dense(d_model)
+    self.use_default_initializer = use_default_initializer
+    self.initializer = get_initializer(self.d_model, self.use_default_initializer)
+
+    self.wq = tf.keras.layers.Dense(d_model, kernel_initializer=self.initializer)
+    self.wk = tf.keras.layers.Dense(d_model, kernel_initializer=self.initializer)
+    self.wv = tf.keras.layers.Dense(d_model, kernel_initializer=self.initializer)
     
-    self.dense = tf.keras.layers.Dense(d_model)
+    self.dense = tf.keras.layers.Dense(d_model, kernel_initializer=self.initializer)
 
   def split_heads(self, x, batch_size):
     """Split the last (features) dimension into (num_heads, depth).

@@ -3,7 +3,7 @@ import tensorflow as tf
 
 
 class PointerAttention(tf.keras.layers.Layer):
-  def __init__(self, units = 64, out = 1):
+  def __init__(self, units = 64, out = 1, use_default_initializer: bool = True):
     super(PointerAttention, self).__init__()
     # self.vocab_size = vocab_size
 

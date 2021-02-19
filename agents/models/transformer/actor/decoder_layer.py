@@ -3,13 +3,13 @@ from agents.models.transformer.common.attention import MultiHeadAttention
 from agents.models.transformer.common.utils import point_wise_feed_forward_network
 
 class DecoderLayer(tf.keras.layers.Layer):
-  def __init__(self, d_model, num_heads, dff, rate=0.1):
+  def __init__(self, d_model, num_heads, dff, rate=0.1, use_default_initializer: bool = True):
     super(DecoderLayer, self).__init__()
 
-    self.mha1 = MultiHeadAttention(d_model, num_heads)
-    self.mha2 = MultiHeadAttention(d_model, num_heads)
+    self.mha1 = MultiHeadAttention(d_model, num_heads, use_default_initializer)
+    self.mha2 = MultiHeadAttention(d_model, num_heads, use_default_initializer)
 
-    self.ffn = point_wise_feed_forward_network(d_model, dff)
+    self.ffn = point_wise_feed_forward_network(d_model, dff, use_default_initializer)
  
     self.layernorm1 = tf.keras.layers.LayerNormalization(epsilon=1e-6)
     self.layernorm2 = tf.keras.layers.LayerNormalization(epsilon=1e-6)

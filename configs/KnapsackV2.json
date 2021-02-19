@@ -3,14 +3,20 @@
     
     "trainer_config": {
         "description": "Trainer function configs.",
-        "n_iterations": 300,
+        "n_iterations": 10000,
         "n_steps_to_update": 20
     },
 
     "tester_config": {
         "description": "Testing function configs.",
-        "backpack_sample_size": 5,
-        "item_sample_size": 20
+        "backpack_sample_size": 10,
+        "item_sample_size": 100
+    },
+
+    "tuner_config": {
+        "description": "Testing function configs.",
+        "backpack_sample_size": 10,
+        "item_sample_size": 100
     },
 
     "env_config": {
@@ -19,24 +25,24 @@
         "load_from_file": false,
         "location": "./environment/custom/knapsack/problem.json",
         
-        "batch_size": 32,
-        "num_resources": 100,
+        "batch_size": 64,
+        "num_resources": 25,
         "num_bins": 10,
         "EOS_CODE": 0,
 
         "sampling_mode": false,
-        "resource_sample_size": 20,
-        "bin_sample_size": 5,
+        "resource_sample_size": 10,
+        "bin_sample_size": 10,
 
         "normalization_factor": 1,
 
         "min_resource_value": 1,
-        "max_resource_value": 100,
+        "max_resource_value": 30,
         "min_resource_weight": 1,
-        "max_resource_weight": 20,
+        "max_resource_weight": 30,
 
         "min_bin_capacity": 1,
-        "max_bin_capacity": 20
+        "max_bin_capacity": 100
     },
 
     "dpc": {
@@ -79,7 +85,8 @@
         "agent_config": {
 
             "gamma": 0.999,
-            "entropy_coefficient": 0.00001,
+            "values_loss_coefficient": 0.5,
+            "entropy_coefficient": 0.0001,
             "stochastic_action_selection": true,
             "use_mha_mask": true,
 

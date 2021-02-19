@@ -24,12 +24,12 @@ import math
 #     # Virtual devices must be set before GPUs have been initialized
 #     print(e)
 
-def runner(env_type="custom", env_name='Resource', agent_name="tpc"):
+def runner(env_type="custom", env_name='ResourceV3', agent_name="tpc"):
     # Read the configs
-    agent_config, trainer_config, env_config, tester_config = get_configs(env_name, agent_name)
+    agent_config, trainer_config, env_config, tester_config, _ = get_configs(env_name, agent_name)
 
     # Create the environment
-    env, opt_solver, heuristic_solver, tester, plotter = env_factory(env_type, env_name, env_config)
+    env, tester, plotter = env_factory(env_type, env_name, env_config)
 
     # Add info about the environment
     agent_config = env.add_stats_to_agent_config(agent_config)
@@ -40,75 +40,70 @@ def runner(env_type="custom", env_name='Resource', agent_name="tpc"):
     # Train
     print('Training...')
     # tf.profiler.experimental.start('logdir')
-    training_history = trainer(env, agent, trainer_config)
+    show_progress = True
+    training_history = trainer(env, agent, trainer_config, show_progress)
     # tf.profiler.experimental.stop()
 
     # Plot the learning curve
     print('\nPlotting Results...')
-    plotter(training_history, env, agent, agent_config, opt_solver, False)
+    write_data_to_file = True
+    plotter(training_history, env, agent, agent_config, write_data_to_file)
 
     # Test the agent
     print("\nTesting...")
-    look_for_opt = False
-    tester(env, agent, tester_config, opt_solver, heuristic_solver, look_for_opt)
-    print('End... Goodbye!')
+    tester(env, agent, tester_config)
+    print('\nEnd... Goodbye!')
 
-def tuner(env_type="custom", env_name='CVRP', agent_name="tpc"):
-    # Read the configs
-    agent_config, trainer_config, env_config = get_configs(env_name, agent_name)
+def tuner(env_type="custom", env_name='ResourceV3', agent_name="tpc"):
     
-    # Create the environment
-    env, opt_solver, heuristic_solver = env_factory(env_type, env_name, env_config)
-    
-    # Add info about the environmanet
-    agent_config: dict = env.add_stats_to_agent_config(agent_config)
-
-    entropy_coefficient = [ 0.00001, 0.0001, 0.001 ]
+    entropy_coefficient = [ 0.01, 0.02, 0.1 ]
+    actor_layers = [
+        1,
+        # 2
+    ]
     actor_learning_rate = [
-        # 0.00001,
-        0.0001,
-        0.0005
+        0.0001, 0.0002
     ]
     critic_learning_rate = [ 
-        # 0.00001,
-        0.0001,
-        0.0005
-    ]
-    mha_mask = [ True ]
-    time_distributed = [
-        True,
-        # False
+        0.0001, 0.0002
     ]
 
-    for entropy in entropy_coefficient:
-        for actor_lr in actor_learning_rate:
-            for critic_lr in critic_learning_rate:
-                for td in time_distributed:
-                    for use_mask in mha_mask:
-                    
-                        # Swap between using and not using the MHA mask
-                        env.compute_mha_mask = use_mask
+    for actor_layer in actor_layers:
+        for entropy in entropy_coefficient:
+            for actor_lr in actor_learning_rate:
+                for critic_lr in critic_learning_rate:
+                        # Read the configs
+                        agent_config, trainer_config, env_config, _, tuner_config = get_configs(env_name, agent_name)
+
+                        # Create the environment
+                        env, tester, plotter = env_factory(env_type, env_name, env_config)
+
+                        # Add info about the environmanet
+                        agent_config: dict = env.add_stats_to_agent_config(agent_config)
+
 
                         config = agent_config.copy()
 
                         config['entropy_coefficient'] = entropy
 
+                        config['actor']['num_layers'] = actor_layer
                         config['actor']['learning_rate'] = actor_lr
-                        config['actor']['encoder_embedding_time_distributed'] = td
 
                         config['critic']['learning_rate'] = critic_lr
-                        config['critic']['encoder_embedding_time_distributed'] = td
-
-                        config['use_mha_mask'] = use_mask
 
                         agent = Agent('transformer', config)
 
+                        show_info = False
                         training_history = trainer(
-                            env, agent, trainer_config)
+                            env, agent, trainer_config, show_info)
 
-                        plotter(training_history, env, agent, agent_config, opt_solver, False)
+                        write_data_to_file = True
+                        plotter(training_history, env, agent, config, write_data_to_file)
 
+                        look_for_opt = False
+                        dominant_results, rejected_results = tester(env, agent, tuner_config)
 
+                        print(f"{dominant_results};{rejected_results};{actor_layer};{entropy};{actor_lr};{critic_lr}")
 
 if __name__ == "__main__":
     runner()
