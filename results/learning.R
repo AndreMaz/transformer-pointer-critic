@@ -6,7 +6,7 @@ library(nortest)
 
 
 ## Load data from CSV
-learning_data <- read.csv(file='../media/plots/ResourceV3/transformer/training.csv', header = TRUE, sep = ';')
+learning_data <- read.csv(file='../media/plots/ResourceV3/transformer/training_256.csv', header = TRUE, sep = ';')
 
 # Reshape learning stats into tall format
 learning_stats <- melt(learning_data, id.vars = c(
@@ -19,11 +19,11 @@ learning_stats <- melt(learning_data, id.vars = c(
 ## Filter out by Types of Sets
 learning_stats <- learning_stats %>%
   filter(
-    Type == 'Value.Loss' #|
+    # Type == 'Value.Loss' #|
     # Type == 'Total.Bin.Loss' #|
     # Type == 'Total.Resource.Loss' |
-    # Type == 'Bin.Policy.Loss'  |
-    # Type == 'Bin.Entropy' |
+    Type == 'Bin.Policy.Loss'  |
+    Type == 'Bin.Entropy' #|
     # Type == 'Resource.Policy.Loss' |
     # Type == 'Resource.Entropy'
   )
@@ -56,7 +56,7 @@ reward_stats <- melt(learning_data, id.vars = c(
 
 # Plot rewards
 ggplot(data = reward_stats, aes(x=Step, y=Value, col=Type, group = Type))+
-  geom_point(alpha=0.2)+
+  # geom_point(alpha=0.2)+
   geom_smooth(alpha=1.0, span=0.3, se = FALSE)+
   # geom_line(aes(x=Step, y=Value, col=Type, group=Type), size=1.5, alpha=0.7)+
   labs(x="Episode", y='Reward')+
