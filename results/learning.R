@@ -6,7 +6,7 @@ library(nortest)
 
 
 ## Load data from CSV
-learning_data <- read.csv(file='../media/plots/ResourceV3/transformer/training_256.csv', header = TRUE, sep = ';')
+learning_data <- read.csv(file='../media/plots/ResourceV3/transformer/200k_training_256.csv', header = TRUE, sep = ';')
 
 # Reshape learning stats into tall format
 learning_stats <- melt(learning_data, id.vars = c(
@@ -22,8 +22,8 @@ learning_stats <- learning_stats %>%
     # Type == 'Value.Loss' #|
     # Type == 'Total.Bin.Loss' #|
     # Type == 'Total.Resource.Loss' |
-    Type == 'Bin.Policy.Loss'  |
-    Type == 'Bin.Entropy' #|
+    Type == 'Bin.Policy.Loss'  #|
+    # Type == 'Bin.Entropy' #|
     # Type == 'Resource.Policy.Loss' |
     # Type == 'Resource.Entropy'
   )
@@ -31,9 +31,9 @@ learning_stats <- learning_stats %>%
 
 # Plot Losses and entropy
 ggplot(data = learning_stats, aes(x=Step, y=Value, col=Type, group = Type))+
-  geom_point(alpha=0.3)+
+  # geom_point(alpha=0.3)+
   #geom_line(alpha=1.0)+
-  # geom_smooth(alpha=0.3, span=0.3, se = FALSE)+
+  geom_smooth(alpha=0.3, span=0.3, se = FALSE)+
   # geom_line(aes(x=Step, y=Value, col=Type, group=Type), size=1.5, alpha=0.7)+
   labs(x="Episode", y='Value')+
   # scale_x_discrete()+

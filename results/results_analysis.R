@@ -6,7 +6,7 @@ library(nortest)
 
 
 ## Load data from CSV
-df1 <- read.csv(file='./double_test.csv', header = TRUE, sep = ';')
+df1 <- read.csv(file='./200k_test.csv', header = TRUE, sep = ';')
 
 ##############################################
 ################ COMMON HELPERS ##############
@@ -50,7 +50,7 @@ stacked_rejected_data <- melt(rejected_data, id.vars = c(
 
 ggplot(data = stacked_rejected_data, aes(x=node_min_value, y=Value, col=Type, group = Type))+
   geom_point(alpha=0.7)+
-  geom_line(size=1.5, alpha=0.3)+
+  # geom_line(size=1.5, alpha=0.3)+
   facet_wrap(c("node_sample_size", "resource_sample_size"), labeller = "label_both", scales = "free")+
   labs(x="Compute Range", y='Number of Rejected Requests')+
   scale_x_discrete(labels = (xLabels))+
