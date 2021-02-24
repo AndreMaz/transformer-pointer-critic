@@ -59,6 +59,7 @@ class CriticTransformer(tf.keras.Model):
     def call(self,
              encoder_input,
              training: bool,
+             num_bins: int,
              enc_padding_mask
              ):
 
@@ -67,6 +68,7 @@ class CriticTransformer(tf.keras.Model):
         enc_output = self.encoder(
             encoder_input,
             training,
+            num_bins,
             enc_padding_mask = enc_padding_mask
         )
 

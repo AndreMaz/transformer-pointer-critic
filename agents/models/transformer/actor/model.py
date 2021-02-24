@@ -51,6 +51,7 @@ class ActorTransformer(tf.keras.Model):
            dec_input,
            attention_mask,
            training: bool,
+           num_bins: int,
            enc_padding_mask = None,
            look_ahead_mask = None,
            dec_padding_mask = None,
@@ -59,6 +60,7 @@ class ActorTransformer(tf.keras.Model):
     # enc_output.shape = (batch_size, inp_seq_len, d_model)
     enc_output = self.encoder(enc_input,
                               training,
+                              num_bins,
                               enc_padding_mask)
     
     # Compute a single pointer

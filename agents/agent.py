@@ -162,6 +162,7 @@ class Agent():
         state_values = self.critic(
             states,
             self.training,
+            self.num_bins,
             enc_padding_mask = mha_mask
         )
 
@@ -207,6 +208,7 @@ class Agent():
             dec_input,
             attention_mask,
             self.training,
+            self.num_bins,
             enc_padding_mask = mha_mask,
             dec_padding_mask = mha_mask
         )
@@ -323,6 +325,7 @@ class Agent():
             decoded_resources, # Pass decoded resource to bin decoder
             bins_mask,
             self.training,
+            self.num_bins,
             enc_padding_mask = mha_used_mask,
             dec_padding_mask = mha_used_mask
         )
@@ -362,7 +365,7 @@ class Agent():
         self.resource_actor.load_weights(f'{location}/resource_actor')
         self.bin_actor.load_weights(f'{location}/bin_actor')
 
-    def set_testing_mode(self, batch_size, num_resources):
+    def set_testing_mode(self, batch_size, num_bins, num_resources):
         self.training = False
         self.stochastic_action_selection = False
 
@@ -370,6 +373,8 @@ class Agent():
         # Set the number for resources during testing
         # i.e, number of steps
         self.num_resources = num_resources
+
+        self.num_bins = num_bins
     
 def process_logits(pointer_logits, enc_input):
     batch_size = enc_input.shape[0]

@@ -132,7 +132,11 @@ def test_single_instance(
         node_min_val,
         node_max_val
     )
-    agent.set_testing_mode(batch_size, req_sample_size)
+    agent.set_testing_mode(
+        batch_size,
+        node_sample_size,
+        req_sample_size
+    )
     
     training_step = 0
     isDone = False

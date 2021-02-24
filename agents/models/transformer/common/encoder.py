@@ -47,9 +47,17 @@ class Encoder(tf.keras.layers.Layer):
     self.enc_layers = [EncoderLayer(d_model, num_heads, dff, dropout_rate, use_default_initializer) 
                        for _ in range(num_layers)]
   
+    self.enc_layers_bins = [EncoderLayer(d_model, num_heads, dff, dropout_rate, use_default_initializer) 
+                       for _ in range(num_layers)]
+
+    self.enc_layers_resources = [EncoderLayer(d_model, num_heads, dff, dropout_rate, use_default_initializer) 
+                       for _ in range(num_layers)]
+
+    self.concatenate_layer = tf.keras.layers.Concatenate(axis=1)
+
     self.dropout = tf.keras.layers.Dropout(dropout_rate)
         
-  def call(self, x, training, enc_padding_mask = None):
+  def call(self, x, training, num_bins, enc_padding_mask = None):
 
     seq_len = tf.shape(x)[1]
     
@@ -62,8 +70,28 @@ class Encoder(tf.keras.layers.Layer):
       x += self.pos_encoding[:, :seq_len, :]
 
     x = self.dropout(x, training=training)
-    
+
+    # Self-Attention over the bins
+    encoded_bins = x[:, :num_bins]
     for i in range(self.num_layers):
-      x = self.enc_layers[i](x, training, enc_padding_mask)
+      encoded_bins = self.enc_layers_bins[i](
+        encoded_bins, training, enc_padding_mask[:, :, :, :num_bins]
+      )
+
+    # Self-Attention over the resources
+    encoded_resources = x[:, num_bins:]
+    for i in range(self.num_layers):
+      encoded_resources = self.enc_layers_resources[i](
+        encoded_resources, training, enc_padding_mask[:, :, :, num_bins:]
+      )
+
+    # Concatenate the bins and resources
+    concatenated_result = self.concatenate_layer(
+      [encoded_bins, encoded_resources]
+    )
+
+    # Self-Attention over bins and resources
+    for i in range(self.num_layers):
+      concatenated_result = self.enc_layers[i](concatenated_result, training, enc_padding_mask)
     
-    return x  # (batch_size, input_seq_len, d_model)
+    return concatenated_result  # (batch_size, input_seq_len, d_model)
