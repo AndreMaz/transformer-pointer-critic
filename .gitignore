@@ -133,6 +133,7 @@ media/plots
 logs/
 results/*/*.csv
 results/*.csv
+results/*/*.pdf
 results/*.pdf
 model
 .vscode/settings.json
