@@ -1,7 +1,7 @@
 from typing import List
 import numpy as np
-from environment.custom.resource_v3.node import Node
-from environment.custom.resource_v3.resource import Resource
+# from environment.custom.resource_v3.node import Node
+# from environment.custom.resource_v3.resource import Resource
 import tensorflow as tf
 
 def reshape_into_horizontal_format(data, batch_size, decoding_steps):
@@ -37,7 +37,7 @@ def compute_remaining_resources(nodes, reqs, decimal_precision = 2):
     
     remaining_resources = nodes - reqs
     
-    # remaining_resources = round_half_up(remaining_resources, decimal_precision)
+    remaining_resources = round_half_up(remaining_resources, decimal_precision)
 
     return remaining_resources
 
@@ -60,7 +60,6 @@ def export_to_csv(history, max_steps, method: str, location) -> None:
             header = f'Method;Step;Node;CPU;RAM;MEM;Delta\n'
             fp.write(header)
             for history_instance in history:
-                node: Node
 
                 delta, rejected = compute_stats(history_instance)
 
@@ -93,10 +92,9 @@ def compute_stats(node_list) -> float:
     nodes_ram_stats = []
     nodes_mem_stats = []
     
-    node: Node = node_list[0]
+    node = node_list[0]
     num_rejected = len(node.req_list)
 
-    node: Node
     for node in node_list[1:]:
         nodes_cpu_stats.append(node.remaining_CPU)
         nodes_ram_stats.append(node.remaining_RAM)
@@ -113,7 +111,6 @@ def compute_stats(node_list) -> float:
 def num_overloaded_nodes(node_list) -> int:
     num_nodes = 0
 
-    node: Node
     for node in node_list:
         min_resource = min([
             node.remaining_CPU,
