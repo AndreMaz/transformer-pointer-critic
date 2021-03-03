@@ -88,17 +88,25 @@ def export_to_csv(history, max_steps, method: str, location) -> None:
         fp.close()
 
 def compute_stats(node_list) -> float:
+    # Find number of rejected requests
+    node = node_list[0]
+    num_rejected = len(node.req_list)
+
+    # Find dominant resource AND
+    # Find the number of unused nodes
     nodes_cpu_stats = []
     nodes_ram_stats = []
     nodes_mem_stats = []
-    
-    node = node_list[0]
-    num_rejected = len(node.req_list)
+
+    empty_nodes = 0
 
     for node in node_list[1:]:
         nodes_cpu_stats.append(node.remaining_CPU)
         nodes_ram_stats.append(node.remaining_RAM)
         nodes_mem_stats.append(node.remaining_MEM)
+
+        if len(node.req_list) == 0:
+            empty_nodes += 1
 
     min_cpu = min(nodes_cpu_stats)
     min_ram = min(nodes_ram_stats)
@@ -106,7 +114,7 @@ def compute_stats(node_list) -> float:
 
     delta = min([min_cpu, min_ram, min_mem])
 
-    return delta, num_rejected
+    return delta, num_rejected, empty_nodes
 
 def num_overloaded_nodes(node_list) -> int:
     num_nodes = 0
@@ -137,7 +145,7 @@ def log_testing_stats(global_stats, location, file_name):
         # Place Heuristic method name into header
         for entry in global_stats[0]['instance']:
             keys = list(entry.keys())
-            header = header + f"{' '.join(keys[0].split('_'))};{' '.join(keys[1].split('_'))};"
+            header = header + f"{' '.join(keys[0].split('_'))};{' '.join(keys[1].split('_'))};{' '.join(keys[2].split('_'))};"
         fp.write(f"{header}\n")
 
         
@@ -149,9 +157,9 @@ def log_testing_stats(global_stats, location, file_name):
                    f"{instance_stats['resource_sample_size']};"
 
             for entry in instance_stats['instance']:
-                dominant, rejected = list(entry.values())
+                dominant, rejected, empty_nodes = list(entry.values())
                 # dominant = round_half_up(dominant, 2)
-                data = data + f"{dominant[0]:.3f};{rejected};"
+                data = data + f"{dominant[0]:.3f};{rejected};{empty_nodes};"
             # print(data)
             fp.write(f"{data}\n")
 
@@ -201,19 +209,20 @@ def gather_stats_from_solutions(env, heuristic_solvers) -> List[dict]:
     lost = 0
     draw = 0
 
-    net_dominant, net_rejected = compute_stats(env.history[0])
+    net_dominant, net_rejected, empty_nodes = compute_stats(env.history[0])
     net_dominant = round_half_up(net_dominant, 2)
 
     stats.append({
             'net_dominant': net_dominant,
-            'net_rejected': net_rejected
+            'net_rejected': net_rejected,
+            'net_empty_nodes': empty_nodes
     })
     
     max_dominant = -1
     min_rejected = 9999
 
     for solver in heuristic_solvers:
-        solver_dominant, solver_rejected = compute_stats(solver.solution)
+        solver_dominant, solver_rejected, solver_empty_nodes = compute_stats(solver.solution)
 
         max_dominant = max(max_dominant, round_half_up(solver_dominant, 2))
         min_rejected = min(min_rejected, solver_rejected)
@@ -221,6 +230,7 @@ def gather_stats_from_solutions(env, heuristic_solvers) -> List[dict]:
         stats.append({
             f'{solver.name}_dominant': solver_dominant,
             f'{solver.name}_rejected': solver_rejected,
+            f'{solver.name}_empty_nodes': solver_empty_nodes,
         })
 
     dominant_result = np.array([
