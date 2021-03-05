@@ -132,7 +132,7 @@
                 "rejection_penalty": -2
             },
             "reduced_node_usage": {
-                "rejection_penalty": -10,
+                "rejection_penalty": -2,
                 "use_new_node_penalty": -1
             },
             "gini": {}

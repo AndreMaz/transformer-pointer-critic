@@ -85,6 +85,9 @@ class ResourceEnvironmentV3(BaseEnvironment):
             self.resource_net_mask,\
             self.mha_used_mask = self.generate_masks()
 
+        # Reset the rewarder
+        self.rewarder.reset()
+
         return self.state()
 
     def state(self):

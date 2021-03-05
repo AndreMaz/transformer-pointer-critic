@@ -42,6 +42,8 @@ class GreedyReward():
 
         return 1 - is_eos
 
+    def reset(self):
+        return
 
 class SingleNodeDominantReward():
     def __init__(self, opts: dict, EOS_NODE, batch_size, num_nodes):
@@ -83,6 +85,9 @@ class SingleNodeDominantReward():
 
         return reward
 
+    def reset(self):
+        return
+    
 class GlobalDominantReward():
     def __init__(self, opts: dict, EOS_NODE, batch_size, num_nodes):
         super(GlobalDominantReward, self).__init__()
@@ -123,6 +128,9 @@ class GlobalDominantReward():
 
         return reward
 
+    def reset(self):
+        return
+
 class ReducedNodeUsage():
     def __init__(self, opts: dict, EOS_NODE, batch_size, num_nodes):
         super(ReducedNodeUsage, self).__init__()
@@ -162,6 +170,10 @@ class ReducedNodeUsage():
 
         return reward
 
+    def reset(self):
+        self.node_used = np.zeros((self.batch_size, self.num_nodes))
+        return
+
 class GiniReward():
     def __init__(self, opts: dict, EOS_NODE, batch_size, num_nodes):
         super(GiniReward, self).__init__()
@@ -189,6 +201,9 @@ class GiniReward():
         gini_mem = 1 - gini_calculator(bins_mem, total_num_nodes)
 
         return gini_cpu + gini_ram + gini_mem
+
+    def reset(self):
+        return
 
 # Links: https://goodcalculators.com/gini-coefficient-calculator/
 # Links: https://shlegeris.com/gini.html
