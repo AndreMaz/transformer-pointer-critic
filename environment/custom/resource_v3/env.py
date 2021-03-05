@@ -58,7 +58,9 @@ class ResourceEnvironmentV3(BaseEnvironment):
 
         self.rewarder = RewardFactory(
             opts['reward'],
-            self.EOS_BIN
+            self.EOS_BIN,
+            self.batch_size,
+            self.node_sample_size
         )
 
         # Generate req profiles

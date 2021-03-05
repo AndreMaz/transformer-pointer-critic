@@ -3,11 +3,12 @@ import numpy as np
 from tensorflow.python.keras.engine import node
 from environment.custom.resource_v3.utils import bins_eos_checker
 
-def RewardFactory(opts: dict, EOS_NODE):
+def RewardFactory(opts: dict, EOS_NODE, batch_size, num_nodes):
     rewards = {
         "greedy": GreedyReward,
         "single_node_dominant": SingleNodeDominantReward,
         "global_dominant": GlobalDominantReward,
+        "reduced_node_usage": ReducedNodeUsage,
         "gini": GiniReward
     }
 
@@ -15,12 +16,12 @@ def RewardFactory(opts: dict, EOS_NODE):
         rewardType = opts['type']
         R = rewards[f'{rewardType}']
         # print(f'"{rewardType.upper()}" reward selected.')
-        return R(opts[f'{rewardType}'], EOS_NODE)
+        return R(opts[f'{rewardType}'], EOS_NODE, batch_size, num_nodes)
     except KeyError:
         raise NameError(f'Unknown Reward Name! Select one of {list(rewards.keys())}')
 
 class GreedyReward():
-    def __init__(self, opts: dict, EOS_NODE):
+    def __init__(self, opts: dict, EOS_NODE, batch_size, num_nodes):
         super(GreedyReward, self).__init__()
         self.EOS_NODE = EOS_NODE
 
@@ -42,7 +43,7 @@ class GreedyReward():
 
 
 class SingleNodeDominantReward():
-    def __init__(self, opts: dict, EOS_NODE):
+    def __init__(self, opts: dict, EOS_NODE, batch_size, num_nodes):
         super(SingleNodeDominantReward, self).__init__()
         self.EOS_NODE = EOS_NODE
         self.rejection_penalty: int = opts['rejection_penalty']
@@ -81,7 +82,7 @@ class SingleNodeDominantReward():
         return reward
 
 class GlobalDominantReward():
-    def __init__(self, opts: dict, EOS_NODE):
+    def __init__(self, opts: dict, EOS_NODE, batch_size, num_nodes):
         super(GlobalDominantReward, self).__init__()
         self.EOS_NODE = EOS_NODE
         self.rejection_penalty: int = opts['rejection_penalty']
@@ -119,8 +120,24 @@ class GlobalDominantReward():
 
         return reward
 
+class ReducedNodeUsage():
+    def __init__(self, opts: dict, EOS_NODE, batch_size, num_nodes):
+        super(ReducedNodeUsage, self).__init__()
+        self.EOS_NODE = EOS_NODE
+
+    def compute_reward(self,
+                       updated_batch,
+                       original_batch,
+                       total_num_nodes,
+                       nodes,
+                       reqs,
+                       feasible_mask
+                       ):
+
+        return 1
+
 class GiniReward():
-    def __init__(self, opts: dict, EOS_NODE):
+    def __init__(self, opts: dict, EOS_NODE, batch_size, num_nodes):
         super(GiniReward, self).__init__()
         self.EOS_NODE = EOS_NODE
 
