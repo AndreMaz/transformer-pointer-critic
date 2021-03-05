@@ -126,7 +126,9 @@ class TestResource(unittest.TestCase):
         self.env.set_testing_mode(
             batch_size=2,
             node_sample_size=3,
-            profiles_sample_size=2
+            profiles_sample_size=2,
+            node_min_val =  80,
+            node_max_val = 100,
         )
         self.env.reset()
 
@@ -183,7 +185,9 @@ class TestResource(unittest.TestCase):
         self.env.set_testing_mode(
             batch_size=2,
             node_sample_size=3,
-            profiles_sample_size=2
+            profiles_sample_size=2,
+            node_min_val =  80,
+            node_max_val = 100,
         )
         
         fake_state = np.array([[[-2.  , -2.  , -2.  ],
@@ -590,7 +594,10 @@ class TestResourceWithDecoderInput(unittest.TestCase):
         self.env.set_testing_mode(
             batch_size=2,
             node_sample_size=3,
-            profiles_sample_size=2
+            profiles_sample_size=2,
+            node_min_val =  80,
+            node_max_val = 100,
+            
         )
         
         fake_state = np.array([[[-2.  , -2.  , -2.  ],

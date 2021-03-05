@@ -123,7 +123,7 @@
         "node_max_val": 100,
 
         "reward": {
-            "type": "global_dominant",
+            "type": "reduced_node_usage",
             "greedy": {},
             "single_node_dominant": {
                 "rejection_penalty": -2
@@ -132,7 +132,8 @@
                 "rejection_penalty": -2
             },
             "reduced_node_usage": {
-                "rejection_penalty": -2
+                "rejection_penalty": -10,
+                "use_new_node_penalty": -1
             },
             "gini": {}
         }

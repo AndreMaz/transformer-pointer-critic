@@ -160,6 +160,7 @@ class ResourceEnvironmentV3(BaseEnvironment):
             nodes,
             reqs,
             feasible_bin_mask,
+            bin_ids
         )
 
         rewards = tf.reshape(rewards, (batch_size, 1))
