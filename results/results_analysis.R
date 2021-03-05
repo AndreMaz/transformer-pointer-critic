@@ -6,7 +6,7 @@ library(nortest)
 
 
 ## Load data from CSV
-df1 <- read.csv(file='./200k_test.csv', header = TRUE, sep = ';')
+df1 <- read.csv(file='./150k_test_entropy_0.1_reward_greedy.csv', header = TRUE, sep = ';')
 
 ##############################################
 ################ COMMON HELPERS ##############
@@ -19,7 +19,7 @@ avgData <- df1 %>%
 ### Drop unecessary cols
 avgData <- subset(avgData, select = -c(X, test_instance))
 
-write.csv(avgData, "./single_test_avg.csv")
+write.csv(avgData, "./150k_test_entropy_0.1_reward_greedy_avg.csv")
 
 avgData$node_min_value <- as.factor(avgData$node_min_value)
 
@@ -79,6 +79,32 @@ ggplot(data = stacked_dominant_data, aes(x=node_min_value, y=Value, col=Type, gr
   geom_line(size=1.5, alpha=0.7)+
   facet_wrap(c("node_sample_size", "resource_sample_size"), labeller = "label_both", scales = "free")+
   labs(x="Compute Range", y='Dominant Resource Value')+
+  scale_x_discrete(labels = (xLabels))+
+  theme(axis.text.x = element_text(angle = 35, hjust = 1))+
+  theme(legend.position="bottom")
+
+##############################################
+############# PLOT EMPTY NODES ############
+##############################################
+
+# Data frame with rejection stats
+empty_nodes_data <- avgData  %>% 
+  select(node_sample_size, node_min_value, node_max_value, resource_sample_size, ends_with("empty.nodes"))
+
+# Reshape learning stats into tall format
+stacked_empty_nodes_data <- melt(empty_nodes_data, id.vars = c(
+  "node_sample_size",
+  "node_min_value",
+  "node_max_value",
+  "resource_sample_size"
+), variable.name = 'Type', value.name = 'Value')
+
+
+ggplot(data = stacked_empty_nodes_data, aes(x=node_min_value, y=Value, col=Type, group = Type))+
+  geom_point(alpha=0.7)+
+  # geom_line(size=1.5, alpha=0.7)+
+  facet_wrap(c("node_sample_size", "resource_sample_size"), labeller = "label_both", scales = "free")+
+  labs(x="Compute Range", y='Number of Empty Nodes')+
   scale_x_discrete(labels = (xLabels))+
   theme(axis.text.x = element_text(angle = 35, hjust = 1))+
   theme(legend.position="bottom")
