@@ -62,8 +62,7 @@ class Agent():
 
         # Init memory
         self.states = []
-        self.resource_net_decoder_input = []
-        self.bin_net_decoder_input = []
+        self.actor_decoder_input = []
         
         self.bins = []
         self.bin_masks = []
@@ -73,8 +72,7 @@ class Agent():
 
     def store(self,
               state,
-              resource_net_dec_input,
-              bin_net_dec_input,
+              dec_input,
               bin_mask,
               mha_mask,
               bin,
@@ -84,8 +82,7 @@ class Agent():
 
         self.states.append(state)
         
-        self.resource_net_decoder_input.append(resource_net_dec_input)
-        self.bin_net_decoder_input.append(bin_net_dec_input)
+        self.actor_decoder_input.append(dec_input)
 
         self.bin_masks.append(bin_mask)
 
@@ -98,8 +95,7 @@ class Agent():
     def clear_memory(self):
         self.states = []
 
-        self.resource_net_decoder_input = []
-        self.bin_net_decoder_input = []
+        self.actor_decoder_input = []
 
         self.bin_masks = []
 
@@ -254,16 +250,10 @@ class Agent():
         # Create a tensor with the batch indices
         batch_indices = tf.range(batch_size, dtype='int32')
 
-        # resource_ids = np.array(None)
-        # resources_probs = None
-
-        # Resource are provided by the environment
-        decoded_resources = dec_input.copy()
-
         # Update the masks for the bin-net
         # This will only allow to point to feasible solutions
         bins_mask = build_feasible_mask(state,
-                                            decoded_resources,
+                                            dec_input,
                                             bins_mask
                                             )
 
@@ -272,7 +262,7 @@ class Agent():
         #########################################
         bins_logits, bins_probs, bin_ids, decoded_bin = self.bin_actor(
             state,
-            decoded_resources, # Pass decoded resource to bin decoder
+            dec_input, # Pass resource to bin decoder
             bins_mask,
             self.training,
             self.num_bins,
@@ -291,7 +281,6 @@ class Agent():
         decoded_bin = state[batch_indices, bin_ids]
 
         return bin_ids, \
-               decoded_resources, \
                bins_mask, \
                bins_probs
 

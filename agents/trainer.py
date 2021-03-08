@@ -45,16 +45,13 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict, show_progress: bool):
 
         while not isDone or training_step < n_steps_to_update:
             # Select an action
-            bin_id, decoded_resource, bin_net_mask, _ = agent.act(
+            bin_id, bin_net_mask, _ = agent.act(
                 current_state,
                 dec_input,
                 bin_net_mask,
                 mha_used_mask,
                 env.build_feasible_mask
             )
-
-            # Store the resource that was fed to bin-net
-            bin_net_dec_input = decoded_resource.copy()
 
             next_state, next_dec_input, reward, isDone, info = env.step(
                 bin_id,
@@ -67,8 +64,7 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict, show_progress: bool):
             # Store in memory
             agent.store(
                 current_state.copy(),
-                dec_input.copy(), # Resource fed to resource-net decoder
-                bin_net_dec_input.copy(), # Resource fed to bin-net decoder
+                dec_input.copy(), # Resource fed to actor decoder
                 bin_net_mask.copy(),
                 mha_used_mask.copy(),
                 bin_id.numpy().copy(),
@@ -77,9 +73,8 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict, show_progress: bool):
             )
 
             # Update for next iteration
-            dec_input = next_dec_input.copy()
-
             current_state = next_state
+            dec_input = next_dec_input.copy()
             bin_net_mask = info['bin_net_mask']
             mha_used_mask = info['mha_used_mask']
 
@@ -124,10 +119,6 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict, show_progress: bool):
             agent.critic.trainable_weights
         )
 
-        # resource_policy_loss = np.array([0], dtype="float32")
-        # resources_entropy = np.array([0], dtype="float32")
-        # resources_loss = tf.constant(0, dtype="float32")
-        
         with tf.GradientTape() as tape_bin:
             bin_loss,\
                 decoded_bins,\
@@ -136,7 +127,7 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict, show_progress: bool):
                 agent.bin_actor,
                 agent.bin_masks,
                 agent.bins,
-                agent.bin_net_decoder_input,
+                agent.actor_decoder_input,
                 tf.stop_gradient(advantages)
             )
         

@@ -101,7 +101,6 @@
     "env_config": {
         "description": "Environment configs.",
         
-        "generate_decoder_input": true,
         "batch_size": 256,
         "mask_nodes_in_mha": false,
         "generate_request_on_the_fly": false,
