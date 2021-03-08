@@ -4,13 +4,12 @@
     "trainer_config": {
         "description": "Trainer function configs.",
         "n_iterations": 50000,
-        "n_steps_to_update": 30,
-        "update_resource_decoder_input": false
+        "n_steps_to_update": 30
     },
 
     "tester_config": {
         "description": "Testing function configs.",
-        "update_resource_decoder_input": false,
+
         "show_per_test_stats": true,
         "show_inference_progress": true,
         "show_solutions": false,

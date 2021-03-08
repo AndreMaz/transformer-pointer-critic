@@ -257,7 +257,6 @@ def gather_stats_from_solutions(env, heuristic_solvers) -> List[dict]:
 def generate_file_name(agent_config):
     gamma = agent_config['gamma']
     entropy = agent_config['entropy_coefficient']
-    dp_rate = agent_config['actor']['dropout_rate']
     num_layers = agent_config['actor']['num_layers']
     
     actor_lr = agent_config['actor']['learning_rate']

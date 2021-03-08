@@ -110,7 +110,6 @@ def test_single_instance(
     req_sample_size: int,
     ):
     
-    update_resource_decoder_input: bool = opts['update_resource_decoder_input']
     plot_attentions: bool = opts['plot_attentions']
 
     # batch_size: int = opts['batch_size']
@@ -140,16 +139,10 @@ def test_single_instance(
     
     training_step = 0
     isDone = False
-    episode_rewards = np.zeros((agent.batch_size, agent.num_resources), dtype="float32")
-    
-    single_actor: bool = agent.single_actor
-    if single_actor:
-        current_state, dec_input, bin_net_mask, mha_used_mask = env.reset()
-        resource_net_mask = np.array(None)
-    else:
-        current_state, bin_net_mask, resource_net_mask, mha_used_mask = env.reset()
-        dec_input = agent.generate_decoder_input(current_state)
-    
+    episode_rewards = np.zeros(
+        (agent.batch_size, agent.num_resources), dtype="float32")
+    current_state, dec_input, bin_net_mask, mha_used_mask = env.reset()
+
     if show_inference_progress:
         print(f'Testing with {agent.num_resources} resources and {env.node_sample_size} bins', end='\r')
 
@@ -166,54 +159,34 @@ def test_single_instance(
 
         # Select an action
         bin_id,\
-        resource_id,\
-        decoded_resource,\
         bin_net_mask,\
-        resources_probs,\
         bins_probs = agent.act(
             current_state,
             dec_input,
             bin_net_mask,
-            resource_net_mask,
             mha_used_mask,
             env.build_feasible_mask
         )
 
-        if single_actor:
-                next_state, next_dec_input, reward, isDone, info = env.step(
-                    bin_id,
-                    resource_id,
-                    bin_net_mask
-                )
-        else:
-            # Play one step
-            next_state, reward, isDone, info = env.step(
-                bin_id,
-                resource_id,
-                bin_net_mask
-            )
+
+        next_state, next_dec_input, reward, isDone, info = env.step(
+            bin_id,
+            bin_net_mask
+        )
                 
         # Store episode rewards
         episode_rewards[:, training_step] = reward[:, 0]
 
         attentions.append({
             'resource_net_input': np.array(dec_input),
-            'bin_net_input': decoded_resource,
-            'resource_attention': resources_probs,
             "bin_attention": bins_probs.numpy(),
             "current_state": current_state.copy()
         })
 
         # Update for next iteration
-        if single_actor:
-            dec_input = next_dec_input.copy()
-        else:
-            if update_resource_decoder_input:
-                dec_input = decoded_resource.numpy()
-
         current_state = next_state
+        dec_input = next_dec_input.copy()
         bin_net_mask = info['bin_net_mask']
-        resource_net_mask = info['resource_net_mask']
         mha_used_mask = info['mha_used_mask']
         
         training_step += 1
