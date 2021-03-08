@@ -27,8 +27,6 @@ class Agent():
 
         self.num_bins: int = opts['num_bins']
         self.tensor_size: int = opts['tensor_size']
-        self.vocab_size: int = opts['vocab_size']
-        self.SOS_CODE: int = opts['actor']['SOS_CODE']
 
         self.gamma: float = opts['gamma'] # Discount factor
         self.values_loss_coefficient: float = opts['values_loss_coefficient']

@@ -8,9 +8,7 @@ def model_factory(type, opts):
             opts['actor']['dim_model'],
             opts['actor']['num_heads'],
             opts['actor']['inner_layer_dim'],
-            opts['vocab_size'],
             opts['actor']['logit_clipping_C'],
-            opts['actor']['SOS_CODE'],
             opts['actor']['encoder_embedding_time_distributed'],
             opts['actor']['attention_dense_units'],
             opts['actor']['use_default_initializer']
@@ -20,7 +18,6 @@ def model_factory(type, opts):
             opts['critic']['dim_model'],
             opts['critic']['num_heads'],
             opts['critic']['inner_layer_dim'],
-            opts['vocab_size'],
             opts['critic']['encoder_embedding_time_distributed'],
             opts['critic']['last_layer_units'],
             opts['critic']['last_layer_activation'],

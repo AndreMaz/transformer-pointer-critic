@@ -8,9 +8,7 @@ class ActorTransformer(tf.keras.Model):
                d_model,
                num_heads,
                dff,
-               vocab_size,
                logit_clipping_C: float,
-               SOS_CODE,
                encoder_embedding_time_distributed,
                attention_dense_units,
                use_default_initializer:bool = True
@@ -22,7 +20,6 @@ class ActorTransformer(tf.keras.Model):
                            d_model,
                            num_heads,
                            dff,
-                           vocab_size,
                            encoder_embedding_time_distributed,
                            use_default_initializer)
 
@@ -30,14 +27,10 @@ class ActorTransformer(tf.keras.Model):
                            d_model,
                            num_heads,
                            dff,
-                           SOS_CODE,
-                           vocab_size,
                            logit_clipping_C,
                            encoder_embedding_time_distributed,
                            attention_dense_units,
                            use_default_initializer)
-
-    # self.final_layer = tf.keras.layers.Dense(target_vocab_size)
   
   @tf.function
   def call(self,

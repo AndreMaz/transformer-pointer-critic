@@ -295,10 +295,6 @@ class ResourceEnvironmentV3(BaseEnvironment):
         
         agent_config['batch_size'] = self.batch_size
 
-        # In this env we don't need positional encoding
-        # So this can be any value
-        agent_config['vocab_size'] = 0 # self.num_nodes + self.num_profiles
-        
         return agent_config
 
     def set_testing_mode(self,

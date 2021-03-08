@@ -13,8 +13,6 @@ class Decoder(tf.keras.layers.Layer):
                d_model,
                num_heads,
                dff,
-               SOS_CODE,
-               vocab_size,
                logit_clipping_C: float,
                embedding_time_distributed: bool,
                attention_dense_units,
@@ -24,9 +22,6 @@ class Decoder(tf.keras.layers.Layer):
     self.d_model: int = d_model
     self.num_layers: int = num_layers
     self.embedding_time_distributed: bool = embedding_time_distributed
-    self.vocab_size: int = vocab_size
-
-    self.SOS_CODE = SOS_CODE
 
     self.d_model: int = d_model
     self.num_layers: int = num_layers
@@ -34,7 +29,6 @@ class Decoder(tf.keras.layers.Layer):
     self.use_default_initializer = use_default_initializer
     self.initializer = get_initializer(self.d_model, self.use_default_initializer)
 
-    # self.embedding = tf.keras.layers.Embedding(target_vocab_size, d_model)
     if self.embedding_time_distributed:
       self.embedding = TimeDistributed(
           Dense(

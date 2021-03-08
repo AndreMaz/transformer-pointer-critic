@@ -8,7 +8,6 @@ class CriticTransformer(tf.keras.Model):
                  d_model,
                  num_heads,
                  dff,
-                 vocab_size,
                  embedding_time_distributed,
                  last_layer_units,
                  last_layer_activation,
@@ -21,7 +20,6 @@ class CriticTransformer(tf.keras.Model):
         self.d_model = d_model
         self.num_heads = num_heads
         self.dff = dff
-        self.vocab_size = vocab_size
         self.embedding_time_distributed = embedding_time_distributed
 
         self.use_default_initializer = use_default_initializer
@@ -31,7 +29,6 @@ class CriticTransformer(tf.keras.Model):
                                self.d_model,
                                self.num_heads,
                                self.dff,
-                               self.vocab_size,
                                self.embedding_time_distributed,
                                use_default_initializer
                                )

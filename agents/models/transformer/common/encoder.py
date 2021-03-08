@@ -10,7 +10,6 @@ class Encoder(tf.keras.layers.Layer):
                d_model,
                num_heads,
                dff,
-               vocab_size,
                embedding_time_distributed: bool,
                use_default_initializer:bool = True):
     super(Encoder, self).__init__()
@@ -18,12 +17,10 @@ class Encoder(tf.keras.layers.Layer):
     self.d_model = d_model
     self.num_layers = num_layers
     self.embedding_time_distributed = embedding_time_distributed
-    self.vocab_size = vocab_size
 
     self.use_default_initializer = use_default_initializer
     self.initializer = get_initializer(self.d_model, self.use_default_initializer)
 
-    # self.embedding = tf.keras.layers.Embedding(input_vocab_size, d_model)
     if self.embedding_time_distributed:
       self.embedding = TimeDistributed(
           Dense(
