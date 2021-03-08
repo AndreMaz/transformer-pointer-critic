@@ -15,6 +15,7 @@ class TestResource(unittest.TestCase):
         ENV_CONFIG = {
             "description": "Environment configs.",
 
+            "generate_decoder_input": True,
             "mask_nodes_in_mha": False,
             "generate_request_on_the_fly": True,
             "batch_size": 2,
@@ -44,7 +45,8 @@ class TestResource(unittest.TestCase):
         }
 
         AGENT_CONFIG = {
-
+            
+            "single_actor": True,
             "gamma": 0.99,
             "values_loss_coefficient": 1.0,
             "entropy_coefficient": 0.1,
@@ -57,7 +59,6 @@ class TestResource(unittest.TestCase):
                 "dim_model": 128,
                 "num_heads": 8,
                 "inner_layer_dim": 128,
-                "positional_encoding": False,
                 "SOS_CODE": -1,
                 "encoder_embedding_time_distributed": True,
                 "attention_dense_units": 128,
@@ -72,7 +73,6 @@ class TestResource(unittest.TestCase):
                 "num_layers": 3,
                 "dim_model": 128,
                 "num_heads": 8,
-                "positional_encoding": False,
                 "inner_layer_dim": 128,
                 "encoder_embedding_time_distributed": True,
                 "last_layer_units": 128,
@@ -91,12 +91,18 @@ class TestResource(unittest.TestCase):
 
 
     def test_act(self) -> None:
-        current_state,\
-        bin_net_mask,\
-        resource_net_mask,\
-        mha_used_mask = self.env.reset()
+        # current_state,\
+        # bin_net_mask,\
+        # resource_net_mask,\
+        # mha_used_mask = self.env.reset()
 
-        decoder_input = self.agent.generate_decoder_input(current_state)
+        # decoder_input = self.agent.generate_decoder_input(current_state)
+
+        current_state,\
+        decoder_input,\
+        bin_net_mask,\
+        mha_used_mask = self.env.reset()
+        resource_net_mask = np.array(None)
 
         self.assertEqual(
             decoder_input.shape, (2, 1, 3)
@@ -123,10 +129,10 @@ class TestResource(unittest.TestCase):
             np.all(bin_ids <= 3)
         )
 
-        self.assertEqual(len(resource_ids), 2)
-        self.assertTrue(
-            np.all(resource_ids > 3) and np.all(resource_ids <= 5)
-        )
+        # self.assertEqual(len(resource_ids), 2)
+        # self.assertTrue(
+        #     np.all(resource_ids > 3) and np.all(resource_ids <= 5)
+        # )
 
         self.assertEqual(
             decoded_resources.shape, (2, 1, 3)
@@ -136,5 +142,5 @@ class TestResource(unittest.TestCase):
             bins_mask.shape, (2, 6)
         )
 
-        self.assertEqual(resources_probs.shape, (2, 6))
+        # self.assertEqual(resources_probs.shape, (2, 6))
         self.assertEqual(bins_probs.shape, (2, 6))

@@ -8,7 +8,6 @@ class CriticTransformer(tf.keras.Model):
                  d_model,
                  num_heads,
                  dff,
-                 positional_encoding,
                  vocab_size,
                  embedding_time_distributed,
                  last_layer_units,
@@ -24,7 +23,6 @@ class CriticTransformer(tf.keras.Model):
         self.num_heads = num_heads
         self.dff = dff
         self.vocab_size = vocab_size
-        self.positional_encoding = positional_encoding
         self.embedding_time_distributed = embedding_time_distributed
         self.dropout_rate = dropout_rate
 
@@ -35,7 +33,6 @@ class CriticTransformer(tf.keras.Model):
                                self.d_model,
                                self.num_heads,
                                self.dff,
-                               self.positional_encoding,
                                self.vocab_size,
                                self.embedding_time_distributed,
                                self.dropout_rate,

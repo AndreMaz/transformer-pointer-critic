@@ -2,7 +2,7 @@ import tensorflow as tf
 from tensorflow.keras.layers import TimeDistributed, Dense
 
 from agents.models.transformer.common.encoder_layer import EncoderLayer
-from agents.models.transformer.common.utils import positional_encoding, get_initializer
+from agents.models.transformer.common.utils import get_initializer
 
 class Encoder(tf.keras.layers.Layer):
   def __init__(self,
@@ -10,7 +10,6 @@ class Encoder(tf.keras.layers.Layer):
                d_model,
                num_heads,
                dff,
-               use_positional_encoding,
                vocab_size,
                embedding_time_distributed: bool,
                dropout_rate=0.1,
@@ -21,7 +20,6 @@ class Encoder(tf.keras.layers.Layer):
     self.num_layers = num_layers
     self.embedding_time_distributed = embedding_time_distributed
     self.vocab_size = vocab_size
-    self.use_positional_encoding = use_positional_encoding
 
     self.use_default_initializer = use_default_initializer
     self.initializer = get_initializer(self.d_model, self.use_default_initializer)
@@ -39,10 +37,6 @@ class Encoder(tf.keras.layers.Layer):
           self.d_model,
           kernel_initializer=self.initializer
       )
-    
-    if use_positional_encoding:
-    # Shape is (1, vocab_size, d_model)
-      self.pos_encoding = positional_encoding(self.vocab_size, self.d_model)
     
     self.enc_layers = [EncoderLayer(d_model, num_heads, dff, dropout_rate, use_default_initializer) 
                        for _ in range(num_layers)]
@@ -64,11 +58,6 @@ class Encoder(tf.keras.layers.Layer):
     # adding embedding and position encoding.
     x = self.embedding(x)  # (batch_size, input_seq_len, d_model)
 
-    if self.use_positional_encoding:
-      x *= tf.math.sqrt(tf.cast(self.d_model, tf.float32))
-      # Add positional encoding
-      x += self.pos_encoding[:, :seq_len, :]
-
     x = self.dropout(x, training=training)
 
     # Self-Attention over the bins
@@ -85,7 +74,7 @@ class Encoder(tf.keras.layers.Layer):
         encoded_resources, training, enc_padding_mask[:, :, :, num_bins:]
       )
 
-    # Concatenate the bins and resources
+    # Concatenate self-attentions of bins and resources
     concatenated_result = self.concatenate_layer(
       [encoded_bins, encoded_resources]
     )
