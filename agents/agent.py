@@ -22,13 +22,6 @@ class Agent():
         # Default training mode
         self.training = True
 
-        self.single_actor: bool = opts['single_actor']
-
-        if self.single_actor:
-            assert opts['generate_decoder_input'] is True, "For using single-actor set generate_decoder_input in env. config to True"
-        else:
-            assert opts['generate_decoder_input'] is False, "For using dual-actor set generate_decoder_input in env. config to False"
-
         self.batch_size: int = opts['batch_size']
         self.num_resources: int = opts['num_resources']
 
@@ -64,7 +57,7 @@ class Agent():
         )
 
         ### Load the models
-        self.resource_actor, self.bin_actor, self.critic = model_factory(
+        self.bin_actor, self.critic = model_factory(
             name,
             opts
         )
@@ -121,15 +114,6 @@ class Agent():
         self.bins = []
 
         self.rewards = np.zeros((self.batch_size, self.num_resources), dtype="float32")
-
-    def generate_decoder_input(self, state):
-        batch = state.shape[0]
-        num_features = state.shape[2]
-        dec_input = np.zeros((batch, 1, num_features), dtype='float32')
-
-        dec_input += self.SOS_CODE
-
-        return dec_input
 
     def compute_discounted_rewards(self, bootstrap_state_value):
         bootstrap_state_value = tf.reshape(bootstrap_state_value, [bootstrap_state_value.shape[0]])
@@ -277,38 +261,10 @@ class Agent():
         # Create a tensor with the batch indices
         batch_indices = tf.range(batch_size, dtype='int32')
 
-        if not self.single_actor:
-            #########################################
-            ############ SELECT AN resource ############
-            #########################################
-            resources_logits, resources_probs, resource_ids, decoded_resources = self.resource_actor(
-                state,
-                dec_input,
-                resources_mask,
-                self.training,
-                enc_padding_mask = mha_used_mask,
-                dec_padding_mask = mha_used_mask
-            )
-
-            if self.stochastic_action_selection:
-                # resource_ids = []
-                # for batch_id in range(batch_size):
-                # Stochastic resource selection
-                dist_resource = tfp.distributions.Categorical(probs = resources_probs)
-                # Sample from distribution
-                resource_ids = dist_resource.sample()
-            
-            resource_ids = resource_ids.numpy()
-            # Decode the resources
-            decoded_resources = state[batch_indices, resource_ids]
-            
-            # Add time step dim
-            decoded_resources = tf.expand_dims(decoded_resources, axis = 1).numpy()
-        else:
-            resource_ids = np.array(None)
-            resources_probs = None
-            # Resource are provided by the environment
-            decoded_resources = dec_input.copy()
+        resource_ids = np.array(None)
+        resources_probs = None
+        # Resource are provided by the environment
+        decoded_resources = dec_input.copy()
 
         # Update the masks for the bin-net
         # This will only allow to point to feasible solutions
@@ -347,22 +303,11 @@ class Agent():
                resources_probs, \
                bins_probs
 
-    def set_training_mode(self, mode: bool):
-        # Only used by transformer model
-        if self.name == TRANSFORMER:
-            self.resource_actor.training = mode
-            self.bin_actor.training = mode
-            self.critic = mode
-
     def save_weights(self, location):
-
-        self.resource_actor.save_weights(f'{location}/resource_actor')
         self.bin_actor.save_weights(f'{location}/bin_actor')
 
 
     def load_weights(self, location):
-
-        self.resource_actor.load_weights(f'{location}/resource_actor')
         self.bin_actor.load_weights(f'{location}/bin_actor')
 
     def set_testing_mode(self, batch_size, num_bins, num_resources):
@@ -375,23 +320,3 @@ class Agent():
         self.num_resources = num_resources
 
         self.num_bins = num_bins
-    
-def process_logits(pointer_logits, enc_input):
-    batch_size = enc_input.shape[0]
-    # Create a tensor with the batch indices
-    batch_indices = tf.range(batch_size, dtype='int32')
-
-    # Apply softmax
-    pointer_probs = tf.nn.softmax(pointer_logits, axis=-1)
-
-    # Grab the indice of the values pointed by the pointer
-    # pointer_index = pointer_probs.numpy().argmax(-1)
-    pointer_index = tf.argmax(pointer_probs, axis=-1, output_type='int32')
-
-    # Grab decoded element
-    # dec_output = enc_input.numpy()[batch_indices, pointer_index]
-    dec_output = tf.gather_nd(
-        enc_input, tf.stack((batch_indices, pointer_index), -1)
-    )
-
-    return pointer_probs, pointer_index, dec_output

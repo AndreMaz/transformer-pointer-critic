@@ -49,8 +49,6 @@ class ResourceEnvironmentV3(BaseEnvironment):
         self.node_min_val: int = opts['node_min_val']
         self.node_max_val: int = opts['node_max_val']
 
-        self.generate_decoder_input: bool = opts['generate_decoder_input']
-
         ################################################
         ##### MATERIALIZED VARIABLES FROM CONFIGS ######
         ################################################
@@ -91,18 +89,12 @@ class ResourceEnvironmentV3(BaseEnvironment):
         return self.state()
 
     def state(self):
-        if self.generate_decoder_input:
-            decoder_input = self.batch[:, self.decoding_step]
-            decoder_input = np.expand_dims(decoder_input, axis=1)
-
-            return self.batch.copy(),\
-                decoder_input,\
-                self.bin_net_mask.copy(),\
-                self.mha_used_mask.copy()
+        decoder_input = self.batch[:, self.decoding_step]
+        decoder_input = np.expand_dims(decoder_input, axis=1)
 
         return self.batch.copy(),\
+            decoder_input,\
             self.bin_net_mask.copy(),\
-            self.resource_net_mask.copy(),\
             self.mha_used_mask.copy()
 
     def step(self, bin_ids: List[int], req_ids: List[int], feasible_bin_mask):
@@ -181,18 +173,15 @@ class ResourceEnvironmentV3(BaseEnvironment):
             self.place_reqs(bin_ids, req_ids, reqs)
         
         # Pick next decoder_input
-        if self.generate_decoder_input:
-            self.decoding_step += 1
-            if self.decoding_step < self.node_sample_size + self.profiles_sample_size:
-                decoder_input = self.batch[:, self.decoding_step]
-                decoder_input = np.expand_dims(decoder_input, axis=1)
-            else:
-                # We are done. No need to generate decoder input
-                decoder_input = np.array([None])
+        self.decoding_step += 1
+        if self.decoding_step < self.node_sample_size + self.profiles_sample_size:
+            decoder_input = self.batch[:, self.decoding_step]
+            decoder_input = np.expand_dims(decoder_input, axis=1)
+        else:
+            # We are done. No need to generate decoder input
+            decoder_input = np.array([None])
 
-            return self.batch.copy(), decoder_input, rewards, isDone, info
-        
-        return self.batch.copy(), rewards, isDone, info
+        return self.batch.copy(), decoder_input, rewards, isDone, info
     
     def generate_dataset(self):
     
@@ -278,17 +267,8 @@ class ResourceEnvironmentV3(BaseEnvironment):
 
         batch_indices = tf.range(self.batch.shape[0], dtype='int32')
 
-        if self.generate_decoder_input:
-            resource_ids = tf.fill(self.batch_size, self.decoding_step)   
-        else:
-            resources_probs = np.random.uniform(size=self.bin_net_mask.shape)
-            resources_probs = tf.nn.softmax(
-                resources_probs - (self.resource_net_mask*10e6), axis=-1
-            )
-            
-            dist_resource = tfp.distributions.Categorical(probs = resources_probs)
-            resource_ids = dist_resource.sample()
-
+        resource_ids = tf.fill(self.batch_size, self.decoding_step)   
+        
         # Decode the resources
         decoded_resources = self.batch[batch_indices, resource_ids]
         decoded_resources = np.expand_dims(decoded_resources, axis=1)
@@ -305,10 +285,7 @@ class ResourceEnvironmentV3(BaseEnvironment):
 
         bin_ids = dist_bin.sample()
 
-        if self.generate_decoder_input:
-            return bin_ids, bins_mask
-
-        return bin_ids, resource_ids, bins_mask
+        return bin_ids, bins_mask
 
     def add_stats_to_agent_config(self, agent_config: dict):
         agent_config['num_resources'] = self.profiles_sample_size
@@ -322,8 +299,6 @@ class ResourceEnvironmentV3(BaseEnvironment):
         # So this can be any value
         agent_config['vocab_size'] = 0 # self.num_nodes + self.num_profiles
         
-        agent_config['generate_decoder_input'] = self.generate_decoder_input
-
         return agent_config
 
     def set_testing_mode(self,
