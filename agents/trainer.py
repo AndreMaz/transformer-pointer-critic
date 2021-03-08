@@ -15,10 +15,6 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict, show_progress: bool):
     min_rewards_buffer = []
     max_rewards_buffer = []
     value_loss_buffer = []
-
-    resources_policy_loss_buffer = []
-    resources_total_loss_buffer = []
-    resources_entropy_buffer = []
     
     bins_policy_loss_buffer = []
     bins_total_loss_buffer = []
@@ -28,10 +24,9 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict, show_progress: bool):
     
     # Initial vars for the initial episode
     isDone = False
-    episode_rewards = np.zeros((agent.batch_size, agent.num_resources), dtype="float32")
-
+    episode_rewards = np.zeros(
+        (agent.batch_size, agent.num_resources), dtype="float32")
     current_state, dec_input, bin_net_mask, mha_used_mask = env.reset()
-    resource_net_mask = np.array(None)
 
     training_step = 0
     start = time.time()
@@ -41,21 +36,19 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict, show_progress: bool):
         # Reached the end of episode. Reset for the next episode
         if isDone:
             isDone = False
-            episode_rewards = np.zeros((agent.batch_size, agent.num_resources), dtype="float32")
-
+            episode_rewards = np.zeros(
+                (agent.batch_size, agent.num_resources), dtype="float32")
             current_state, dec_input, bin_net_mask, mha_used_mask = env.reset()
-            resource_net_mask = np.array(None)
             
             training_step = 0
             start = time.time()
 
         while not isDone or training_step < n_steps_to_update:
             # Select an action
-            bin_id, resource_id, decoded_resource, bin_net_mask, _, _ = agent.act(
+            bin_id, decoded_resource, bin_net_mask, _ = agent.act(
                 current_state,
                 dec_input,
                 bin_net_mask,
-                resource_net_mask,
                 mha_used_mask,
                 env.build_feasible_mask
             )
@@ -77,9 +70,7 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict, show_progress: bool):
                 dec_input.copy(), # Resource fed to resource-net decoder
                 bin_net_dec_input.copy(), # Resource fed to bin-net decoder
                 bin_net_mask.copy(),
-                resource_net_mask.copy(),
                 mha_used_mask.copy(),
-                resource_id.copy(),
                 bin_id.numpy().copy(),
                 reward.numpy().copy(),
                 training_step
@@ -90,7 +81,6 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict, show_progress: bool):
 
             current_state = next_state
             bin_net_mask = info['bin_net_mask']
-            resource_net_mask = info['resource_net_mask']
             mha_used_mask = info['mha_used_mask']
 
             training_step += 1
@@ -134,9 +124,9 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict, show_progress: bool):
             agent.critic.trainable_weights
         )
 
-        resource_policy_loss = np.array([0], dtype="float32")
-        resources_entropy = np.array([0], dtype="float32")
-        resources_loss = tf.constant(0, dtype="float32")
+        # resource_policy_loss = np.array([0], dtype="float32")
+        # resources_entropy = np.array([0], dtype="float32")
+        # resources_loss = tf.constant(0, dtype="float32")
         
         with tf.GradientTape() as tape_bin:
             bin_loss,\
@@ -172,9 +162,9 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict, show_progress: bool):
 
         # Store the stats
         value_loss_buffer.append(value_loss.numpy())
-        resources_policy_loss_buffer.append(np.mean(resource_policy_loss))
-        resources_total_loss_buffer.append(resources_loss.numpy())
-        resources_entropy_buffer.append(np.mean(resources_entropy))
+        # resources_policy_loss_buffer.append(np.mean(resource_policy_loss))
+        # resources_total_loss_buffer.append(resources_loss.numpy())
+        # resources_entropy_buffer.append(np.mean(resources_entropy))
         bins_policy_loss_buffer.append(np.mean(bin_policy_loss))
         bins_total_loss_buffer.append(bin_loss.numpy())
         bins_entropy_buffer.append(np.mean(bin_entropy))
@@ -185,9 +175,9 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict, show_progress: bool):
             f"Max@Batch: {max_in_batch:.3f}\t" +
             f"Avg@Batch: {episode_reward:.3f}\t" +
             f"V_Loss: {value_loss:.3f}\t" +
-            f"R_Tot_Loss: {resources_loss:.3f}\t" +
-            f"R_Pol_Loss: {tf.reduce_mean(resource_policy_loss):.3f}\t" +
-            f"Entr R: {tf.reduce_mean(resources_entropy):.3f}\t" +
+            # f"R_Tot_Loss: {resources_loss:.3f}\t" +
+            # f"R_Pol_Loss: {tf.reduce_mean(resource_policy_loss):.3f}\t" +
+            # f"Entr R: {tf.reduce_mean(resources_entropy):.3f}\t" +
             f"B_Tot_Loss: {bin_loss:.3f}\t" + 
             f"B_Pol_Loss: {tf.reduce_mean(bin_policy_loss):.3f}\t" +
             f"Entr B: {tf.reduce_mean(bin_entropy):.3f}", end="\n")
@@ -199,9 +189,6 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict, show_progress: bool):
         min_rewards_buffer,\
         max_rewards_buffer,\
         value_loss_buffer, \
-        resources_policy_loss_buffer,\
-        resources_total_loss_buffer,\
-        resources_entropy_buffer,\
         bins_policy_loss_buffer,\
         bins_total_loss_buffer,\
         bins_entropy_buffer

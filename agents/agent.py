@@ -64,10 +64,10 @@ class Agent():
         self.states = []
         self.resource_net_decoder_input = []
         self.bin_net_decoder_input = []
-        self.resources = []
+        
         self.bins = []
         self.bin_masks = []
-        self.resource_masks = []
+
         self.mha_masks = [] # <= ToDo
         self.rewards = np.zeros((self.batch_size, self.num_resources), dtype="float32")
 
@@ -76,9 +76,7 @@ class Agent():
               resource_net_dec_input,
               bin_net_dec_input,
               bin_mask,
-              resources_masks,
               mha_mask,
-              resource,
               bin,
               reward,
               training_step
@@ -90,10 +88,9 @@ class Agent():
         self.bin_net_decoder_input.append(bin_net_dec_input)
 
         self.bin_masks.append(bin_mask)
-        self.resource_masks.append(resources_masks)
+
         self.mha_masks.append(mha_mask)
 
-        self.resources.append(resource) # Resource IDs, a.k.a, resource actions
         self.bins.append(bin) # Bind IDs, a.k.a, bin actions
         
         self.rewards[:, training_step] = reward[:, 0]
@@ -105,10 +102,9 @@ class Agent():
         self.bin_net_decoder_input = []
 
         self.bin_masks = []
-        self.resource_masks = []
+
         self.mha_masks = []
 
-        self.resources = []
         self.bins = []
 
         self.rewards = np.zeros((self.batch_size, self.num_resources), dtype="float32")
@@ -251,7 +247,6 @@ class Agent():
             state,
             dec_input,
             bins_mask,
-            resources_mask,
             mha_used_mask,
             build_feasible_mask
         ):
@@ -259,8 +254,9 @@ class Agent():
         # Create a tensor with the batch indices
         batch_indices = tf.range(batch_size, dtype='int32')
 
-        resource_ids = np.array(None)
-        resources_probs = None
+        # resource_ids = np.array(None)
+        # resources_probs = None
+
         # Resource are provided by the environment
         decoded_resources = dec_input.copy()
 
@@ -295,10 +291,8 @@ class Agent():
         decoded_bin = state[batch_indices, bin_ids]
 
         return bin_ids, \
-               resource_ids, \
                decoded_resources, \
                bins_mask, \
-               resources_probs, \
                bins_probs
 
     def save_weights(self, location):

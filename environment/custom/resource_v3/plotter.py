@@ -26,9 +26,6 @@ def plotter_leaning(data, location, file_name, agent_name ):
         _,\
         _,\
         value_loss_buffer, \
-        resources_policy_loss_buffer,\
-        resources_total_loss_buffer,\
-        resources_entropy_buffer,\
         bins_policy_loss_buffer,\
         bins_total_loss_buffer,\
         bins_entropy_buffer = data
@@ -42,10 +39,6 @@ def plotter_leaning(data, location, file_name, agent_name ):
     x_values = [i for i in range(len(value_loss_buffer))]
 
     plt.plot(x_values, value_loss_buffer, label="Value Loss")
-
-    plt.plot(x_values, resources_policy_loss_buffer, label="Resource Policy Net Loss")
-    plt.plot(x_values, resources_total_loss_buffer, label="Total Resource Net Loss")
-    plt.plot(x_values, resources_entropy_buffer, label="Resource Net Entropy")
     
     plt.plot(x_values, bins_policy_loss_buffer, label="Bin Policy Net Loss")
     plt.plot(x_values, bins_total_loss_buffer, label="Total Bin Net Loss")
@@ -79,9 +72,6 @@ def plotter_rewards(data, location, file_name, agent_name ):
         min_rewards_buffer,\
         max_rewards_buffer,\
         _, \
-        _,\
-        _,\
-        _,\
         _,\
         _,\
         _, = data
