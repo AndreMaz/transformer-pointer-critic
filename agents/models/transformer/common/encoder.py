@@ -12,7 +12,6 @@ class Encoder(tf.keras.layers.Layer):
                dff,
                vocab_size,
                embedding_time_distributed: bool,
-               dropout_rate=0.1,
                use_default_initializer:bool = True):
     super(Encoder, self).__init__()
 
@@ -38,18 +37,16 @@ class Encoder(tf.keras.layers.Layer):
           kernel_initializer=self.initializer
       )
     
-    self.enc_layers = [EncoderLayer(d_model, num_heads, dff, dropout_rate, use_default_initializer) 
+    self.enc_layers = [EncoderLayer(d_model, num_heads, dff, use_default_initializer) 
                        for _ in range(num_layers)]
   
-    self.enc_layers_bins = [EncoderLayer(d_model, num_heads, dff, dropout_rate, use_default_initializer) 
+    self.enc_layers_bins = [EncoderLayer(d_model, num_heads, dff, use_default_initializer) 
                        for _ in range(num_layers)]
 
-    self.enc_layers_resources = [EncoderLayer(d_model, num_heads, dff, dropout_rate, use_default_initializer) 
+    self.enc_layers_resources = [EncoderLayer(d_model, num_heads, dff, use_default_initializer) 
                        for _ in range(num_layers)]
 
     self.concatenate_layer = tf.keras.layers.Concatenate(axis=1)
-
-    self.dropout = tf.keras.layers.Dropout(dropout_rate)
         
   def call(self, x, training, num_bins, enc_padding_mask = None):
 
@@ -57,8 +54,6 @@ class Encoder(tf.keras.layers.Layer):
     
     # adding embedding and position encoding.
     x = self.embedding(x)  # (batch_size, input_seq_len, d_model)
-
-    x = self.dropout(x, training=training)
 
     # Self-Attention over the bins
     encoded_bins = x[:, :num_bins]

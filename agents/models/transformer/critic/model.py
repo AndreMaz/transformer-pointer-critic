@@ -12,7 +12,6 @@ class CriticTransformer(tf.keras.Model):
                  embedding_time_distributed,
                  last_layer_units,
                  last_layer_activation,
-                 dropout_rate=0.1,
                  use_default_initializer:bool = True
                  ):
         super(CriticTransformer, self).__init__()
@@ -24,7 +23,6 @@ class CriticTransformer(tf.keras.Model):
         self.dff = dff
         self.vocab_size = vocab_size
         self.embedding_time_distributed = embedding_time_distributed
-        self.dropout_rate = dropout_rate
 
         self.use_default_initializer = use_default_initializer
         self.initializer = get_initializer(self.d_model, self.use_default_initializer)
@@ -35,7 +33,6 @@ class CriticTransformer(tf.keras.Model):
                                self.dff,
                                self.vocab_size,
                                self.embedding_time_distributed,
-                               self.dropout_rate,
                                use_default_initializer
                                )
         

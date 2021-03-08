@@ -13,7 +13,6 @@ def model_factory(type, opts):
             opts['actor']['SOS_CODE'],
             opts['actor']['encoder_embedding_time_distributed'],
             opts['actor']['attention_dense_units'],
-            opts['actor']['dropout_rate'],
             opts['actor']['use_default_initializer']
         )
         allocator_actor = ActorTransformer(
@@ -26,7 +25,6 @@ def model_factory(type, opts):
             opts['actor']['SOS_CODE'],
             opts['actor']['encoder_embedding_time_distributed'],
             opts['actor']['attention_dense_units'],
-            opts['actor']['dropout_rate'],
             opts['actor']['use_default_initializer']
         )
         critic = CriticTransformer(
@@ -38,7 +36,6 @@ def model_factory(type, opts):
             opts['critic']['encoder_embedding_time_distributed'],
             opts['critic']['last_layer_units'],
             opts['critic']['last_layer_activation'],
-            opts['critic']['dropout_rate'],
             opts['critic']['use_default_initializer']
         )
     else:

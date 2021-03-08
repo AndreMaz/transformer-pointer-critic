@@ -13,7 +13,6 @@ class ActorTransformer(tf.keras.Model):
                SOS_CODE,
                encoder_embedding_time_distributed,
                attention_dense_units,
-               rate=0.1,
                use_default_initializer:bool = True
                ):
 
@@ -25,7 +24,6 @@ class ActorTransformer(tf.keras.Model):
                            dff,
                            vocab_size,
                            encoder_embedding_time_distributed,
-                           rate,
                            use_default_initializer)
 
     self.decoder = Decoder(num_layers, 
@@ -37,7 +35,6 @@ class ActorTransformer(tf.keras.Model):
                            logit_clipping_C,
                            encoder_embedding_time_distributed,
                            attention_dense_units,
-                           rate,
                            use_default_initializer)
 
     # self.final_layer = tf.keras.layers.Dense(target_vocab_size)

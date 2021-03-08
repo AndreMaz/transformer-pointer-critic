@@ -5,7 +5,6 @@ import numpy as np
 from agents.models.transformer.actor.decoder_layer import DecoderLayer
 from agents.models.transformer.common.utils import get_initializer
 
-from agents.models.transformer.actor.last_decoder_layer import LastDecoderLayer
 from agents.models.transformer.actor.pointer_attention import PointerAttention
 
 class Decoder(tf.keras.layers.Layer):
@@ -19,7 +18,6 @@ class Decoder(tf.keras.layers.Layer):
                logit_clipping_C: float,
                embedding_time_distributed: bool,
                attention_dense_units,
-               rate=0.1,
                use_default_initializer: bool = True):
     super(Decoder, self).__init__()
 
@@ -50,7 +48,7 @@ class Decoder(tf.keras.layers.Layer):
           kernel_initializer=self.initializer
       )
 
-    self.dec_layers = [DecoderLayer(d_model, num_heads, dff, rate, use_default_initializer) 
+    self.dec_layers = [DecoderLayer(d_model, num_heads, dff, use_default_initializer) 
                        for _ in range(num_layers)]
 
     # self.last_decoder_layer = LastDecoderLayer(d_model,
@@ -67,8 +65,6 @@ class Decoder(tf.keras.layers.Layer):
       use_default_initializer
     )
 
-    self.dropout = tf.keras.layers.Dropout(rate)
-    
   def call(self,
            dec_input,
            enc_input,
@@ -82,8 +78,6 @@ class Decoder(tf.keras.layers.Layer):
     attention_weights = {}
     
     dec_input = self.embedding(dec_input)  # (batch_size, target_seq_len, d_model)
-
-    dec_input = self.dropout(dec_input, training=training)
 
     for i in range(self.num_layers):
       dec_input, block1, block2 = self.dec_layers[i](dec_input,
