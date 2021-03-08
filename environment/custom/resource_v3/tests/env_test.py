@@ -223,7 +223,7 @@ class TestResource(unittest.TestCase):
         fake_state[batch_indices, 0] = self.env.EOS_BIN
 
         next_state, next_decoder_input, rewards, isDone, info = self.env.step(
-            fake_bin_ids, np.array(None), fake_bin_net_mask
+            fake_bin_ids, fake_bin_net_mask
         )
         self.assertEqual(
             fake_state.tolist(),
@@ -301,13 +301,12 @@ class TestResource(unittest.TestCase):
         self.env.reset()
 
         bin_ids, bins_mask = self.env.sample_action()
-        resource_ids = None
-        _, _, _, is_done, _ = self.env.step(bin_ids, resource_ids, bins_mask)
+        _, _, _, is_done, _ = self.env.step(bin_ids, bins_mask)
 
         self.assertFalse(is_done)
 
         bin_ids, bins_mask = self.env.sample_action()
-        _, _, _, is_done, _ = self.env.step(bin_ids, resource_ids, bins_mask)
+        _, _, _, is_done, _ = self.env.step(bin_ids, bins_mask)
 
         self.assertTrue(is_done)
 
@@ -637,7 +636,7 @@ class TestResourceWithDecoderInput(unittest.TestCase):
 
         # Take a step
         next_state, next_decoder_input, rewards, isDone, info = self.env.step(
-            fake_bin_ids, None, fake_bin_net_mask
+            fake_bin_ids, fake_bin_net_mask
         )
 
         self.assertEqual(next_state.shape, (2, 6, 3))
@@ -717,15 +716,18 @@ class TestResourceWithDecoderInput(unittest.TestCase):
         self.env.reset()
 
         bin_ids, bins_mask = self.env.sample_action()
-        resource_ids = None
-        next_state, next_decoder_input, rewards, is_done, info = self.env.step(bin_ids, resource_ids, bins_mask)
+        next_state,\
+            next_decoder_input,\
+            rewards, is_done, info = self.env.step(bin_ids, bins_mask)
 
         self.assertEqual(next_decoder_input.shape, (2, 1, 3))
 
         self.assertFalse(is_done)
 
         bin_ids, bins_mask = self.env.sample_action()
-        next_state, next_decoder_input, rewards, is_done, info = self.env.step(bin_ids, resource_ids, bins_mask)
+        next_state,\
+            next_decoder_input,\
+            rewards, is_done, info = self.env.step(bin_ids, bins_mask)
 
         self.assertEqual(next_decoder_input[0], None)
         self.assertTrue(is_done)

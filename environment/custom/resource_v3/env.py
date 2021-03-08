@@ -97,12 +97,11 @@ class ResourceEnvironmentV3(BaseEnvironment):
             self.bin_net_mask.copy(),\
             self.mha_used_mask.copy()
 
-    def step(self, bin_ids: List[int], req_ids: List[int], feasible_bin_mask):
+    def step(self, bin_ids: List[int], feasible_bin_mask):
         # Default is not done
         isDone = False
 
-        if np.all(req_ids == None):
-            req_ids = tf.fill(self.batch_size, self.decoding_step)
+        req_ids = tf.fill(self.batch_size, self.decoding_step)
 
         batch_size = self.batch.shape[0]
         num_elems = self.batch.shape[1]

@@ -65,7 +65,6 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict, show_progress: bool):
 
             next_state, next_dec_input, reward, isDone, info = env.step(
                 bin_id,
-                resource_id,
                 bin_net_mask
             )
             
