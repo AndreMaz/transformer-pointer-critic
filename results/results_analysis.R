@@ -5,8 +5,15 @@ library(ggpubr)
 library(nortest)
 
 
+base = './ResourceV3'
+test_location = 'tests'
+filename = 'test.csv'
+date = '2021-03-09T16:44:23'
+
+file = paste(base, date, test_location, filename, sep='/')
+
 ## Load data from CSV
-df1 <- read.csv(file='./150k_test_entropy_0.1_reward_greedy.csv', header = TRUE, sep = ';')
+df1 <- read.csv(file=file, header = TRUE, sep = ';')
 
 ##############################################
 ################ COMMON HELPERS ##############
@@ -19,7 +26,7 @@ avgData <- df1 %>%
 ### Drop unecessary cols
 avgData <- subset(avgData, select = -c(X, test_instance))
 
-write.csv(avgData, "./150k_test_entropy_0.1_reward_greedy_avg.csv")
+write.csv(avgData, paste(base, date, test_location, "avg.csv", sep='/'))
 
 avgData$node_min_value <- as.factor(avgData$node_min_value)
 
@@ -57,6 +64,8 @@ ggplot(data = stacked_rejected_data, aes(x=node_min_value, y=Value, col=Type, gr
   theme(axis.text.x = element_text(angle = 35, hjust = 1))+
   theme(legend.position="bottom")
 
+ggsave(paste(base, date, test_location, "rejected.pdf", sep='/'), height = 50, width = 30, limitsize = FALSE)
+
 ##############################################
 ############# PLOT DOMINANT STATS ############
 ##############################################
@@ -83,6 +92,8 @@ ggplot(data = stacked_dominant_data, aes(x=node_min_value, y=Value, col=Type, gr
   theme(axis.text.x = element_text(angle = 35, hjust = 1))+
   theme(legend.position="bottom")
 
+ggsave(paste(base, date, test_location, "dominant.pdf", sep='/'), height = 50, width = 30, limitsize = FALSE)
+
 ##############################################
 ############# PLOT EMPTY NODES ############
 ##############################################
@@ -108,3 +119,7 @@ ggplot(data = stacked_empty_nodes_data, aes(x=node_min_value, y=Value, col=Type,
   scale_x_discrete(labels = (xLabels))+
   theme(axis.text.x = element_text(angle = 35, hjust = 1))+
   theme(legend.position="bottom")
+
+
+ggsave(paste(base, date, test_location, "empty_nodes.pdf", sep='/'), height = 50, width = 30, limitsize = FALSE)
+

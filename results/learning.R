@@ -6,7 +6,14 @@ library(nortest)
 
 
 ## Load data from CSV
-learning_data <- read.csv(file='../media/plots/ResourceV3/transformer/150k_training_entropy_0.1_reward_greedy.csv', header = TRUE, sep = ';')
+base = './ResourceV3'
+test_location = 'training'
+filename = 'logs.csv'
+date = '2021-03-09T16:44:23'
+
+file = paste(base, date, test_location, filename, sep='/')
+
+learning_data <- read.csv(file=file, header = TRUE, sep = ';')
 
 # Reshape learning stats into tall format
 learning_stats <- melt(learning_data, id.vars = c(
@@ -42,6 +49,7 @@ ggplot(data = learning_stats, aes(x=Step, y=Value, col=Type, group = Type))+
     # legend.title=element_blank()
   )
 
+ggsave(paste(base, date, test_location, "learning.pdf", sep='/'))
 
 # Reshape reward data into tall format
 reward_stats <- melt(learning_data, id.vars = c(
@@ -65,4 +73,4 @@ ggplot(data = reward_stats, aes(x=Step, y=Value, col=Type, group = Type))+
     # legend.position="bottom",
     # legend.title=element_blank()
   )
-
+ggsave(paste(base, date, test_location, "rewards.pdf", sep='/'))
