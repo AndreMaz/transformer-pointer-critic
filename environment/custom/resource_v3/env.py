@@ -391,6 +391,12 @@ class ResourceEnvironmentV3(BaseEnvironment):
 
         return
 
+    def store_dataset(self, location) -> None:
+        np.savetxt(location, self.total_profiles)
+        
+    def load_dataset(self, location):
+        self.total_profiles = np.loadtxt(location)
+
 if __name__ == "__main__":
     env_name = 'ResourceEnvironmentV3'
     

@@ -1,10 +1,11 @@
+from tensorflow.python.ops.gen_math_ops import log
 from agents.agent import Agent
 from agents.trainer import trainer
 
 from environment.env_factory import env_factory
 from configs.configs import get_configs
 # For params tunning
-import numpy as np
+import json
 import os
 from datetime import datetime
 
@@ -25,13 +26,15 @@ from datetime import datetime
 #     # Virtual devices must be set before GPUs have been initialized
 #     print(e)
 
+LOG_DIR = "./results/"
+
 def runner(env_type="custom", env_name='ResourceV3', agent_name="tpc"):
 
     # Store the time of the script
     start_date = datetime.now().replace(microsecond=0).isoformat()
     
     # Read the configs
-    agent_config, trainer_config, env_config, tester_config, _ = get_configs(env_name, agent_name)
+    agent_config, trainer_config, env_config, tester_config, _, all_configs = get_configs(env_name, agent_name)
 
     # Create the environment
     env, tester, plotter = env_factory(env_type, env_name, env_config)
@@ -43,9 +46,14 @@ def runner(env_type="custom", env_name='ResourceV3', agent_name="tpc"):
     agent = Agent('transformer', agent_config)
 
     # Create a dir for logging training and testing results
-    log_dir = os.path.join("./results/", env.name, start_date)
+    log_dir = os.path.join(LOG_DIR, env.name, start_date)
     if not os.path.isdir(log_dir):
         os.makedirs(log_dir)
+    # Store all configs used to train the model
+    json.dump(all_configs, open(os.path.join(log_dir, "config.json"), "w"), indent = 6)
+    
+    # Store the environment data for reproducibility
+    env.store_dataset(os.path.join(log_dir, "env.txt"))
 
     # Train
     print('Training...')

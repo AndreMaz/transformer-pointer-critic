@@ -137,6 +137,10 @@ results/**/*.pdf
 results/*.pdf
 results/**/*.png
 results/*.png
+results/**/*.txt
+results/*.txt
+results/**/*.json
+results/*.json
 model
 .vscode/settings.json
 .Rproj.user
