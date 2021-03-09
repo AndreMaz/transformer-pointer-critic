@@ -1,10 +1,21 @@
 {
-    "description": "Hyper params for Multiple Knapsack problem",
+    "description": "Hyper params for Resource Placement problem",
     
     "trainer_config": {
         "description": "Trainer function configs.",
-        "n_iterations": 50000,
-        "n_steps_to_update": 30
+        "n_iterations": 10,
+        "n_steps_to_update": 30,
+
+        "export_stats": {
+            "export_stats": true,
+            "folder": "training"
+        },
+
+        "store_model_weights": {
+            "export_weights": true,
+            "folder": "model",
+            "filename": "actor"
+        }
     },
 
     "tester_config": {
@@ -51,12 +62,12 @@
         "export_stats": {
             "global_stats": {
                 "export_stats": true,
-                "location": "./results",
+                "folder": "tests",
                 "filename": "test"
             },
             "per_problem_stats": {
                 "export_stats": false,
-                "location": "./results/resource_v3"
+                "folder": "tests/per_instance"
             }
         }
     },
@@ -110,8 +121,8 @@
         "num_features": 3,
         "num_profiles": 5000,
 
-        "profiles_sample_size": 20,
-        "node_sample_size": 10,
+        "profiles_sample_size": 2,
+        "node_sample_size": 3,
         
         "EOS_CODE": -2,
         "req_min_val": 1,

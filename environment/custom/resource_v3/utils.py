@@ -57,11 +57,11 @@ def compute_max_steps(nets, heuristic_solvers):
 def export_to_csv(history, max_steps, method: str, location) -> None:
         with open(f"{location}_{method}.csv", 'w') as fp:
 
-            header = f'Method;Step;Node;CPU;RAM;MEM;Delta\n'
+            header = f'Method;Step;Node;CPU;RAM;MEM;Delta;Rejected;Empty Nodes\n'
             fp.write(header)
             for history_instance in history:
 
-                delta, rejected = compute_stats(history_instance)
+                delta, rejected, empty_nodes = compute_stats(history_instance)
 
                 for node in history_instance:
                     for step in range(max_steps):
@@ -81,7 +81,7 @@ def export_to_csv(history, max_steps, method: str, location) -> None:
                         RAM_load = current_RAM
                         MEM_load = current_MEM
                         
-                        node_info = f'{method};{step};{node.id};{CPU_load[0]:.2f};{RAM_load[0]:.2f};{MEM_load[0]:.2f};{delta[0]:.2f}\n'
+                        node_info = f'{method};{step};{node.id};{CPU_load[0]:.2f};{RAM_load[0]:.2f};{MEM_load[0]:.2f};{delta[0]:.2f};{rejected};{empty_nodes}\n'
                         # print(node_info)
                         fp.write(node_info)
 
@@ -131,9 +131,9 @@ def num_overloaded_nodes(node_list) -> int:
 
     return num_nodes
 
-def log_testing_stats(global_stats, location, file_name):
+def log_testing_stats(global_stats, folder, file_name):
 
-    with open(f"./{location}/{file_name}.csv", 'w') as fp:
+    with open(f"{folder}/{file_name}.csv", 'w') as fp:
         # First passage to generate the header
         header = ''
 

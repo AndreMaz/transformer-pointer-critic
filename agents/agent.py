@@ -285,11 +285,11 @@ class Agent():
                bins_probs
 
     def save_weights(self, location):
-        self.bin_actor.save_weights(f'{location}/bin_actor')
+        self.bin_actor.save_weights(location)
 
 
     def load_weights(self, location):
-        self.bin_actor.load_weights(f'{location}/bin_actor')
+        self.bin_actor.load_weights(location)
 
     def set_testing_mode(self, batch_size, num_bins, num_resources):
         self.training = False

@@ -3,9 +3,12 @@ from environment.custom.knapsack.env_v2 import KnapsackV2
 import tensorflow as tf
 import numpy as np
 import time
+import os
 
-def trainer(env: KnapsackV2, agent: Agent, opts: dict, show_progress: bool):
+def trainer(env: KnapsackV2, agent: Agent, opts: dict, show_progress: bool, log_dir: str):
     # print(f'Training with {env.resource_sample_size} resources and {env.bin_sample_size} bins')
+
+    export_weights: bool = opts['store_model_weights']['export_weights']
 
     # General training vars
     n_iterations: int = opts['n_iterations']
@@ -175,6 +178,15 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict, show_progress: bool):
 
         # Iteration complete. Clear agent's memory
         agent.clear_memory()
+
+
+    if export_weights:
+        weight_location = os.path.join(
+            log_dir,
+            opts['store_model_weights']['folder'],
+            opts['store_model_weights']['filename'])
+
+        agent.save_weights(weight_location)
 
     return average_rewards_buffer,\
         min_rewards_buffer,\

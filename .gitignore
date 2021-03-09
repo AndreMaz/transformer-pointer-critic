@@ -135,6 +135,8 @@ results/**/*.csv
 results/*.csv
 results/**/*.pdf
 results/*.pdf
+results/**/*.png
+results/*.png
 model
 .vscode/settings.json
 .Rproj.user

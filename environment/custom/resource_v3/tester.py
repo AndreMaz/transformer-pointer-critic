@@ -7,7 +7,7 @@ from environment.custom.resource_v3.utils import export_to_csv, compute_max_step
 # from agents.optimum_solver import solver
 from environment.custom.resource_v3.heuristic.factory import heuristic_factory
 from environment.custom.resource_v3.utils import generate_file_name
-import numpy as np
+import os
 import time
 from datetime import datetime
 
@@ -19,6 +19,7 @@ def test(
     env: ResourceEnvironmentV3,
     agent: Agent,
     opts: dict,
+    log_dir: str
     ):
 
     num_tests: int = opts['testbed']['num_tests']
@@ -42,7 +43,7 @@ def test(
     show_per_test_stats: bool = opts['show_per_test_stats']
 
     export_stats: bool = opts['export_stats']['global_stats']['export_stats']
-    csv_write_path: str = opts['export_stats']['global_stats']['location']
+    test_folder: str = opts['export_stats']['global_stats']['folder']
     
     filename: str = opts['export_stats']['global_stats']['filename']
     if filename == None:
@@ -78,7 +79,8 @@ def test(
                         node_sample_size, # Number of nodes
                         node_min_value, # Min resources available in each node
                         node_min_value + node_step_resource, # Max resources available in each node
-                        resource_sample_size # Number of resources
+                        resource_sample_size, # Number of resources
+                        log_dir
                     )
 
                     dominant_results += dominant_instance_result
@@ -94,7 +96,10 @@ def test(
                     })
 
     if export_stats:
-        log_testing_stats(global_stats, csv_write_path, filename)
+        f = os.path.join(log_dir, test_folder)
+        if not os.path.isdir(f):
+            os.makedirs(f)
+        log_testing_stats(global_stats, f, filename)
 
     return dominant_results, rejected_results
 
@@ -108,6 +113,7 @@ def test_single_instance(
     node_min_val: int,
     node_max_val: int,
     req_sample_size: int,
+    log_dir: str,
     ):
     
     plot_attentions: bool = opts['plot_attentions']
@@ -116,8 +122,8 @@ def test_single_instance(
     # req_sample_size: int = opts['profiles_sample_size']
     # node_sample_size: int = opts['node_sample_size']
 
-    csv_write_path: str = opts['export_stats']['per_problem_stats']['location']
     export_stats: bool = opts['export_stats']['per_problem_stats']['export_stats']
+    folder: str = opts['export_stats']['per_problem_stats']['folder']
 
     show_inference_progress: bool = opts['show_inference_progress']
     show_solutions: bool = opts['show_solutions']
@@ -208,9 +214,13 @@ def test_single_instance(
         max_steps = compute_max_steps(env.history[0], heuristic_solvers)
         t = datetime.now().replace(microsecond=0).isoformat()
         # Export results to CSV
-        export_to_csv(env.history, max_steps, agent.name, f'{csv_write_path}/{t}_{instance_id}')
+        f = os.path.join(log_dir, folder)
+        if not os.path.isdir(f):
+            os.makedirs(f)
+
+        export_to_csv(env.history, max_steps, agent.name, f'{f}/{t}_{instance_id}')
         for solver in heuristic_solvers:
-            export_to_csv([solver.solution], max_steps, solver.name, f'{csv_write_path}/{t}_{instance_id}')
+            export_to_csv([solver.solution], max_steps, solver.name, f'{f}/{t}_{instance_id}')
 
 
     if show_solutions:
