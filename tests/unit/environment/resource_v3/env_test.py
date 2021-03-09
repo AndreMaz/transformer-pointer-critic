@@ -252,7 +252,7 @@ class TestResource(unittest.TestCase):
         fake_mha_mask[batch_indices, :, :, fake_req_ids] = 1
         # Didn't fill completely the nodes so they should stay unmasked
         next_mha_mask = info['mha_used_mask']
-        print(next_mha_mask)
+
         self.assertEqual(
             fake_mha_mask.tolist(),
             next_mha_mask.tolist()

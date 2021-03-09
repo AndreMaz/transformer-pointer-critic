@@ -109,15 +109,11 @@ class TestResource(unittest.TestCase):
         )
 
         bin_ids, \
-        resource_ids, \
-        decoded_resources, \
         bins_mask, \
-        resources_probs, \
         bins_probs = self.agent.act(
             current_state,
             decoder_input,
             bin_net_mask,
-            resource_net_mask,
             mha_used_mask,
             self.env.build_feasible_mask
         )
@@ -129,18 +125,8 @@ class TestResource(unittest.TestCase):
             np.all(bin_ids <= 3)
         )
 
-        # self.assertEqual(len(resource_ids), 2)
-        # self.assertTrue(
-        #     np.all(resource_ids > 3) and np.all(resource_ids <= 5)
-        # )
-
-        self.assertEqual(
-            decoded_resources.shape, (2, 1, 3)
-        )
-
         self.assertEqual(
             bins_mask.shape, (2, 6)
         )
 
-        # self.assertEqual(resources_probs.shape, (2, 6))
         self.assertEqual(bins_probs.shape, (2, 6))
