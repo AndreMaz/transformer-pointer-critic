@@ -121,8 +121,8 @@
         "num_features": 3,
         "num_profiles": 5000,
 
-        "profiles_sample_size": 2,
-        "node_sample_size": 3,
+        "profiles_sample_size": 20,
+        "node_sample_size": 10,
         
         "EOS_CODE": -2,
         "req_min_val": 1,
@@ -156,6 +156,12 @@
             "values_loss_coefficient": 1.0,
             "entropy_coefficient": 0.1,
             "stochastic_action_selection": true,
+            
+            "encoder_embedding": {
+                "common": true,
+                "bin_features": 4,
+                "resource_features": 3
+            },
 
             "actor": {
                 "use_default_initializer": false,

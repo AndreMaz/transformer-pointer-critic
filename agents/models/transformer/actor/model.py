@@ -11,7 +11,10 @@ class ActorTransformer(tf.keras.Model):
                logit_clipping_C: float,
                encoder_embedding_time_distributed,
                attention_dense_units,
-               use_default_initializer:bool = True
+               use_default_initializer:bool,
+               common_embedding: bool,
+               num_bin_features: int,
+               num_resource_features: int
                ):
 
     super(ActorTransformer, self).__init__()
@@ -21,7 +24,10 @@ class ActorTransformer(tf.keras.Model):
                            num_heads,
                            dff,
                            encoder_embedding_time_distributed,
-                           use_default_initializer)
+                           use_default_initializer,
+                           common_embedding,
+                           num_bin_features,
+                           num_resource_features)
 
     self.decoder = Decoder(num_layers, 
                            d_model,

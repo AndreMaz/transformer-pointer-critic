@@ -11,7 +11,10 @@ class CriticTransformer(tf.keras.Model):
                  embedding_time_distributed,
                  last_layer_units,
                  last_layer_activation,
-                 use_default_initializer:bool = True
+                 use_default_initializer: bool,
+                 common_embedding: bool,
+                 num_bin_features: int,
+                 num_resource_features: int
                  ):
         super(CriticTransformer, self).__init__()
 
@@ -30,7 +33,10 @@ class CriticTransformer(tf.keras.Model):
                                self.num_heads,
                                self.dff,
                                self.embedding_time_distributed,
-                               use_default_initializer
+                               use_default_initializer,
+                               common_embedding,
+                               num_bin_features,
+                               num_resource_features
                                )
         
         self.flat_layer = tf.keras.layers.Flatten()
