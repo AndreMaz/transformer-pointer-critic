@@ -2,11 +2,12 @@ import numpy as np
 from environment.custom.resource_v3.env import ResourceEnvironmentV3
 from agents.agent import Agent
 from environment.custom.resource_v3.plotter import plot_attentions
-from environment.custom.resource_v3.utils import export_to_csv, compute_max_steps, gather_stats_from_solutions, log_testing_stats
+from environment.custom.resource_v3.misc.utils import compute_max_steps, gather_stats_from_solutions
+from environment.custom.resource_v3.misc.csv_writer import export_to_csv, log_testing_stats
 
 # from agents.optimum_solver import solver
 from environment.custom.resource_v3.heuristic.factory import heuristic_factory
-from environment.custom.resource_v3.utils import generate_file_name
+from environment.custom.resource_v3.misc.utils import generate_file_name
 import os
 import time
 from datetime import datetime

@@ -13,7 +13,7 @@ import tensorflow_probability as tfp
 from random import randint, randrange
 from environment.base.base import BaseEnvironment
 from environment.custom.resource_v3.reward import RewardFactory
-from environment.custom.resource_v3.utils import compute_remaining_resources
+from environment.custom.resource_v3.misc.utils import compute_remaining_resources
 from environment.custom.resource_v3.node import Node as History
 from environment.custom.resource_v3.resource import Resource as Request
 

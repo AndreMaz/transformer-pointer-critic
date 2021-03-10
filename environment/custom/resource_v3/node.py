@@ -5,7 +5,7 @@ from typing import List
 sys.path.append('.')
 
 from environment.custom.resource_v3.resource import Resource as Request
-from environment.custom.resource_v3.utils import round_half_up
+from environment.custom.resource_v3.misc.utils import round_half_up
 import numpy as np
 
 class Node():

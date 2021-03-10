@@ -3,7 +3,8 @@
 import matplotlib.pyplot as plt
 import os
 import numpy as np
-from environment.custom.resource_v3.utils import log_training_stats, generate_file_name
+from environment.custom.resource_v3.misc.utils import generate_file_name
+from environment.custom.resource_v3.misc.csv_writer import log_training_stats
 
 def plotter(data, env, agent, agent_config: dict, trainer_config: dict, log_dir: str):
     
@@ -19,7 +20,7 @@ def plotter(data, env, agent, agent_config: dict, trainer_config: dict, log_dir:
     plotter_leaning(data, location, 'learning', agent.name)
 
     plotter_rewards(data, location, 'rewards', agent.name)
-
+    
     log_training_stats(data, location, 'logs')
 
 def plotter_leaning(data, location, file_name, agent_name ):

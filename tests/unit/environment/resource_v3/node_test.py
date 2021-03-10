@@ -5,7 +5,7 @@ import numpy as np
 
 from environment.custom.resource_v3.node import Node
 from environment.custom.resource_v3.resource import Resource
-from environment.custom.resource_v3.utils import round_half_up
+from environment.custom.resource_v3.misc.utils import round_half_up
 
 class TestNode(unittest.TestCase):
     def setUp(self) -> None:

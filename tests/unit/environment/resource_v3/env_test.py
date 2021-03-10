@@ -1,4 +1,4 @@
-from environment.custom.resource_v3.utils import compute_remaining_resources
+from environment.custom.resource_v3.misc.utils import compute_remaining_resources
 import sys
 sys.path.append('.')
 import unittest

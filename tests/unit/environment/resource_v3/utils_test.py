@@ -4,7 +4,7 @@ import unittest
 import numpy as np
 
 
-from environment.custom.resource_v3.utils import round_half_up, reshape_into_horizontal_format, reshape_into_vertical_format
+from environment.custom.resource_v3.misc.utils import round_half_up, reshape_into_horizontal_format, reshape_into_vertical_format
 
 class TestUtils(unittest.TestCase):
     def test_round_ops(self):

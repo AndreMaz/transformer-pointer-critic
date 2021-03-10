@@ -3,7 +3,7 @@
 # from agents.transformer_pointer_critic.model.actor.model import ActorTransformer
 
 from agents.models.model_factory import model_factory
-from environment.custom.resource_v3.utils import reshape_into_vertical_format, reshape_into_horizontal_format
+from environment.custom.resource_v3.misc.utils import reshape_into_vertical_format, reshape_into_horizontal_format
 
 import tensorflow_probability as tfp
 import tensorflow as tf
