@@ -9,7 +9,7 @@ library(nortest)
 base = './ResourceV3'
 test_location = 'training'
 filename = 'logs.csv'
-date = '2021-03-09T16:44:23'
+date = '2021-03-09T17:11:19'
 
 file = paste(base, date, test_location, filename, sep='/')
 
@@ -55,9 +55,6 @@ ggsave(paste(base, date, test_location, "learning.pdf", sep='/'))
 reward_stats <- melt(learning_data, id.vars = c(
   "Step",
   "Value.Loss",
-  "Resource.Entropy",
-  "Total.Resource.Loss",
-  "Resource.Policy.Loss",
   "Bin.Entropy",
   "Total.Bin.Loss",
   "Bin.Policy.Loss"), variable.name = 'Type', value.name = 'Value')
