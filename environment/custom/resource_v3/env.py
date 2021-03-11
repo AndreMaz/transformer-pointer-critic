@@ -12,7 +12,7 @@ import tensorflow as tf
 import tensorflow_probability as tfp
 from random import randint, randrange
 from environment.base.base import BaseEnvironment
-from environment.custom.resource_v3.reward import RewardFactory
+from environment.custom.resource_v3.reward import RewardFactory, ReducedNodeUsage
 from environment.custom.resource_v3.misc.utils import compute_remaining_resources
 from environment.custom.resource_v3.node import Node as History
 from environment.custom.resource_v3.resource import Resource as Request
@@ -294,6 +294,18 @@ class ResourceEnvironmentV3(BaseEnvironment):
         
         agent_config['batch_size'] = self.batch_size
 
+        # Init the object
+        agent_config["encoder_embedding"] = {}
+        if isinstance(self.rewarder, ReducedNodeUsage):
+            agent_config["encoder_embedding"]["common"] = False
+            agent_config["encoder_embedding"]["num_bin_features"] = 4
+            agent_config["encoder_embedding"]["num_resource_features"] = 3
+        else:
+            agent_config["encoder_embedding"]["common"] = True
+            # If using the same embedding layer these vars are unused
+            agent_config["encoder_embedding"]["num_bin_features"] = None
+            agent_config["encoder_embedding"]["num_resource_features"] = None
+
         return agent_config
 
     def set_testing_mode(self,
@@ -414,15 +426,15 @@ if __name__ == "__main__":
 
     bin_ids = [0,1]
     resource_ids = None
-    next, decoder_input, rewards, isDone, info = env.step(bin_ids, resource_ids, feasible_net_mask)
+    next, decoder_input, rewards, isDone, info = env.step(bin_ids, feasible_net_mask)
 
-    next, decoder_input, rewards, isDone, info = env.step(bin_ids, resource_ids, feasible_net_mask)
+    next, decoder_input, rewards, isDone, info = env.step(bin_ids, feasible_net_mask)
     
     env.reset()
 
-    next, decoder_input, rewards, isDone, info = env.step(bin_ids, resource_ids, feasible_net_mask)
+    next, decoder_input, rewards, isDone, info = env.step(bin_ids, feasible_net_mask)
 
-    next, decoder_input, rewards, isDone, info = env.step(bin_ids, resource_ids, feasible_net_mask)
+    next, decoder_input, rewards, isDone, info = env.step(bin_ids, feasible_net_mask)
 
 
     a = 1

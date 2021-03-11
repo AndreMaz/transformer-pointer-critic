@@ -157,12 +157,6 @@
             "entropy_coefficient": 0.1,
             "stochastic_action_selection": true,
             
-            "encoder_embedding": {
-                "common": true,
-                "bin_features": 4,
-                "resource_features": 3
-            },
-
             "actor": {
                 "use_default_initializer": false,
                 "num_layers": 1,

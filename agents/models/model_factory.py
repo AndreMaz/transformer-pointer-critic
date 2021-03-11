@@ -13,8 +13,8 @@ def model_factory(type, opts):
             opts['actor']['attention_dense_units'],
             opts['actor']['use_default_initializer'],
             opts['encoder_embedding']['common'],
-            opts['encoder_embedding']['bin_features'],
-            opts['encoder_embedding']['resource_features']
+            opts['encoder_embedding']['num_bin_features'],
+            opts['encoder_embedding']['num_resource_features']
         )
         critic = CriticTransformer(
             opts['critic']['num_layers'],
@@ -26,8 +26,8 @@ def model_factory(type, opts):
             opts['critic']['last_layer_activation'],
             opts['critic']['use_default_initializer'],
             opts['encoder_embedding']['common'],
-            opts['encoder_embedding']['bin_features'],
-            opts['encoder_embedding']['resource_features']
+            opts['encoder_embedding']['num_bin_features'],
+            opts['encoder_embedding']['num_resource_features']
         )
     else:
         return
