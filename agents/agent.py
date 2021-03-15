@@ -237,7 +237,7 @@ class Agent():
             )
         
 
-        return total_loss, dec_output, entropy, policy_loss
+        return total_loss, dec_output, entropy, policy_loss, pointers_probs
 
     def act(self,
             state,

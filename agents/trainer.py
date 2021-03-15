@@ -126,7 +126,8 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict, show_progress: bool, log_
             bin_loss,\
                 decoded_bins,\
                 bin_entropy,\
-                bin_policy_loss = agent.compute_actor_loss(
+                bin_policy_loss,\
+                _ = agent.compute_actor_loss(
                 agent.bin_actor,
                 agent.bin_masks,
                 agent.bins,
