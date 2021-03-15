@@ -133,6 +133,6 @@ python environment/custom/resource/tests/runner.py
 ```
 or to generate an HTML-based coverage file
 ```bash
-coverage run environment/custom/resource_v3/tests/runner.py
+coverage run tests/runner.py
 coverage html --include=environment/custom/resource_v3/*
 ```

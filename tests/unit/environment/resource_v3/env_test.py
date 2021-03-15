@@ -494,6 +494,19 @@ class TestResource(unittest.TestCase):
             actual.tolist(),
             expected.tolist()
         )
+    
+    def test_add_stats_to_agent_config(self):
+        actual = {}
+
+        actual = self.env.add_stats_to_agent_config(actual)
+
+        expected = {
+                "common": True,
+                "num_bin_features": None,
+                "num_resource_features": None
+        }
+
+        self.assertEqual(actual['encoder_embedding'], expected)
 
 class TestResourceWithDecoderInput(unittest.TestCase):
 
@@ -731,3 +744,74 @@ class TestResourceWithDecoderInput(unittest.TestCase):
 
         self.assertEqual(next_decoder_input[0], None)
         self.assertTrue(is_done)
+
+class TestResourceWithReduceNodesReward(unittest.TestCase):
+
+    def setUp(self) -> None:
+        ENV_CONFIG = {
+            "description": "Environment configs.",
+
+            "mask_nodes_in_mha": False,
+            "generate_request_on_the_fly": False,
+            "batch_size": 2,
+
+            "normalization_factor": 100,
+            "decimal_precision": 2,
+
+            "num_features": 3,
+            "num_profiles": 20,
+
+            "profiles_sample_size": 2,
+            "node_sample_size": 3,
+
+            "EOS_CODE": -2,
+            "req_min_val": 1,
+            "req_max_val": 30,
+
+            "node_min_val": 80,
+            "node_max_val": 100,
+
+            "reward": {
+                "type": "reduced_node_usage",
+                "greedy": {},
+                "fair": {},
+                "gini": {},
+                "reduced_node_usage": {
+                    "rejection_penalty": -2,
+                    "use_new_node_penalty": -1
+                }
+            }
+        }
+        self.env = ResourceEnvironmentV3('ResourceV3', ENV_CONFIG)
+    
+    def test_shapes(self):
+        state, decoder_input, bin_net_mask, mha_used_mask = self.env.reset()
+
+        self.assertEqual(
+            state.shape,
+            (2, 6, 4)
+        )
+
+        bin_ids, bins_masks = self.env.sample_action()
+
+        next_state,\
+            next_decoder_input,\
+            rewards, is_done, info = self.env.step(bin_ids, bins_masks)
+
+        self.assertEqual(
+            next_state.shape,
+            (2, 6, 4)
+        )
+    
+    def test_add_stats_to_agent_config(self):
+        actual = {}
+
+        actual = self.env.add_stats_to_agent_config(actual)
+
+        expected = {
+            "common": False,
+            "num_bin_features": 4,
+            "num_resource_features": 3
+        }
+
+        self.assertEqual(actual['encoder_embedding'], expected)

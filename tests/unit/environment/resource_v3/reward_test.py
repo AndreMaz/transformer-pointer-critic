@@ -14,7 +14,7 @@ class Greedy_0_1_Reward(unittest.TestCase):
 
         EOS_CODE = -2
         EOS_NODE = np.full((1, 3), EOS_CODE, dtype='float32')
-        rewarder = GreedyReward(opts, EOS_NODE, batch_size, num_nodes)
+        rewarder = GreedyReward(opts, EOS_NODE, batch_size)
 
         og_batch = np.array([
             [
@@ -79,7 +79,7 @@ class SingleNodeDominantTest(unittest.TestCase):
 
         EOS_CODE = -2
         EOS_NODE = np.full((1, 3), EOS_CODE, dtype='float32')
-        rewarder = SingleNodeDominantReward(opts, EOS_NODE, batch_size, num_nodes)
+        rewarder = SingleNodeDominantReward(opts, EOS_NODE, batch_size)
 
         og_batch = np.array([
             [
@@ -144,7 +144,7 @@ class GlobalDominantTest(unittest.TestCase):
 
         EOS_CODE = -2
         EOS_NODE = np.full((1, 3), EOS_CODE, dtype='float32')
-        rewarder = GlobalDominantReward(opts, EOS_NODE, batch_size, num_nodes)
+        rewarder = GlobalDominantReward(opts, EOS_NODE, batch_size)
 
         og_batch = np.array([
             [
@@ -206,11 +206,15 @@ class ReducedNodeUsageTest(unittest.TestCase):
             "use_new_node_penalty": -1
         }
         num_nodes = 3
+        tensor_size = 5
         batch_size = 3
 
         EOS_CODE = -2
         EOS_NODE = np.full((1, 3), EOS_CODE, dtype='float32')
-        rewarder = ReducedNodeUsage(opts, EOS_NODE, batch_size, num_nodes)
+        rewarder = ReducedNodeUsage(opts, EOS_NODE, batch_size)
+
+        is_empty = np.zeros(
+            (batch_size, tensor_size, 1), dtype='float32')
 
         og_batch = np.array([
             [
@@ -259,7 +263,20 @@ class ReducedNodeUsageTest(unittest.TestCase):
             selected_nodes,
             selected_reqs,
             feasible_mask,
-            selected_node_ids
+            selected_node_ids,
+            is_empty
+        )
+
+        # After fist reward is_used should be updated
+        expected_is_empty = np.array([
+            [[0], [0], [0], [0], [0]],
+            [[0], [0], [1], [0], [0]],
+            [[0], [1], [0], [0], [0]],
+        ], dtype='float32')
+        
+        self.assertEqual(
+            is_empty.tolist(),
+            expected_is_empty.tolist()
         )
 
         expected_rewards = np.array([
@@ -283,7 +300,20 @@ class ReducedNodeUsageTest(unittest.TestCase):
             selected_nodes,
             selected_reqs,
             feasible_mask,
-            selected_node_ids
+            selected_node_ids,
+            is_empty
+        )
+
+        # After second reward is_used should be updated
+        expected_is_empty = np.array([
+            [[0], [0], [0], [0], [0]],
+            [[0], [0], [1], [0], [0]],
+            [[0], [1], [1], [0], [0]],
+        ], dtype='float32')
+        
+        self.assertEqual(
+            is_empty.tolist(),
+            expected_is_empty.tolist()
         )
 
         expected_rewards = np.array([
@@ -295,82 +325,6 @@ class ReducedNodeUsageTest(unittest.TestCase):
         self.assertEqual(
             actual_rewards.numpy().tolist(),
             expected_rewards.tolist()
-        )
-
-    def test_rewarder_reset(self):
-        opts = {
-            "rejection_penalty": -10,
-            "use_new_node_penalty": -1
-        }
-        num_nodes = 3
-        batch_size = 3
-
-        EOS_CODE = -2
-        EOS_NODE = np.full((1, 3), EOS_CODE, dtype='float32')
-        rewarder = ReducedNodeUsage(opts, EOS_NODE, batch_size, num_nodes)
-
-        self.assertTrue(
-            np.all(rewarder.node_used == 0)
-        )
-
-        og_batch = np.array([
-            [
-                [ -2.,  -2.,  -2.], # EOS       (index 0)
-                [100., 200., 300.], # Node 0    (index 1)
-                [400., 500., 600.], # Node 1    (index 2)
-                [ 10.,  20.,  30.], # Req 0     (index 3)
-                [ 40.,  50.,  60.], # Req 1     (index 4)
-            ],
-            [
-                [ -2.,  -2.,  -2.], # EOS       (index 0)
-                [100., 200., 300.], # Node 0    (index 1)
-                [400., 500., 600.], # Node 1    (index 2)
-                [ 10.,  20.,  30.], # Req 0     (index 3)
-                [ 40.,  50.,  60.], # Req 1     (index 4)
-            ],
-            [
-                [ -2.,  -2.,  -2.], # EOS       (index 0)
-                [100., 200., 300.], # Node 0    (index 1)
-                [400., 500., 600.], # Node 1    (index 2)
-                [ 10.,  20.,  30.], # Req 0     (index 3)
-                [ 40.,  50.,  60.], # Req 1     (index 4)
-            ]], dtype='float32')
-        
-        
-        batch_indices = [0, 1, 2]
-        selected_node_ids = [0, 2, 1]
-        selected_resource_ids = [3, 4, 4]
-        feasible_mask = None
-
-        # Pick the nodes and reqs
-        selected_nodes = og_batch[batch_indices, selected_node_ids]
-        selected_reqs = og_batch[batch_indices, selected_resource_ids]
-
-        # Compute remaining resources
-        remaining_resources_nodes = selected_nodes - selected_reqs
-
-        # Update the batch
-        updated_batch = og_batch.copy()
-        updated_batch[batch_indices, selected_node_ids] = remaining_resources_nodes
-
-        actual_rewards = rewarder.compute_reward(
-            updated_batch,
-            og_batch,
-            num_nodes,
-            selected_nodes,
-            selected_reqs,
-            feasible_mask,
-            selected_node_ids
-        )
-
-        self.assertFalse(
-            np.all(rewarder.node_used == 0)
-        )
-
-        rewarder.reset()
-
-        self.assertTrue(
-            np.all(rewarder.node_used == 0)
         )
 
 class TestGiniCalculartor(unittest.TestCase):

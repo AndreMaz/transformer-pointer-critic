@@ -13,7 +13,7 @@ import tensorflow_probability as tfp
 from random import randint, randrange
 from environment.base.base import BaseEnvironment
 from environment.custom.resource_v3.reward import RewardFactory, ReducedNodeUsage
-from environment.custom.resource_v3.misc.utils import compute_remaining_resources
+from environment.custom.resource_v3.misc.utils import compute_remaining_resources, round_half_up
 from environment.custom.resource_v3.node import Node as History
 from environment.custom.resource_v3.resource import Resource as Request
 
@@ -49,6 +49,8 @@ class ResourceEnvironmentV3(BaseEnvironment):
         self.node_min_val: int = opts['node_min_val']
         self.node_max_val: int = opts['node_max_val']
 
+        self.tensor_size = self.node_sample_size + self.profiles_sample_size
+
         ################################################
         ##### MATERIALIZED VARIABLES FROM CONFIGS ######
         ################################################
@@ -57,9 +59,13 @@ class ResourceEnvironmentV3(BaseEnvironment):
         self.rewarder = RewardFactory(
             opts['reward'],
             self.EOS_BIN,
-            self.batch_size,
-            self.node_sample_size
+            self.batch_size
         )
+
+        if isinstance(self.rewarder, ReducedNodeUsage):
+            self.is_empty = np.zeros((self.batch_size, self.tensor_size, 1), dtype='float32')
+        else:
+            self.is_empty = None
 
         # Generate req profiles
         self.total_profiles = self.generate_dataset()
@@ -77,6 +83,10 @@ class ResourceEnvironmentV3(BaseEnvironment):
         # Reset decoding step
         self.decoding_step = self.node_sample_size
 
+        if isinstance(self.rewarder, ReducedNodeUsage):
+            self.is_empty = np.zeros(
+                (self.batch_size, self.tensor_size, 1), dtype='float32')
+
         self.batch, self.history = self.generate_batch()
 
         self.bin_net_mask,\
@@ -92,7 +102,12 @@ class ResourceEnvironmentV3(BaseEnvironment):
         decoder_input = self.batch[:, self.decoding_step]
         decoder_input = np.expand_dims(decoder_input, axis=1)
 
-        return self.batch.copy(),\
+        batch = self.batch.copy()
+
+        if isinstance(self.rewarder, ReducedNodeUsage):
+            batch = self.add_is_empty_dim(batch, self.is_empty)
+
+        return batch,\
             decoder_input,\
             self.bin_net_mask.copy(),\
             self.mha_used_mask.copy()
@@ -154,7 +169,8 @@ class ResourceEnvironmentV3(BaseEnvironment):
             nodes,
             reqs,
             feasible_bin_mask,
-            bin_ids
+            bin_ids,
+            self.is_empty
         )
 
         rewards = tf.reshape(rewards, (batch_size, 1))
@@ -180,7 +196,11 @@ class ResourceEnvironmentV3(BaseEnvironment):
             # We are done. No need to generate decoder input
             decoder_input = np.array([None])
 
-        return self.batch.copy(), decoder_input, rewards, isDone, info
+        batch = self.batch.copy()
+        if isinstance(self.rewarder, ReducedNodeUsage):
+            batch = self.add_is_empty_dim(batch, self.is_empty)
+
+        return batch, decoder_input, rewards, isDone, info
     
     def generate_dataset(self):
     
@@ -360,6 +380,10 @@ class ResourceEnvironmentV3(BaseEnvironment):
 
 
     def build_feasible_mask(self, state, resources, bin_net_mask):
+        
+        if isinstance(self.rewarder, ReducedNodeUsage):
+            state = self.remove_is_empty_dim(state)
+
         batch = state.shape[0]
         num_elems = state.shape[1]
         # Add batch dim to resources
@@ -392,6 +416,14 @@ class ResourceEnvironmentV3(BaseEnvironment):
         # Return as is. At this moment node can be overloaded
         return feasible_mask
 
+    def add_is_empty_dim(self, batch, is_empty):
+        batch = np.concatenate([batch, is_empty], axis=-1)
+        return round_half_up(batch, 2)
+    
+    def remove_is_empty_dim(self, batch):
+        batch = batch[:, :, :self.num_features]
+        return round_half_up(batch, 2)
+
     def print_history(self, print_details = False) -> None:
 
         for batch_id in range(self.batch_size):
@@ -416,6 +448,7 @@ if __name__ == "__main__":
         params = json.load(json_file)
 
     env_configs = params['env_config']
+    env_configs['batch_size'] = 2
 
     env = ResourceEnvironmentV3(env_name, env_configs)
 
