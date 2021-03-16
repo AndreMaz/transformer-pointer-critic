@@ -77,7 +77,7 @@ class Node():
 
         self.req_list.append(req)
 
-    def print(self, print_details = False):
+    def print(self, print_details = False): # pragma: no cover
         CPU_load = np.around(self.remaining_CPU, decimals=4)
         RAM_load = np.around(self.remaining_RAM, decimals=4)
         MEM_load = np.around(self.remaining_MEM, decimals=4)
@@ -97,7 +97,7 @@ class Node():
 
         print(f'Total Requests {total_nodes}.')
 
-    def print_history_stats(self):
+    def print_history_stats(self): # pragma: no cover
         print('CPU History')
 
         np.set_printoptions(precision=4)

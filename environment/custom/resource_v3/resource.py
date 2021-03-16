@@ -22,5 +22,5 @@ class Resource():
             self.MEM
         ]).flatten()        
 
-    def print(self):
+    def print(self): # pragma: no cover
         print(f'Batch: {self.batch_id} \t| ID : {self.id:02d} \t| CPU: {self.CPU[0]:1f} \t| RAM: {self.RAM[0]:1f} \t| MEM: {self.MEM[0]:1f} \t')

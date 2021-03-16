@@ -428,7 +428,7 @@ class ResourceEnvironmentV3(BaseEnvironment):
         batch = batch[:, :, :self.num_features]
         return round_half_up(batch, 2)
 
-    def print_history(self, print_details = False) -> None:
+    def print_history(self, print_details = False) -> None: # pragma: no cover
 
         for batch_id in range(self.batch_size):
             print('_________________________________')
