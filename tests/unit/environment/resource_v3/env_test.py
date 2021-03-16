@@ -1,6 +1,7 @@
-from environment.custom.resource_v3.misc.utils import compute_remaining_resources
 import sys
 sys.path.append('.')
+from environment.custom.resource_v3.misc.utils import compute_remaining_resources
+
 import unittest
 import numpy as np
 
@@ -790,6 +791,15 @@ class TestResourceWithReduceNodesReward(unittest.TestCase):
         self.assertEqual(
             state.shape,
             (2, 6, 4)
+        )
+        
+        # Last feature of first entry should be EOS
+        self.assertTrue(
+            np.all(state[:, 0, 3:] == self.env.EOS_CODE)
+        )
+        # Last feature of all entries except the EOS should be zero
+        self.assertTrue(
+            np.all(state[:, 1:, 3:] == 0)
         )
 
         bin_ids, bins_masks = self.env.sample_action()
