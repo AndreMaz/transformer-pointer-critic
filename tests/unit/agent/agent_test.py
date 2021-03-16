@@ -3,11 +3,14 @@ sys.path.append('.')
 import unittest
 import numpy as np
 
-
 # Custom Imports
 from environment.custom.resource_v3.env import ResourceEnvironmentV3
 from agents.agent import Agent
 
+
+import tensorflow as tf
+# Disable tf.function decorator to avoid rebuilding the graph
+tf.config.run_functions_eagerly(True)
 
 class TestResourceGreedyReward(unittest.TestCase):
 

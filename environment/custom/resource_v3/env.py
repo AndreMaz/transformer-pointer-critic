@@ -64,6 +64,8 @@ class ResourceEnvironmentV3(BaseEnvironment):
 
         if isinstance(self.rewarder, ReducedNodeUsage):
             self.is_empty = np.zeros((self.batch_size, self.tensor_size, 1), dtype='float32')
+            # First position is EOS
+            self.is_empty[:, 0, 0] = self.EOS_BIN[0][0]
         else:
             self.is_empty = None
 
@@ -86,6 +88,8 @@ class ResourceEnvironmentV3(BaseEnvironment):
         if isinstance(self.rewarder, ReducedNodeUsage):
             self.is_empty = np.zeros(
                 (self.batch_size, self.tensor_size, 1), dtype='float32')
+            # First position is EOS
+            self.is_empty[:, 0, 0] = self.EOS_BIN[0][0]
 
         self.batch, self.history = self.generate_batch()
 

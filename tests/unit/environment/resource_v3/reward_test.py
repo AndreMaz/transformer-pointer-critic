@@ -269,9 +269,9 @@ class ReducedNodeUsageTest(unittest.TestCase):
 
         # After fist reward is_used should be updated
         expected_is_empty = np.array([
-            [[0], [0], [0], [0], [0]],
-            [[0], [0], [1], [0], [0]],
-            [[0], [1], [0], [0], [0]],
+            [[-2], [0], [0], [0], [0]],
+            [[-2], [0], [1], [0], [0]],
+            [[-2], [1], [0], [0], [0]],
         ], dtype='float32')
         
         self.assertEqual(
@@ -306,9 +306,9 @@ class ReducedNodeUsageTest(unittest.TestCase):
 
         # After second reward is_used should be updated
         expected_is_empty = np.array([
-            [[0], [0], [0], [0], [0]],
-            [[0], [0], [1], [0], [0]],
-            [[0], [1], [1], [0], [0]],
+            [[-2], [0], [0], [0], [0]],
+            [[-2], [0], [1], [0], [0]],
+            [[-2], [1], [1], [0], [0]],
         ], dtype='float32')
         
         self.assertEqual(

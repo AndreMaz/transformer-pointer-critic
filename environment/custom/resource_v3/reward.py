@@ -166,7 +166,7 @@ class ReducedNodeUsage():
         
         # Update for next iteration
         is_empty[self.batch_indices, node_ids, 0] = 1
-        is_empty[self.batch_indices, 0, 0] = 0 # EOS is allways empty
+        is_empty[:, 0, 0] = self.EOS_NODE[0][0] # EOS is allways empty
 
         reward = ((1 - is_node_already_used) * self.use_new_node_penalty) * (1 - is_eos) + penalties
 
