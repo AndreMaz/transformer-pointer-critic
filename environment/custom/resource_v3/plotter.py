@@ -3,49 +3,39 @@
 import matplotlib.pyplot as plt
 import os
 import numpy as np
-from environment.custom.resource_v3.utils import log_training_stats, generate_file_name
-# Import Google OR Tools Solver
-# from agents.optimum_solver import solver
+from environment.custom.resource_v3.misc.utils import generate_file_name
+from environment.custom.resource_v3.misc.csv_writer import log_training_stats
 
-STEPS = 2
+def plotter(data, env, agent, agent_config: dict, trainer_config: dict, log_dir: str):
+    
+    export_stats: bool = trainer_config['export_stats']['export_stats']
+    folder: bool = trainer_config['export_stats']['folder']
 
-def plotter(data, env, agent, agent_config, write_data_to_file = True):
-    file_name = generate_file_name(agent_config) 
-    location = f"./media/plots/{env.name}/{agent.name}"
+    if not export_stats: 
+        return
 
-    plotter_leaning(data, location, file_name+'learning', agent.name)
+    file_name = generate_file_name(agent_config)
+    location = os.path.join(log_dir, folder)
 
-    plotter_rewards(data, location, file_name+'rewards', agent.name)
+    plotter_leaning(data, location, 'learning', agent.name)
 
-    if write_data_to_file:
-        log_training_stats(data, location, file_name+'logs')
+    plotter_rewards(data, location, 'rewards', agent.name)
+    
+    log_training_stats(data, location, 'logs')
 
 def plotter_leaning(data, location, file_name, agent_name ):
-# Destructure the tuple
+    # Destructure the tuple
     _,\
         _,\
         _,\
         value_loss_buffer, \
-        resources_policy_loss_buffer,\
-        resources_total_loss_buffer,\
-        resources_entropy_buffer,\
         bins_policy_loss_buffer,\
         bins_total_loss_buffer,\
         bins_entropy_buffer = data
     
-    # value_loss_buffer = average_per_steps(value_loss_buffer, STEPS)
-    # resources_loss_buffer = average_per_steps(resources_loss_buffer, STEPS)
-    # resources_entropy_buffer = average_per_steps(resources_entropy_buffer, STEPS)
-    # bins_loss_buffer = average_per_steps(bins_loss_buffer, STEPS)
-    # bins_entropy_buffer = average_per_steps(bins_entropy_buffer, STEPS)
-
     x_values = [i for i in range(len(value_loss_buffer))]
 
     plt.plot(x_values, value_loss_buffer, label="Value Loss")
-
-    plt.plot(x_values, resources_policy_loss_buffer, label="Resource Policy Net Loss")
-    plt.plot(x_values, resources_total_loss_buffer, label="Total Resource Net Loss")
-    plt.plot(x_values, resources_entropy_buffer, label="Resource Net Entropy")
     
     plt.plot(x_values, bins_policy_loss_buffer, label="Bin Policy Net Loss")
     plt.plot(x_values, bins_total_loss_buffer, label="Total Bin Net Loss")
@@ -81,14 +71,7 @@ def plotter_rewards(data, location, file_name, agent_name ):
         _, \
         _,\
         _,\
-        _,\
-        _,\
-        _,\
         _, = data
-
-    # average_rewards_buffer = average_per_steps(average_rewards_buffer, STEPS)
-    # min_rewards_buffer = average_per_steps(min_rewards_buffer, STEPS)
-    # max_rewards_buffer = average_per_steps(max_rewards_buffer, STEPS)
 
     x_values = [i for i in range(len(average_rewards_buffer))]
     
@@ -117,20 +100,6 @@ def plotter_rewards(data, location, file_name, agent_name ):
     )
 
     plt.close()
-
-
-
-def average_per_steps(data, steps):
-    assert steps <= len(data), 'Steps is larger that the size of the array'
-
-    new_data = []
-    for i in range(steps, len(data)+1):
-        # print(data[i-steps: i])
-        new_data.append(
-            np.average(data[i-steps: i])
-        )
-
-    return new_data
 
 def plot_attentions(attentions,
                     num_resources,
@@ -204,13 +173,3 @@ def plot_attentions(attentions,
     # plt.subplots_adjust(wspace=0.3, hspace = 0.3)
     plt.tight_layout()
     plt.show(block=True)
-
-if __name__ == "__main__":
-    
-    # plot_attentions()
-    # tuner()
-
-    data = [1,2,3,4,5,6]
-    steps = 6
-
-    average_per_steps(data, steps)

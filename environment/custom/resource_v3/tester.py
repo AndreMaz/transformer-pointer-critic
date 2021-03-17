@@ -2,12 +2,13 @@ import numpy as np
 from environment.custom.resource_v3.env import ResourceEnvironmentV3
 from agents.agent import Agent
 from environment.custom.resource_v3.plotter import plot_attentions
-from environment.custom.resource_v3.utils import export_to_csv, compute_max_steps, gather_stats_from_solutions, log_testing_stats
+from environment.custom.resource_v3.misc.utils import compute_max_steps, gather_stats_from_solutions
+from environment.custom.resource_v3.misc.csv_writer import export_to_csv, log_testing_stats
 
 # from agents.optimum_solver import solver
 from environment.custom.resource_v3.heuristic.factory import heuristic_factory
-from environment.custom.resource_v3.utils import generate_file_name
-import numpy as np
+from environment.custom.resource_v3.misc.utils import generate_file_name
+import os
 import time
 from datetime import datetime
 
@@ -19,6 +20,7 @@ def test(
     env: ResourceEnvironmentV3,
     agent: Agent,
     opts: dict,
+    log_dir: str
     ):
 
     num_tests: int = opts['testbed']['num_tests']
@@ -42,7 +44,7 @@ def test(
     show_per_test_stats: bool = opts['show_per_test_stats']
 
     export_stats: bool = opts['export_stats']['global_stats']['export_stats']
-    csv_write_path: str = opts['export_stats']['global_stats']['location']
+    test_folder: str = opts['export_stats']['global_stats']['folder']
     
     filename: str = opts['export_stats']['global_stats']['filename']
     if filename == None:
@@ -78,7 +80,8 @@ def test(
                         node_sample_size, # Number of nodes
                         node_min_value, # Min resources available in each node
                         node_min_value + node_step_resource, # Max resources available in each node
-                        resource_sample_size # Number of resources
+                        resource_sample_size, # Number of resources
+                        log_dir
                     )
 
                     dominant_results += dominant_instance_result
@@ -94,7 +97,10 @@ def test(
                     })
 
     if export_stats:
-        log_testing_stats(global_stats, csv_write_path, filename)
+        f = os.path.join(log_dir, test_folder)
+        if not os.path.isdir(f):
+            os.makedirs(f)
+        log_testing_stats(global_stats, f, filename)
 
     return dominant_results, rejected_results
 
@@ -108,17 +114,17 @@ def test_single_instance(
     node_min_val: int,
     node_max_val: int,
     req_sample_size: int,
+    log_dir: str,
     ):
     
-    update_resource_decoder_input: bool = opts['update_resource_decoder_input']
     plot_attentions: bool = opts['plot_attentions']
 
     # batch_size: int = opts['batch_size']
     # req_sample_size: int = opts['profiles_sample_size']
     # node_sample_size: int = opts['node_sample_size']
 
-    csv_write_path: str = opts['export_stats']['per_problem_stats']['location']
     export_stats: bool = opts['export_stats']['per_problem_stats']['export_stats']
+    folder: str = opts['export_stats']['per_problem_stats']['folder']
 
     show_inference_progress: bool = opts['show_inference_progress']
     show_solutions: bool = opts['show_solutions']
@@ -132,20 +138,18 @@ def test_single_instance(
         node_min_val,
         node_max_val
     )
-    agent.set_testing_mode(batch_size, req_sample_size)
+    agent.set_testing_mode(
+        batch_size,
+        node_sample_size,
+        req_sample_size
+    )
     
     training_step = 0
     isDone = False
-    episode_rewards = np.zeros((agent.batch_size, agent.num_resources), dtype="float32")
-    
-    single_actor: bool = agent.single_actor
-    if single_actor:
-        current_state, dec_input, bin_net_mask, mha_used_mask = env.reset()
-        resource_net_mask = np.array(None)
-    else:
-        current_state, bin_net_mask, resource_net_mask, mha_used_mask = env.reset()
-        dec_input = agent.generate_decoder_input(current_state)
-    
+    episode_rewards = np.zeros(
+        (agent.batch_size, agent.num_resources), dtype="float32")
+    current_state, dec_input, bin_net_mask, mha_used_mask = env.reset()
+
     if show_inference_progress:
         print(f'Testing with {agent.num_resources} resources and {env.node_sample_size} bins', end='\r')
 
@@ -162,54 +166,34 @@ def test_single_instance(
 
         # Select an action
         bin_id,\
-        resource_id,\
-        decoded_resource,\
         bin_net_mask,\
-        resources_probs,\
         bins_probs = agent.act(
             current_state,
             dec_input,
             bin_net_mask,
-            resource_net_mask,
             mha_used_mask,
             env.build_feasible_mask
         )
 
-        if single_actor:
-                next_state, next_dec_input, reward, isDone, info = env.step(
-                    bin_id,
-                    resource_id,
-                    bin_net_mask
-                )
-        else:
-            # Play one step
-            next_state, reward, isDone, info = env.step(
-                bin_id,
-                resource_id,
-                bin_net_mask
-            )
+
+        next_state, next_dec_input, reward, isDone, info = env.step(
+            bin_id,
+            bin_net_mask
+        )
                 
         # Store episode rewards
         episode_rewards[:, training_step] = reward[:, 0]
 
         attentions.append({
             'resource_net_input': np.array(dec_input),
-            'bin_net_input': decoded_resource,
-            'resource_attention': resources_probs,
             "bin_attention": bins_probs.numpy(),
             "current_state": current_state.copy()
         })
 
         # Update for next iteration
-        if single_actor:
-            dec_input = next_dec_input.copy()
-        else:
-            if update_resource_decoder_input:
-                dec_input = decoded_resource.numpy()
-
         current_state = next_state
+        dec_input = next_dec_input.copy()
         bin_net_mask = info['bin_net_mask']
-        resource_net_mask = info['resource_net_mask']
         mha_used_mask = info['mha_used_mask']
         
         training_step += 1
@@ -231,9 +215,13 @@ def test_single_instance(
         max_steps = compute_max_steps(env.history[0], heuristic_solvers)
         t = datetime.now().replace(microsecond=0).isoformat()
         # Export results to CSV
-        export_to_csv(env.history, max_steps, agent.name, f'{csv_write_path}/{t}_{instance_id}')
+        f = os.path.join(log_dir, folder)
+        if not os.path.isdir(f):
+            os.makedirs(f)
+
+        export_to_csv(env.history, max_steps, agent.name, f'{f}/{t}_{instance_id}')
         for solver in heuristic_solvers:
-            export_to_csv([solver.solution], max_steps, solver.name, f'{csv_write_path}/{t}_{instance_id}')
+            export_to_csv([solver.solution], max_steps, solver.name, f'{f}/{t}_{instance_id}')
 
 
     if show_solutions:

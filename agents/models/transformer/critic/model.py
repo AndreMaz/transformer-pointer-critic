@@ -8,13 +8,13 @@ class CriticTransformer(tf.keras.Model):
                  d_model,
                  num_heads,
                  dff,
-                 positional_encoding,
-                 vocab_size,
                  embedding_time_distributed,
                  last_layer_units,
                  last_layer_activation,
-                 dropout_rate=0.1,
-                 use_default_initializer:bool = True
+                 use_default_initializer: bool,
+                 common_embedding: bool,
+                 num_bin_features: int,
+                 num_resource_features: int
                  ):
         super(CriticTransformer, self).__init__()
 
@@ -23,10 +23,7 @@ class CriticTransformer(tf.keras.Model):
         self.d_model = d_model
         self.num_heads = num_heads
         self.dff = dff
-        self.vocab_size = vocab_size
-        self.positional_encoding = positional_encoding
         self.embedding_time_distributed = embedding_time_distributed
-        self.dropout_rate = dropout_rate
 
         self.use_default_initializer = use_default_initializer
         self.initializer = get_initializer(self.d_model, self.use_default_initializer)
@@ -35,11 +32,11 @@ class CriticTransformer(tf.keras.Model):
                                self.d_model,
                                self.num_heads,
                                self.dff,
-                               self.positional_encoding,
-                               self.vocab_size,
                                self.embedding_time_distributed,
-                               self.dropout_rate,
-                               use_default_initializer
+                               use_default_initializer,
+                               common_embedding,
+                               num_bin_features,
+                               num_resource_features
                                )
         
         self.flat_layer = tf.keras.layers.Flatten()
@@ -59,6 +56,7 @@ class CriticTransformer(tf.keras.Model):
     def call(self,
              encoder_input,
              training: bool,
+             num_bins: int,
              enc_padding_mask
              ):
 
@@ -67,6 +65,7 @@ class CriticTransformer(tf.keras.Model):
         enc_output = self.encoder(
             encoder_input,
             training,
+            num_bins,
             enc_padding_mask = enc_padding_mask
         )
 

@@ -6,7 +6,14 @@ library(nortest)
 
 
 ## Load data from CSV
-learning_data <- read.csv(file='../media/plots/ResourceV3/transformer/200k_training_256.csv', header = TRUE, sep = ';')
+base = './ResourceV3'
+test_location = 'training'
+filename = 'logs.csv'
+date = '2021-03-15T10:16:16'
+
+file = paste(base, date, test_location, filename, sep='/')
+
+learning_data <- read.csv(file=file, header = TRUE, sep = ';')
 
 # Reshape learning stats into tall format
 learning_stats <- melt(learning_data, id.vars = c(
@@ -19,13 +26,10 @@ learning_stats <- melt(learning_data, id.vars = c(
 ## Filter out by Types of Sets
 learning_stats <- learning_stats %>%
   filter(
-    # Type == 'Value.Loss' #|
-    # Type == 'Total.Bin.Loss' #|
-    # Type == 'Total.Resource.Loss' |
+    Type == 'Value.Loss' |
+    Type == 'Total.Bin.Loss' |
     Type == 'Bin.Policy.Loss'  #|
     # Type == 'Bin.Entropy' #|
-    # Type == 'Resource.Policy.Loss' |
-    # Type == 'Resource.Entropy'
   )
 # filter( Step > 5000)
 
@@ -42,14 +46,12 @@ ggplot(data = learning_stats, aes(x=Step, y=Value, col=Type, group = Type))+
     # legend.title=element_blank()
   )
 
+ggsave(paste(base, date, test_location, "learning.pdf", sep='/'))
 
 # Reshape reward data into tall format
 reward_stats <- melt(learning_data, id.vars = c(
   "Step",
   "Value.Loss",
-  "Resource.Entropy",
-  "Total.Resource.Loss",
-  "Resource.Policy.Loss",
   "Bin.Entropy",
   "Total.Bin.Loss",
   "Bin.Policy.Loss"), variable.name = 'Type', value.name = 'Value')
@@ -65,4 +67,4 @@ ggplot(data = reward_stats, aes(x=Step, y=Value, col=Type, group = Type))+
     # legend.position="bottom",
     # legend.title=element_blank()
   )
-
+ggsave(paste(base, date, test_location, "rewards.pdf", sep='/'))

@@ -5,6 +5,7 @@ import numpy as np
 
 from environment.custom.resource_v3.node import Node
 from environment.custom.resource_v3.resource import Resource
+from environment.custom.resource_v3.misc.utils import round_half_up
 
 class TestNode(unittest.TestCase):
     def setUp(self) -> None:
@@ -79,14 +80,21 @@ class TestNode(unittest.TestCase):
         self.assertEqual(len(self.node.req_list),1)
 
         # EOS Node is not updated
-        self.assertEqual(
-            self.node.remaining_CPU.tolist(), self.node_representation[0] - req_representation[0]
+        precision = 2
+        self.assertAlmostEqual(
+            self.node.remaining_CPU.tolist()[0],
+            self.node_representation[0] - req_representation[0],
+            precision
         )
-        self.assertEqual(
-            self.node.remaining_RAM.tolist(), self.node_representation[1] - req_representation[1]
+        self.assertAlmostEqual(
+            self.node.remaining_RAM.tolist()[0],
+            self.node_representation[1] - req_representation[1],
+            precision
         )
-        self.assertEqual(
-            self.node.remaining_MEM.tolist(), self.node_representation[2] - req_representation[2]
+        self.assertAlmostEqual(
+            self.node.remaining_MEM.tolist()[0],
+            self.node_representation[2] - req_representation[2],
+            precision
         )
     
     def test_reset(self):

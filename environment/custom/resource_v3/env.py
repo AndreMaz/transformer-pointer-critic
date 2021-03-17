@@ -12,8 +12,8 @@ import tensorflow as tf
 import tensorflow_probability as tfp
 from random import randint, randrange
 from environment.base.base import BaseEnvironment
-from environment.custom.resource_v3.reward import RewardFactory
-from environment.custom.resource_v3.utils import compute_remaining_resources
+from environment.custom.resource_v3.reward import RewardFactory, ReducedNodeUsage
+from environment.custom.resource_v3.misc.utils import compute_remaining_resources, round_half_up
 from environment.custom.resource_v3.node import Node as History
 from environment.custom.resource_v3.resource import Resource as Request
 
@@ -49,8 +49,6 @@ class ResourceEnvironmentV3(BaseEnvironment):
         self.node_min_val: int = opts['node_min_val']
         self.node_max_val: int = opts['node_max_val']
 
-        self.generate_decoder_input: bool = opts['generate_decoder_input']
-
         ################################################
         ##### MATERIALIZED VARIABLES FROM CONFIGS ######
         ################################################
@@ -60,6 +58,13 @@ class ResourceEnvironmentV3(BaseEnvironment):
             opts['reward'],
             self.EOS_BIN
         )
+
+        if isinstance(self.rewarder, ReducedNodeUsage):
+            self.is_empty = np.zeros((self.batch_size, self.node_sample_size + self.profiles_sample_size, 1), dtype='float32')
+            # First position is EOS
+            self.is_empty[:, 0, 0] = self.EOS_BIN[0][0]
+        else:
+            self.is_empty = None
 
         # Generate req profiles
         self.total_profiles = self.generate_dataset()
@@ -77,35 +82,42 @@ class ResourceEnvironmentV3(BaseEnvironment):
         # Reset decoding step
         self.decoding_step = self.node_sample_size
 
+        if isinstance(self.rewarder, ReducedNodeUsage):
+            self.is_empty = np.zeros(
+                (self.batch_size, self.node_sample_size + self.profiles_sample_size, 1), dtype='float32')
+            # First position is EOS
+            self.is_empty[:, 0, 0] = self.EOS_BIN[0][0]
+
         self.batch, self.history = self.generate_batch()
 
         self.bin_net_mask,\
             self.resource_net_mask,\
             self.mha_used_mask = self.generate_masks()
 
+        # Reset the rewarder
+        self.rewarder.reset()
+
         return self.state()
 
     def state(self):
-        if self.generate_decoder_input:
-            decoder_input = self.batch[:, self.decoding_step]
-            decoder_input = np.expand_dims(decoder_input, axis=1)
+        decoder_input = self.batch[:, self.decoding_step]
+        decoder_input = np.expand_dims(decoder_input, axis=1)
 
-            return self.batch.copy(),\
-                decoder_input,\
-                self.bin_net_mask.copy(),\
-                self.mha_used_mask.copy()
+        batch = self.batch.copy()
 
-        return self.batch.copy(),\
+        if isinstance(self.rewarder, ReducedNodeUsage):
+            batch = self.add_is_empty_dim(batch, self.is_empty)
+
+        return batch,\
+            decoder_input,\
             self.bin_net_mask.copy(),\
-            self.resource_net_mask.copy(),\
             self.mha_used_mask.copy()
 
-    def step(self, bin_ids: List[int], req_ids: List[int], feasible_bin_mask):
+    def step(self, bin_ids: List[int], feasible_bin_mask):
         # Default is not done
         isDone = False
 
-        if np.all(req_ids == None):
-            req_ids = tf.fill(self.batch_size, self.decoding_step)
+        req_ids = tf.fill(self.batch_size, self.decoding_step)
 
         batch_size = self.batch.shape[0]
         num_elems = self.batch.shape[1]
@@ -158,6 +170,8 @@ class ResourceEnvironmentV3(BaseEnvironment):
             nodes,
             reqs,
             feasible_bin_mask,
+            bin_ids,
+            self.is_empty
         )
 
         rewards = tf.reshape(rewards, (batch_size, 1))
@@ -175,18 +189,19 @@ class ResourceEnvironmentV3(BaseEnvironment):
             self.place_reqs(bin_ids, req_ids, reqs)
         
         # Pick next decoder_input
-        if self.generate_decoder_input:
-            self.decoding_step += 1
-            if self.decoding_step < self.node_sample_size + self.profiles_sample_size:
-                decoder_input = self.batch[:, self.decoding_step]
-                decoder_input = np.expand_dims(decoder_input, axis=1)
-            else:
-                # We are done. No need to generate decoder input
-                decoder_input = np.array([None])
+        self.decoding_step += 1
+        if self.decoding_step < self.node_sample_size + self.profiles_sample_size:
+            decoder_input = self.batch[:, self.decoding_step]
+            decoder_input = np.expand_dims(decoder_input, axis=1)
+        else:
+            # We are done. No need to generate decoder input
+            decoder_input = np.array([None])
 
-            return self.batch.copy(), decoder_input, rewards, isDone, info
-        
-        return self.batch.copy(), rewards, isDone, info
+        batch = self.batch.copy()
+        if isinstance(self.rewarder, ReducedNodeUsage):
+            batch = self.add_is_empty_dim(batch, self.is_empty)
+
+        return batch, decoder_input, rewards, isDone, info
     
     def generate_dataset(self):
     
@@ -272,17 +287,8 @@ class ResourceEnvironmentV3(BaseEnvironment):
 
         batch_indices = tf.range(self.batch.shape[0], dtype='int32')
 
-        if self.generate_decoder_input:
-            resource_ids = tf.fill(self.batch_size, self.decoding_step)   
-        else:
-            resources_probs = np.random.uniform(size=self.bin_net_mask.shape)
-            resources_probs = tf.nn.softmax(
-                resources_probs - (self.resource_net_mask*10e6), axis=-1
-            )
-            
-            dist_resource = tfp.distributions.Categorical(probs = resources_probs)
-            resource_ids = dist_resource.sample()
-
+        resource_ids = tf.fill(self.batch_size, self.decoding_step)   
+        
         # Decode the resources
         decoded_resources = self.batch[batch_indices, resource_ids]
         decoded_resources = np.expand_dims(decoded_resources, axis=1)
@@ -299,10 +305,7 @@ class ResourceEnvironmentV3(BaseEnvironment):
 
         bin_ids = dist_bin.sample()
 
-        if self.generate_decoder_input:
-            return bin_ids, bins_mask
-
-        return bin_ids, resource_ids, bins_mask
+        return bin_ids, bins_mask
 
     def add_stats_to_agent_config(self, agent_config: dict):
         agent_config['num_resources'] = self.profiles_sample_size
@@ -312,11 +315,17 @@ class ResourceEnvironmentV3(BaseEnvironment):
         
         agent_config['batch_size'] = self.batch_size
 
-        # In this env we don't need positional encoding
-        # So this can be any value
-        agent_config['vocab_size'] = 0 # self.num_nodes + self.num_profiles
-        
-        agent_config['generate_decoder_input'] = self.generate_decoder_input
+        # Init the object
+        agent_config["encoder_embedding"] = {}
+        if isinstance(self.rewarder, ReducedNodeUsage):
+            agent_config["encoder_embedding"]["common"] = False
+            agent_config["encoder_embedding"]["num_bin_features"] = 4
+            agent_config["encoder_embedding"]["num_resource_features"] = 3
+        else:
+            agent_config["encoder_embedding"]["common"] = True
+            # If using the same embedding layer these vars are unused
+            agent_config["encoder_embedding"]["num_bin_features"] = None
+            agent_config["encoder_embedding"]["num_resource_features"] = None
 
         return agent_config
 
@@ -372,6 +381,10 @@ class ResourceEnvironmentV3(BaseEnvironment):
 
 
     def build_feasible_mask(self, state, resources, bin_net_mask):
+        
+        if isinstance(self.rewarder, ReducedNodeUsage):
+            state = self.remove_is_empty_dim(state)
+
         batch = state.shape[0]
         num_elems = state.shape[1]
         # Add batch dim to resources
@@ -404,7 +417,15 @@ class ResourceEnvironmentV3(BaseEnvironment):
         # Return as is. At this moment node can be overloaded
         return feasible_mask
 
-    def print_history(self, print_details = False) -> None:
+    def add_is_empty_dim(self, batch, is_empty):
+        batch = np.concatenate([batch, is_empty], axis=-1)
+        return round_half_up(batch, 2)
+    
+    def remove_is_empty_dim(self, batch):
+        batch = batch[:, :, :self.num_features]
+        return round_half_up(batch, 2)
+
+    def print_history(self, print_details = False) -> None: # pragma: no cover
 
         for batch_id in range(self.batch_size):
             print('_________________________________')
@@ -415,6 +436,12 @@ class ResourceEnvironmentV3(BaseEnvironment):
 
         return
 
+    def store_dataset(self, location) -> None:
+        np.savetxt(location, self.total_profiles)
+        
+    def load_dataset(self, location):
+        self.total_profiles = np.loadtxt(location)
+
 if __name__ == "__main__":
     env_name = 'ResourceEnvironmentV3'
     
@@ -422,6 +449,7 @@ if __name__ == "__main__":
         params = json.load(json_file)
 
     env_configs = params['env_config']
+    env_configs['batch_size'] = 2
 
     env = ResourceEnvironmentV3(env_name, env_configs)
 
@@ -432,15 +460,15 @@ if __name__ == "__main__":
 
     bin_ids = [0,1]
     resource_ids = None
-    next, decoder_input, rewards, isDone, info = env.step(bin_ids, resource_ids, feasible_net_mask)
+    next, decoder_input, rewards, isDone, info = env.step(bin_ids, feasible_net_mask)
 
-    next, decoder_input, rewards, isDone, info = env.step(bin_ids, resource_ids, feasible_net_mask)
+    next, decoder_input, rewards, isDone, info = env.step(bin_ids, feasible_net_mask)
     
     env.reset()
 
-    next, decoder_input, rewards, isDone, info = env.step(bin_ids, resource_ids, feasible_net_mask)
+    next, decoder_input, rewards, isDone, info = env.step(bin_ids, feasible_net_mask)
 
-    next, decoder_input, rewards, isDone, info = env.step(bin_ids, resource_ids, feasible_net_mask)
+    next, decoder_input, rewards, isDone, info = env.step(bin_ids, feasible_net_mask)
 
 
     a = 1

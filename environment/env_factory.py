@@ -1,4 +1,4 @@
-from typing import List
+from typing import Callable, List, Tuple
 from environment.gym.env import GymEnvironment
 
 from environment.custom.knapsack.env_v2 import KnapsackV2
@@ -29,7 +29,7 @@ custom_envs = {
     "ResourceV3": (ResourceEnvironmentV3, ResourceV3Tester, ResourceV3Plotter),
 }
 
-def env_factory(type, name, opts):
+def env_factory(type, name, opts) -> Tuple[ResourceEnvironmentV3, Callable, Callable]:
     if (type == 'gym'): return GymEnvironment(name)
 
     #try:

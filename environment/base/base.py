@@ -1,5 +1,5 @@
 
-class BaseEnvironment():
+class BaseEnvironment(): # pragma: no cover
     def __init__(self, name: str):
         self.name = name
 

@@ -1,13 +1,14 @@
 import tensorflow as tf
 import numpy as np
 from tensorflow.python.keras.engine import node
-from environment.custom.resource_v3.utils import bins_eos_checker
+from environment.custom.resource_v3.misc.utils import bins_eos_checker
 
 def RewardFactory(opts: dict, EOS_NODE):
     rewards = {
         "greedy": GreedyReward,
         "single_node_dominant": SingleNodeDominantReward,
         "global_dominant": GlobalDominantReward,
+        "reduced_node_usage": ReducedNodeUsage,
         "gini": GiniReward
     }
 
@@ -30,7 +31,9 @@ class GreedyReward():
                        total_num_nodes,
                        nodes,
                        reqs,
-                       feasible_mask
+                       feasible_mask,
+                       node_ids,
+                       is_empty = None
                        ):
 
         batch_size = updated_batch.shape[0]
@@ -40,6 +43,8 @@ class GreedyReward():
 
         return 1 - is_eos
 
+    def reset(self):
+        return
 
 class SingleNodeDominantReward():
     def __init__(self, opts: dict, EOS_NODE):
@@ -53,7 +58,9 @@ class SingleNodeDominantReward():
                        total_num_nodes,
                        nodes,
                        reqs,
-                       feasible_mask
+                       feasible_mask,
+                       node_ids,
+                       is_empty = None
                        ):
 
         all_bins = updated_batch[:, :total_num_nodes]
@@ -80,6 +87,9 @@ class SingleNodeDominantReward():
 
         return reward
 
+    def reset(self):
+        return
+    
 class GlobalDominantReward():
     def __init__(self, opts: dict, EOS_NODE):
         super(GlobalDominantReward, self).__init__()
@@ -92,7 +102,9 @@ class GlobalDominantReward():
                        total_num_nodes,
                        nodes,
                        reqs,
-                       feasible_mask
+                       feasible_mask,
+                       node_ids,
+                       is_empty = None
                        ):
 
         all_bins_min_eos = updated_batch[:, 1:total_num_nodes]
@@ -119,8 +131,52 @@ class GlobalDominantReward():
 
         return reward
 
-class GiniReward():
+    def reset(self):
+        return
+
+class ReducedNodeUsage():
     def __init__(self, opts: dict, EOS_NODE):
+        super(ReducedNodeUsage, self).__init__()
+        self.rejection_penalty: int = opts['rejection_penalty']
+        self.use_new_node_penalty: int = opts['use_new_node_penalty']
+
+        self.EOS_NODE = EOS_NODE
+
+    def compute_reward(self,
+                       updated_batch,
+                       original_batch,
+                       total_num_nodes,
+                       nodes,
+                       reqs,
+                       feasible_mask,
+                       node_ids,
+                       is_empty
+                       ):
+
+        batch_size = updated_batch.shape[0]                       
+        self.batch_indices = tf.range(batch_size, dtype='int32')
+
+        # Check if node is EOS
+        num_features = updated_batch.shape[2]
+        is_eos = bins_eos_checker(nodes, self.EOS_NODE[0], num_features, result_dtype="float32") 
+
+        penalties = is_eos * self.rejection_penalty
+
+        is_node_already_used = is_empty[self.batch_indices, node_ids, 0]
+        
+        # Update for next iteration
+        is_empty[self.batch_indices, node_ids, 0] = 1
+        is_empty[:, 0, 0] = self.EOS_NODE[0][0] # EOS is allways empty
+
+        reward = ((1 - is_node_already_used) * self.use_new_node_penalty) * (1 - is_eos) + penalties
+
+        return reward
+
+    def reset(self):
+        return
+
+class GiniReward():
+    def __init__(self, opts: dict, EOS_NODE, batch_size):
         super(GiniReward, self).__init__()
         self.EOS_NODE = EOS_NODE
 
@@ -130,7 +186,8 @@ class GiniReward():
                        total_num_nodes,
                        nodes,
                        reqs,
-                       feasible_mask
+                       feasible_mask,
+                       node_ids
                        ):
 
         batch_size = updated_batch.shape[0]
@@ -145,6 +202,9 @@ class GiniReward():
         gini_mem = 1 - gini_calculator(bins_mem, total_num_nodes)
 
         return gini_cpu + gini_ram + gini_mem
+
+    def reset(self):
+        return
 
 # Links: https://goodcalculators.com/gini-coefficient-calculator/
 # Links: https://shlegeris.com/gini.html

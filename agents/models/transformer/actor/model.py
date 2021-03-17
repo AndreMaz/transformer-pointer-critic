@@ -8,14 +8,13 @@ class ActorTransformer(tf.keras.Model):
                d_model,
                num_heads,
                dff,
-               positional_encoding: bool,
-               vocab_size,
                logit_clipping_C: float,
-               SOS_CODE,
                encoder_embedding_time_distributed,
                attention_dense_units,
-               rate=0.1,
-               use_default_initializer:bool = True
+               use_default_initializer:bool,
+               common_embedding: bool,
+               num_bin_features: int,
+               num_resource_features: int
                ):
 
     super(ActorTransformer, self).__init__()
@@ -24,26 +23,20 @@ class ActorTransformer(tf.keras.Model):
                            d_model,
                            num_heads,
                            dff,
-                           positional_encoding,
-                           vocab_size,
                            encoder_embedding_time_distributed,
-                           rate,
-                           use_default_initializer)
+                           use_default_initializer,
+                           common_embedding,
+                           num_bin_features,
+                           num_resource_features)
 
     self.decoder = Decoder(num_layers, 
                            d_model,
                            num_heads,
                            dff,
-                           positional_encoding,
-                           SOS_CODE,
-                           vocab_size,
                            logit_clipping_C,
                            encoder_embedding_time_distributed,
                            attention_dense_units,
-                           rate,
                            use_default_initializer)
-
-    # self.final_layer = tf.keras.layers.Dense(target_vocab_size)
   
   @tf.function
   def call(self,
@@ -51,6 +44,7 @@ class ActorTransformer(tf.keras.Model):
            dec_input,
            attention_mask,
            training: bool,
+           num_bins: int,
            enc_padding_mask = None,
            look_ahead_mask = None,
            dec_padding_mask = None,
@@ -59,6 +53,7 @@ class ActorTransformer(tf.keras.Model):
     # enc_output.shape = (batch_size, inp_seq_len, d_model)
     enc_output = self.encoder(enc_input,
                               training,
+                              num_bins,
                               enc_padding_mask)
     
     # Compute a single pointer

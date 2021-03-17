@@ -71,11 +71,11 @@ class BaseHeuristic():
         return resource_list
     
 
-    def print_info(self, elem_list: list):
+    def print_info(self, elem_list: list): # pragma: no cover
         for elem in elem_list:
             elem.print()
             # print(elem.get_stats())
 
-    def print_node_stats(self, print_details = False):
+    def print_node_stats(self, print_details = False): # pragma: no cover
         for node in self.solution:
             node.print(print_details)

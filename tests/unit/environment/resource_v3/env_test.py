@@ -1,6 +1,7 @@
-from environment.custom.resource_v3.utils import compute_remaining_resources
 import sys
 sys.path.append('.')
+from environment.custom.resource_v3.misc.utils import compute_remaining_resources
+
 import unittest
 import numpy as np
 
@@ -62,11 +63,11 @@ class TestResource(unittest.TestCase):
         self.assertEqual(self.env.mha_used_mask.shape, (2, 1, 1, num_elems))
 
     def test_reset(self):
-        state, bin_net_mask, resource_net_mask, mha_used_mask = self.env.reset()
+        state, decoder_input, bin_net_mask, mha_used_mask = self.env.reset()
 
         self.assertEqual(state.shape, (2, 6, 3))
+        self.assertEqual(decoder_input.shape, (2, 1, 3))
         self.assertEqual(bin_net_mask.shape, (2, 6))
-        self.assertEqual(resource_net_mask.shape, (2, 6))
         self.assertEqual(mha_used_mask.shape, (2, 1, 1, 6))
 
     def test_initial_masks(self):
@@ -75,26 +76,16 @@ class TestResource(unittest.TestCase):
             [0, 0, 0, 0, 1, 1],
         ], dtype='float32')
 
-        expected_resource_mask = np.array([
-            [1, 1, 1, 1, 0, 0],
-            [1, 1, 1, 1, 0, 0],
-        ], dtype='float32')
-
         expected_mha_mask = np.array([
             [[[0, 0, 0, 0, 0, 0]]],
             [[[0, 0, 0, 0, 0, 0]]],
         ], dtype='float32')
 
-        state, bin_net_mask, resource_net_mask, mha_mask = self.env.state()
+        state, decoder_input, bin_net_mask, mha_mask = self.env.state()
 
         self.assertEqual(
             bin_net_mask.tolist(),
             expected_bin_mask.tolist()
-        )
-
-        self.assertEqual(
-            resource_net_mask.tolist(),
-            expected_resource_mask.tolist()
         )
 
         self.assertEqual(
@@ -126,7 +117,9 @@ class TestResource(unittest.TestCase):
         self.env.set_testing_mode(
             batch_size=2,
             node_sample_size=3,
-            profiles_sample_size=2
+            profiles_sample_size=2,
+            node_min_val =  80,
+            node_max_val = 100,
         )
         self.env.reset()
 
@@ -164,7 +157,7 @@ class TestResource(unittest.TestCase):
         )
 
     def test_sample_action(self):
-        bin_ids, req_ids, bins_masks = self.env.sample_action()
+        bin_ids, bins_masks = self.env.sample_action()
         batch_size, elems, _ = self.env.batch.shape
 
         num_nodes = 4 # Including the EOS node
@@ -172,18 +165,16 @@ class TestResource(unittest.TestCase):
 
         # Can't exceed the nodes positions [0,1,2,3]
         self.assertTrue(np.all(bin_ids < num_nodes))
-        # Req IDs must be higher that node indexes
-        # It can only be either [4, 5]
-        self.assertTrue( np.all(req_ids >= num_nodes))
 
         self.assertEqual(bins_masks.shape, (batch_size, elems))
 
     def test_step(self):
-        # state, bin_net_mask, resource_net_mask, mha_used_mask = self.env.state()
         self.env.set_testing_mode(
             batch_size=2,
             node_sample_size=3,
-            profiles_sample_size=2
+            profiles_sample_size=2,
+            node_min_val =  80,
+            node_max_val = 100,
         )
         
         fake_state = np.array([[[-2.  , -2.  , -2.  ],
@@ -221,7 +212,7 @@ class TestResource(unittest.TestCase):
         self.env.mha_used_mask = fake_mha_mask
 
         batch_indices = [0, 1]
-        fake_req_ids = [4, 3]
+        fake_req_ids = [4, 4]
         fake_selected_reqs = fake_state[batch_indices, fake_req_ids]
 
         fake_bin_ids = [0, 2]
@@ -232,8 +223,8 @@ class TestResource(unittest.TestCase):
         fake_state[batch_indices, fake_bin_ids] = remaining_resources
         fake_state[batch_indices, 0] = self.env.EOS_BIN
 
-        next_state, rewards, isDone, info = self.env.step(
-            fake_bin_ids, fake_req_ids, fake_bin_net_mask
+        next_state, next_decoder_input, rewards, isDone, info = self.env.step(
+            fake_bin_ids, fake_bin_net_mask
         )
         self.assertEqual(
             fake_state.tolist(),
@@ -262,6 +253,7 @@ class TestResource(unittest.TestCase):
         fake_mha_mask[batch_indices, :, :, fake_req_ids] = 1
         # Didn't fill completely the nodes so they should stay unmasked
         next_mha_mask = info['mha_used_mask']
+
         self.assertEqual(
             fake_mha_mask.tolist(),
             next_mha_mask.tolist()
@@ -309,13 +301,13 @@ class TestResource(unittest.TestCase):
     def test_is_done(self):
         self.env.reset()
 
-        bin_ids, resource_ids, bins_mask = self.env.sample_action()
-        _, _, is_done, _ = self.env.step(bin_ids, resource_ids, bins_mask)
+        bin_ids, bins_mask = self.env.sample_action()
+        _, _, _, is_done, _ = self.env.step(bin_ids, bins_mask)
 
         self.assertFalse(is_done)
 
-        bin_ids, resource_ids, bins_mask = self.env.sample_action()
-        _, _, is_done, _ = self.env.step(bin_ids, resource_ids, bins_mask)
+        bin_ids, bins_mask = self.env.sample_action()
+        _, _, _, is_done, _ = self.env.step(bin_ids, bins_mask)
 
         self.assertTrue(is_done)
 
@@ -503,6 +495,19 @@ class TestResource(unittest.TestCase):
             actual.tolist(),
             expected.tolist()
         )
+    
+    def test_add_stats_to_agent_config(self):
+        actual = {}
+
+        actual = self.env.add_stats_to_agent_config(actual)
+
+        expected = {
+                "common": True,
+                "num_bin_features": None,
+                "num_resource_features": None
+        }
+
+        self.assertEqual(actual['encoder_embedding'], expected)
 
 class TestResourceWithDecoderInput(unittest.TestCase):
 
@@ -590,7 +595,10 @@ class TestResourceWithDecoderInput(unittest.TestCase):
         self.env.set_testing_mode(
             batch_size=2,
             node_sample_size=3,
-            profiles_sample_size=2
+            profiles_sample_size=2,
+            node_min_val =  80,
+            node_max_val = 100,
+            
         )
         
         fake_state = np.array([[[-2.  , -2.  , -2.  ],
@@ -642,7 +650,7 @@ class TestResourceWithDecoderInput(unittest.TestCase):
 
         # Take a step
         next_state, next_decoder_input, rewards, isDone, info = self.env.step(
-            fake_bin_ids, None, fake_bin_net_mask
+            fake_bin_ids, fake_bin_net_mask
         )
 
         self.assertEqual(next_state.shape, (2, 6, 3))
@@ -722,15 +730,98 @@ class TestResourceWithDecoderInput(unittest.TestCase):
         self.env.reset()
 
         bin_ids, bins_mask = self.env.sample_action()
-        resource_ids = None
-        next_state, next_decoder_input, rewards, is_done, info = self.env.step(bin_ids, resource_ids, bins_mask)
+        next_state,\
+            next_decoder_input,\
+            rewards, is_done, info = self.env.step(bin_ids, bins_mask)
 
         self.assertEqual(next_decoder_input.shape, (2, 1, 3))
 
         self.assertFalse(is_done)
 
         bin_ids, bins_mask = self.env.sample_action()
-        next_state, next_decoder_input, rewards, is_done, info = self.env.step(bin_ids, resource_ids, bins_mask)
+        next_state,\
+            next_decoder_input,\
+            rewards, is_done, info = self.env.step(bin_ids, bins_mask)
 
         self.assertEqual(next_decoder_input[0], None)
         self.assertTrue(is_done)
+
+class TestResourceWithReduceNodesReward(unittest.TestCase):
+
+    def setUp(self) -> None:
+        ENV_CONFIG = {
+            "description": "Environment configs.",
+
+            "mask_nodes_in_mha": False,
+            "generate_request_on_the_fly": False,
+            "batch_size": 2,
+
+            "normalization_factor": 100,
+            "decimal_precision": 2,
+
+            "num_features": 3,
+            "num_profiles": 20,
+
+            "profiles_sample_size": 2,
+            "node_sample_size": 3,
+
+            "EOS_CODE": -2,
+            "req_min_val": 1,
+            "req_max_val": 30,
+
+            "node_min_val": 80,
+            "node_max_val": 100,
+
+            "reward": {
+                "type": "reduced_node_usage",
+                "greedy": {},
+                "fair": {},
+                "gini": {},
+                "reduced_node_usage": {
+                    "rejection_penalty": -2,
+                    "use_new_node_penalty": -1
+                }
+            }
+        }
+        self.env = ResourceEnvironmentV3('ResourceV3', ENV_CONFIG)
+    
+    def test_shapes(self):
+        state, decoder_input, bin_net_mask, mha_used_mask = self.env.reset()
+
+        self.assertEqual(
+            state.shape,
+            (2, 6, 4)
+        )
+        
+        # Last feature of first entry should be EOS
+        self.assertTrue(
+            np.all(state[:, 0, 3:] == self.env.EOS_CODE)
+        )
+        # Last feature of all entries except the EOS should be zero
+        self.assertTrue(
+            np.all(state[:, 1:, 3:] == 0)
+        )
+
+        bin_ids, bins_masks = self.env.sample_action()
+
+        next_state,\
+            next_decoder_input,\
+            rewards, is_done, info = self.env.step(bin_ids, bins_masks)
+
+        self.assertEqual(
+            next_state.shape,
+            (2, 6, 4)
+        )
+    
+    def test_add_stats_to_agent_config(self):
+        actual = {}
+
+        actual = self.env.add_stats_to_agent_config(actual)
+
+        expected = {
+            "common": False,
+            "num_bin_features": 4,
+            "num_resource_features": 3
+        }
+
+        self.assertEqual(actual['encoder_embedding'], expected)
