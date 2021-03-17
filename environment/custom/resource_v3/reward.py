@@ -3,7 +3,7 @@ import numpy as np
 from tensorflow.python.keras.engine import node
 from environment.custom.resource_v3.misc.utils import bins_eos_checker
 
-def RewardFactory(opts: dict, EOS_NODE, batch_size):
+def RewardFactory(opts: dict, EOS_NODE):
     rewards = {
         "greedy": GreedyReward,
         "single_node_dominant": SingleNodeDominantReward,
@@ -16,12 +16,12 @@ def RewardFactory(opts: dict, EOS_NODE, batch_size):
         rewardType = opts['type']
         R = rewards[f'{rewardType}']
         # print(f'"{rewardType.upper()}" reward selected.')
-        return R(opts[f'{rewardType}'], EOS_NODE, batch_size)
+        return R(opts[f'{rewardType}'], EOS_NODE)
     except KeyError:
         raise NameError(f'Unknown Reward Name! Select one of {list(rewards.keys())}')
 
 class GreedyReward():
-    def __init__(self, opts: dict, EOS_NODE, batch_size):
+    def __init__(self, opts: dict, EOS_NODE):
         super(GreedyReward, self).__init__()
         self.EOS_NODE = EOS_NODE
 
@@ -47,7 +47,7 @@ class GreedyReward():
         return
 
 class SingleNodeDominantReward():
-    def __init__(self, opts: dict, EOS_NODE, batch_size):
+    def __init__(self, opts: dict, EOS_NODE):
         super(SingleNodeDominantReward, self).__init__()
         self.EOS_NODE = EOS_NODE
         self.rejection_penalty: int = opts['rejection_penalty']
@@ -91,7 +91,7 @@ class SingleNodeDominantReward():
         return
     
 class GlobalDominantReward():
-    def __init__(self, opts: dict, EOS_NODE, batch_size):
+    def __init__(self, opts: dict, EOS_NODE):
         super(GlobalDominantReward, self).__init__()
         self.EOS_NODE = EOS_NODE
         self.rejection_penalty: int = opts['rejection_penalty']
@@ -135,15 +135,12 @@ class GlobalDominantReward():
         return
 
 class ReducedNodeUsage():
-    def __init__(self, opts: dict, EOS_NODE, batch_size):
+    def __init__(self, opts: dict, EOS_NODE):
         super(ReducedNodeUsage, self).__init__()
         self.rejection_penalty: int = opts['rejection_penalty']
         self.use_new_node_penalty: int = opts['use_new_node_penalty']
 
         self.EOS_NODE = EOS_NODE
-        self.batch_size = batch_size
-
-        self.batch_indices = tf.range(self.batch_size, dtype='int32')
 
     def compute_reward(self,
                        updated_batch,
@@ -155,7 +152,10 @@ class ReducedNodeUsage():
                        node_ids,
                        is_empty
                        ):
-        
+
+        batch_size = updated_batch.shape[0]                       
+        self.batch_indices = tf.range(batch_size, dtype='int32')
+
         # Check if node is EOS
         num_features = updated_batch.shape[2]
         is_eos = bins_eos_checker(nodes, self.EOS_NODE[0], num_features, result_dtype="float32") 

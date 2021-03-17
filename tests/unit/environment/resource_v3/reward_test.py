@@ -14,7 +14,7 @@ class Greedy_0_1_Reward(unittest.TestCase):
 
         EOS_CODE = -2
         EOS_NODE = np.full((1, 3), EOS_CODE, dtype='float32')
-        rewarder = GreedyReward(opts, EOS_NODE, batch_size)
+        rewarder = GreedyReward(opts, EOS_NODE)
 
         og_batch = np.array([
             [
@@ -79,7 +79,7 @@ class SingleNodeDominantTest(unittest.TestCase):
 
         EOS_CODE = -2
         EOS_NODE = np.full((1, 3), EOS_CODE, dtype='float32')
-        rewarder = SingleNodeDominantReward(opts, EOS_NODE, batch_size)
+        rewarder = SingleNodeDominantReward(opts, EOS_NODE)
 
         og_batch = np.array([
             [
@@ -144,7 +144,7 @@ class GlobalDominantTest(unittest.TestCase):
 
         EOS_CODE = -2
         EOS_NODE = np.full((1, 3), EOS_CODE, dtype='float32')
-        rewarder = GlobalDominantReward(opts, EOS_NODE, batch_size)
+        rewarder = GlobalDominantReward(opts, EOS_NODE)
 
         og_batch = np.array([
             [
@@ -211,7 +211,7 @@ class ReducedNodeUsageTest(unittest.TestCase):
 
         EOS_CODE = -2
         EOS_NODE = np.full((1, 3), EOS_CODE, dtype='float32')
-        rewarder = ReducedNodeUsage(opts, EOS_NODE, batch_size)
+        rewarder = ReducedNodeUsage(opts, EOS_NODE)
 
         is_empty = np.zeros(
             (batch_size, tensor_size, 1), dtype='float32')

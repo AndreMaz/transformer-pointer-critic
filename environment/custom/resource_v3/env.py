@@ -49,8 +49,6 @@ class ResourceEnvironmentV3(BaseEnvironment):
         self.node_min_val: int = opts['node_min_val']
         self.node_max_val: int = opts['node_max_val']
 
-        self.tensor_size = self.node_sample_size + self.profiles_sample_size
-
         ################################################
         ##### MATERIALIZED VARIABLES FROM CONFIGS ######
         ################################################
@@ -58,12 +56,11 @@ class ResourceEnvironmentV3(BaseEnvironment):
 
         self.rewarder = RewardFactory(
             opts['reward'],
-            self.EOS_BIN,
-            self.batch_size
+            self.EOS_BIN
         )
 
         if isinstance(self.rewarder, ReducedNodeUsage):
-            self.is_empty = np.zeros((self.batch_size, self.tensor_size, 1), dtype='float32')
+            self.is_empty = np.zeros((self.batch_size, self.node_sample_size + self.profiles_sample_size, 1), dtype='float32')
             # First position is EOS
             self.is_empty[:, 0, 0] = self.EOS_BIN[0][0]
         else:
@@ -87,7 +84,7 @@ class ResourceEnvironmentV3(BaseEnvironment):
 
         if isinstance(self.rewarder, ReducedNodeUsage):
             self.is_empty = np.zeros(
-                (self.batch_size, self.tensor_size, 1), dtype='float32')
+                (self.batch_size, self.node_sample_size + self.profiles_sample_size, 1), dtype='float32')
             # First position is EOS
             self.is_empty[:, 0, 0] = self.EOS_BIN[0][0]
 
