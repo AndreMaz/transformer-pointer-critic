@@ -14,6 +14,10 @@ from environment.base.base import BaseEnvironment
 from environment.custom.knapsack_v2.reward import RewardFactory
 from environment.custom.knapsack_v2.misc.utils import compute_remaining_resources, round_half_up
 
+from environment.custom.knapsack_v2.bin import Bin as History
+from environment.custom.knapsack_v2.item import Item
+
+
 class KnapsackEnvironmentV2(BaseEnvironment):
     def __init__(self, name: str, opts: dict):
         super(KnapsackEnvironmentV2, self).__init__(name)
@@ -334,10 +338,36 @@ class KnapsackEnvironmentV2(BaseEnvironment):
         self.item_sample_size = item_sample_size
 
     def build_history(self, batch):
-        return
+        history = []
+
+        for batch_id, instance in enumerate(batch):
+            nodes = []
+            for id, bin in enumerate(instance[:self.bin_sample_size]):
+                nodes.append(
+                    History(
+                        batch_id,
+                        id,
+                        bin
+                    )
+                )
+            
+            history.append(nodes)
+        
+        return history
     
-    def place_reqs(self, bin_ids: List[int], item_ids: List[int], items: np.ndarray):
-        return
+    def place_items(self, bin_ids: List[int], item_ids: List[int], items: np.ndarray):
+        for batch_index, bin_id in enumerate(bin_ids):
+
+            node: History = self.history[batch_index][bin_id]
+            
+            req_id = item_ids[batch_index]
+            item = Item(
+                batch_index,
+                req_id,
+                items[batch_index]
+            )
+
+            node.insert_item(item)
 
     def build_feasible_mask(self, state, items, bin_net_mask):
         
