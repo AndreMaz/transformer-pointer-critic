@@ -15,6 +15,7 @@ import environment.resource_v3.utils_test
 # Knapsack V2 unit tests
 import environment.knapsack_v2.env_test
 import environment.knapsack_v2.bin_test
+import environment.knapsack_v2.reward_test
 import environment.knapsack_v2.utils_test
 
 # initialize the test suite
@@ -33,6 +34,7 @@ suite.addTests(loader.loadTestsFromModule(environment.resource_v3.utils_test))
 # Knapsack V2 unit tests
 suite.addTests(loader.loadTestsFromModule(environment.knapsack_v2.env_test))
 suite.addTests(loader.loadTestsFromModule(environment.knapsack_v2.bin_test))
+suite.addTests(loader.loadTestsFromModule(environment.knapsack_v2.reward_test))
 suite.addTests(loader.loadTestsFromModule(environment.knapsack_v2.utils_test))
 
 runner = unittest.TextTestRunner(verbosity=3)
