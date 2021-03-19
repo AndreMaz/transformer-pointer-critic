@@ -168,7 +168,7 @@ class KnapsackEnvironmentV2(BaseEnvironment):
         }
 
         if self.gather_stats:
-            self.place_reqs(bin_ids, item_ids, items)
+            self.place_items(bin_ids, item_ids, items)
 
         # Pick next decoder_input
         self.decoding_step += 1
@@ -294,10 +294,10 @@ class KnapsackEnvironmentV2(BaseEnvironment):
         return bin_ids, bins_mask
     
     def add_stats_to_agent_config(self, agent_config: dict):
-        agent_config['num_resources'] = self.profiles_sample_size
-        agent_config['num_bins'] = self.node_sample_size
+        agent_config['num_resources'] = self.item_sample_size
+        agent_config['num_bins'] = self.bin_sample_size
 
-        agent_config['tensor_size'] = self.node_sample_size + self.profiles_sample_size
+        agent_config['tensor_size'] = self.bin_sample_size + self.item_sample_size
         
         agent_config['batch_size'] = self.batch_size
 
@@ -405,10 +405,10 @@ class KnapsackEnvironmentV2(BaseEnvironment):
 
         return
 
-    def store_dataset(self, location) -> None:
+    def store_dataset(self, location) -> None: # pragma: no cover
         np.savetxt(location, self.total_profiles)
         
-    def load_dataset(self, location):
+    def load_dataset(self, location): # pragma: no cover
         self.total_profiles = np.loadtxt(location)
 
 if __name__ == "__main__":

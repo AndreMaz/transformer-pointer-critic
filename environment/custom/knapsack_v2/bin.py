@@ -44,7 +44,7 @@ class Bin():
         
         if self.id != 0:
             assert self.can_fit_item(item),\
-                f'Bin {self.id} is overloaded'
+                f'Bin {self.id} is overloaded. Current load {self.current_load[0]:.2f}/{self.capacity[0]:.2f} || Item: weight {item.weight[0]:.2f} value {item.value[0]:.2f}'
 
             self.current_load = self.compute_updated_load(item)
 
