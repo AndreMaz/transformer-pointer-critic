@@ -1,6 +1,7 @@
 from tensorflow.python.ops.gen_math_ops import log
 from agents.agent import Agent
 from agents.trainer import trainer
+from agents.plotter import plotter as training_plotter
 
 from environment.env_factory import env_factory
 from configs.configs import get_configs
@@ -28,7 +29,7 @@ from datetime import datetime
 
 LOG_DIR = "./results/"
 
-def runner(env_type="custom", env_name='ResourceV3', agent_name="tpc"):
+def runner(env_type="custom", env_name='KnapsackV2', agent_name="tpc"):
 
     # Store the time of the script
     start_date = datetime.now().replace(microsecond=0).isoformat()
@@ -37,7 +38,7 @@ def runner(env_type="custom", env_name='ResourceV3', agent_name="tpc"):
     agent_config, trainer_config, env_config, tester_config, _, all_configs = get_configs(env_name, agent_name)
 
     # Create the environment
-    env, tester, plotter = env_factory(env_type, env_name, env_config)
+    env, tester = env_factory(env_type, env_name, env_config)
 
     # Add info about the environment
     agent_config = env.add_stats_to_agent_config(agent_config)
@@ -66,7 +67,7 @@ def runner(env_type="custom", env_name='ResourceV3', agent_name="tpc"):
 
     # Plot training results (learning curve and rewards)
     print('\nPlotting Results...')
-    plotter(training_history, env, agent, agent_config, trainer_config, log_dir)
+    training_plotter(training_history, env, agent, agent_config, trainer_config, log_dir)
 
     # Test the agent
     print("\nTesting...")

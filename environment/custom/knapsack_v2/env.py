@@ -406,10 +406,10 @@ class KnapsackEnvironmentV2(BaseEnvironment):
         return
 
     def store_dataset(self, location) -> None: # pragma: no cover
-        np.savetxt(location, self.total_profiles)
+        np.savetxt(location, self.total_items)
         
     def load_dataset(self, location): # pragma: no cover
-        self.total_profiles = np.loadtxt(location)
+        self.total_items = np.loadtxt(location)
 
 if __name__ == "__main__":
     env_name = 'KnapsackV2'
