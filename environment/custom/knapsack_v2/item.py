@@ -13,6 +13,8 @@ class Item():
         self.weight = np.array([item_representation[0]], dtype='float32')
         self.value = np.array([item_representation[1]], dtype='float32')
 
+        self.ratio = self.value / self.weight
+
     def get_tensor_rep(self):
 
         return np.asanyarray([

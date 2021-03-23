@@ -44,6 +44,11 @@ class Bin():
 
         return round_half_up(self.capacity - updated_load, 2) >= 0
     
+    def compute_remaining_capacity(self, item: Item):
+        updated_load = self.compute_updated_load(item)
+
+        return round_half_up(self.capacity - updated_load, 2)
+
     def insert_item(self, item: Item):
         
         if self.id != 0:

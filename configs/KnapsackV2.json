@@ -51,10 +51,10 @@
         "node_sample_size": 3,
         
         "heuristic": {
-            "dominant_resource": {
+            "waste_reduction": {
                 "generate_params_combos": true,
-                "resource_sort_descending": true,
-                "node_sort_descending": true
+                "item_sort_descending": true,
+                "bin_sort_descending": true
             },
             "random": {}
         },
