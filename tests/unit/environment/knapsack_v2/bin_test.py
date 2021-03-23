@@ -58,11 +58,16 @@ class TestBin(unittest.TestCase):
         self.assertEqual(
             self.node.current_load.tolist(), self.node_representation[1]
         )
+
+        precision = 2
+        self.assertAlmostEqual(
+            self.node.current_value.tolist()[0], 0.2, precision
+        )
     
     def test_insert_req_regular_node(self):
         batch_id = 0
         id = 1
-        req_representation = np.array([0.3, 0.2], dtype="float32")
+        req_representation = np.array([0.3, 0.7], dtype="float32")
         
         req = Item(
             batch_id, id, req_representation
@@ -86,6 +91,12 @@ class TestBin(unittest.TestCase):
             self.node_representation[1] + req_representation[0],
             precision
         )
+
+        precision = 2
+        self.assertAlmostEqual(
+            self.node.current_value.tolist()[0], 0.7, precision
+        )
+          
     
     def test_reset(self):
         batch_id = 0
@@ -105,6 +116,11 @@ class TestBin(unittest.TestCase):
 
         # Should be one
         self.assertEqual(len(self.node.item_list),1)
+
+        precision = 2
+        self.assertAlmostEqual(
+            self.node.current_value.tolist()[0], 0.2, precision
+        )
         
         self.node.reset()
 
@@ -117,4 +133,9 @@ class TestBin(unittest.TestCase):
         )
         self.assertEqual(
             self.node.current_load.tolist(), self.node_representation[1]
+        )
+
+        precision = 2
+        self.assertAlmostEqual(
+            self.node.current_value.tolist()[0], 0.0, precision
         )

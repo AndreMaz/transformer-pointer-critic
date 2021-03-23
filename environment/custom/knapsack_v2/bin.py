@@ -21,6 +21,8 @@ class Bin():
         self.current_load = np.array([bin_representation[1]], dtype='float32')
 
         self.item_list: List[Item] = []
+        
+        self.current_value = np.array([0.0], dtype="float32")
 
         # History stats
         self.load_history = [self.current_load]
@@ -31,6 +33,8 @@ class Bin():
         self.item_list = []
 
         self.load_history = [self.current_load]
+
+        self.current_value = np.array([0.0], dtype="float32")
 
     def compute_updated_load(self, item: Item):
         return round_half_up(self.current_load + item.weight, 2)
@@ -48,9 +52,9 @@ class Bin():
 
             self.current_load = self.compute_updated_load(item)
 
-
             self.load_history.append(self.current_load.copy())
-        
+
+        self.current_value += item.value
         self.item_list.append(item)
     
     def print(self, print_details = False): # pragma: no cover
