@@ -314,22 +314,12 @@ class KnapsackEnvironmentV2(BaseEnvironment):
             bin_sample_size,
             item_sample_size,
             bin_min_capacity,
-            bin_max_capacity,
-            item_min_value,
-            item_max_value,
-            item_min_weight,
-            item_max_weight
+            bin_max_capacity
             ) -> None:
         
 
         self.gather_stats = True
         self.batch_size = batch_size
-
-        self.item_min_value = item_min_value
-        self.item_max_value = item_max_value
-
-        self.item_min_weight = item_min_weight
-        self.item_max_weight = item_max_weight
 
         self.bin_min_capacity = bin_min_capacity
         self.bin_max_capacity = bin_max_capacity

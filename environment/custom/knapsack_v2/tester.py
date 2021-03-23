@@ -109,10 +109,10 @@ def test_single_instance(
     agent: Agent,
     opts: dict,
     batch_size: int,
-    node_sample_size: int,
-    node_min_val: int,
-    node_max_val: int,
-    req_sample_size: int,
+    bin_sample_size: int,
+    bin_min_val: int,
+    bin_max_val: int,
+    item_sample_size: int,
     log_dir: str,
     ):
     
@@ -132,15 +132,15 @@ def test_single_instance(
     # Set the agent and env to testing mode
     env.set_testing_mode(
         batch_size,
-        node_sample_size,
-        req_sample_size,
-        node_min_val,
-        node_max_val
+        bin_sample_size,
+        item_sample_size,
+        bin_min_val,
+        bin_max_val
     )
     agent.set_testing_mode(
         batch_size,
-        node_sample_size,
-        req_sample_size
+        env.bin_sample_size,
+        env.item_sample_size
     )
     
     training_step = 0

@@ -133,10 +133,6 @@ class TestKnapsackEnvironmentV2(unittest.TestCase):
             item_sample_size=2,
             bin_min_capacity=  80,
             bin_max_capacity= 100,
-            item_min_value= 70,
-            item_max_value= 75,
-            item_min_weight=5,
-            item_max_weight=10
         )
         self.env.reset()
 
@@ -190,11 +186,7 @@ class TestKnapsackEnvironmentV2(unittest.TestCase):
             bin_sample_size=3,
             item_sample_size=2,
             bin_min_capacity=  80,
-            bin_max_capacity= 100,
-            item_min_value= 70,
-            item_max_value= 75,
-            item_min_weight=5,
-            item_max_weight=10
+            bin_max_capacity= 100
         )
         
         fake_state = np.array([[[-2.  , -2. ],

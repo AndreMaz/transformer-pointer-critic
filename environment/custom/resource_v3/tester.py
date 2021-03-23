@@ -140,8 +140,8 @@ def test_single_instance(
     )
     agent.set_testing_mode(
         batch_size,
-        node_sample_size,
-        req_sample_size
+        env.node_sample_size,
+        env.profiles_sample_size
     )
     
     training_step = 0
