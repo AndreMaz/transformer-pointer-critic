@@ -16,7 +16,7 @@ def log_testing_stats(global_stats, folder, file_name):
         # Place Heuristic method name into header
         for entry in global_stats[0]['instance']:
             keys = list(entry.keys())
-            header = header + f"{' '.join(keys[0].split('_'))};{' '.join(keys[1].split('_'))};{' '.join(keys[2].split('_'))};{' '.join(keys[3].split('_'))}"
+            header = header + f"{' '.join(keys[0].split('_'))};{' '.join(keys[1].split('_'))};{' '.join(keys[2].split('_'))};{' '.join(keys[3].split('_'))};"
         fp.write(f"{header}\n")
 
         

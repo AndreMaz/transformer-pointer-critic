@@ -63,7 +63,7 @@ class Bin():
 
         print(f'Node ID: {self.id} \t| Current Load {current_load} of {maximum_capacity}')
 
-        total_items = len(self.req_list)
+        total_items = len(self.item_list)
 
         if print_details:
             print('Resources allocated to the Node:')

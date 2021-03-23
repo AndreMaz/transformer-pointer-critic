@@ -74,7 +74,7 @@ def gather_stats_from_solutions(env, heuristic_solvers) -> List[dict]:
             'net_reward': net_reward,
             'net_empty_nodes': empty_nodes,
             'net_num_rejected_items': num_rejected_items,
-            'rejected_value': rejected_value
+            'net_rejected_value': rejected_value
     })
     
     max_heuristic_reward = -1
