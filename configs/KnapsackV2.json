@@ -56,7 +56,10 @@
                 "item_sort_descending": true,
                 "bin_sort_descending": true
             },
-            "random": {}
+            "random": {},
+            "or_tools": {
+                "time_limit": 10
+            }
         },
 
         "export_stats": {
