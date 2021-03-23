@@ -50,13 +50,7 @@ def test(
         filename = generate_file_name(agent.agent_config)
 
     global_stats = []
-    dominant_results = np.array([
-        0, # Won
-        0, # Draw
-        0, # Lost
-    ])
-
-    rejected_results = np.array([
+    global_reward_results = np.array([
         0, # Won
         0, # Draw
         0, # Lost
@@ -68,9 +62,7 @@ def test(
                 # print(f'{node_min_value}||{node_min_value + node_step_resource}')
                 for index in range(num_tests):
 
-                    instance_stats,\
-                    dominant_instance_result,\
-                    rejected_instance_result = test_single_instance(
+                    instance_stats, reward_result = test_single_instance(
                         index,
                         env,
                         agent,
@@ -83,8 +75,7 @@ def test(
                         log_dir
                     )
 
-                    dominant_results += dominant_instance_result
-                    rejected_results += rejected_instance_result
+                    global_reward_results += reward_result
 
                     global_stats.append({
                         "test_instance": index,
@@ -101,7 +92,7 @@ def test(
             os.makedirs(f)
         log_testing_stats(global_stats, f, filename)
 
-    return dominant_results, rejected_results
+    return global_reward_results
 
 def test_single_instance(
     instance_id,
@@ -150,10 +141,10 @@ def test_single_instance(
     current_state, dec_input, bin_net_mask, mha_used_mask = env.reset()
 
     if show_inference_progress:
-        print(f'Testing with {agent.num_resources} resources and {env.node_sample_size} bins', end='\r')
+        print(f'Testing with {agent.num_resources} resources and {env.bin_sample_size} bins', end='\r')
 
     # Init the heuristic solvers 
-    heuristic_solvers = heuristic_factory(env.node_sample_size, opts['heuristic'])
+    heuristic_solvers = heuristic_factory(env.bin_sample_size, opts['heuristic'])
     heuristic_input_state = current_state.copy()
 
     start = time.time()
@@ -233,12 +224,10 @@ def test_single_instance(
         # Plot the attentions to visualize the policy
         plot_attentions(
             attentions,
-            env.profiles_sample_size,
-            env.node_sample_size,
+            env.item_sample_size,
+            env.bin_sample_size,
         )
     
-    stats,\
-        dominant_result,\
-        rejected_result = gather_stats_from_solutions(env, heuristic_solvers)
+    stats, reward_result = gather_stats_from_solutions(env, heuristic_solvers)
 
-    return stats, dominant_result, rejected_result
+    return stats, reward_result

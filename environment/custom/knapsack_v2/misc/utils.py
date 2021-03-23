@@ -46,92 +46,65 @@ def compute_max_steps(nets, heuristic_solvers):
 def compute_stats(node_list) -> float:
     # Find number of rejected requests
     eos_node = node_list[0]
-    num_rejected = len(eos_node.item_list)
+    num_rejected_items = len(eos_node.item_list)
+    rejected_value = eos_node.current_value
+
 
     # Find dominant resource AND
     # Find the number of unused nodes
-    nodes_cpu_stats = []
-    nodes_ram_stats = []
-    nodes_mem_stats = []
-    
     reward = 0
     empty_nodes = 0
 
     for node in node_list[1:]:
-        nodes_cpu_stats.append(node.remaining_CPU)
-        nodes_ram_stats.append(node.remaining_RAM)
-        nodes_mem_stats.append(node.remaining_MEM)
+        reward += node.current_value
 
         if len(node.item_list) == 0:
             empty_nodes += 1
 
-    min_cpu = min(nodes_cpu_stats)
-    min_ram = min(nodes_ram_stats)
-    min_mem = min(nodes_mem_stats)
-
-    delta = min([min_cpu, min_ram, min_mem])
-
-    return delta, num_rejected, empty_nodes
+    return reward, empty_nodes, num_rejected_items, rejected_value
 
 
 def gather_stats_from_solutions(env, heuristic_solvers) -> List[dict]:
     stats = []
     
-    won = 0
-    lost = 0
-    draw = 0
-
-    net_dominant, net_rejected, empty_nodes = compute_stats(env.history[0])
-    net_dominant = round_half_up(net_dominant, 2)
+    net_reward, empty_nodes, num_rejected_items, rejected_value = compute_stats(env.history[0])
+    net_reward = round_half_up(net_reward, 2)
 
     stats.append({
-            'net_dominant': net_dominant,
-            'net_rejected': net_rejected,
-            'net_empty_nodes': empty_nodes
+            'net_reward': net_reward,
+            'net_empty_nodes': empty_nodes,
+            'net_num_rejected_items': num_rejected_items,
+            'rejected_value': rejected_value
     })
     
-    max_dominant = -1
-    min_rejected = 9999
+    max_heuristic_reward = -1
 
     for solver in heuristic_solvers:
-        solver_dominant, solver_rejected, solver_empty_nodes = compute_stats(solver.solution)
+        reward, empty_nodes, num_rejected_items, rejected_value = compute_stats(solver.solution)
 
-        max_dominant = max(max_dominant, round_half_up(solver_dominant, 2))
-        min_rejected = min(min_rejected, solver_rejected)
+        max_heuristic_reward = max(max_heuristic_reward, round_half_up(reward, 2))
 
         stats.append({
-            f'{solver.name}_dominant': solver_dominant,
-            f'{solver.name}_rejected': solver_rejected,
-            f'{solver.name}_empty_nodes': solver_empty_nodes,
+            f'{solver.name}_reward': reward,
+            f'{solver.name}_empty_nodes': empty_nodes,
+            f'{solver.name}_num_rejected_items': num_rejected_items,
+            f'{solver.name}_rejected_value': rejected_value,
         })
 
-    dominant_result = np.array([
+    reward_result = np.array([
         0, # Won
         0, # Draw
         0, # Loss
     ])
 
-    if max_dominant > net_dominant:
-        dominant_result[2] = 1 # Lost
-    elif max_dominant == net_dominant:
-        dominant_result[1] = 1 
+    if max_heuristic_reward > net_reward:
+        reward_result[2] = 1 # Lost
+    elif max_heuristic_reward == net_reward:
+        reward_result[1] = 1 # Draw
     else: 
-        dominant_result[0] = 1
+        reward_result[0] = 1 # Won
 
-    rejected_result = np.array([
-        0, # Won
-        0, # Draw
-        0, # Loss
-    ])
-
-    if min_rejected < net_rejected:
-        rejected_result[2] = 1 # Lost
-    elif min_rejected == net_rejected:
-        rejected_result[1]  = 1
-    else:
-        rejected_result[0] = 1
-
-    return stats, dominant_result, rejected_result
+    return stats, reward_result
 
 def generate_file_name(agent_config):
     gamma = agent_config['gamma']

@@ -36,12 +36,12 @@
                 "step": 5
             },
             "bin_available_capacities": {
-                "min": 0,
+                "min": 90,
                 "max": 100,
                 "step": 10
             },
             "item_configs": {
-                "min": 10,
+                "min": 90,
                 "max": 100,
                 "step": 10
             }
