@@ -72,7 +72,7 @@ def gather_stats_from_solutions(env, heuristic_solvers) -> List[dict]:
 
     stats.append({
             'net_reward': net_reward,
-            'net_empty_nodes': empty_nodes,
+            'net_empty_bins': empty_nodes,
             'net_num_rejected_items': num_rejected_items,
             'net_rejected_value': rejected_value
     })
@@ -86,7 +86,7 @@ def gather_stats_from_solutions(env, heuristic_solvers) -> List[dict]:
 
         stats.append({
             f'{solver.name}_reward': reward,
-            f'{solver.name}_empty_nodes': empty_nodes,
+            f'{solver.name}_empty_bins': empty_nodes,
             f'{solver.name}_num_rejected_items': num_rejected_items,
             f'{solver.name}_rejected_value': rejected_value,
         })
