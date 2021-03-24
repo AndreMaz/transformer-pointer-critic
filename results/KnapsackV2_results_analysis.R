@@ -8,7 +8,7 @@ library(nortest)
 base = './KnapsackV2'
 test_location = 'tests'
 filename = 'test.csv'
-date = '2021-03-24T12:39:13'
+date = '2021-03-24T14:19:21'
 
 file = paste(base, date, test_location, filename, sep='/')
 
@@ -70,9 +70,9 @@ ggsave(paste(base, date, test_location, "reward.pdf", sep='/'), height = 50, wid
 ############# PLOT NUMBER OF EMPTY BINS ############
 ####################################################
 
-# Data frame with empty nodes stats
+# Data frame with empty bins stats
 empty_nodes_data <- avgData  %>% 
-  select(bin_sample_size, bin_min_value, bin_max_value, item_sample_size, ends_with("empty.nodes"))
+  select(bin_sample_size, bin_min_value, bin_max_value, item_sample_size, ends_with("empty.bins"))
 
 # Reshape learning stats into tall format
 stacked_empty_nodes_data <- melt(empty_nodes_data, id.vars = c(
@@ -144,7 +144,7 @@ ggplot(data = stacked_rejected_value_data, aes(x=bin_min_value, y=Value, col=Typ
   geom_point(alpha=0.7)+
   # geom_line(size=1.5, alpha=0.3)+
   facet_wrap(c("bin_sample_size", "item_sample_size"), labeller = "label_both", scales = "free")+
-  labs(x="Bin Available Capacity", y='Number of Rejected Items')+
+  labs(x="Bin Available Capacity", y='Total Rejected Value')+
   scale_x_discrete(labels = (xLabels))+
   theme(axis.text.x = element_text(angle = 35, hjust = 1))+
   theme(legend.position="bottom")
