@@ -130,8 +130,8 @@
         
         "EOS_CODE": -2,
         
-        "item_min_value": 70,
-        "item_max_value": 80,
+        "item_min_value": 1,
+        "item_max_value": 100,
 
         "item_min_weight": 1,
         "item_max_weight": 30,
