@@ -22,20 +22,30 @@ class ORTools(BaseHeuristic):
                 ):
         super(ORTools, self).__init__(num_nodes)
 
-        self.time_limit: int = opts['time_limit']
+        self.time_limit_ms: int = opts['time_limit_ms']
+        self.num_threads: int = opts['num_threads']
 
         self.solver = pywraplp.Solver('multiple_knapsack_mip',
                              pywraplp.Solver.CBC_MIXED_INTEGER_PROGRAMMING)
         
+        # Time limit info: https://developers.google.com/optimization/lp/glop#setting-time-limits
+        self.solver.SetTimeLimit(self.time_limit_ms)
+        self.solver.SetNumThreads(self.num_threads)
+
+
         self.generate_name()
     
     def generate_name(self):
-        self.name = f'OR_Tools_time_limit_{self.time_limit}'
+        self.name = f'OR_Tools_time_limit_{self.time_limit_ms}'
 
     def solve(self, state):
         
-        data = self.parse_data(state)
+        bin_list = self.parse_bins(state)
+        EOS_NODE = bin_list.pop(0)
+        item_list = self.parse_items(state)
 
+
+        data = self.parse_data(state)
         # Variables
         # x[i, j] = 1 if item i is packed in bin j.
         x = {}
@@ -61,28 +71,50 @@ class ORTools(BaseHeuristic):
                 objective.SetCoefficient(x[(i, j)], data['values'][i])
         objective.SetMaximization()
 
+        # Solve the problem
         status = self.solver.Solve()
 
-        if status == pywraplp.Solver.OPTIMAL:
-            print('Total packed value:', objective.Value())
-            total_weight = 0
-            for j in data['bins']:
-                bin_weight = 0
-                bin_value = 0
-                print('Bin ', j, '\n')
-                for i in data['items']:
-                    if x[i, j].solution_value() > 0:
-                        print('Item', i, '- weight:', data['weights'][i], ' value:',
-                                data['values'][i])
-                        bin_weight += data['weights'][i]
-                        bin_value += data['values'][i]
-                print('Packed bin weight:', bin_weight)
-                print('Packed bin value:', bin_value)
-                print()
-                total_weight += bin_weight
-            print('Total packed weight:', total_weight)
-        else:
-            print('The problem does not have an optimal solution.')
+        taken_items = np.zeros([len(data['items'])], dtype='int8')
+        for entry in x:
+            if x[entry].solution_value() > 0:
+                # Mark item as taken
+                taken_items[entry[0]] = 1
+
+                # Insert item into the bin
+                bin_list[entry[1]].insert_item(
+                    item_list[entry[0]]
+                )
+
+        for index, taken in enumerate(taken_items):
+            if taken == 0:
+                EOS_NODE.insert_item(
+                    item_list[index]
+                )
+
+        # Store a reference with the solution
+        self.solution = [EOS_NODE] + bin_list
+
+        # if status == pywraplp.Solver.OPTIMAL:
+        #     print('Total packed value:', objective.Value())
+            
+        #     total_weight = 0
+        #     for j in data['bins']:
+        #         bin_weight = 0
+        #         bin_value = 0
+        #         print('Bin ', j, '\n')
+        #         for i in data['items']:
+        #             if x[i, j].solution_value() > 0:
+        #                 print('Item', i, '- weight:', data['weights'][i], ' value:',
+        #                         data['values'][i])
+        #                 bin_weight += data['weights'][i]
+        #                 bin_value += data['values'][i]
+        #         print('Packed bin weight:', bin_weight)
+        #         print('Packed bin value:', bin_value)
+        #         print()
+        #         total_weight += bin_weight
+        #     print('Total packed weight:', total_weight)
+        # else:
+        #     print('The problem does not have an optimal solution.')
     
         return objective.Value()
        
@@ -133,6 +165,7 @@ if __name__ == "__main__":
             [ 0.5,  0.0],
             [ 0.2,  0.1],
             [ 0.3,  0.5],
+            [ 0.1,  0.4],
         ]
     ], dtype='float32')
     

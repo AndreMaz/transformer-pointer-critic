@@ -58,7 +58,8 @@
             },
             "random": {},
             "or_tools": {
-                "time_limit": 10
+                "time_limit_ms": 10000,
+                "num_threads": 4
             }
         },
 

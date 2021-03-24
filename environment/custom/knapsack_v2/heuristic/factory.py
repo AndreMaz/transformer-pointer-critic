@@ -1,5 +1,6 @@
 from environment.custom.knapsack_v2.heuristic.random_heuristic import RandomHeuristic
 from environment.custom.knapsack_v2.heuristic.waste_reduction import WasteReductionHeuristic
+from environment.custom.knapsack_v2.heuristic.or_tools import ORTools
 
 def heuristic_factory(num_nodes: int, opts: dict):
     heuristic_list = []
@@ -13,8 +14,12 @@ def heuristic_factory(num_nodes: int, opts: dict):
         RandomHeuristic(num_nodes, opts['random'])
     ]
 
+    or_tools = [
+        ORTools(num_nodes, opts['or_tools'])
+    ]
+
     # Concat the array with the solvers
-    heuristic_list = heuristic_list + waste_reduction_solvers + random_solvers
+    heuristic_list = heuristic_list + waste_reduction_solvers + random_solvers + or_tools
 
     return heuristic_list
 
