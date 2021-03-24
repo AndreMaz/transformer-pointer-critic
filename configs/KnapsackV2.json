@@ -3,7 +3,7 @@
     
     "trainer_config": {
         "description": "Trainer function configs.",
-        "n_iterations": 10,
+        "n_iterations": 100,
         "n_steps_to_update": 30,
 
         "export_stats": {
@@ -115,7 +115,7 @@
     "env_config": {
         "description": "Environment configs.",
         
-        "batch_size": 2,
+        "batch_size": 256,
         "mask_nodes_in_mha": false,
         "generate_items_on_the_fly": false,
         
@@ -125,8 +125,8 @@
         "num_features": 2,
         "item_set": 5000,
 
-        "item_sample_size": 2,
-        "bin_sample_size": 3,
+        "item_sample_size": 20,
+        "bin_sample_size": 10,
         
         "EOS_CODE": -2,
         
@@ -136,7 +136,7 @@
         "item_min_weight": 1,
         "item_max_weight": 30,
         
-        "bin_min_capacity": 90,
+        "bin_min_capacity": 0,
         "bin_max_capacity": 100,
 
         "reward": {
