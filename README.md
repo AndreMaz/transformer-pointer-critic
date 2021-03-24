@@ -136,3 +136,8 @@ or to generate an HTML-based coverage file
 coverage run tests/runner.py
 coverage html --omit=*/venv/*,*/usr/*,*/lib/*,*/tests/* -i
 ```
+
+or combo
+```
+coverage run tests/runner.py && coverage html --omit=*/venv/*,*/usr/*,*/lib/*,*/tests/* -i
+```

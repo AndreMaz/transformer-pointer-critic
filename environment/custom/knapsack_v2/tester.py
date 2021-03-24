@@ -1,43 +1,42 @@
 import numpy as np
-from environment.custom.resource_v3.env import ResourceEnvironmentV3
-from agents.agent import Agent
-from environment.custom.resource_v3.plotter import plot_attentions
-from environment.custom.resource_v3.misc.utils import compute_max_steps, gather_stats_from_solutions
-from environment.custom.resource_v3.misc.csv_writer import export_to_csv, log_testing_stats
-
-# from agents.optimum_solver import solver
-from environment.custom.resource_v3.heuristic.factory import heuristic_factory
-from environment.custom.resource_v3.misc.utils import generate_file_name
 import os
 import time
 from datetime import datetime
 
-OPTIMAL = 'Optimal'
-HEURISTIC = 'Heuristic'
+
+from environment.custom.knapsack_v2.env import KnapsackEnvironmentV2
+from agents.agent import Agent
+from environment.custom.knapsack_v2.heuristic.factory import heuristic_factory
+from environment.custom.knapsack_v2.misc.csv_writer import export_to_csv, log_testing_stats
+from environment.custom.knapsack_v2.misc.utils import compute_max_steps, gather_stats_from_solutions, generate_file_name
 
 
 def test(
-    env: ResourceEnvironmentV3,
+    env: KnapsackEnvironmentV2,
     agent: Agent,
     opts: dict,
     log_dir: str
     ):
 
+    
     num_tests: int = opts['testbed']['num_tests']
-    node_configs: dict = opts['testbed']['node_configs']
-    node_size_min = node_configs['min']
-    node_size_max = node_configs['max']
-    node_size_step = node_configs['step']
+    # Number of bins
+    bin_configs: dict = opts['testbed']['bin_configs']
+    bin_size_min = bin_configs['min']
+    bin_size_max = bin_configs['max']
+    bin_size_step = bin_configs['step']
+    
+    # Bins capacities
+    bin_available_capacities: dict = opts['testbed']['bin_available_capacities']
+    bin_min_resource = bin_available_capacities['min']
+    bin_max_resource = bin_available_capacities['max']
+    bin_step_resource = bin_available_capacities['step']
 
-    node_available_resource: dict = opts['testbed']['node_available_resources']
-    node_min_resource = node_available_resource['min']
-    node_max_resource = node_available_resource['max']
-    node_step_resource = node_available_resource['step']
-
-    resource_configs: dict = opts['testbed']['request_configs']
-    resource_size_min = resource_configs['min']
-    resource_size_max = resource_configs['max']
-    resource_size_step = resource_configs['step']
+    # Number of items
+    item_configs: dict = opts['testbed']['item_configs']
+    item_size_min = item_configs['min']
+    item_size_max = item_configs['max']
+    item_size_step = item_configs['step']
     
     batch_size: int = opts['batch_size']
 
@@ -51,48 +50,39 @@ def test(
         filename = generate_file_name(agent.agent_config)
 
     global_stats = []
-    dominant_results = np.array([
+    global_reward_results = np.array([
         0, # Won
         0, # Draw
         0, # Lost
     ])
 
-    rejected_results = np.array([
-        0, # Won
-        0, # Draw
-        0, # Lost
-    ])
-
-    for resource_sample_size in range(resource_size_min, resource_size_max+1, resource_size_step):
-        for node_sample_size in range(node_size_min, node_size_max+1, node_size_step):
-            for node_min_value in range(node_min_resource, node_max_resource, node_step_resource):
+    for item_sample_size in range(item_size_min, item_size_max+1, item_size_step):
+        for bin_sample_size in range(bin_size_min, bin_size_max+1, bin_size_step):
+            for bin_min_value in range(bin_min_resource, bin_max_resource, bin_step_resource):
                 # print(f'{node_min_value}||{node_min_value + node_step_resource}')
                 for index in range(num_tests):
 
-                    instance_stats,\
-                    dominant_instance_result,\
-                    rejected_instance_result = test_single_instance(
+                    instance_stats, reward_result = test_single_instance(
                         index,
                         env,
                         agent,
                         opts,
                         batch_size,
-                        node_sample_size, # Number of nodes
-                        node_min_value, # Min resources available in each node
-                        node_min_value + node_step_resource, # Max resources available in each node
-                        resource_sample_size, # Number of resources
+                        bin_sample_size, # Number of nodes
+                        bin_min_value, # Min resources available in each node
+                        bin_min_value + bin_step_resource, # Max resources available in each node
+                        item_sample_size, # Number of resources
                         log_dir
                     )
 
-                    dominant_results += dominant_instance_result
-                    rejected_results += rejected_instance_result
+                    global_reward_results += reward_result
 
                     global_stats.append({
                         "test_instance": index,
-                        "node_sample_size": node_sample_size,
-                        "node_min_value": node_min_value,
-                        "node_max_value": node_min_value + node_step_resource,
-                        "resource_sample_size": resource_sample_size,
+                        "bin_sample_size": bin_sample_size,
+                        "bin_min_value": bin_min_value,
+                        "bin_max_value": bin_min_value + bin_step_resource,
+                        "item_sample_size": item_sample_size,
                         "instance": instance_stats
                     })
 
@@ -102,18 +92,18 @@ def test(
             os.makedirs(f)
         log_testing_stats(global_stats, f, filename)
 
-    return dominant_results, rejected_results
+    return global_reward_results
 
 def test_single_instance(
     instance_id,
-    env: ResourceEnvironmentV3,
+    env: KnapsackEnvironmentV2,
     agent: Agent,
     opts: dict,
     batch_size: int,
-    node_sample_size: int,
-    node_min_val: int,
-    node_max_val: int,
-    req_sample_size: int,
+    bin_sample_size: int,
+    bin_min_val: int,
+    bin_max_val: int,
+    item_sample_size: int,
     log_dir: str,
     ):
     
@@ -133,15 +123,15 @@ def test_single_instance(
     # Set the agent and env to testing mode
     env.set_testing_mode(
         batch_size,
-        node_sample_size,
-        req_sample_size,
-        node_min_val,
-        node_max_val
+        bin_sample_size,
+        item_sample_size,
+        bin_min_val,
+        bin_max_val
     )
     agent.set_testing_mode(
         batch_size,
-        env.node_sample_size,
-        env.profiles_sample_size
+        env.bin_sample_size,
+        env.item_sample_size
     )
     
     training_step = 0
@@ -151,10 +141,10 @@ def test_single_instance(
     current_state, dec_input, bin_net_mask, mha_used_mask = env.reset()
 
     if show_inference_progress:
-        print(f'Testing with {agent.num_resources} resources and {env.node_sample_size} bins', end='\r')
+        print(f'Testing with {agent.num_resources} resources and {env.bin_sample_size} bins', end='\r')
 
     # Init the heuristic solvers 
-    heuristic_solvers = heuristic_factory(env.node_sample_size, opts['heuristic'])
+    heuristic_solvers = heuristic_factory(env.bin_sample_size, opts['heuristic'])
     heuristic_input_state = current_state.copy()
 
     start = time.time()
@@ -234,12 +224,10 @@ def test_single_instance(
         # Plot the attentions to visualize the policy
         plot_attentions(
             attentions,
-            env.profiles_sample_size,
-            env.node_sample_size,
+            env.item_sample_size,
+            env.bin_sample_size,
         )
     
-    stats,\
-        dominant_result,\
-        rejected_result = gather_stats_from_solutions(env, heuristic_solvers)
+    stats, reward_result = gather_stats_from_solutions(env, heuristic_solvers)
 
-    return stats, dominant_result, rejected_result
+    return stats, reward_result
