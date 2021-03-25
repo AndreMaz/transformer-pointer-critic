@@ -129,6 +129,8 @@ class KnapsackEnvironmentV2(BaseEnvironment):
         is_node_full = round_half_up(
             updated_bins[:, 0] - updated_bins[:, 1], self.decimal_precision
         )
+        # 0 -> Not full
+        # 1 -> Full
         is_full = tf.cast(tf.equal(is_node_full, 0), dtype="float32")
         # Mask full nodes/bins
         self.bin_net_mask[batch_indices, bin_ids] = is_full
