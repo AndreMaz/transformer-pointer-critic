@@ -3,7 +3,7 @@
     
     "trainer_config": {
         "description": "Trainer function configs.",
-        "n_iterations": 100,
+        "n_iterations": 3000,
         "n_steps_to_update": 30,
 
         "export_stats": {
@@ -32,16 +32,16 @@
             "num_tests": 10,
             "bin_configs": {
                 "min": 5,
-                "max": 10,
+                "max": 50,
                 "step": 5
             },
             "bin_available_capacities": {
-                "min": 90,
+                "min": 0,
                 "max": 100,
                 "step": 10
             },
             "item_configs": {
-                "min": 90,
+                "min": 10,
                 "max": 100,
                 "step": 10
             }
@@ -134,7 +134,7 @@
         "item_max_value": 100,
 
         "item_min_weight": 1,
-        "item_max_weight": 30,
+        "item_max_weight": 100,
         
         "bin_min_capacity": 0,
         "bin_max_capacity": 100,
