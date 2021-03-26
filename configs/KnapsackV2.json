@@ -54,7 +54,7 @@
             "waste_reduction": {
                 "generate_params_combos": true,
                 "item_sort_descending": true,
-                "bin_sort_descending": true
+                "bin_sort_descending": false
             },
             "random": {},
             "or_tools": {

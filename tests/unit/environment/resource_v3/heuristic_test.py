@@ -4,9 +4,11 @@ import unittest
 import numpy as np
 
 # Custom Imports
-from environment.custom.resource_v3.heuristic.dominant_heuristic import DominantResourceHeuristic, compute_potential_placement_diffs
+from environment.custom.resource_v3.heuristic.factory import DominantResourceHeuristic, RandomHeuristic
+from environment.custom.resource_v3.heuristic.dominant_heuristic import compute_potential_placement_diffs
+from environment.custom.resource_v3.misc.utils import compute_stats
 
-class TestHeuristic(unittest.TestCase):
+class TestDominantHeuristic(unittest.TestCase):
     def setUp(self) -> None:
     
         heuristic_opts = {
@@ -95,7 +97,7 @@ class TestHeuristic(unittest.TestCase):
         node_list = self.solver.parse_nodes(self.dummy_state)
         resource_list = self.solver.parse_resources(self.dummy_state)
 
-        # First node that's node EOS ||   [ 1,  2,  3]
+        # First node that's not EOS ||   [ 1,  2,  3]
         dominant_resource = node_list[1].compute_dominant_resource(
             resource_list[0] # [ 2,  1,  4]
         )
@@ -183,4 +185,45 @@ class TestHeuristic(unittest.TestCase):
         self.assertEqual(
             actual_resource_at_node2.get_tensor_rep().tolist(),
             expected_resource_at_node2.tolist()
+        )
+
+class TestRandomHeuristic(unittest.TestCase):
+    def setUp(self) -> None:
+    
+        heuristic_opts = {}
+
+        self.dummy_state = np.array([
+            [
+                [-2, -2, -2],
+                [ 1,  2,  3],
+                [ 5,  2,  6],
+                [ 2,  1,  4],
+                [ 3,  5,  8],
+            ]
+        ], dtype='float32')
+        
+        node_sample_size = 3
+        
+        self.solver = RandomHeuristic(
+            node_sample_size,
+            heuristic_opts
+        )
+    
+    def test_solver(self):
+        self.solver.solve(self.dummy_state)
+
+        delta,\
+        num_rejected,\
+        empty_nodes = compute_stats(self.solver.solution)
+
+        self.assertEqual(
+            delta, 1
+        )
+
+        self.assertEqual(
+            num_rejected, 1
+        )
+
+        self.assertEqual(
+            empty_nodes, 1
         )

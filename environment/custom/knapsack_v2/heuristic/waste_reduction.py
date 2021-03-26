@@ -47,7 +47,6 @@ class WasteReductionHeuristic(BaseHeuristic):
         self.solution = [EOS_NODE] + bin_list
     
     def place_single_resource(self, item: Item, bin_list: List[Bin], EOS_NODE: Bin):
-        
         diffs = compute_potential_placement_diffs(item, bin_list)
 
         # Sort the nodes by dominant resource
@@ -61,7 +60,7 @@ class WasteReductionHeuristic(BaseHeuristic):
         allocated = False
         bin: Bin
         for diff, bin in sorted_bins:
-            if (diff > 0):
+            if (diff >= 0):
                 bin.insert_item(item)
                 allocated = True
                 break
@@ -96,11 +95,13 @@ if __name__ == "__main__":
 
     dummy_state = np.array([
         [
-            [-2, -2],
-            [ 0.1,  0.0],
-            [ 0.5,  0.0],
-            [ 0.2,  0.1],
-            [ 0.3,  0.5],
+            [-2.0, -2.0],
+            [0.1,  0.0],
+            [0.5,  0.0],
+            [0.2,  0.1],
+            [0.3,  0.5],
+            [0.1,  0.4],
+            [0.9,  0.4],
         ]
     ], dtype='float32')
     

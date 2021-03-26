@@ -46,7 +46,7 @@ class DominantResourceHeuristic(BaseHeuristic):
         # Store a reference with the solution
         self.solution = [EOS_NODE] + node_list
     
-    def place_single_resource(self, resource, node_list, EOS_NODE):
+    def place_single_resource(self, resource: Resource, node_list: List[Node], EOS_NODE: Node):
         
         diffs = compute_potential_placement_diffs(resource, node_list)
 
@@ -60,7 +60,7 @@ class DominantResourceHeuristic(BaseHeuristic):
         # Now do the fit first
         allocated = False
         for diff, node in sorted_nodes:
-            if (diff > 0):
+            if (diff >= 0):
                 node.insert_req(resource)
                 allocated = True
                 break
