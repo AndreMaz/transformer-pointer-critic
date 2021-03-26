@@ -259,10 +259,12 @@ class KnapsackEnvironmentV2(BaseEnvironment):
             (self.batch_size, elem_size), dtype='float32')
 
         # Default mask for resources
-        for batch_id in range(self.batch_size):
-            for i in range(self.bin_sample_size):
-                items_net_mask[batch_id, i] = 1
+        #for batch_id in range(self.batch_size):
+        #    for i in range(self.bin_sample_size):
+        #        items_net_mask[batch_id, i] = 1
         
+        items_net_mask[:, :self.bin_sample_size] = 1
+
         # Default mask for bin
         bins_net_mask = bins_net_mask - items_net_mask
 

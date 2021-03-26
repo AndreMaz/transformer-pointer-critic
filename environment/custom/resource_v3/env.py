@@ -94,9 +94,6 @@ class ResourceEnvironmentV3(BaseEnvironment):
             self.resource_net_mask,\
             self.mha_used_mask = self.generate_masks()
 
-        # Reset the rewarder
-        self.rewarder.reset()
-
         return self.state()
 
     def state(self):
@@ -269,10 +266,12 @@ class ResourceEnvironmentV3(BaseEnvironment):
         nodes_net_mask = np.ones(
             (self.batch_size, elem_size), dtype='float32')
 
-                # Default mask for resources
-        for batch_id in range(self.batch_size):
-            for i in range(self.node_sample_size):
-                profiles_net_mask[batch_id, i] = 1
+        # Default mask for resources
+        #for batch_id in range(self.batch_size):
+        #    for i in range(self.node_sample_size):
+        #        profiles_net_mask[batch_id, i] = 1
+
+        profiles_net_mask[:, :self.node_sample_size] = 1
         
         # Default mask for bin
         nodes_net_mask = nodes_net_mask - profiles_net_mask
