@@ -24,7 +24,7 @@ def test(
     ):
 
     num_tests: int = opts['testbed']['num_tests']
-    node_configs: dict = opts['testbed']['node_configs']
+    node_configs: dict = opts['testbed']['node_sample_configs']
     node_size_min = node_configs['min']
     node_size_max = node_configs['max']
     node_size_step = node_configs['step']
@@ -34,7 +34,7 @@ def test(
     node_max_resource = node_available_resource['max']
     node_step_resource = node_available_resource['step']
 
-    resource_configs: dict = opts['testbed']['request_configs']
+    resource_configs: dict = opts['testbed']['request_sample_configs']
     resource_size_min = resource_configs['min']
     resource_size_max = resource_configs['max']
     resource_size_step = resource_configs['step']

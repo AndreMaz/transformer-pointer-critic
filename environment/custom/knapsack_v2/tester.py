@@ -21,7 +21,7 @@ def test(
     
     num_tests: int = opts['testbed']['num_tests']
     # Number of bins
-    bin_configs: dict = opts['testbed']['bin_configs']
+    bin_configs: dict = opts['testbed']['bin_sample_configs']
     bin_size_min = bin_configs['min']
     bin_size_max = bin_configs['max']
     bin_size_step = bin_configs['step']
@@ -33,7 +33,7 @@ def test(
     bin_step_resource = bin_available_capacities['step']
 
     # Number of items
-    item_configs: dict = opts['testbed']['item_configs']
+    item_configs: dict = opts['testbed']['item_sample_configs']
     item_size_min = item_configs['min']
     item_size_max = item_configs['max']
     item_size_step = item_configs['step']

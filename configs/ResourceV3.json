@@ -30,7 +30,7 @@
         
         "testbed" : {
             "num_tests": 10,
-            "node_configs": {
+            "node_sample_configs": {
                 "min": 5,
                 "max": 50,
                 "step": 5
@@ -40,16 +40,13 @@
                 "max": 100,
                 "step": 10
             },
-            "request_configs": {
+            "request_sample_configs": {
                 "min": 10,
                 "max": 100,
                 "step": 10
             }
         },
 
-        "profiles_sample_size": 2,
-        "node_sample_size": 3,
-        
         "heuristic": {
             "dominant_resource": {
                 "generate_params_combos": true,

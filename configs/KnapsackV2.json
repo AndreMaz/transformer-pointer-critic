@@ -30,7 +30,7 @@
         
         "testbed" : {
             "num_tests": 10,
-            "bin_configs": {
+            "bin_sample_configs": {
                 "min": 5,
                 "max": 50,
                 "step": 5
@@ -40,15 +40,12 @@
                 "max": 100,
                 "step": 10
             },
-            "item_configs": {
+            "item_sample_configs": {
                 "min": 10,
                 "max": 100,
                 "step": 10
             }
         },
-
-        "profiles_sample_size": 2,
-        "node_sample_size": 3,
         
         "heuristic": {
             "waste_reduction": {
