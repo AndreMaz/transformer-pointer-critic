@@ -49,7 +49,7 @@ def generate_dominant_combos(num_nodes: int, opts: dict):
     return dominant_list
 
 
-if __name__ == "__main__":
+if  __name__ == "__main__": # pragma: no cover
     env_name = 'ResourceEnvironmentV3'
     
     with open(f"configs/ResourceV3.json") as json_file:

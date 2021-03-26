@@ -61,7 +61,7 @@ class RandomHeuristic(BaseHeuristic):
             # Place at EOS node
             EOS_NODE.insert_req(resource)
 
-if __name__ == "__main__":
+if  __name__ == "__main__": # pragma: no cover
     with open(f"configs/ResourceV3.json") as json_file:
         params = json.load(json_file)
 

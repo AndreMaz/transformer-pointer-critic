@@ -403,7 +403,7 @@ class KnapsackEnvironmentV2(BaseEnvironment):
     def load_dataset(self, location): # pragma: no cover
         self.total_items = np.loadtxt(location)
 
-if __name__ == "__main__":
+if  __name__ == "__main__": # pragma: no cover
     env_name = 'KnapsackV2'
     
     with open(f"configs/KnapsackV2.json") as json_file:

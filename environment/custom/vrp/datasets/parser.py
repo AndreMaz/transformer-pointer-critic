@@ -172,6 +172,6 @@ def load_problem(dir_path, prob_name = None):
 
     return problem_instances
 
-if __name__ == "__main__":
+if  __name__ == "__main__": # pragma: no cover
     # converter(dir_path='.')
     converter(dir_path='./environment/custom/vrp/datasets')

@@ -3,7 +3,7 @@ sys.path.append('./tests/unit')
 import unittest
 
 
-#import agent.agent_test
+import agent.agent_test
 
 # Resource V3 unit tests
 import environment.resource_v3.env_test
@@ -24,7 +24,7 @@ loader = unittest.TestLoader()
 suite = unittest.TestSuite()
 
 # Agent Unit tests
-# suite.addTests(loader.loadTestsFromModule(agent.agent_test))
+suite.addTests(loader.loadTestsFromModule(agent.agent_test))
 # Resource V3 unit tests
 suite.addTests(loader.loadTestsFromModule(environment.resource_v3.env_test))
 suite.addTests(loader.loadTestsFromModule(environment.resource_v3.heuristic_test))

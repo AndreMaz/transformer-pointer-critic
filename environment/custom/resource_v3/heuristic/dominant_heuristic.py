@@ -86,7 +86,7 @@ def node_sorting_fn(e: Tuple[float, Node]):
 def resource_sorting_fn(elem: Resource):
     return max(elem.CPU, elem.RAM, elem.MEM)
     
-if __name__ == "__main__":
+if  __name__ == "__main__": # pragma: no cover
     with open(f"configs/ResourceV3.json") as json_file:
         params = json.load(json_file)
 

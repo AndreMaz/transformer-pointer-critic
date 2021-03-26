@@ -312,7 +312,7 @@ class CVRP(BaseEnvironment):
             print(f'\nTotal Distance: {total_distance} || Visited Nodes (excluding the depot): {total_visited_nodes}')
             print('_________________________________')
         
-if __name__ == "__main__":
+if  __name__ == "__main__": # pragma: no cover
     env_name = 'CVRP'
 
     env_config = {

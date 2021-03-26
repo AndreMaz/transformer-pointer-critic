@@ -442,7 +442,7 @@ class ResourceEnvironmentV3(BaseEnvironment):
     def load_dataset(self, location):
         self.total_profiles = np.loadtxt(location)
 
-if __name__ == "__main__":
+if  __name__ == "__main__": # pragma: no cover
     env_name = 'ResourceEnvironmentV3'
     
     with open(f"configs/ResourceV3.json") as json_file:

@@ -125,6 +125,6 @@ def tuner(env_type="custom", env_name='ResourceV3', agent_name="tpc"):
 
                         print(f"{dominant_results};{rejected_results};{actor_layer};{entropy};{actor_lr};{critic_lr}")
 
-if __name__ == "__main__":
+if  __name__ == "__main__": # pragma: no cover
     runner()
     # tuner()

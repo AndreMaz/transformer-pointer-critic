@@ -267,7 +267,7 @@ class Node():
 
         return stats
 
-if __name__ == "__main__":
+if  __name__ == "__main__": # pragma: no cover
     batch_id = 0
     id = 2
     CPU = 10

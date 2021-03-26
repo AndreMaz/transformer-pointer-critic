@@ -234,7 +234,7 @@ def gini_calculator(entries, num_nodes):
     return gini
 
 
-if __name__ == "__main__":
+if  __name__ == "__main__": # pragma: no cover
     entries = np.array([
         [15, 15, 30, 40],
         [10, 20, 35, 35],

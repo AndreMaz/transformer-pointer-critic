@@ -61,7 +61,7 @@ def validate_solution(backpacks: List[Backpack]):
 
     return True
 
-if __name__ == "__main__":
+if  __name__ == "__main__": # pragma: no cover
 
     problem = [[ 0.,  0.],
        [35.,  0.],

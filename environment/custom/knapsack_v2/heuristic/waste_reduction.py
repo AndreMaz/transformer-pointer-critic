@@ -87,7 +87,7 @@ def node_sorting_fn(e: Tuple[float, Bin]):
 def resource_sorting_fn(elem: Item):
     return elem.ratio
     
-if __name__ == "__main__":
+if  __name__ == "__main__": # pragma: no cover
     with open(f"configs/KnapsackV2.json") as json_file:
         params = json.load(json_file)
 

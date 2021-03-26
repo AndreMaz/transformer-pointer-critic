@@ -775,7 +775,7 @@ class ResourceEnvironment(BaseEnvironment):
     def get_rejection_stats(self) -> dict:
         return self.history[0][0].get_rejection_stats()
 
-if __name__ == "__main__":
+if  __name__ == "__main__": # pragma: no cover
     env_name = 'Resource'
 
     with open(f"configs/Resource.json") as json_file:

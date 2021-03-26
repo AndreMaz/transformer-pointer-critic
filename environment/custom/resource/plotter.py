@@ -169,7 +169,7 @@ def plot_attentions(attentions,
     plt.tight_layout()
     plt.show(block=True)
 
-if __name__ == "__main__":
+if  __name__ == "__main__": # pragma: no cover
     
     plot_attentions()
     # tuner()

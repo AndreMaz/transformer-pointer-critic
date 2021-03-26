@@ -61,7 +61,7 @@ class RandomHeuristic(BaseHeuristic):
             # Place at EOS node
             EOS_NODE.insert_item(item)
 
-if __name__ == "__main__":
+if  __name__ == "__main__": # pragma: no cover
     with open(f"configs/KnapsackV2.json") as json_file:
         params = json.load(json_file)
 

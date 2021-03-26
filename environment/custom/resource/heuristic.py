@@ -159,7 +159,7 @@ def node_sorting_fn(node: Node):
 def resource_sorting_fn(elem: Resource):
     return (elem.request_type, elem.CPU, elem.RAM, elem.MEM)
 
-if __name__ == "__main__":
+if  __name__ == "__main__": # pragma: no cover
     env_name = 'Resource'
 
     with open(f"configs/Resource.json") as json_file:

@@ -118,5 +118,5 @@ class Node():
             self.remaining_MEM
         ]).flatten()
 
-if __name__ == "__main__":
+if  __name__ == "__main__": # pragma: no cover
     a = 1
