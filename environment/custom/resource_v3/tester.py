@@ -1,7 +1,7 @@
 import numpy as np
 from environment.custom.resource_v3.env import ResourceEnvironmentV3
 from agents.agent import Agent
-from environment.custom.resource_v3.plotter import plot_attentions
+from environment.custom.resource_v3.attention_plotter import attention_plotter
 from environment.custom.resource_v3.misc.utils import compute_max_steps, gather_stats_from_solutions
 from environment.custom.resource_v3.misc.csv_writer import export_to_csv, log_testing_stats
 
@@ -185,9 +185,9 @@ def test_single_instance(
         episode_rewards[:, training_step] = reward[:, 0]
 
         attentions.append({
-            'resource_net_input': np.array(dec_input),
-            "bin_attention": bins_probs.numpy(),
-            "current_state": current_state.copy()
+            "current_state": current_state.copy(),
+            'decoder_input': np.array(dec_input),
+            "attention_probs": bins_probs.numpy(),
         })
 
         # Update for next iteration
@@ -232,7 +232,7 @@ def test_single_instance(
 
     if plot_attentions:
         # Plot the attentions to visualize the policy
-        plot_attentions(
+        attention_plotter(
             attentions,
             env.profiles_sample_size,
             env.node_sample_size,

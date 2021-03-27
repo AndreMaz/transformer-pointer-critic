@@ -5,6 +5,7 @@ from datetime import datetime
 
 
 from environment.custom.knapsack_v2.env import KnapsackEnvironmentV2
+from environment.custom.knapsack_v2.attention_plotter import attention_plotter
 from agents.agent import Agent
 from environment.custom.knapsack_v2.heuristic.factory import heuristic_factory
 from environment.custom.knapsack_v2.misc.csv_writer import export_to_csv, log_testing_stats
@@ -175,9 +176,9 @@ def test_single_instance(
         episode_rewards[:, training_step] = reward[:, 0]
 
         attentions.append({
-            'resource_net_input': np.array(dec_input),
-            "bin_attention": bins_probs.numpy(),
-            "current_state": current_state.copy()
+            "current_state": current_state.copy(),
+            'decoder_input': np.array(dec_input),
+            "attention_probs": bins_probs.numpy()
         })
 
         # Update for next iteration
@@ -222,7 +223,7 @@ def test_single_instance(
 
     if plot_attentions:
         # Plot the attentions to visualize the policy
-        plot_attentions(
+        attention_plotter(
             attentions,
             env.item_sample_size,
             env.bin_sample_size,
