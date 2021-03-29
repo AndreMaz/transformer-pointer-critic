@@ -29,7 +29,7 @@ from datetime import datetime
 
 LOG_DIR = "./results/"
 
-def runner(env_type="custom", env_name='KnapsackV2', agent_name="tpc"):
+def runner(env_type="custom", env_name='ResourceV3', agent_name="tpc"):
 
     # Store the time of the script
     start_date = datetime.now().replace(microsecond=0).isoformat()
