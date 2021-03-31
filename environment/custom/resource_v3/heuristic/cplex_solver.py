@@ -49,14 +49,15 @@ class CPLEXSolver(BaseHeuristic):
             [(x, n) for x in resources_ids for n in nodes_ids], name='B')
 
         # Critical Resource at specific nodes
-        omega_node = mdl.continuous_var_list([n for n in nodes_ids], name='omega')
-        mdl.add_constraints([omega_node[n] >= 0 for n in nodes_ids])
-        mdl.add_constraints([omega_node[n] <= 1 for n in nodes_ids])
+        omega_node = mdl.continuous_var_list([n for n in nodes_ids], lb=0, ub=1, name='omega')
+        #mdl.add_constraints([omega_node[n] >= 0 for n in nodes_ids])
+        # mdl.add_constraints([omega_node[n] <= 1 for n in nodes_ids])
 
         # Global critical resource
-        omega_max = mdl.continuous_var(name='omega_max')
-        mdl.add_constraint(omega_max >= 0)
-        mdl.add_constraint(omega_max <= 1)
+        omega_max = mdl.continuous_var(name='omega_max', lb=0, ub=1)
+        mdl._is_continuous_var(omega_max)
+        #mdl.add_constraint(omega_max >= 0)
+        #mdl.add_constraint(omega_max <= 1)
 
 
         # Rule placement
@@ -80,8 +81,8 @@ class CPLEXSolver(BaseHeuristic):
         )
 
         # Objective function
-        mdl.maximize(mdl.sum(is_resource_executed[w] + (1 - omega_max) for w in resources_ids))
-
+        mdl.maximize(mdl.sum(is_resource_executed[x] + (1 - omega_max) for x in resources_ids))
+        mdl.print_information()
         mdl.solve()
 
 
@@ -107,7 +108,7 @@ if  __name__ == "__main__": # pragma: no cover
             # Resources
             # CPU  RAM   MEM
             [0.3,  0.3, 0.3],
-            [ 0.5,  0.5, 0.5],
+            # [ 0.5,  0.5, 0.5],
         ]
     ], dtype='float32')
     
