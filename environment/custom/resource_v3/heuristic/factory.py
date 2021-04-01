@@ -15,11 +15,13 @@ def heuristic_factory(num_nodes: int, opts: dict):
     random_solvers = [
         RandomHeuristic(num_nodes, opts['random'])
     ]
-
-    cplex_solvers = [
-        CPLEXSolver(num_nodes, opts['cplex'])
-    ]
     
+    cplex_solvers = []
+    if opts['cplex']['use']:
+        cplex_solvers.append(
+            CPLEXSolver(num_nodes, opts['cplex'])
+        )            
+
     # Concat the array with the solvers
     heuristic_list = heuristic_list + dominant_solvers + random_solvers + cplex_solvers
 

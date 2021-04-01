@@ -55,6 +55,7 @@
             },
             "random": {},
             "cplex": {
+                "use": false,
                 "time_limit_ms": 60000,
                 "num_threads": 4
             }
