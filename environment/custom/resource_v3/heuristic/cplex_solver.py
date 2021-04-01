@@ -42,6 +42,10 @@ class CPLEXSolver(BaseHeuristic):
         # CPLEX Model
         mdl = Model(name="load_balancing")
 
+        mdl.parameters.threads = self.num_threads
+        # In seconds
+        mdl.parameters.timelimit = int(self.time_limit_ms / 1000)
+
         is_resource_executed = mdl.binary_var_list(
             [x for x in resources_ids], name='w')
 
@@ -81,14 +85,36 @@ class CPLEXSolver(BaseHeuristic):
         )
 
         # Objective function
-        mdl.maximize(mdl.sum(is_resource_executed[x] + (1 - omega_max) for x in resources_ids))
-        mdl.print_information()
+        mdl.maximize(mdl.sum(is_resource_executed[x] for x in resources_ids) - omega_max)
+        # mdl.print_information()
         mdl.solve()
+        # mdl.print_solution(print_zeros=True)
+        
+        # Parse solution
+        placements = mdl.solution.get_value_dict(is_resource_placed_at_node)
+        taken_items = np.zeros([len(resources_ids)], dtype='int8')
 
+        for entry in placements:
+            if placements[entry] == 1:
+                # Mark as taken
+                taken_items[entry[0]] = 1
 
-        mdl.export_as_lp('a.lp')
+                # Insert into the node
+                node_list[entry[1]].insert_req(
+                    resource_list[entry[0]]
+                )
+        
+        # Place the rejected into EOS
+        for index, taken in enumerate(taken_items):
+            if taken == 0:
+                EOS_NODE.insert_req(
+                    resource_list[index]
+                )
 
-        a = 1
+        # Store a reference with the solution
+        self.solution = [EOS_NODE] + node_list
+
+        # mdl.export_as_lp('a.lp')
     
 if  __name__ == "__main__": # pragma: no cover
     with open(f"configs/KnapsackV2.json") as json_file:
@@ -101,14 +127,15 @@ if  __name__ == "__main__": # pragma: no cover
             # Nodes
             # CPU   RAM  MEM
             [-2.0, -2.0, -2.0],
-            [ 0.1,  0.2, 0.3],
-            [ 0.4,  0.5, 0.6],
-            [ 0.7,  0.8, 0.9],
+            [ 0.5,  0.5, 0.3],
+            [ 0.9,  0.9, 0.9],
+            [ 0.4,  0.8, 0.9],
 
             # Resources
             # CPU  RAM   MEM
             [0.3,  0.3, 0.3],
-            # [ 0.5,  0.5, 0.5],
+            [0.5,  0.5, 0.5],
+            [0.5,  0.5, 1.9],
         ]
     ], dtype='float32')
     

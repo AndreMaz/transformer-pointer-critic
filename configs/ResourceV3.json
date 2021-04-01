@@ -53,7 +53,11 @@
                 "resource_sort_descending": true,
                 "node_sort_descending": true
             },
-            "random": {}
+            "random": {},
+            "cplex": {
+                "time_limit_ms": 60000,
+                "num_threads": 4
+            }
         },
 
         "export_stats": {
