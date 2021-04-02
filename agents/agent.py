@@ -35,15 +35,17 @@ class Agent():
 
         ### Optimizers ###
         self.critic_learning_rate: float = opts['critic']['learning_rate']
+        self.critic_clipnorm: float = opts['critic']['clipnorm']
         self.critic_opt = tf.keras.optimizers.Adam(
             learning_rate=self.critic_learning_rate,
-            #clipnorm=1.0
+            clipnorm=self.critic_clipnorm
         )
         
         self.actor_learning_rate: float = opts['actor']['learning_rate']
+        self.actor_clipnorm: float = opts['actor']['clipnorm']
         self.pointer_opt = tf.keras.optimizers.Adam(
             learning_rate=self.actor_learning_rate,
-            #clipnorm=1.0
+            clipnorm=self.actor_clipnorm
         )
 
         # Error fn for the critic

@@ -121,7 +121,7 @@
         "decimal_precision": 2,
 
         "num_features": 3,
-        "num_profiles": 5000,
+        "num_profiles": 1000,
 
         "profiles_sample_size": 20,
         "node_sample_size": 10,
@@ -169,7 +169,8 @@
                 "attention_dense_units": 128,
                 "logit_clipping_C": 10.0,
 
-                "learning_rate": 0.0001
+                "learning_rate": 0.0001,
+                "clipnorm": null
             },
 
             "critic": {
@@ -182,7 +183,8 @@
                 "last_layer_units": 128,
                 "last_layer_activation": "linear",
 
-                "learning_rate": 0.0001
+                "learning_rate": 0.0001,
+                "clipnorm": null
             }
         }
     }
