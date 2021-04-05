@@ -68,7 +68,8 @@ class TestResourceGreedyReward(unittest.TestCase):
                 "dropout_rate": 0.0,
                 "logit_clipping_C": 10.0,
 
-                "learning_rate": 0.0001
+                "learning_rate": 0.0001,
+                "clipnorm": None
             },
 
             "critic": {
@@ -82,7 +83,8 @@ class TestResourceGreedyReward(unittest.TestCase):
                 "last_layer_activation": "linear",
                 "dropout_rate": 0.0,
 
-                "learning_rate": 0.0001
+                "learning_rate": 0.0001,
+                "clipnorm": None
             }
         }
 
@@ -291,7 +293,8 @@ class TestResourceReduceNodeReward(unittest.TestCase):
                 "dropout_rate": 0.0,
                 "logit_clipping_C": 10.0,
 
-                "learning_rate": 0.0001
+                "learning_rate": 0.0001,
+                "clipnorm": None
             },
 
             "critic": {
@@ -305,7 +308,8 @@ class TestResourceReduceNodeReward(unittest.TestCase):
                 "last_layer_activation": "linear",
                 "dropout_rate": 0.0,
 
-                "learning_rate": 0.0001
+                "learning_rate": 0.0001,
+                "clipnorm": None
             }
         }
 
