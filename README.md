@@ -141,3 +141,21 @@ or combo
 ```
 coverage run tests/runner.py && coverage html --omit=*/venv/*,*/usr/*,*/lib/*,*/tests/* -i
 ```
+
+## Potential Improvements and Interesting ToDos
+
+### Implement Self-Critic
+Instead of using a dedicated network (the `Critic`) to estimate the state-values, which are used as a baseline, use [greedy rollout baseline](https://arxiv.org/abs/1612.00563). Greedy rollout baseline in [Attention, Learn to Solve Routing Problems!](https://arxiv.org/abs/1803.08475) show promising results.
+
+## How to do it ##
+The easiest (not the cleanest) way to implement it is to create a `agents/baseline_trainer.py` file with a 2 instances (`env` and `env_baseline`) of environment and agents (`agent` and `agent_baseline`).
+
+Then:
+- When we sample a state from `env` we would copy it state into `env_baseline`. 
+- Delete the `critic` model from `agent` and `agent_baseline` as it's no longer necessary.
+- Copy the network weighs for `agent` actor into `agent_baseline` actor.
+- Set `agent_baseline.stochastic_action_selection` to `False`. This way the agent will select the action in a greedy way.
+- The `agent` would gather rewards from `env` and `agent_baseline` would do the same with `env_baseline`.
+
+### Implement Vehicle Routing Problem environment
+It would be interesting to see how the network performs in VRP
