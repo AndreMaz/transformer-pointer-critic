@@ -159,3 +159,8 @@ Then:
 
 ### Implement Vehicle Routing Problem environment
 It would be interesting to see how the network performs in VRP
+
+## How to do it ##
+- Look at the `Knapsack` and `Resource` environments in `environments/custom` and adapt them to the VRP
+- Add the VRP env to `environments/env_factory.py`
+- Add the `JSON` config file into the `configs` folder.
