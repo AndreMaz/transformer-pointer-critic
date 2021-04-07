@@ -165,5 +165,5 @@ def tuner(env_type="custom", env_name='ResourceV3', agent_name="tpc"):
                                 print('\nEnd... Goodbye!')
 
 if  __name__ == "__main__": # pragma: no cover
-    #runner()
-    tuner()
+    runner()
+    # tuner()
