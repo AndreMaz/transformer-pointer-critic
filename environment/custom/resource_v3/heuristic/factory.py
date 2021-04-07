@@ -3,7 +3,7 @@ sys.path.append('.')
 import json
 from environment.custom.resource_v3.heuristic.dominant_heuristic import DominantResourceHeuristic
 from environment.custom.resource_v3.heuristic.random_heuristic import RandomHeuristic
-
+from environment.custom.resource_v3.heuristic.cplex_solver import CPLEXSolver
 
 def heuristic_factory(num_nodes: int, opts: dict):
     heuristic_list = []
@@ -16,8 +16,14 @@ def heuristic_factory(num_nodes: int, opts: dict):
         RandomHeuristic(num_nodes, opts['random'])
     ]
     
+    cplex_solvers = []
+    if opts['cplex']['use']:
+        cplex_solvers.append(
+            CPLEXSolver(num_nodes, opts['cplex'])
+        )            
+
     # Concat the array with the solvers
-    heuristic_list = heuristic_list + dominant_solvers + random_solvers
+    heuristic_list = heuristic_list + dominant_solvers + random_solvers + cplex_solvers
 
     return heuristic_list
 

@@ -3,7 +3,7 @@
     
     "trainer_config": {
         "description": "Trainer function configs.",
-        "n_iterations": 40000,
+        "n_iterations": 70000,
         "n_steps_to_update": 30,
 
         "export_stats": {
@@ -29,7 +29,7 @@
         "batch_size": 1,
         
         "testbed" : {
-            "num_tests": 10,
+            "num_tests": 20,
             "node_sample_configs": {
                 "min": 5,
                 "max": 50,
@@ -53,7 +53,12 @@
                 "resource_sort_descending": true,
                 "node_sort_descending": true
             },
-            "random": {}
+            "random": {},
+            "cplex": {
+                "use": false,
+                "time_limit_ms": 60000,
+                "num_threads": 4
+            }
         },
 
         "export_stats": {
@@ -108,7 +113,7 @@
     "env_config": {
         "description": "Environment configs.",
         
-        "batch_size": 256,
+        "batch_size": 128,
         "mask_nodes_in_mha": false,
         "generate_request_on_the_fly": false,
         
@@ -116,7 +121,7 @@
         "decimal_precision": 2,
 
         "num_features": 3,
-        "num_profiles": 5000,
+        "num_profiles": 1000,
 
         "profiles_sample_size": 20,
         "node_sample_size": 10,
@@ -159,17 +164,18 @@
                 "num_layers": 1,
                 "dim_model": 128,
                 "num_heads": 8,
-                "inner_layer_dim": 512,
+                "inner_layer_dim": 128,
                 "encoder_embedding_time_distributed": true,
                 "attention_dense_units": 128,
                 "logit_clipping_C": 10.0,
 
-                "learning_rate": 0.0001
+                "learning_rate": 0.0001,
+                "clipnorm": null
             },
 
             "critic": {
                 "use_default_initializer": false,
-                "num_layers": 2,
+                "num_layers": 3,
                 "dim_model": 128,
                 "num_heads": 8,
                 "inner_layer_dim": 512,
@@ -177,7 +183,8 @@
                 "last_layer_units": 128,
                 "last_layer_activation": "linear",
 
-                "learning_rate": 0.0001
+                "learning_rate": 0.0001,
+                "clipnorm": null
             }
         }
     }
