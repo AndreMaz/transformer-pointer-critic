@@ -11,6 +11,13 @@ import os
 from datetime import datetime
 from copy import deepcopy
 
+# import tensorflow as tf
+# import numpy as np
+
+# seed_value = 1234
+# np.random.seed(seed_value)
+# tf.random.set_seed(seed_value)
+
 # import os
 # os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
