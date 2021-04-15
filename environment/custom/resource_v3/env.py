@@ -28,6 +28,8 @@ class ResourceEnvironmentV3(BaseEnvironment):
         self.generate_request_on_the_fly: bool = opts['generate_request_on_the_fly']
         self.mask_nodes_in_mha: bool = opts['mask_nodes_in_mha']
 
+        self.seed_value: int = opts['seed_value']
+
         self.normalization_factor: int = opts['normalization_factor']
         self.decimal_precision: int = opts['decimal_precision']
 
@@ -206,7 +208,8 @@ class ResourceEnvironmentV3(BaseEnvironment):
             (self.num_profiles, self.num_features),
             minval=self.req_min_val,
             maxval=self.req_max_val,
-            dtype='int32'
+            dtype='int32',
+            seed=self.seed_value
         ) / self.normalization_factor
 
         return tf.cast(profiles, dtype="float32")
@@ -226,7 +229,8 @@ class ResourceEnvironmentV3(BaseEnvironment):
             (self.batch_size, self.node_sample_size, self.num_features),
             minval=self.node_min_val,
             maxval=self.node_max_val,
-            dtype="int32"
+            dtype="int32",
+            seed=self.seed_value
         ) / self.normalization_factor
 
         batch[:, :self.node_sample_size, :] = tf.cast(nodes, dtype="float32")
@@ -240,7 +244,8 @@ class ResourceEnvironmentV3(BaseEnvironment):
                 (self.batch_size, self.profiles_sample_size, self.num_features),
                 minval=self.req_min_val,
                 maxval=self.req_max_val,
-                dtype="int32"
+                dtype="int32",
+                seed=self.seed_value
             ) / self.normalization_factor
             
             batch[:, self.node_sample_size:, :] = tf.cast(reqs, dtype="float32")
