@@ -64,7 +64,8 @@ ggplot(data = stacked_rejected_data, aes(x=node_min_value, y=Value, col=Type, gr
   theme(axis.text.x = element_text(angle = 35, hjust = 1))+
   theme(legend.position="bottom")
 
-ggsave(paste(base, date, test_location, "rejected.pdf", sep='/'), height = 50, width = 30, limitsize = FALSE)
+#ggsave(paste(base, date, test_location, "rejected.pdf", sep='/'), height = 50, width = 30, limitsize = FALSE)
+ggsave(paste(base, date, test_location, "rejected.pdf", sep='/'), height = 10, width = 15, limitsize = FALSE)
 
 ##############################################
 ############# PLOT DOMINANT STATS ############
@@ -92,7 +93,8 @@ ggplot(data = stacked_dominant_data, aes(x=node_min_value, y=Value, col=Type, gr
   theme(axis.text.x = element_text(angle = 35, hjust = 1))+
   theme(legend.position="bottom")
 
-ggsave(paste(base, date, test_location, "dominant.pdf", sep='/'), height = 50, width = 30, limitsize = FALSE)
+# ggsave(paste(base, date, test_location, "dominant.pdf", sep='/'), height = 50, width = 30, limitsize = FALSE)
+ggsave(paste(base, date, test_location, "dominant.pdf", sep='/'), height = 10, width = 15, limitsize = FALSE)
 
 ##############################################
 ############# PLOT EMPTY NODES ############

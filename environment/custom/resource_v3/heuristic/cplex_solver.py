@@ -19,6 +19,8 @@ class CPLEXSolver(BaseHeuristic):
 
         self.time_limit_ms: int = opts['time_limit_ms']
         self.num_threads: int = opts['num_threads']
+        
+        self.generate_name()
 
     def generate_name(self, state):
         self.name = f'CPLEX'
