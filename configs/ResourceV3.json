@@ -3,7 +3,7 @@
     
     "trainer_config": {
         "description": "Trainer function configs.",
-        "n_iterations": 70000,
+        "n_iterations": 50000,
         "n_steps_to_update": 30,
 
         "export_stats": {
@@ -20,6 +20,8 @@
 
     "tester_config": {
         "description": "Testing function configs.",
+        
+        "add_brakes": true,
 
         "show_per_test_stats": true,
         "show_inference_progress": true,
@@ -31,19 +33,19 @@
         "testbed" : {
             "num_tests": 20,
             "node_sample_configs": {
-                "min": 5,
+                "min": 10,
                 "max": 50,
-                "step": 5
+                "step": 10
             },
             "node_available_resources": {
                 "min": 0,
                 "max": 100,
-                "step": 10
+                "step": 20
             },
             "request_sample_configs": {
-                "min": 10,
+                "min": 20,
                 "max": 100,
-                "step": 10
+                "step": 20
             }
         },
 
@@ -55,9 +57,9 @@
             },
             "random": {},
             "cplex": {
-                "use": false,
+                "use": true,
                 "time_limit_ms": 60000,
-                "num_threads": 4
+                "num_threads": 6
             }
         },
 
