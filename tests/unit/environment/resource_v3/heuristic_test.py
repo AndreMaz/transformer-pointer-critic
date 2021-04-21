@@ -4,7 +4,7 @@ import unittest
 import numpy as np
 
 # Custom Imports
-from environment.custom.resource_v3.heuristic.factory import DominantResourceHeuristic, RandomHeuristic
+from environment.custom.resource_v3.heuristic.factory import DominantResourceHeuristic, RandomHeuristic, CPLEXSolver
 from environment.custom.resource_v3.heuristic.dominant_heuristic import compute_potential_placement_diffs
 from environment.custom.resource_v3.misc.utils import compute_stats
 
@@ -222,6 +222,155 @@ class TestRandomHeuristic(unittest.TestCase):
 
         self.assertEqual(
             num_rejected, 1
+        )
+
+        self.assertEqual(
+            empty_nodes, 1
+        )
+
+class TestCPLEXSolver(unittest.TestCase):
+    def setUp(self) -> None:
+    
+        heuristic_opts = {
+            "use": False,
+            "time_limit_ms": 60000,
+            "num_threads": 4
+        }
+
+        node_sample_size = 3
+        
+        self.solver = CPLEXSolver(
+            node_sample_size,
+            heuristic_opts
+        )
+
+    def test_solver_SHOULD_reject_2(self):
+        dummy_state = np.array([
+            [
+                # Nodes
+                # CPU   RAM  MEM
+                [-2.0, -2.0, -2.0],
+                [0.1,  0.2,  0.3],
+                [0.5,  0.2,  0.6],
+
+                # Resources
+                # CPU  RAM   MEM
+                [0.2,  0.1,  0.9], # Should Reject. Too Big
+                [0.3,  0.5,  0.8], # Should Reject. Too Big
+            ]
+        ], dtype='float32')
+        self.solver.solve(dummy_state)
+
+        delta,\
+        num_rejected,\
+        empty_nodes = compute_stats(self.solver.solution)
+
+        self.assertEqual(
+            delta, 0.1
+        )
+
+        self.assertEqual(
+            num_rejected, 2
+        )
+
+        self.assertEqual(
+            empty_nodes, 2
+        )
+
+
+    def test_solver_SHOULD_reject_1(self):
+        dummy_state = np.array([
+            [
+                # Nodes
+                # CPU   RAM  MEM
+                [-2.0, -2.0, -2.0],
+                [0.1,  0.2,  0.3],
+                [0.5,  0.3,  0.6],
+
+                # Resources
+                # CPU  RAM   MEM
+                [0.2,  0.1,  0.4],
+                [0.3,  0.5,  0.8], # Should Reject. Too Big
+            ]
+        ], dtype='float32')
+        self.solver.solve(dummy_state)
+
+        delta,\
+        num_rejected,\
+        empty_nodes = compute_stats(self.solver.solution)
+
+        self.assertEqual(
+            delta, 0.1
+        )
+
+        self.assertEqual(
+            num_rejected, 1
+        )
+
+        self.assertEqual(
+            empty_nodes, 1
+        )
+    
+    def test_solver_SHOULD_place_2_at_2_nodes(self):
+        dummy_state = np.array([
+            [
+                # Nodes
+                # CPU   RAM  MEM
+                [-2.0, -2.0, -2.0],
+                [0.3,  0.6,  0.6],
+                [0.5,  0.8,  0.7],
+
+                # Resources
+                # CPU  RAM   MEM
+                [0.2,  0.5,  0.4], 
+                [0.3,  0.5,  0.4], 
+            ]
+        ], dtype='float32')
+        self.solver.solve(dummy_state)
+
+        delta,\
+        num_rejected,\
+        empty_nodes = compute_stats(self.solver.solution)
+
+        self.assertEqual(
+            delta, 0.1
+        )
+
+        self.assertEqual(
+            num_rejected, 0
+        )
+
+        self.assertEqual(
+            empty_nodes, 0
+        )
+
+    def test_solver_SHOULD_place_2_at_1_node(self):
+        dummy_state = np.array([
+            [
+                # Nodes
+                # CPU   RAM  MEM
+                [-2.0, -2.0, -2.0],
+                [0.5,  1.1,  0.9], # Should Place both reqs here
+                [0.1,  0.1,  0.1],
+
+                # Resources
+                # CPU  RAM   MEM
+                [0.2,  0.5,  0.4], 
+                [0.3,  0.5,  0.4], 
+            ]
+        ], dtype='float32')
+        self.solver.solve(dummy_state)
+
+        delta,\
+        num_rejected,\
+        empty_nodes = compute_stats(self.solver.solution)
+
+        self.assertEqual(
+            delta, 0.0
+        )
+
+        self.assertEqual(
+            num_rejected, 0
         )
 
         self.assertEqual(

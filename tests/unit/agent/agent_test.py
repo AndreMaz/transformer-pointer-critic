@@ -23,6 +23,8 @@ class TestResourceGreedyReward(unittest.TestCase):
             "generate_request_on_the_fly": True,
             "batch_size": 2,
 
+            "seed_value": 1234,
+
             "normalization_factor": 100,
             "decimal_precision": 2,
 
@@ -243,6 +245,8 @@ class TestResourceReduceNodeReward(unittest.TestCase):
             "mask_nodes_in_mha": False,
             "generate_request_on_the_fly": True,
             "batch_size": 2,
+
+            "seed_value": 1234,
 
             "normalization_factor": 100,
             "decimal_precision": 2,

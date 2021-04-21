@@ -20,7 +20,9 @@ class CPLEXSolver(BaseHeuristic):
         self.time_limit_ms: int = opts['time_limit_ms']
         self.num_threads: int = opts['num_threads']
 
-    def generate_name(self, state):
+        self.generate_name()
+
+    def generate_name(self):
         self.name = f'CPLEX'
 
     def solve(self, state):
@@ -122,25 +124,43 @@ if  __name__ == "__main__": # pragma: no cover
 
     heuristic_opts = params['tester_config']['heuristic']['or_tools']
 
+    ###################################
+    # node_sample_size = 4
+    # dummy_state = np.array([
+    #     [   
+    #         # Nodes
+    #         # CPU   RAM  MEM
+    #         [-2.0, -2.0, -2.0],
+    #         [ 0.5,  0.5, 0.3],
+    #         [ 0.9,  0.9, 0.9],
+    #         [ 0.4,  0.8, 0.9],
+
+    #         # Resources
+    #         # CPU  RAM   MEM
+    #         [0.3,  0.3, 0.3],
+    #         [0.5,  0.5, 0.5],
+    #         [0.5,  0.5, 1.9],
+    #     ]
+    # ], dtype='float32')
+    ###################################    
+    
+    ###################################
+    node_sample_size = 3
     dummy_state = np.array([
         [   
             # Nodes
             # CPU   RAM  MEM
             [-2.0, -2.0, -2.0],
-            [ 0.5,  0.5, 0.3],
-            [ 0.9,  0.9, 0.9],
-            [ 0.4,  0.8, 0.9],
+            [ 0.1,  0.2,  0.3],
+            [ 0.5,  0.2,  0.6],
 
             # Resources
             # CPU  RAM   MEM
-            [0.3,  0.3, 0.3],
-            [0.5,  0.5, 0.5],
-            [0.5,  0.5, 1.9],
+            [0.2,  0.1,  0.4],
+            [0.3,  0.5,  0.8],
         ]
     ], dtype='float32')
-    
-    node_sample_size = 4
-    
+
     solver = CPLEXSolver(node_sample_size, heuristic_opts)
 
     solver.solve(dummy_state)
