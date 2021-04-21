@@ -157,9 +157,6 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict, show_progress: bool, log_
 
         # Store the stats
         value_loss_buffer.append(value_loss.numpy())
-        # resources_policy_loss_buffer.append(np.mean(resource_policy_loss))
-        # resources_total_loss_buffer.append(resources_loss.numpy())
-        # resources_entropy_buffer.append(np.mean(resources_entropy))
         bins_policy_loss_buffer.append(np.mean(bin_policy_loss))
         bins_total_loss_buffer.append(bin_loss.numpy())
         bins_entropy_buffer.append(np.mean(bin_entropy))
@@ -169,13 +166,10 @@ def trainer(env: KnapsackV2, agent: Agent, opts: dict, show_progress: bool, log_
             f"Min@Batch: {min_in_batch:.3f}\t" +
             f"Max@Batch: {max_in_batch:.3f}\t" +
             f"Avg@Batch: {episode_reward:.3f}\t" +
-            f"V_Loss: {value_loss:.3f}\t" +
-            # f"R_Tot_Loss: {resources_loss:.3f}\t" +
-            # f"R_Pol_Loss: {tf.reduce_mean(resource_policy_loss):.3f}\t" +
-            # f"Entr R: {tf.reduce_mean(resources_entropy):.3f}\t" +
-            f"B_Tot_Loss: {bin_loss:.3f}\t" + 
-            f"B_Pol_Loss: {tf.reduce_mean(bin_policy_loss):.3f}\t" +
-            f"Entr B: {tf.reduce_mean(bin_entropy):.3f}", end="\n")
+            f"Critic_Loss: {value_loss:.3f} \t" +
+            f"Actor_Total_Loss: {bin_loss:.3f} \t" + 
+            f"Policy_Loss: {tf.reduce_mean(bin_policy_loss):.3f} \t" +
+            f"Entropy_Loss: {tf.reduce_mean(bin_entropy):.3f}", end="\n")
 
         # Iteration complete. Clear agent's memory
         agent.clear_memory()
