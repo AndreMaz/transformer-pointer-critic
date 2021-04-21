@@ -3,7 +3,7 @@
     
     "trainer_config": {
         "description": "Trainer function configs.",
-        "n_iterations": 70000,
+        "n_iterations": 0,
         "n_steps_to_update": 30,
 
         "export_stats": {
@@ -20,6 +20,8 @@
 
     "tester_config": {
         "description": "Testing function configs.",
+        
+        "add_brakes": true,
 
         "show_per_test_stats": true,
         "show_inference_progress": true,
@@ -29,21 +31,21 @@
         "batch_size": 1,
         
         "testbed" : {
-            "num_tests": 20,
+            "num_tests": 10,
             "node_sample_configs": {
-                "min": 5,
+                "min": 10,
                 "max": 50,
-                "step": 5
+                "step": 10
             },
             "node_available_resources": {
                 "min": 0,
                 "max": 100,
-                "step": 10
+                "step": 20
             },
             "request_sample_configs": {
-                "min": 10,
+                "min": 20,
                 "max": 100,
-                "step": 10
+                "step": 20
             }
         },
 
@@ -74,41 +76,7 @@
         }
     },
 
-    "tuner_config": {
-        "description": "Testing function configs.",
-        "update_resource_decoder_input": false,
-        "num_tests": 1000,
-        "show_per_test_stats": true,
-        "show_inference_progress": false,
-        "show_solutions": false,
-        "show_detailed_solutions": false,
-        "plot_attentions": false,
-        "batch_size": 1,
-        "profiles_sample_size": 20,
-        "node_sample_size": 10,
-        "num_episodes": 1,
-        
-        "heuristic": {
-            "dominant_resource": {
-                "generate_params_combos": true,
-                "resource_sort_descending": true,
-                "node_sort_descending": true
-            },
-            "random": {}
-        },
-
-        "export_stats": {
-            "global_stats": {
-                "export_stats": true,
-                "location": "./results/resource_v3",
-                "filename": null
-            },
-            "per_problem_stats": {
-                "export_stats": false,
-                "location": "./results/resource_v3"
-            }
-        }
-    },
+    "tuner_config": {},
 
     "env_config": {
         "description": "Environment configs.",

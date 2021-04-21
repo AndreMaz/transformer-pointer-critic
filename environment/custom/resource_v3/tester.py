@@ -22,6 +22,9 @@ def test(
     opts: dict,
     log_dir: str
     ):
+    
+    add_brakes: bool = opts['add_brakes']
+
 
     num_tests: int = opts['testbed']['num_tests']
     node_configs: dict = opts['testbed']['node_sample_configs']
@@ -70,19 +73,19 @@ def test(
                 for index in range(num_tests):
 
                     instance_stats,\
-                    dominant_instance_result,\
-                    rejected_instance_result = test_single_instance(
-                        index,
-                        env,
-                        agent,
-                        opts,
-                        batch_size,
-                        node_sample_size, # Number of nodes
-                        node_min_value, # Min resources available in each node
-                        node_min_value + node_step_resource, # Max resources available in each node
-                        resource_sample_size, # Number of resources
-                        log_dir
-                    )
+                        dominant_instance_result,\
+                        rejected_instance_result = test_single_instance(
+                            index,
+                            env,
+                            agent,
+                            opts,
+                            batch_size,
+                            node_sample_size,  # Number of nodes
+                            node_min_value,  # Min resources available in each node
+                            node_min_value + node_step_resource,  # Max resources available in each node
+                            resource_sample_size,  # Number of resources
+                            log_dir
+                        )
 
                     dominant_results += dominant_instance_result
                     rejected_results += rejected_instance_result
@@ -95,6 +98,13 @@ def test(
                         "resource_sample_size": resource_sample_size,
                         "instance": instance_stats
                     })
+
+            if add_brakes:
+                break
+        
+        # Increase the node sample size for next iteration
+        if add_brakes:
+            node_size_min += node_size_step
 
     if export_stats:
         f = os.path.join(log_dir, test_folder)

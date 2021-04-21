@@ -8,7 +8,7 @@ library(nortest)
 base = './ResourceV3'
 test_location = 'tests'
 filename = 'test.csv'
-date = '2021-03-15T10:16:16'
+date = '2021-04-21T10:48:44'
 
 file = paste(base, date, test_location, filename, sep='/')
 
@@ -58,13 +58,15 @@ stacked_rejected_data <- melt(rejected_data, id.vars = c(
 ggplot(data = stacked_rejected_data, aes(x=node_min_value, y=Value, col=Type, group = Type))+
   geom_point(alpha=0.7)+
   # geom_line(size=1.5, alpha=0.3)+
-  facet_wrap(c("node_sample_size", "resource_sample_size"), labeller = "label_both", scales = "free")+
+  facet_wrap(c("node_sample_size", "resource_sample_size"), labeller = "label_both", scales = "free_y")+
   labs(x="Compute Range", y='Number of Rejected Requests')+
   scale_x_discrete(labels = (xLabels))+
   theme(axis.text.x = element_text(angle = 35, hjust = 1))+
   theme(legend.position="bottom")
 
-ggsave(paste(base, date, test_location, "rejected.pdf", sep='/'), height = 50, width = 30, limitsize = FALSE)
+#ggsave(paste(base, date, test_location, "rejected.pdf", sep='/'), height = 50, width = 30, limitsize = FALSE)
+ggsave(paste(base, date, test_location, "rejected.pdf", sep='/'), height = 10, width = 15, limitsize = FALSE)
+
 
 ##############################################
 ############# PLOT DOMINANT STATS ############
@@ -86,13 +88,14 @@ stacked_dominant_data <- melt(dominant_data, id.vars = c(
 ggplot(data = stacked_dominant_data, aes(x=node_min_value, y=Value, col=Type, group = Type))+
   geom_point(alpha=0.2)+
   geom_line(size=1.5, alpha=0.7)+
-  facet_wrap(c("node_sample_size", "resource_sample_size"), labeller = "label_both", scales = "free")+
+  facet_wrap(c("node_sample_size", "resource_sample_size"), labeller = "label_both", scales = "free_y")+
   labs(x="Compute Range", y='Dominant Resource Value')+
   scale_x_discrete(labels = (xLabels))+
   theme(axis.text.x = element_text(angle = 35, hjust = 1))+
   theme(legend.position="bottom")
 
-ggsave(paste(base, date, test_location, "dominant.pdf", sep='/'), height = 50, width = 30, limitsize = FALSE)
+# ggsave(paste(base, date, test_location, "dominant.pdf", sep='/'), height = 50, width = 30, limitsize = FALSE)
+ggsave(paste(base, date, test_location, "dominant.pdf", sep='/'), height = 10, width = 15, limitsize = FALSE)
 
 ##############################################
 ############# PLOT EMPTY NODES ############
@@ -114,12 +117,13 @@ stacked_empty_nodes_data <- melt(empty_nodes_data, id.vars = c(
 ggplot(data = stacked_empty_nodes_data, aes(x=node_min_value, y=Value, col=Type, group = Type))+
   geom_point(alpha=0.7)+
   # geom_line(size=1.5, alpha=0.7)+
-  facet_wrap(c("node_sample_size", "resource_sample_size"), labeller = "label_both", scales = "free")+
+  facet_wrap(c("node_sample_size", "resource_sample_size"), labeller = "label_both", scales = "free_y")+
   labs(x="Compute Range", y='Number of Empty Nodes')+
   scale_x_discrete(labels = (xLabels))+
   theme(axis.text.x = element_text(angle = 35, hjust = 1))+
   theme(legend.position="bottom")
 
 
-ggsave(paste(base, date, test_location, "empty_nodes.pdf", sep='/'), height = 50, width = 30, limitsize = FALSE)
+#ggsave(paste(base, date, test_location, "empty_nodes.pdf", sep='/'), height = 50, width = 30, limitsize = FALSE)
+ggsave(paste(base, date, test_location, "empty_nodes.pdf", sep='/'), height = 10, width = 15, limitsize = FALSE)
 
