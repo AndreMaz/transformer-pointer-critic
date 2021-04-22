@@ -3,7 +3,7 @@
     
     "trainer_config": {
         "description": "Trainer function configs.",
-        "n_iterations": 1000,
+        "n_iterations": 50000,
         "n_steps_to_update": 30,
 
         "export_stats": {
@@ -21,7 +21,7 @@
     "tester_config": {
         "description": "Testing function configs.",
         
-        "add_brakes": true,
+        "add_brakes": false,
 
         "show_per_test_stats": true,
         "show_inference_progress": true,
@@ -31,19 +31,19 @@
         "batch_size": 1,
         
         "testbed" : {
-            "num_tests": 10,
+            "num_tests": 20,
             "node_sample_configs": {
-                "min": 10,
+                "min": 5,
                 "max": 50,
-                "step": 10
+                "step": 5
             },
             "node_available_resources": {
                 "min": 0,
                 "max": 100,
-                "step": 20
+                "step": 100
             },
             "request_sample_configs": {
-                "min": 20,
+                "min": 10,
                 "max": 100,
                 "step": 20
             }
@@ -57,7 +57,7 @@
             },
             "random": {},
             "cplex": {
-                "use": false,
+                "use": true,
                 "time_limit_ms": 60000,
                 "num_threads": 4
             }
@@ -130,7 +130,7 @@
             "stochastic_action_selection": true,
             
             "actor": {
-                "use_default_initializer": false,
+                "use_default_initializer": true,
                 "num_layers": 1,
                 "dim_model": 128,
                 "num_heads": 8,
@@ -144,7 +144,7 @@
             },
 
             "critic": {
-                "use_default_initializer": false,
+                "use_default_initializer": true,
                 "num_layers": 3,
                 "dim_model": 128,
                 "num_heads": 8,
