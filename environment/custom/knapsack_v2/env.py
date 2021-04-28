@@ -236,7 +236,25 @@ class KnapsackEnvironmentV2(BaseEnvironment):
         batch[:, 0, :] = self.EOS_BIN
 
         if self.generate_items_on_the_fly:
-            raise NotImplementedError('"generate_items_on_the_fly" not implemented')
+            #raise NotImplementedError('"generate_items_on_the_fly" not implemented')
+            weights = tf.random.uniform(
+                (self.batch_size, self.item_sample_size, 1),
+                minval = self.item_min_weight,
+                maxval = self.item_max_weight,
+                dtype='int32'
+            ) / self.normalization_factor
+
+            values = tf.random.uniform(
+                (self.batch_size, self.item_sample_size, 1),
+                minval = self.item_min_value,
+                maxval = self.item_max_value,
+                dtype='int32'
+            ) / self.normalization_factor
+
+            items = tf.concat([weights, values], axis=-1)
+
+            batch[:, self.bin_sample_size:, :] = tf.cast(items, dtype="float32")
+
         else:
             # Sample profiles and add them to batch instances
             for index in range(self.batch_size):
@@ -415,6 +433,8 @@ if  __name__ == "__main__": # pragma: no cover
     env_configs['batch_size'] = 2
 
     env = KnapsackEnvironmentV2(env_name, env_configs)
+    
+    batch = env.generate_batch()
 
     state, dec_input, bin_net_mask, mha_mask = env.state()
     # env.print_history()
