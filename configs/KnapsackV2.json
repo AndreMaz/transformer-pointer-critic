@@ -31,9 +31,9 @@
         "testbed" : {
             "num_tests": 10,
             "bin_sample_configs": {
-                "min": 1,
-                "max": 1,
-                "step": 1
+                "min": 5,
+                "max": 50,
+                "step": 5
             },
             "bin_available_capacities": {
                 "min": 0,
@@ -123,15 +123,15 @@
         "item_set": 5000,
 
         "item_sample_size": 20,
-        "bin_sample_size": 1,
+        "bin_sample_size": 10,
         
         "EOS_CODE": -2,
         
         "item_min_value": 1,
-        "item_max_value": 100,
+        "item_max_value": 50,
 
         "item_min_weight": 1,
-        "item_max_weight": 100,
+        "item_max_weight": 50,
         
         "bin_min_capacity": 0,
         "bin_max_capacity": 100,
