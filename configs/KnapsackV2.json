@@ -112,9 +112,9 @@
     "env_config": {
         "description": "Environment configs.",
         
-        "batch_size": 256,
+        "batch_size": 128,
         "mask_nodes_in_mha": true,
-        "generate_items_on_the_fly": true,
+        "generate_items_on_the_fly": false,
         
         "normalization_factor": 100,
         "decimal_precision": 2,
@@ -131,7 +131,7 @@
         "item_max_value": 50,
 
         "item_min_weight": 1,
-        "item_max_weight": 50,
+        "item_max_weight": 20,
         
         "bin_min_capacity": 0,
         "bin_max_capacity": 100,

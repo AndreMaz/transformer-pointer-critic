@@ -110,7 +110,8 @@ def gather_stats_from_solutions(env, heuristic_solvers) -> List[dict]:
     stats.append({
             'net_dominant': net_dominant,
             'net_rejected': net_rejected,
-            'net_empty_nodes': empty_nodes
+            'net_empty_nodes': empty_nodes,
+            'net_optimal': 0 # By default it's not optimal
     })
     
     max_dominant = -1
@@ -126,6 +127,7 @@ def gather_stats_from_solutions(env, heuristic_solvers) -> List[dict]:
             f'{solver.name}_dominant': solver_dominant,
             f'{solver.name}_rejected': solver_rejected,
             f'{solver.name}_empty_nodes': solver_empty_nodes,
+            f'{solver.name}_optimal': solver.is_optimal,
         })
 
     dominant_result = np.array([

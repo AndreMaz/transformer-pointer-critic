@@ -117,13 +117,21 @@ class CPLEXSolver(BaseHeuristic):
         # Store a reference with the solution
         self.solution = [EOS_NODE] + node_list
 
+        # Store the status code of the solution
+        # More info about CPLEX status codes here: https://www.ibm.com/docs/en/icos/12.8.0.0?topic=micclcarm-solution-status-codes-by-number-in-cplex-callable-library-c-api
+        if mdl.solution.solve_details.status_code == 101: # 101 is MIP Optimal
+            self.is_optimal = 1
+
+        # else:
+        #    self.is_optimal = 0 # Set to 0 by default in the BaseHeuristic class
+
         # mdl.export_as_lp('a.lp')
     
 if  __name__ == "__main__": # pragma: no cover
-    with open(f"configs/KnapsackV2.json") as json_file:
+    with open(f"configs/ResourceV3.json") as json_file:
         params = json.load(json_file)
 
-    heuristic_opts = params['tester_config']['heuristic']['or_tools']
+    heuristic_opts = params['tester_config']['heuristic']['cplex']
 
     ###################################
     # node_sample_size = 4
@@ -161,6 +169,8 @@ if  __name__ == "__main__": # pragma: no cover
             [0.3,  0.5,  0.8],
         ]
     ], dtype='float32')
+
+    d = np.random.uniform(0, 1, size=(1, 500, 3))
 
     solver = CPLEXSolver(node_sample_size, heuristic_opts)
 

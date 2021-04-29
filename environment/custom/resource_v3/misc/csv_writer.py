@@ -14,7 +14,7 @@ def log_testing_stats(global_stats, folder, file_name):
         # Place Heuristic method name into header
         for entry in global_stats[0]['instance']:
             keys = list(entry.keys())
-            header = header + f"{' '.join(keys[0].split('_'))};{' '.join(keys[1].split('_'))};{' '.join(keys[2].split('_'))};"
+            header = header + f"{' '.join(keys[0].split('_'))};{' '.join(keys[1].split('_'))};{' '.join(keys[2].split('_'))};{' '.join(keys[3].split('_'))};"
         fp.write(f"{header}\n")
 
         
@@ -26,9 +26,9 @@ def log_testing_stats(global_stats, folder, file_name):
                    f"{instance_stats['resource_sample_size']};"
 
             for entry in instance_stats['instance']:
-                dominant, rejected, empty_nodes = list(entry.values())
+                dominant, rejected, empty_nodes, is_optimal = list(entry.values())
                 # dominant = round_half_up(dominant, 2)
-                data = data + f"{dominant[0]:.3f};{rejected};{empty_nodes};"
+                data = data + f"{dominant[0]:.3f};{rejected};{empty_nodes};{is_optimal};"
             # print(data)
             fp.write(f"{data}\n")
 

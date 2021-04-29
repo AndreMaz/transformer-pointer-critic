@@ -9,6 +9,7 @@ class BaseHeuristic():
                 ):
         self.name = 'base_heuristic'
 
+        self.is_optimal = 0 # By defaults it's not optimal
         self.resource_batch_id = 0
         self.num_nodes = num_nodes
 
