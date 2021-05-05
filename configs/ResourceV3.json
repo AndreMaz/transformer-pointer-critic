@@ -3,7 +3,7 @@
     
     "trainer_config": {
         "description": "Trainer function configs.",
-        "n_iterations": 50000,
+        "n_iterations": 200000,
         "n_steps_to_update": 30,
 
         "export_stats": {
@@ -21,7 +21,7 @@
     "tester_config": {
         "description": "Testing function configs.",
         
-        "add_brakes": true,
+        "add_brakes": false,
 
         "show_per_test_stats": true,
         "show_inference_progress": true,
@@ -31,7 +31,7 @@
         "batch_size": 1,
         
         "testbed" : {
-            "num_tests": 20,
+            "num_tests": 100,
             "node_sample_configs": {
                 "min": 5,
                 "max": 50,
@@ -43,9 +43,9 @@
                 "step": 100
             },
             "request_sample_configs": {
-                "min": 20,
+                "min": 10,
                 "max": 100,
-                "step": 20
+                "step": 10
             }
         },
 
@@ -59,7 +59,7 @@
             "cplex": {
                 "use": true,
                 "time_limit_ms": 60000,
-                "num_threads": 4
+                "num_threads": 8
             }
         },
 
@@ -91,7 +91,7 @@
         "decimal_precision": 2,
 
         "num_features": 3,
-        "num_profiles": 1000,
+        "num_profiles": 10000,
 
         "profiles_sample_size": 20,
         "node_sample_size": 10,
