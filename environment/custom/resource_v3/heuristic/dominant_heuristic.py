@@ -14,9 +14,10 @@ from operator import itemgetter, attrgetter
 class DominantResourceHeuristic(BaseHeuristic):
     def __init__(self,
                 num_nodes: int,
+                normalization_factor: int,
                 opts: dict
                 ):
-        super(DominantResourceHeuristic, self).__init__(num_nodes)
+        super(DominantResourceHeuristic, self).__init__(num_nodes, normalization_factor)
 
         self.resource_sort_descending = opts['resource_sort_descending']
         self.node_sort_descending = opts['node_sort_descending']

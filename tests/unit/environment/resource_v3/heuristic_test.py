@@ -27,9 +27,11 @@ class TestDominantHeuristic(unittest.TestCase):
         ], dtype='float32')
         
         node_sample_size = 3
+        normalization_factor = 100
         
         self.solver = DominantResourceHeuristic(
             node_sample_size,
+            normalization_factor,
             heuristic_opts
         )
 
@@ -203,9 +205,11 @@ class TestRandomHeuristic(unittest.TestCase):
         ], dtype='float32')
         
         node_sample_size = 3
+        normalization_factor = 100
         
         self.solver = RandomHeuristic(
             node_sample_size,
+            normalization_factor,
             heuristic_opts
         )
     
@@ -237,10 +241,12 @@ class TestCPLEXSolver(unittest.TestCase):
             "num_threads": 4
         }
 
+        normalization_factor = 100
         node_sample_size = 3
         
         self.solver = CPLEXSolver(
             node_sample_size,
+            normalization_factor,
             heuristic_opts
         )
 
@@ -350,7 +356,7 @@ class TestCPLEXSolver(unittest.TestCase):
                 # Nodes
                 # CPU   RAM  MEM
                 [-2.0, -2.0, -2.0],
-                [0.5,  1.1,  0.9], # Should Place both reqs here
+                [0.5,  1.0,  0.9], # Should Place both reqs here
                 [0.1,  0.1,  0.1],
 
                 # Resources

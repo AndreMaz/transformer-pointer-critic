@@ -13,9 +13,10 @@ from environment.custom.resource_v3.misc.utils import round_half_up
 class CPLEXSolver(BaseHeuristic):
     def __init__(self,
                 num_nodes: int,
+                normalization_factor: int,
                 opts: dict
                 ):
-        super(CPLEXSolver, self).__init__(num_nodes)
+        super(CPLEXSolver, self).__init__(num_nodes, normalization_factor)
 
         self.time_limit_ms: int = opts['time_limit_ms']
         self.num_threads: int = opts['num_threads']
@@ -35,10 +36,20 @@ class CPLEXSolver(BaseHeuristic):
         # CPU, RAM and MEM indexes
         feature_ids = range(state.shape[-1])
 
-        nodes = state[:, 1:self.num_nodes][0]
+        # Rescale nodes for CPLEX to avoid precision issues
+        # More info: https://github.com/IBMDecisionOptimization/docplex-examples/issues/46
+        nodes = round_half_up(
+            state[:, 1:self.num_nodes][0] * self.normalization_factor,
+            0 # Decimal precision
+        )
         nodes_ids = range(nodes.shape[0])
 
-        resources = state[:, self.num_nodes:][0]
+        # Rescale resources for CPLEX to avoid precision issues
+        # More info: https://github.com/IBMDecisionOptimization/docplex-examples/issues/46
+        resources = round_half_up(
+            state[:, self.num_nodes:][0] * self.normalization_factor,
+            0 # Decimal precision
+        )
         resources_ids = range(resources.shape[0])
         
         # CPLEX Model
@@ -55,12 +66,14 @@ class CPLEXSolver(BaseHeuristic):
             [(x, n) for x in resources_ids for n in nodes_ids], name='B')
 
         # Critical Resource at specific nodes
-        omega_node = mdl.continuous_var_list([n for n in nodes_ids], lb=0, ub=1, name='omega')
-        #mdl.add_constraints([omega_node[n] >= 0 for n in nodes_ids])
-        # mdl.add_constraints([omega_node[n] <= 1 for n in nodes_ids])
-
+        # Rescale Upper Bound to avoid precision issues
+        # More info: https://github.com/IBMDecisionOptimization/docplex-examples/issues/46
+        omega_node = mdl.continuous_var_list([n for n in nodes_ids], lb=0, ub=1*self.normalization_factor, name='omega')
+        
         # Global critical resource
-        omega_max = mdl.continuous_var(name='omega_max', lb=0, ub=1)
+        # Rescale Upper Bound to avoid precision issues
+        # More info: https://github.com/IBMDecisionOptimization/docplex-examples/issues/46
+        omega_max = mdl.continuous_var(name='omega_max', lb=0, ub=1 * self.normalization_factor)
         mdl._is_continuous_var(omega_max)
         #mdl.add_constraint(omega_max >= 0)
         #mdl.add_constraint(omega_max <= 1)
@@ -71,23 +84,23 @@ class CPLEXSolver(BaseHeuristic):
             mdl.sum(is_resource_placed_at_node[x, n] for n in nodes_ids ) == is_resource_executed[x] for x in resources_ids
         )
 
-        # Critical Resource
-        mdl.add_constraints(
-            omega_node[n] >= mdl.sum(float(resources[x, m]) * is_resource_placed_at_node[x, n] for x in resources_ids) for n in nodes_ids for m in feature_ids
-        )
-
-        # Most critical Resource
-        mdl.add_constraints(
-            omega_max >= omega_node[n] for n in nodes_ids
-        )
-
         # Computation Resource Limitation
         mdl.add_constraints(
             mdl.sum(float(resources[x, m]) * is_resource_placed_at_node[x, n] for x in resources_ids) <= float(nodes[n, m]) for n in nodes_ids for m in feature_ids
         )
 
+        # Determining the Critical Resource Margin
+        mdl.add_constraints(
+            omega_node[n] <= float(nodes[n, m]) - mdl.sum(float(resources[x, m]) * is_resource_placed_at_node[x, n] for x in resources_ids) for n in nodes_ids for m in feature_ids
+        )
+
+        # Most critical Resource
+        mdl.add_constraints(
+            omega_max <= omega_node[n] for n in nodes_ids
+        )
+
         # Objective function
-        mdl.maximize(mdl.sum(is_resource_executed[x] for x in resources_ids) - omega_max) # Most Critical Resource
+        mdl.maximize(mdl.sum(is_resource_executed[x] for x in resources_ids) + omega_max / self.normalization_factor) # Most Critical Resource
         # mdl.maximize(mdl.sum(is_resource_executed[x] for x in resources_ids)) # Greedy
         # mdl.print_information()
         mdl.solve()
@@ -155,24 +168,23 @@ if  __name__ == "__main__": # pragma: no cover
     
     ###################################
     node_sample_size = 3
+    normalization_factor = 100
     dummy_state = np.array([
-        [   
-            # Nodes
-            # CPU   RAM  MEM
-            [-2.0, -2.0, -2.0],
-            [ 0.1,  0.2,  0.3],
-            [ 0.5,  0.2,  0.6],
+            [
+                # Nodes
+                # CPU   RAM  MEM
+                [-2.0, -2.0, -2.0],
+                [0.5,  1.1,  0.9], # Should Place both reqs here
+                [0.1,  0.1,  0.1],
 
-            # Resources
-            # CPU  RAM   MEM
-            [0.2,  0.1,  0.4],
-            [0.3,  0.5,  0.8],
-        ]
-    ], dtype='float32')
+                # Resources
+                # CPU  RAM   MEM
+                [0.2,  0.5,  0.4], 
+                [0.3,  0.5,  0.4], 
+            ]
+        ], dtype='float32')
 
-    d = np.random.uniform(0, 1, size=(1, 500, 3))
-
-    solver = CPLEXSolver(node_sample_size, heuristic_opts)
+    solver = CPLEXSolver(node_sample_size, normalization_factor, heuristic_opts)
 
     solver.solve(dummy_state)
 

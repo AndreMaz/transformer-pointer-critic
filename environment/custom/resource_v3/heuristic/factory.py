@@ -5,21 +5,22 @@ from environment.custom.resource_v3.heuristic.dominant_heuristic import Dominant
 from environment.custom.resource_v3.heuristic.random_heuristic import RandomHeuristic
 from environment.custom.resource_v3.heuristic.cplex_solver import CPLEXSolver
 
-def heuristic_factory(num_nodes: int, opts: dict):
+def heuristic_factory(num_nodes: int, normalization_factor: int, opts: dict):
     heuristic_list = []
     
     dominant_solvers = generate_dominant_combos(num_nodes,
+                                                normalization_factor,
                                             opts['dominant_resource']
                                         )
 
     random_solvers = [
-        RandomHeuristic(num_nodes, opts['random'])
+        RandomHeuristic(num_nodes, normalization_factor, opts['random'])
     ]
     
     cplex_solvers = []
     if opts['cplex']['use']:
         cplex_solvers.append(
-            CPLEXSolver(num_nodes, opts['cplex'])
+            CPLEXSolver(num_nodes, normalization_factor, opts['cplex'])
         )            
 
     # Concat the array with the solvers
@@ -27,13 +28,13 @@ def heuristic_factory(num_nodes: int, opts: dict):
 
     return heuristic_list
 
-def generate_dominant_combos(num_nodes: int, opts: dict):
+def generate_dominant_combos(num_nodes: int, normalization_factor: int, opts: dict):
     generate_combos: bool = opts['generate_params_combos']
 
     # Return as is
     if not generate_combos:
         return [
-                DominantResourceHeuristic(num_nodes, opts)
+                DominantResourceHeuristic(num_nodes, normalization_factor, opts)
         ]
 
     dominant_list = []
@@ -49,7 +50,7 @@ def generate_dominant_combos(num_nodes: int, opts: dict):
             }
 
             dominant_list.append(
-                DominantResourceHeuristic(num_nodes, opts_combo)
+                DominantResourceHeuristic(num_nodes, normalization_factor, opts_combo)
             )
 
     return dominant_list

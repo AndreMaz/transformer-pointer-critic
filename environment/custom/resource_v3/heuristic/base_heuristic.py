@@ -2,16 +2,19 @@
 from typing import List, Tuple
 from environment.custom.resource_v3.node import Node
 from environment.custom.resource_v3.resource import Resource
+from environment.custom.resource_v3.misc.utils import round_half_up
 
 class BaseHeuristic():
     def __init__(self,
-                num_nodes:int
+                num_nodes:int,
+                normalization_factor: int
                 ):
         self.name = 'base_heuristic'
 
         self.is_optimal = 0 # By defaults it's not optimal
         self.resource_batch_id = 0
         self.num_nodes = num_nodes
+        self.normalization_factor = normalization_factor
 
         self.solution = []
 

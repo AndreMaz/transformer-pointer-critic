@@ -164,7 +164,7 @@ def test_single_instance(
         print(f'Testing with {agent.num_resources} resources and {env.node_sample_size} bins', end='\r')
 
     # Init the heuristic solvers 
-    heuristic_solvers = heuristic_factory(env.node_sample_size, opts['heuristic'])
+    heuristic_solvers = heuristic_factory(env.node_sample_size, env.normalization_factor, opts['heuristic'])
     heuristic_input_state = current_state.copy()
 
     start = time.time()

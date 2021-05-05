@@ -15,9 +15,10 @@ from operator import itemgetter, attrgetter
 class RandomHeuristic(BaseHeuristic):
     def __init__(self,
                 num_nodes: int,
+                normalization_factor: int,
                 opts: dict
                 ):
-        super(RandomHeuristic, self).__init__(num_nodes)
+        super(RandomHeuristic, self).__init__(num_nodes, normalization_factor)
 
         self.generate_name()
     
