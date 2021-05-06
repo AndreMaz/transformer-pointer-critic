@@ -83,7 +83,7 @@
         
         "batch_size": 128,
         "mask_nodes_in_mha": false,
-        "generate_request_on_the_fly": true,
+        "generate_request_on_the_fly": false,
         
         "seed_value": 1234,
 
