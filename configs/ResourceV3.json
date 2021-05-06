@@ -91,7 +91,7 @@
         "decimal_precision": 2,
 
         "num_features": 3,
-        "num_profiles": 10000,
+        "num_profiles": 1000,
 
         "profiles_sample_size": 20,
         "node_sample_size": 10,
@@ -140,12 +140,12 @@
                 "logit_clipping_C": 10.0,
 
                 "learning_rate": 0.0001,
-                "clipnorm": null
+                "clipnorm": 1.0
             },
 
             "critic": {
                 "use_default_initializer": true,
-                "num_layers": 3,
+                "num_layers": 5,
                 "dim_model": 128,
                 "num_heads": 8,
                 "inner_layer_dim": 512,
@@ -154,7 +154,7 @@
                 "last_layer_activation": "linear",
 
                 "learning_rate": 0.0001,
-                "clipnorm": null
+                "clipnorm": 1.0
             }
         }
     }
