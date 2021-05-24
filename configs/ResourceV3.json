@@ -82,7 +82,7 @@
         "description": "Environment configs.",
         
         "batch_size": 128,
-        "mask_nodes_in_mha": false,
+        "mask_nodes_in_mha": true,
         "generate_request_on_the_fly": false,
         
         "seed_value": 1234,
@@ -104,7 +104,7 @@
         "node_max_val": 100,
 
         "reward": {
-            "type": "global_dominant",
+            "type": "greedy",
             "greedy": {},
             "single_node_dominant": {
                 "rejection_penalty": -2
@@ -153,7 +153,7 @@
                 "last_layer_units": 128,
                 "last_layer_activation": "linear",
 
-                "learning_rate": 0.0001,
+                "learning_rate": 0.0005,
                 "clipnorm": 1.0
             }
         }

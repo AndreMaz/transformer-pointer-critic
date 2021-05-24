@@ -37,7 +37,7 @@ from copy import deepcopy
 
 LOG_DIR = "./results/"
 
-def runner(env_type="custom", env_name='ResourceV3', agent_name="tpc", agent_weights_dir='2021-04-28T10:30:38'):
+def runner(env_type="custom", env_name='ResourceV3', agent_name="tpc", agent_weights_dir='2021-05-13T09:50:40'):
 
     # Store the time of the script
     start_date = datetime.now().replace(microsecond=0).isoformat()
@@ -54,6 +54,7 @@ def runner(env_type="custom", env_name='ResourceV3', agent_name="tpc", agent_wei
     env, tester = env_factory(env_type, env_name, env_config)
     # If necessary load the dataset
     if not env.generate_request_on_the_fly:
+        print('Loading Env. Dataset')
         env.load_dataset(os.path.join(log_dir, "env.txt"))
 
     # Add info about the environment

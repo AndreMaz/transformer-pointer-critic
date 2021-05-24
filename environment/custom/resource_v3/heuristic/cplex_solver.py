@@ -100,7 +100,8 @@ class CPLEXSolver(BaseHeuristic):
         )
 
         # Objective function
-        mdl.maximize(mdl.sum(is_resource_executed[x] for x in resources_ids) + omega_max / self.normalization_factor) # Most Critical Resource
+        # mdl.maximize(mdl.sum(is_resource_executed[x] for x in resources_ids) + omega_max / self.normalization_factor) # Most Critical Resource
+        mdl.maximize(mdl.sum(is_resource_executed[x] for x in resources_ids)) # Greedy
         # mdl.maximize(mdl.sum(is_resource_executed[x] for x in resources_ids)) # Greedy
         # mdl.print_information()
         mdl.solve()
