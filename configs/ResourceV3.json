@@ -3,7 +3,7 @@
     
     "trainer_config": {
         "description": "Trainer function configs.",
-        "n_iterations": 100,
+        "n_iterations": 100000,
         "n_steps_to_update": 30,
 
         "export_stats": {
@@ -31,11 +31,11 @@
         "batch_size": 1,
         
         "testbed" : {
-            "num_tests": 10,
+            "num_tests": 100,
             "node_sample_configs": {
                 "min": 5,
                 "max": 50,
-                "step": 20
+                "step": 5
             },
             "node_available_resources": {
                 "min": 0,
@@ -45,7 +45,7 @@
             "request_sample_configs": {
                 "min": 10,
                 "max": 100,
-                "step": 40
+                "step": 10
             }
         },
 
