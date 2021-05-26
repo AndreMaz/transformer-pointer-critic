@@ -4,6 +4,7 @@ import json
 from environment.custom.resource_v3.heuristic.dominant_heuristic import DominantResourceHeuristic
 from environment.custom.resource_v3.heuristic.random_heuristic import RandomHeuristic
 from environment.custom.resource_v3.heuristic.cplex_greedy_critical import CPLEXGreedyCritical
+from environment.custom.resource_v3.heuristic.cplex_reduced_node import CPLEXReducedNode
 
 def heuristic_factory(num_nodes: int, normalization_factor: int, opts: dict):
     heuristic_list = []
@@ -18,10 +19,16 @@ def heuristic_factory(num_nodes: int, normalization_factor: int, opts: dict):
     ]
     
     cplex_solvers = []
-    if opts['cplex']['use']:
+    if opts['cplex_greedy_and_critical']['use']:
         cplex_solvers.append(
-            CPLEXGreedyCritical(num_nodes, normalization_factor, opts['cplex'])
+            CPLEXGreedyCritical(num_nodes, normalization_factor, opts['cplex_greedy_and_critical'])
         )            
+
+    if opts['cplex_node_reduction']['use']:
+        cplex_solvers.append(
+            CPLEXReducedNode(num_nodes, normalization_factor,
+                                opts['cplex_node_reduction'])
+        )
 
     # Concat the array with the solvers
     heuristic_list = heuristic_list + dominant_solvers + random_solvers + cplex_solvers
