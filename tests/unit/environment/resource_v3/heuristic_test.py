@@ -4,7 +4,7 @@ import unittest
 import numpy as np
 
 # Custom Imports
-from environment.custom.resource_v3.heuristic.factory import DominantResourceHeuristic, RandomHeuristic, CPLEXSolver
+from environment.custom.resource_v3.heuristic.factory import DominantResourceHeuristic, RandomHeuristic, CPLEXGreedyCritical
 from environment.custom.resource_v3.heuristic.dominant_heuristic import compute_potential_placement_diffs
 from environment.custom.resource_v3.misc.utils import compute_stats
 
@@ -232,7 +232,7 @@ class TestRandomHeuristic(unittest.TestCase):
             empty_nodes, 1
         )
 
-class TestCPLEXSolver(unittest.TestCase):
+class TestCPLEXGreedyCritical(unittest.TestCase):
     def setUp(self) -> None:
     
         heuristic_opts = {
@@ -245,7 +245,7 @@ class TestCPLEXSolver(unittest.TestCase):
         normalization_factor = 100
         node_sample_size = 3
         
-        self.solver = CPLEXSolver(
+        self.solver = CPLEXGreedyCritical(
             node_sample_size,
             normalization_factor,
             heuristic_opts

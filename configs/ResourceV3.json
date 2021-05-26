@@ -56,9 +56,14 @@
                 "node_sort_descending": true
             },
             "random": {},
-            "cplex": {
+            "cplex_greedy_and_critical": {
                 "use": true,
                 "greedy_with_critical_resource": true,
+                "time_limit_ms": 60000,
+                "num_threads": 8
+            },
+            "cplex_node_reduction": {
+                "use": true,
                 "time_limit_ms": 60000,
                 "num_threads": 8
             }

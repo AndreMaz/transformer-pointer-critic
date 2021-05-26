@@ -10,13 +10,13 @@ from docplex.mp.model import Model
 from environment.custom.resource_v3.heuristic.base_heuristic import BaseHeuristic
 from environment.custom.resource_v3.misc.utils import round_half_up
 
-class CPLEXSolver(BaseHeuristic):
+class CPLEXGreedyCritical(BaseHeuristic):
     def __init__(self,
                 num_nodes: int,
                 normalization_factor: int,
                 opts: dict
                 ):
-        super(CPLEXSolver, self).__init__(num_nodes, normalization_factor)
+        super(CPLEXGreedyCritical, self).__init__(num_nodes, normalization_factor)
 
         self.time_limit_ms: int = opts['time_limit_ms']
         self.num_threads: int = opts['num_threads']
@@ -191,7 +191,9 @@ if  __name__ == "__main__": # pragma: no cover
             ]
         ], dtype='float32')
 
-    solver = CPLEXSolver(node_sample_size, normalization_factor, heuristic_opts)
+    solver = CPLEXGreedyCritical(
+        node_sample_size, normalization_factor, heuristic_opts
+    )
 
     solver.solve(dummy_state)
 
