@@ -21,6 +21,8 @@ class CPLEXSolver(BaseHeuristic):
         self.time_limit_ms: int = opts['time_limit_ms']
         self.num_threads: int = opts['num_threads']
 
+        self.greedy_with_critical_resource: bool = opts['greedy_with_critical_resource']
+
         self.generate_name()
 
     def generate_name(self):
@@ -100,8 +102,12 @@ class CPLEXSolver(BaseHeuristic):
         )
 
         # Objective function
-        # mdl.maximize(mdl.sum(is_resource_executed[x] for x in resources_ids) + omega_max / self.normalization_factor) # Most Critical Resource
-        mdl.maximize(mdl.sum(is_resource_executed[x] for x in resources_ids)) # Greedy
+        if self.greedy_with_critical_resource:
+             # Greedy + Most Critical Resource
+            mdl.maximize(mdl.sum(is_resource_executed[x] for x in resources_ids) + omega_max / self.normalization_factor)
+        else:
+            # Greedy
+            mdl.maximize(mdl.sum(is_resource_executed[x] for x in resources_ids))
         # mdl.maximize(mdl.sum(is_resource_executed[x] for x in resources_ids)) # Greedy
         # mdl.print_information()
         mdl.solve()

@@ -58,6 +58,7 @@
             "random": {},
             "cplex": {
                 "use": true,
+                "greedy_with_critical_resource": true,
                 "time_limit_ms": 60000,
                 "num_threads": 8
             }

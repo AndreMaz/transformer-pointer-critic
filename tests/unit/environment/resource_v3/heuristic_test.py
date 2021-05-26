@@ -238,6 +238,7 @@ class TestCPLEXSolver(unittest.TestCase):
         heuristic_opts = {
             "use": False,
             "time_limit_ms": 60000,
+            "greedy_with_critical_resource": True,
             "num_threads": 4
         }
 
