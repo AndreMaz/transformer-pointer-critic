@@ -146,3 +146,5 @@ model
 .Rproj.user
 .Rhistory
 *ods
+
+!results/ResourceV3/paper_results/**/tests/test.csv
