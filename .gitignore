@@ -147,4 +147,6 @@ model
 .Rhistory
 *ods
 
-!results/ResourceV3/paper_results/**/tests/test.csv
+!results/ResourceV3/paper_results/node/tests/test.csv
+!results/ResourceV3/paper_results/greedy/tests/test.csv
+!results/ResourceV3/paper_results/critical/tests/test.csv
