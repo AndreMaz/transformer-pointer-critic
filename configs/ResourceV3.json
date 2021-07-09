@@ -57,13 +57,13 @@
             },
             "random": {},
             "cplex_greedy_and_critical": {
-                "use": false,
-                "greedy_with_critical_resource": true,
+                "use": true,
+                "greedy_with_critical_resource": false,
                 "time_limit_ms": 60000,
                 "num_threads": 8
             },
             "cplex_node_reduction": {
-                "use": true,
+                "use": false,
                 "time_limit_ms": 60000,
                 "num_threads": 8
             }
@@ -91,7 +91,7 @@
         "mask_nodes_in_mha": true,
         "generate_request_on_the_fly": false,
         
-        "seed_value": 1236,
+        "seed_value": 1235,
 
         "normalization_factor": 100,
         "decimal_precision": 2,
@@ -110,7 +110,7 @@
         "node_max_val": 100,
 
         "reward": {
-            "type": "reduced_node_usage",
+            "type": "greedy",
             "greedy": {},
             "single_node_dominant": {
                 "rejection_penalty": -2

@@ -37,7 +37,7 @@ from copy import deepcopy
 
 LOG_DIR = "./results/"
 
-def runner(env_type="custom", env_name='ResourceV3', agent_name="tpc", agent_weights_dir='2021-05-13T09:50:40'):
+def runner(env_type="custom", env_name='ResourceV3', agent_name="tpc", agent_weights_dir='2021-05-28T13:17:36'):
 
     # Store the time of the script
     start_date = datetime.now().replace(microsecond=0).isoformat()
