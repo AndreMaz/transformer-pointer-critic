@@ -66,6 +66,8 @@ def test(
         0, # Lost
     ])
 
+    times = []
+
     for resource_sample_size in range(resource_size_min, resource_size_max+1, resource_size_step):
         for node_sample_size in range(node_size_min, node_size_max+1, node_size_step):
             for node_min_value in range(node_min_resource, node_max_resource, node_step_resource):
@@ -74,7 +76,8 @@ def test(
 
                     instance_stats,\
                         dominant_instance_result,\
-                        rejected_instance_result = test_single_instance(
+                        rejected_instance_result,\
+                        instance_time = test_single_instance(
                             index,
                             env,
                             agent,
@@ -87,6 +90,8 @@ def test(
                             log_dir
                         )
 
+                    
+
                     dominant_results += dominant_instance_result
                     rejected_results += rejected_instance_result
 
@@ -96,8 +101,17 @@ def test(
                         "node_min_value": node_min_value,
                         "node_max_value": node_min_value + node_step_resource,
                         "resource_sample_size": resource_sample_size,
-                        "instance": instance_stats
+                        "instance": instance_stats,
                     })
+
+                    times.append({
+                        "test_instance": index,
+                        "name": f'node@{node_sample_size}',
+                        "resource_sample_size": resource_sample_size,
+                        "time": instance_time
+                    })
+
+                    print(f'{index};node@{node_sample_size};{resource_sample_size};{instance_time}')
 
             if add_brakes:
                 break
@@ -127,6 +141,8 @@ def test_single_instance(
     log_dir: str,
     ):
     
+    act_time = []
+
     plot_attentions: bool = opts['plot_attentions']
 
     # batch_size: int = opts['batch_size']
@@ -174,6 +190,9 @@ def test_single_instance(
         if show_inference_progress:
             print(f'Placing step {training_step} of {agent.num_resources}', end='\r')
 
+
+        before_call = datetime.now()
+
         # Select an action
         bin_id,\
         bin_net_mask,\
@@ -185,6 +204,9 @@ def test_single_instance(
             env.build_feasible_mask
         )
 
+        diff_time = (datetime.now() - before_call).microseconds / 1000
+        act_time.append(diff_time)
+        # print(f'agent.act took {diff_time} milliseconds')
 
         next_state, next_dec_input, reward, isDone, info = env.step(
             bin_id,
@@ -252,4 +274,4 @@ def test_single_instance(
         dominant_result,\
         rejected_result = gather_stats_from_solutions(env, heuristic_solvers)
 
-    return stats, dominant_result, rejected_result
+    return stats, dominant_result, rejected_result, np.mean(act_time[1:])
