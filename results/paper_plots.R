@@ -31,9 +31,12 @@ file = paste(base, date, test_location, filename, sep='/')
 
 ## Load data from CSV
 df1 <- read.csv(file=file, header = TRUE, sep = ';')
-
+## Reduce the plot number for the publication
 df1 <- df1 %>%
   filter(node_sample_size %% 10 == 0)
+
+boxes = paste(base, date, test_location, "boxes.csv", sep='/')
+boxesData <- read.csv(file=boxes, header = TRUE, sep = ';')
 
 ##############################################
 ################ COMMON HELPERS ##############
@@ -68,8 +71,15 @@ stacked_rejected_data <- melt(rejected_data, id.vars = c(
 ), variable.name = 'Type', value.name = 'Value')
 
 rejected_plot <- ggplot(stacked_rejected_data, aes(x=resource_sample_size, y=Value, col=Type, group = Type))+
-  geom_point(alpha=0.7)+
-  #geom_line(size=1.5, alpha=0.7)+
+  geom_point(alpha=0.2)+
+  geom_line(size=1.5, alpha=0.7)+
+  geom_rect(fill="springgreen3", alpha=0.15, inherit.aes = FALSE, data = boxesData,
+            aes(
+              xmin = 1,
+              xmax = xmax,
+              ymin = 0,
+              ymax = ymax
+            )) +
   facet_wrap(c("node_sample_size"), labeller = labeller(node_sample_size = labeller_fn), scales = "free_y", ncol=1)+
   labs(x="Number of Input Rules", y='Average Number of Rejected Rules')+
   #scale_x_discrete(labels = TRUE)+
@@ -99,6 +109,13 @@ stacked_empty_nodes_data <- melt(empty_nodes_data, id.vars = c(
 empty_plot <- ggplot(data = stacked_empty_nodes_data, aes(x=resource_sample_size, y=Value, col=Type, group = Type))+
   geom_point(alpha=0.2)+
   geom_line(size=1.5, alpha=0.7)+
+  geom_rect(fill="springgreen3", alpha=0.15, inherit.aes = FALSE, data = boxesData,
+            aes(
+              xmin = 1,
+              xmax = xmax,
+              ymin = 0,
+              ymax = ymax
+            )) +
   facet_wrap(c("node_sample_size"), labeller = labeller(node_sample_size = labeller_fn), scales = "free_y", ncol=1)+
   labs(x="Number of Input Rules", y='Average Number of Empty Nodes')+
   #scale_x_discrete(labels = TRUE)+
@@ -134,9 +151,12 @@ file = paste(base, date, test_location, filename, sep='/')
 
 ## Load data from CSV
 df1 <- read.csv(file=file, header = TRUE, sep = ';')
-
+## Reduce the plot number for the publication
 df1 <- df1 %>%
   filter(node_sample_size %% 10 == 0)
+
+boxes = paste(base, date, test_location, "boxes.csv", sep='/')
+boxesData <- read.csv(file=boxes, header = TRUE, sep = ';')
 
 ##############################################
 ################ COMMON HELPERS ##############
@@ -173,6 +193,13 @@ stacked_rejected_data <- melt(rejected_data, id.vars = c(
 rejected_plot <- ggplot(stacked_rejected_data, aes(x=resource_sample_size, y=Value, col=Type, group = Type))+
   geom_point(alpha=0.2)+
   geom_line(size=1.5, alpha=0.7)+
+  geom_rect(fill="springgreen3", alpha=0.15, inherit.aes = FALSE, data = boxesData,
+            aes(
+              xmin = 1,
+              xmax = xmax,
+              ymin = 0,
+              ymax = ymax
+            )) +
   facet_wrap(c("node_sample_size"), labeller = labeller(node_sample_size = labeller_fn), scales = "free_y", ncol=1)+
   labs(x="Number of Input Rules", y='Average Number of Rejected Rules')+
   #scale_x_discrete(labels = TRUE)+
@@ -202,6 +229,13 @@ stacked_dominant_data <- melt(dominant_data, id.vars = c(
 dominant_plot <- ggplot(data = stacked_dominant_data, aes(x=resource_sample_size, y=Value, col=Type, group = Type))+
   geom_point(alpha=0.2)+
   geom_line(size=1.5, alpha=0.7)+
+  geom_rect(fill="springgreen3", alpha=0.15, inherit.aes = FALSE, data = boxesData,
+            aes(
+              xmin = 1,
+              xmax = xmax,
+              ymin = 0,
+              ymax = ymax
+            )) +
   facet_wrap(c("node_sample_size"), labeller = labeller(node_sample_size = labeller_fn), scales = "free_y", ncol=1)+
   labs(x="Number of Input Requests", y='Most Critical Resource')+
   # scale_x_discrete(labels = (xLabels))+
@@ -231,8 +265,12 @@ file = paste(base, date, test_location, filename, sep='/')
 ## Load data from CSV
 df1 <- read.csv(file=file, header = TRUE, sep = ';')
 
+## Reduce the plot number for the publication
 df1 <- df1 %>%
   filter(node_sample_size %% 10 == 0)
+
+boxes = paste(base, date, test_location, "boxes.csv", sep='/')
+boxesData <- read.csv(file=boxes, header = TRUE, sep = ';')
 
 ##############################################
 ################ COMMON HELPERS ##############
@@ -269,6 +307,13 @@ stacked_rejected_data <- melt(rejected_data, id.vars = c(
 rejected_plot <- ggplot(stacked_rejected_data, aes(x=resource_sample_size, y=Value, col=Type, group = Type))+
   geom_point(alpha=0.2)+
   geom_line(size=1.5, alpha=0.7)+
+  geom_rect(fill="springgreen3", alpha=0.15, inherit.aes = FALSE, data = boxesData,
+            aes(
+              xmin = 1,
+              xmax = xmax,
+              ymin = 0,
+              ymax = ymax
+            )) +
   facet_wrap(c("node_sample_size"), labeller = labeller(node_sample_size = labeller_fn), scales = "free_y", ncol=3, nrow = 2)+
   labs(x="Number of Rules", y='Average Number of Rejected Rules')+
   #scale_x_discrete(labels = TRUE)+
