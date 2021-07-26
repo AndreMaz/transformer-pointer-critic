@@ -7,16 +7,16 @@ library(nortest)
 
 legendLabels = c(
   "Agent",
-  "DR-Fair", #"Dominant Resource ASC Node ASC",
-  "DR-Node", #Dominant Resource ASC Node DESC",
-  "AR-Fair", #"Dominant Resource DESC Node ASC",
-  "AR-Node", #"Dominant Resource DESC Node DESC",
+  "DR-DC", # "DR-Fair", #"Dominant Resource ASC Node ASC",
+  "DR-AC", #"DR-Node", #Dominant Resource ASC Node DESC",
+  "AR-DC", #"AR-Fair", #"Dominant Resource DESC Node ASC",
+  "AC-AC", #"AR-Node", #"Dominant Resource DESC Node DESC",
   "Random",
   "CPLEX"
 )
 
 labeller_fn <- function(value) {
-  paste("Node Sample Size", value)
+  paste("Node Sample Size:", value)
 }
 
 ####################################################################################################################
