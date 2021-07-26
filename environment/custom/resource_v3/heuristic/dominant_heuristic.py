@@ -10,6 +10,7 @@ from environment.custom.resource_v3.heuristic.base_heuristic import BaseHeuristi
 from environment.custom.resource_v3.node import Node
 from environment.custom.resource_v3.resource import Resource
 from operator import itemgetter, attrgetter
+from datetime import datetime
 
 class DominantResourceHeuristic(BaseHeuristic):
     def __init__(self,
@@ -31,19 +32,27 @@ class DominantResourceHeuristic(BaseHeuristic):
         
         node_list = self.parse_nodes(state)
         EOS_NODE = node_list.pop(0)
+        num_nodes = len(node_list)
 
         resource_list = self.parse_resources(state)
-        
+        num_resources = len(resource_list)
+
         # Sort the resources in a descending order
         resource_list: List[Resource] = sorted(
             resource_list,
             key=resource_sorting_fn,
             reverse=self.resource_sort_descending
         )
-        
+
+        episode_before = datetime.now()
+
         for resource in resource_list:
             self.place_single_resource(resource, node_list, EOS_NODE)
-            
+        
+        diff_time = (datetime.now() - episode_before).microseconds / 1000
+        #print(f'{0};{num_nodes};{self.name};{num_resources};{0};{diff_time}')
+        print(f'{0};{self.name}@{num_nodes};{num_resources};{0};{diff_time}')
+
         # Store a reference with the solution
         self.solution = [EOS_NODE] + node_list
     

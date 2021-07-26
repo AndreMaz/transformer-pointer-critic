@@ -33,9 +33,9 @@
         "testbed" : {
             "num_tests": 20,
             "node_sample_configs": {
-                "min": 5,
+                "min": 10,
                 "max": 50,
-                "step": 5
+                "step": 10
             },
             "node_available_resources": {
                 "min": 0,

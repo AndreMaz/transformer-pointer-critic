@@ -70,7 +70,7 @@ stacked_rejected_data <- melt(rejected_data, id.vars = c(
   "resource_sample_size"
 ), variable.name = 'Type', value.name = 'Value')
 
-rejected_plot <- ggplot(stacked_rejected_data, aes(x=resource_sample_size, y=Value, col=Type, group = Type))+
+rejected_plot <- ggplot(stacked_rejected_data, aes(x=resource_sample_size, y=(Value/as.numeric(as.character(resource_sample_size)))*100, col=Type, group = Type))+
   geom_point(alpha=0.2)+
   geom_line(size=1.5, alpha=0.7)+
   geom_rect(fill="springgreen3", alpha=0.15, inherit.aes = FALSE, data = boxesData,
@@ -81,7 +81,7 @@ rejected_plot <- ggplot(stacked_rejected_data, aes(x=resource_sample_size, y=Val
               ymax = ymax
             )) +
   facet_wrap(c("node_sample_size"), labeller = labeller(node_sample_size = labeller_fn), scales = "free_y", ncol=1)+
-  labs(x="Number of Input Rules", y='Average Number of Rejected Rules')+
+  labs(x="Number of Input Rules", y='Rejection Rate (%)')+
   #scale_x_discrete(labels = TRUE)+
   theme(axis.text.x = element_text(angle = 35, hjust = 1))+
   scale_color_hue(labels = legendLabels)+ # Sets the labels
@@ -190,7 +190,7 @@ stacked_rejected_data <- melt(rejected_data, id.vars = c(
   "resource_sample_size"
 ), variable.name = 'Type', value.name = 'Value')
 
-rejected_plot <- ggplot(stacked_rejected_data, aes(x=resource_sample_size, y=Value, col=Type, group = Type))+
+rejected_plot <- ggplot(stacked_rejected_data, aes(x=resource_sample_size, y=(Value/as.numeric(as.character(resource_sample_size)))*100, col=Type, group = Type))+
   geom_point(alpha=0.2)+
   geom_line(size=1.5, alpha=0.7)+
   geom_rect(fill="springgreen3", alpha=0.15, inherit.aes = FALSE, data = boxesData,
@@ -201,7 +201,7 @@ rejected_plot <- ggplot(stacked_rejected_data, aes(x=resource_sample_size, y=Val
               ymax = ymax
             )) +
   facet_wrap(c("node_sample_size"), labeller = labeller(node_sample_size = labeller_fn), scales = "free_y", ncol=1)+
-  labs(x="Number of Input Rules", y='Average Number of Rejected Rules')+
+  labs(x="Number of Input Rules", y='Rejection Rate (%)')+
   #scale_x_discrete(labels = TRUE)+
   theme(axis.text.x = element_text(angle = 35, hjust = 1))+
   scale_color_hue(labels = legendLabels)+ # Sets the labels
@@ -237,7 +237,7 @@ dominant_plot <- ggplot(data = stacked_dominant_data, aes(x=resource_sample_size
               ymax = ymax
             )) +
   facet_wrap(c("node_sample_size"), labeller = labeller(node_sample_size = labeller_fn), scales = "free_y", ncol=1)+
-  labs(x="Number of Input Requests", y='Most Critical Resource')+
+  labs(x="Number of Input Rules", y='Most Critical Resource')+
   # scale_x_discrete(labels = (xLabels))+
   theme(axis.text.x = element_text(angle = 35, hjust = 1))+
   scale_color_hue(labels = legendLabels)+ # Sets the labels
@@ -304,7 +304,7 @@ stacked_rejected_data <- melt(rejected_data, id.vars = c(
   "resource_sample_size"
 ), variable.name = 'Type', value.name = 'Value')
 
-rejected_plot <- ggplot(stacked_rejected_data, aes(x=resource_sample_size, y=Value, col=Type, group = Type))+
+rejected_plot <- ggplot(stacked_rejected_data, aes(x=resource_sample_size, y=(Value/as.numeric(as.character(resource_sample_size)))*100, col=Type, group = Type))+
   geom_point(alpha=0.2)+
   geom_line(size=1.5, alpha=0.7)+
   geom_rect(fill="springgreen3", alpha=0.15, inherit.aes = FALSE, data = boxesData,
@@ -315,7 +315,7 @@ rejected_plot <- ggplot(stacked_rejected_data, aes(x=resource_sample_size, y=Val
               ymax = ymax
             )) +
   facet_wrap(c("node_sample_size"), labeller = labeller(node_sample_size = labeller_fn), scales = "free_y", ncol=3, nrow = 2)+
-  labs(x="Number of Rules", y='Average Number of Rejected Rules')+
+  labs(x="Number of Rules", y='Rejection Rate (%)')+
   #scale_x_discrete(labels = TRUE)+
   theme_update(plot.title = element_text(hjust = 0.5))+
   theme(axis.text.x = element_text(angle = 35, hjust = 1))+

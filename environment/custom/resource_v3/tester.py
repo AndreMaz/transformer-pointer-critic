@@ -74,10 +74,7 @@ def test(
                 # print(f'{node_min_value}||{node_min_value + node_step_resource}')
                 for index in range(num_tests):
 
-                    instance_stats,\
-                        dominant_instance_result,\
-                        rejected_instance_result,\
-                        instance_time = test_single_instance(
+                    instance_time, episode_time = test_single_instance(
                             index,
                             env,
                             agent,
@@ -90,28 +87,9 @@ def test(
                             log_dir
                         )
 
-                    
-
-                    dominant_results += dominant_instance_result
-                    rejected_results += rejected_instance_result
-
-                    global_stats.append({
-                        "test_instance": index,
-                        "node_sample_size": node_sample_size,
-                        "node_min_value": node_min_value,
-                        "node_max_value": node_min_value + node_step_resource,
-                        "resource_sample_size": resource_sample_size,
-                        "instance": instance_stats,
-                    })
-
-                    times.append({
-                        "test_instance": index,
-                        "name": f'node@{node_sample_size}',
-                        "resource_sample_size": resource_sample_size,
-                        "time": instance_time
-                    })
-
-                    print(f'{index};node@{node_sample_size};{resource_sample_size};{instance_time}')
+                    if index > 10:
+                        #print(f'{index};{node_sample_size};Agent;{resource_sample_size};{instance_time};{episode_time}')
+                        print(f'{index};Agent@{node_sample_size};{resource_sample_size};{instance_time};{episode_time}')
 
             if add_brakes:
                 break
@@ -183,13 +161,12 @@ def test_single_instance(
     heuristic_solvers = heuristic_factory(env.node_sample_size, env.normalization_factor, opts['heuristic'])
     heuristic_input_state = current_state.copy()
 
-    start = time.time()
+    
     attentions = []
 
-    while not isDone:
-        if show_inference_progress:
-            print(f'Placing step {training_step} of {agent.num_resources}', end='\r')
 
+    episode_before = datetime.now()
+    while not isDone:
 
         before_call = datetime.now()
 
@@ -230,48 +207,8 @@ def test_single_instance(
         
         training_step += 1
 
-    if show_inference_progress:
-        # if env.validate_history() == True:
-        #    print('All solutions are valid!')
-        #else:
-        #    print('Ups! Network generated invalid solutions')
-
-        print(f'Net solution found in {time.time() - start:.2f} seconds', end='\r')
-    
     # Solve with Heuristic
     for solver in heuristic_solvers:
         solver.solve(heuristic_input_state)
-    
-    if export_stats:
-        # Find the the node with maximum number of inserted resources
-        max_steps = compute_max_steps(env.history[0], heuristic_solvers)
-        t = datetime.now().replace(microsecond=0).isoformat()
-        # Export results to CSV
-        f = os.path.join(log_dir, folder)
-        if not os.path.isdir(f):
-            os.makedirs(f)
 
-        export_to_csv(env.history, max_steps, agent.name, f'{f}/{t}_{instance_id}')
-        for solver in heuristic_solvers:
-            export_to_csv([solver.solution], max_steps, solver.name, f'{f}/{t}_{instance_id}')
-
-
-    if show_solutions:
-        env.print_history(show_detailed_solutions)
-        print('________________________________________________________________________________')    
-        for solver in heuristic_solvers:
-            solver.print_node_stats(show_detailed_solutions)
-
-    if plot_attentions:
-        # Plot the attentions to visualize the policy
-        attention_plotter(
-            attentions,
-            env.profiles_sample_size,
-            env.node_sample_size,
-        )
-    
-    stats,\
-        dominant_result,\
-        rejected_result = gather_stats_from_solutions(env, heuristic_solvers)
-
-    return stats, dominant_result, rejected_result, np.mean(act_time[1:])
+    return np.mean(act_time[1:]), (datetime.now() - episode_before).microseconds / 1000

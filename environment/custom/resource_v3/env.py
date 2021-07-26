@@ -342,7 +342,7 @@ class ResourceEnvironmentV3(BaseEnvironment):
             ) -> None:
         
 
-        self.gather_stats = True
+        self.gather_stats = False
         self.batch_size = batch_size
 
         self.node_min_val = node_min_val
