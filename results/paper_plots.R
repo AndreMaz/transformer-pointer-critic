@@ -16,7 +16,7 @@ legendLabels = c(
 )
 
 labeller_fn <- function(value) {
-  paste("Node Sample Size", value)
+  paste("Node Sample Size:", value)
 }
 
 ####################################################################################################################
@@ -275,6 +275,12 @@ boxesData <- read.csv(file=boxes, header = TRUE, sep = ';')
 ##############################################
 ################ COMMON HELPERS ##############
 ##############################################
+
+#t <- df1 %>%
+#  group_by(node_sample_size, node_min_value, node_max_value, resource_sample_size) %>% 
+#  summarise(
+#    across(everything(), list(mean = mean, sd = sd))
+#  )
 
 ## Average the data
 avgData <- df1 %>%
