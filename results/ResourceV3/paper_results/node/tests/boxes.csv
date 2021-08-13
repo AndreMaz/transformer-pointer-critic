@@ -1,6 +1,11 @@
 node_sample_size;xmin;xmax;ymin;ymax
+5;0;4;-Inf;Inf
 10;0;2;-Inf;Inf
+15;0;2;-Inf;Inf
 20;0;2;-Inf;Inf
+25;0;2;-Inf;Inf
 30;0;2;-Inf;Inf
+35;0;2;-Inf;Inf
 40;0;2;-Inf;Inf
+45;0;2;-Inf;Inf
 50;0;2;-Inf;Inf
