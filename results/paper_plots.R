@@ -10,7 +10,7 @@ legendLabels = c(
   "DR-DC", # "DR-Fair", #"Dominant Resource ASC Node ASC",
   "DR-AC", #"DR-Node", #Dominant Resource ASC Node DESC",
   "AR-DC", #"AR-Fair", #"Dominant Resource DESC Node ASC",
-  "AC-AC", #"AR-Node", #"Dominant Resource DESC Node DESC",
+  "AR-AC", #"AR-Node", #"Dominant Resource DESC Node DESC",
   "Random",
   "CPLEX"
 )
