@@ -6,12 +6,12 @@ library(nortest)
 
 legendLabels = c(
   "Agent",
-  "DR-Fair", #"Dominant Resource ASC Node ASC",
-  "DR-Node", #Dominant Resource ASC Node DESC",
-  "AR-Fair", #"Dominant Resource DESC Node ASC",
-  "AR-Node", #"Dominant Resource DESC Node DESC",
-  "Random"
-  #"CPLEX"
+  "DR-DC", # "DR-Fair", #"Dominant Resource ASC Node ASC",
+  "DR-AC", #"DR-Node", #Dominant Resource ASC Node DESC",
+  "AR-DC", #"AR-Fair", #"Dominant Resource DESC Node ASC",
+  "AC-AC", #"AR-Node", #"Dominant Resource DESC Node DESC",
+  "Random",
+  "CPLEX"
 )
 
 labeller_fn <- function(value) {
@@ -36,7 +36,7 @@ avgData <- df1 %>%
   #  sd = sd(Time, na.rm = FALSE)
   #)
 
-
+write.csv(avgData, "./ResourceV3/avg_time.csv")
 
 inf_time <- ggplot(avgData, aes(x=resource_sample_size, y=Time, col=Number.of.Nodes, group = Number.of.Nodes))+
   geom_line(size=1.5, alpha=0.7)+
@@ -52,7 +52,7 @@ ep_time <- ggplot(avgData, aes(x=resource_sample_size, y=Episode.Time, col=name,
   labs(x="Number of Input Rules", y='Episode Time (ms)')+
   scale_color_hue(labels = legendLabels)+
   theme(legend.position="bottom")+
-  ggtitle("Greedy Optimization Perfomance")+
+  ggtitle("Inference Time")
   #theme_update(plot.title = element_text(hjust = 0.5))
 ep_time
 
