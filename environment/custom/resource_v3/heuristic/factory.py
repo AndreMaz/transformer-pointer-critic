@@ -7,6 +7,7 @@ from environment.custom.resource_v3.heuristic.random_heuristic import RandomHeur
 try:
     from environment.custom.resource_v3.heuristic.cplex_greedy_critical import CPLEXGreedyCritical
     from environment.custom.resource_v3.heuristic.cplex_reduced_node import CPLEXReducedNode
+    cplex_found = True
 except ModuleNotFoundError:
     cplex_found = False
     print('CPLEX lib is not installed')

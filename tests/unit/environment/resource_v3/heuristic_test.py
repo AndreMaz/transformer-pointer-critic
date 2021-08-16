@@ -4,7 +4,13 @@ import unittest
 import numpy as np
 
 # Custom Imports
-from environment.custom.resource_v3.heuristic.factory import DominantResourceHeuristic, RandomHeuristic, CPLEXGreedyCritical, CPLEXReducedNode
+try:
+    from environment.custom.resource_v3.heuristic.factory import DominantResourceHeuristic, RandomHeuristic, CPLEXGreedyCritical, CPLEXReducedNode
+    cplex_found = True
+except:
+    from environment.custom.resource_v3.heuristic.factory import DominantResourceHeuristic, RandomHeuristic
+    cplex_found = False
+
 from environment.custom.resource_v3.heuristic.dominant_heuristic import compute_potential_placement_diffs
 from environment.custom.resource_v3.misc.utils import compute_stats
 
@@ -232,338 +238,340 @@ class TestRandomHeuristic(unittest.TestCase):
             empty_nodes, 1
         )
 
-class TestCPLEXGreedyCritical(unittest.TestCase):
-    def setUp(self) -> None:
-    
-        heuristic_opts = {
-            "use": False,
-            "time_limit_ms": 60000,
-            "greedy_with_critical_resource": True,
-            "num_threads": 4
-        }
-
-        normalization_factor = 100
-        node_sample_size = 3
+## Only Run tests if CPLEX is found
+if cplex_found:
+    class TestCPLEXGreedyCritical(unittest.TestCase):
+        def setUp(self) -> None:
         
-        self.solver = CPLEXGreedyCritical(
-            node_sample_size,
-            normalization_factor,
-            heuristic_opts
-        )
+            heuristic_opts = {
+                "use": False,
+                "time_limit_ms": 60000,
+                "greedy_with_critical_resource": True,
+                "num_threads": 4
+            }
 
-    def test_solver_SHOULD_reject_2(self):
-        dummy_state = np.array([
-            [
-                # Nodes
-                # CPU   RAM  MEM
-                [-2.0, -2.0, -2.0],
-                [0.1,  0.2,  0.3],
-                [0.5,  0.2,  0.6],
+            normalization_factor = 100
+            node_sample_size = 3
+            
+            self.solver = CPLEXGreedyCritical(
+                node_sample_size,
+                normalization_factor,
+                heuristic_opts
+            )
 
-                # Resources
-                # CPU  RAM   MEM
-                [0.2,  0.1,  0.9], # Should Reject. Too Big
-                [0.3,  0.5,  0.8], # Should Reject. Too Big
-            ]
-        ], dtype='float32')
-        self.solver.solve(dummy_state)
+        def test_solver_SHOULD_reject_2(self):
+            dummy_state = np.array([
+                [
+                    # Nodes
+                    # CPU   RAM  MEM
+                    [-2.0, -2.0, -2.0],
+                    [0.1,  0.2,  0.3],
+                    [0.5,  0.2,  0.6],
 
-        delta,\
-        num_rejected,\
-        empty_nodes = compute_stats(self.solver.solution)
+                    # Resources
+                    # CPU  RAM   MEM
+                    [0.2,  0.1,  0.9], # Should Reject. Too Big
+                    [0.3,  0.5,  0.8], # Should Reject. Too Big
+                ]
+            ], dtype='float32')
+            self.solver.solve(dummy_state)
 
-        self.assertEqual(
-            delta, 0.1
-        )
+            delta,\
+            num_rejected,\
+            empty_nodes = compute_stats(self.solver.solution)
 
-        self.assertEqual(
-            num_rejected, 2
-        )
+            self.assertEqual(
+                delta, 0.1
+            )
 
-        self.assertEqual(
-            empty_nodes, 2
-        )
+            self.assertEqual(
+                num_rejected, 2
+            )
+
+            self.assertEqual(
+                empty_nodes, 2
+            )
 
 
-    def test_solver_SHOULD_reject_1(self):
-        dummy_state = np.array([
-            [
-                # Nodes
-                # CPU   RAM  MEM
-                [-2.0, -2.0, -2.0],
-                [0.1,  0.2,  0.3],
-                [0.5,  0.3,  0.6],
+        def test_solver_SHOULD_reject_1(self):
+            dummy_state = np.array([
+                [
+                    # Nodes
+                    # CPU   RAM  MEM
+                    [-2.0, -2.0, -2.0],
+                    [0.1,  0.2,  0.3],
+                    [0.5,  0.3,  0.6],
 
-                # Resources
-                # CPU  RAM   MEM
-                [0.2,  0.1,  0.4],
-                [0.3,  0.5,  0.8], # Should Reject. Too Big
-            ]
-        ], dtype='float32')
-        self.solver.solve(dummy_state)
+                    # Resources
+                    # CPU  RAM   MEM
+                    [0.2,  0.1,  0.4],
+                    [0.3,  0.5,  0.8], # Should Reject. Too Big
+                ]
+            ], dtype='float32')
+            self.solver.solve(dummy_state)
 
-        delta,\
-        num_rejected,\
-        empty_nodes = compute_stats(self.solver.solution)
+            delta,\
+            num_rejected,\
+            empty_nodes = compute_stats(self.solver.solution)
 
-        self.assertEqual(
-            delta, 0.1
-        )
+            self.assertEqual(
+                delta, 0.1
+            )
 
-        self.assertEqual(
-            num_rejected, 1
-        )
+            self.assertEqual(
+                num_rejected, 1
+            )
 
-        self.assertEqual(
-            empty_nodes, 1
-        )
-    
-    def test_solver_SHOULD_place_2_at_2_nodes(self):
-        dummy_state = np.array([
-            [
-                # Nodes
-                # CPU   RAM  MEM
-                [-2.0, -2.0, -2.0],
-                [0.3,  0.6,  0.6],
-                [0.5,  0.8,  0.7],
-
-                # Resources
-                # CPU  RAM   MEM
-                [0.2,  0.5,  0.4], 
-                [0.3,  0.5,  0.4], 
-            ]
-        ], dtype='float32')
-        self.solver.solve(dummy_state)
-
-        delta,\
-        num_rejected,\
-        empty_nodes = compute_stats(self.solver.solution)
-
-        self.assertEqual(
-            delta, 0.1
-        )
-
-        self.assertEqual(
-            num_rejected, 0
-        )
-
-        self.assertEqual(
-            empty_nodes, 0
-        )
-
-    def test_solver_SHOULD_place_2_at_1_node(self):
-        dummy_state = np.array([
-            [
-                # Nodes
-                # CPU   RAM  MEM
-                [-2.0, -2.0, -2.0],
-                [0.5,  1.0,  0.9], # Should Place both reqs here
-                [0.1,  0.1,  0.1],
-
-                # Resources
-                # CPU  RAM   MEM
-                [0.2,  0.5,  0.4], 
-                [0.3,  0.5,  0.4], 
-            ]
-        ], dtype='float32')
-        self.solver.solve(dummy_state)
-
-        delta,\
-        num_rejected,\
-        empty_nodes = compute_stats(self.solver.solution)
-
-        self.assertEqual(
-            delta, 0.0
-        )
-
-        self.assertEqual(
-            num_rejected, 0
-        )
-
-        self.assertEqual(
-            empty_nodes, 1
-        )
-
-class TestCPLEXReducedNode(unittest.TestCase):
-    def setUp(self) -> None:
-    
-        heuristic_opts = {
-            "use": True,
-            "time_limit_ms": 60000,
-            "num_threads": 4
-        }
-
-        normalization_factor = 100
-        node_sample_size = 3
+            self.assertEqual(
+                empty_nodes, 1
+            )
         
-        self.solver = CPLEXReducedNode(
-            node_sample_size,
-            normalization_factor,
-            heuristic_opts
-        )
+        def test_solver_SHOULD_place_2_at_2_nodes(self):
+            dummy_state = np.array([
+                [
+                    # Nodes
+                    # CPU   RAM  MEM
+                    [-2.0, -2.0, -2.0],
+                    [0.3,  0.6,  0.6],
+                    [0.5,  0.8,  0.7],
 
-    def test_solver_SHOULD_reject_2(self):
-        dummy_state = np.array([
-            [
-                # Nodes
-                # CPU   RAM  MEM
-                [-2.0, -2.0, -2.0],
-                [0.1,  0.2,  0.3],
-                [0.5,  0.2,  0.6],
+                    # Resources
+                    # CPU  RAM   MEM
+                    [0.2,  0.5,  0.4], 
+                    [0.3,  0.5,  0.4], 
+                ]
+            ], dtype='float32')
+            self.solver.solve(dummy_state)
 
-                # Resources
-                # CPU  RAM   MEM
-                [0.2,  0.1,  0.9], # Should Reject. Too Big
-                [0.3,  0.5,  0.8], # Should Reject. Too Big
-            ]
-        ], dtype='float32')
-        self.solver.solve(dummy_state)
+            delta,\
+            num_rejected,\
+            empty_nodes = compute_stats(self.solver.solution)
 
-        delta,\
-        num_rejected,\
-        empty_nodes = compute_stats(self.solver.solution)
+            self.assertEqual(
+                delta, 0.1
+            )
 
-        self.assertEqual(
-            delta, 0.1
-        )
+            self.assertEqual(
+                num_rejected, 0
+            )
 
-        self.assertEqual(
-            num_rejected, 2
-        )
+            self.assertEqual(
+                empty_nodes, 0
+            )
 
-        self.assertEqual(
-            empty_nodes, 2
-        )
+        def test_solver_SHOULD_place_2_at_1_node(self):
+            dummy_state = np.array([
+                [
+                    # Nodes
+                    # CPU   RAM  MEM
+                    [-2.0, -2.0, -2.0],
+                    [0.5,  1.0,  0.9], # Should Place both reqs here
+                    [0.1,  0.1,  0.1],
+
+                    # Resources
+                    # CPU  RAM   MEM
+                    [0.2,  0.5,  0.4], 
+                    [0.3,  0.5,  0.4], 
+                ]
+            ], dtype='float32')
+            self.solver.solve(dummy_state)
+
+            delta,\
+            num_rejected,\
+            empty_nodes = compute_stats(self.solver.solution)
+
+            self.assertEqual(
+                delta, 0.0
+            )
+
+            self.assertEqual(
+                num_rejected, 0
+            )
+
+            self.assertEqual(
+                empty_nodes, 1
+            )
+
+    class TestCPLEXReducedNode(unittest.TestCase):
+        def setUp(self) -> None:
+        
+            heuristic_opts = {
+                "use": True,
+                "time_limit_ms": 60000,
+                "num_threads": 4
+            }
+
+            normalization_factor = 100
+            node_sample_size = 3
+            
+            self.solver = CPLEXReducedNode(
+                node_sample_size,
+                normalization_factor,
+                heuristic_opts
+            )
+
+        def test_solver_SHOULD_reject_2(self):
+            dummy_state = np.array([
+                [
+                    # Nodes
+                    # CPU   RAM  MEM
+                    [-2.0, -2.0, -2.0],
+                    [0.1,  0.2,  0.3],
+                    [0.5,  0.2,  0.6],
+
+                    # Resources
+                    # CPU  RAM   MEM
+                    [0.2,  0.1,  0.9], # Should Reject. Too Big
+                    [0.3,  0.5,  0.8], # Should Reject. Too Big
+                ]
+            ], dtype='float32')
+            self.solver.solve(dummy_state)
+
+            delta,\
+            num_rejected,\
+            empty_nodes = compute_stats(self.solver.solution)
+
+            self.assertEqual(
+                delta, 0.1
+            )
+
+            self.assertEqual(
+                num_rejected, 2
+            )
+
+            self.assertEqual(
+                empty_nodes, 2
+            )
 
 
-    def test_solver_SHOULD_reject_1(self):
-        dummy_state = np.array([
-            [
-                # Nodes
-                # CPU   RAM  MEM
-                [-2.0, -2.0, -2.0],
-                [0.1,  0.2,  0.3],
-                [0.5,  0.3,  0.6],
+        def test_solver_SHOULD_reject_1(self):
+            dummy_state = np.array([
+                [
+                    # Nodes
+                    # CPU   RAM  MEM
+                    [-2.0, -2.0, -2.0],
+                    [0.1,  0.2,  0.3],
+                    [0.5,  0.3,  0.6],
 
-                # Resources
-                # CPU  RAM   MEM
-                [0.2,  0.1,  0.4],
-                [0.3,  0.5,  0.8], # Should Reject. Too Big
-            ]
-        ], dtype='float32')
-        self.solver.solve(dummy_state)
+                    # Resources
+                    # CPU  RAM   MEM
+                    [0.2,  0.1,  0.4],
+                    [0.3,  0.5,  0.8], # Should Reject. Too Big
+                ]
+            ], dtype='float32')
+            self.solver.solve(dummy_state)
 
-        delta,\
-        num_rejected,\
-        empty_nodes = compute_stats(self.solver.solution)
+            delta,\
+            num_rejected,\
+            empty_nodes = compute_stats(self.solver.solution)
 
-        self.assertEqual(
-            delta, 0.1
-        )
+            self.assertEqual(
+                delta, 0.1
+            )
 
-        self.assertEqual(
-            num_rejected, 1
-        )
+            self.assertEqual(
+                num_rejected, 1
+            )
 
-        self.assertEqual(
-            empty_nodes, 1
-        )
-    
-    def test_solver_SHOULD_place_2_at_2_nodes(self):
-        dummy_state = np.array([
-            [
-                # Nodes
-                # CPU   RAM  MEM
-                [-2.0, -2.0, -2.0],
-                [0.3,  0.6,  0.6],
-                [0.5,  0.8,  0.7],
+            self.assertEqual(
+                empty_nodes, 1
+            )
+        
+        def test_solver_SHOULD_place_2_at_2_nodes(self):
+            dummy_state = np.array([
+                [
+                    # Nodes
+                    # CPU   RAM  MEM
+                    [-2.0, -2.0, -2.0],
+                    [0.3,  0.6,  0.6],
+                    [0.5,  0.8,  0.7],
 
-                # Resources
-                # CPU  RAM   MEM
-                [0.2,  0.5,  0.4], 
-                [0.3,  0.5,  0.4], 
-            ]
-        ], dtype='float32')
-        self.solver.solve(dummy_state)
+                    # Resources
+                    # CPU  RAM   MEM
+                    [0.2,  0.5,  0.4], 
+                    [0.3,  0.5,  0.4], 
+                ]
+            ], dtype='float32')
+            self.solver.solve(dummy_state)
 
-        delta,\
-        num_rejected,\
-        empty_nodes = compute_stats(self.solver.solution)
+            delta,\
+            num_rejected,\
+            empty_nodes = compute_stats(self.solver.solution)
 
-        self.assertEqual(
-            delta, 0.1
-        )
+            self.assertEqual(
+                delta, 0.1
+            )
 
-        self.assertEqual(
-            num_rejected, 0
-        )
+            self.assertEqual(
+                num_rejected, 0
+            )
 
-        self.assertEqual(
-            empty_nodes, 0
-        )
+            self.assertEqual(
+                empty_nodes, 0
+            )
 
-    def test_solver_SHOULD_place_2_at_1_node(self):
-        dummy_state = np.array([
-            [
-                # Nodes
-                # CPU   RAM  MEM
-                [-2.0, -2.0, -2.0],
-                [0.5,  1.0,  0.9], # Should Place both reqs here
-                [0.1,  0.1,  0.1],
+        def test_solver_SHOULD_place_2_at_1_node(self):
+            dummy_state = np.array([
+                [
+                    # Nodes
+                    # CPU   RAM  MEM
+                    [-2.0, -2.0, -2.0],
+                    [0.5,  1.0,  0.9], # Should Place both reqs here
+                    [0.1,  0.1,  0.1],
 
-                # Resources
-                # CPU  RAM   MEM
-                [0.2,  0.5,  0.4], 
-                [0.3,  0.5,  0.4], 
-            ]
-        ], dtype='float32')
-        self.solver.solve(dummy_state)
+                    # Resources
+                    # CPU  RAM   MEM
+                    [0.2,  0.5,  0.4], 
+                    [0.3,  0.5,  0.4], 
+                ]
+            ], dtype='float32')
+            self.solver.solve(dummy_state)
 
-        delta,\
-        num_rejected,\
-        empty_nodes = compute_stats(self.solver.solution)
+            delta,\
+            num_rejected,\
+            empty_nodes = compute_stats(self.solver.solution)
 
-        self.assertEqual(
-            delta, 0.0
-        )
+            self.assertEqual(
+                delta, 0.0
+            )
 
-        self.assertEqual(
-            num_rejected, 0
-        )
+            self.assertEqual(
+                num_rejected, 0
+            )
 
-        self.assertEqual(
-            empty_nodes, 1
-        )
-    
-    def test_solver_SHOULD_ONLY_use_1_node(self):
-        dummy_state = np.array([
-            [
-                # Nodes
-                # CPU   RAM  MEM
-                [-2.0, -2.0, -2.0],
-                [0.5,  1.0,  0.9], # Nodes are equal. CPLEX can use either
-                [0.5,  1.0,  0.9], # Nodes are equal. CPLEX can use either
+            self.assertEqual(
+                empty_nodes, 1
+            )
+        
+        def test_solver_SHOULD_ONLY_use_1_node(self):
+            dummy_state = np.array([
+                [
+                    # Nodes
+                    # CPU   RAM  MEM
+                    [-2.0, -2.0, -2.0],
+                    [0.5,  1.0,  0.9], # Nodes are equal. CPLEX can use either
+                    [0.5,  1.0,  0.9], # Nodes are equal. CPLEX can use either
 
-                # Resources
-                # CPU  RAM   MEM
-                [0.2,  0.5,  0.4], 
-                [0.3,  0.5,  0.4], 
-            ]
-        ], dtype='float32')
-        self.solver.solve(dummy_state)
+                    # Resources
+                    # CPU  RAM   MEM
+                    [0.2,  0.5,  0.4], 
+                    [0.3,  0.5,  0.4], 
+                ]
+            ], dtype='float32')
+            self.solver.solve(dummy_state)
 
-        delta,\
-        num_rejected,\
-        empty_nodes = compute_stats(self.solver.solution)
+            delta,\
+            num_rejected,\
+            empty_nodes = compute_stats(self.solver.solution)
 
-        self.assertEqual(
-            delta, 0.0
-        )
+            self.assertEqual(
+                delta, 0.0
+            )
 
-        self.assertEqual(
-            num_rejected, 0
-        )
+            self.assertEqual(
+                num_rejected, 0
+            )
 
-        self.assertEqual(
-            empty_nodes, 1
-        )
+            self.assertEqual(
+                empty_nodes, 1
+            )
