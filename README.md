@@ -1,4 +1,14 @@
-# Double Transformer Pointer-Critic
+# Transformer Pointer-Critic
+
+## Contents
+
+- [Problem Statement](#problem-statement)
+- [Repository Structure](#repo-structure)
+- [Agent, Env, training and testing configuration](#configuration)
+- [Training and Testing](#training-and-testing)
+- [Results](#results)
+- [Potential Improvements and Interesting ToDos](#potential-improvements-and-interesting-todos)
+- [References and Useful Links](#useful-links)
 
 **For the rationale behind the architecture please check [Architecture Rationale](./Arch_Rationale.md)**
 
@@ -6,6 +16,8 @@
 
 **Simple Overview**
 ![simple_arch](./media/paper_arch.png)
+
+## Problem Statement
 
 ### Goal
 
@@ -24,10 +36,10 @@ Three QoS are considered:
 ```python
 array([
     [ 0.00, 0.00, 0.00], -> Node EOS. Rejected `Rules` will be "placed" here
-    [ 0.70, 0.80, 0.40], -> Node 1. Remaining CPU: 0.70 | Remaining RAM: 0.80 | Remaining Memory: 0.40
-    [ 0.50, 0.40, 0.20], -> Node 2. Remaining CPU: 0.50 | Remaining RAM: 0.40 | Remaining Memory: 0.20
-    [ 0.10, 0.12, 0.17]  -> Rule 1. Required CPU: 0.10 | Required RAM: 0.12 | Required Memory: 0.17
-    [ 0.18, 0.32, 0.16]  -> Rule 2. Required CPU: 0.18 | Required RAM: 0.32 | Required Memory: 0.16
+    [ 0.70, 0.80, 0.40], -> Node 1. Remaining CPU: 0.70 | Remaining RAM: 0.80 | Remaining Storage: 0.40
+    [ 0.50, 0.40, 0.20], -> Node 2. Remaining CPU: 0.50 | Remaining RAM: 0.40 | Remaining Storage: 0.20
+    [ 0.10, 0.12, 0.17]  -> Rule 1. Required CPU: 0.10 | Required RAM: 0.12 | Required Storage: 0.17
+    [ 0.18, 0.32, 0.16]  -> Rule 2. Required CPU: 0.18 | Required RAM: 0.32 | Required Storage: 0.16
     ],
     dtype=float32, shape=(5, 5))
 ```
