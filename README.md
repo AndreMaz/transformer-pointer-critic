@@ -153,14 +153,16 @@ The of the Env., Agent, the training and the testing is centralized and located 
             },
             "random": {},
             "cplex_greedy_and_critical": {
-                // Disabled by default. If needed, you need to have CPLEX lib installed
+                // Disabled by default. If needed, you need to have docplex lib installed
+                // More info: https://ibmdecisionoptimization.github.io/docplex-doc/
                 "use": false,
                 "greedy_with_critical_resource": false,
                 "time_limit_ms": 60000,
                 "num_threads": 8
             },
             "cplex_node_reduction": {
-                // Disabled by default. If needed, you need to have CPLEX lib installed
+                // Disabled by default. If needed, you need to have docplex lib installed
+                // More info: https://ibmdecisionoptimization.github.io/docplex-doc/
                 "use": false,
                 "time_limit_ms": 60000,
                 "num_threads": 8
