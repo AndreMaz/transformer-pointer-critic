@@ -3,6 +3,7 @@
 ## Contents
 
 - [Problem Statement](#problem-statement)
+- [Installation](#installation)
 - [Repository Structure](#repo-structure)
 - [Agent, Env, training and testing configuration](#configuration)
 - [Training and Testing](#training-and-testing)
