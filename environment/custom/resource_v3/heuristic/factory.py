@@ -3,8 +3,13 @@ sys.path.append('.')
 import json
 from environment.custom.resource_v3.heuristic.dominant_heuristic import DominantResourceHeuristic
 from environment.custom.resource_v3.heuristic.random_heuristic import RandomHeuristic
-from environment.custom.resource_v3.heuristic.cplex_greedy_critical import CPLEXGreedyCritical
-from environment.custom.resource_v3.heuristic.cplex_reduced_node import CPLEXReducedNode
+
+try:
+    from environment.custom.resource_v3.heuristic.cplex_greedy_critical import CPLEXGreedyCritical
+    from environment.custom.resource_v3.heuristic.cplex_reduced_node import CPLEXReducedNode
+except ModuleNotFoundError:
+    cplex_found = False
+    print('CPLEX lib is not installed')
 
 def heuristic_factory(num_nodes: int, normalization_factor: int, opts: dict):
     heuristic_list = []
@@ -19,12 +24,12 @@ def heuristic_factory(num_nodes: int, normalization_factor: int, opts: dict):
     ]
     
     cplex_solvers = []
-    if opts['cplex_greedy_and_critical']['use']:
+    if opts['cplex_greedy_and_critical']['use'] and cplex_found:
         cplex_solvers.append(
             CPLEXGreedyCritical(num_nodes, normalization_factor, opts['cplex_greedy_and_critical'])
         )            
 
-    if opts['cplex_node_reduction']['use']:
+    if opts['cplex_node_reduction']['use'] and cplex_found:
         cplex_solvers.append(
             CPLEXReducedNode(num_nodes, normalization_factor,
                                 opts['cplex_node_reduction'])
