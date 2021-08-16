@@ -12,6 +12,19 @@
 
 **For the rationale behind the architecture please check [Architecture Rationale](./Arch_Rationale.md)**
 
+## Installation
+
+```bash
+python3 -m venv --system-site-packages ./venv
+source ./venv/bin/activate
+pip install --upgrade pip
+
+# Install the actual deps
+pip install -r requirements.txt
+```
+
+For more info check Tensorflow's [installation guide](https://www.tensorflow.org/install/pip).
+
 ## Architecture Details
 
 **Simple Overview**
