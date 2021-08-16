@@ -57,7 +57,7 @@
             },
             "random": {},
             "cplex_greedy_and_critical": {
-                "use": true,
+                "use": false,
                 "greedy_with_critical_resource": false,
                 "time_limit_ms": 60000,
                 "num_threads": 8
@@ -127,7 +127,7 @@
     },
 
     "tpc": {
-        "description": "Double Transformer Pointer Critic Agent configs.",
+        "description": "Transformer Pointer Critic Agent configs.",
         "agent_config": {
 
             "gamma": 0.99,
