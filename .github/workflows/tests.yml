@@ -4,6 +4,7 @@ description: "Runs Unit Tests"
 
 on: [push]
 
-runs:
-  using: "docker"
-  image: "Dockerfile"
+jobs:
+  runs:
+    using: "docker"
+    image: "Dockerfile"
