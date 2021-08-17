@@ -6,14 +6,13 @@ WORKDIR /app
 # COPY DIR
 COPY . .
 
-# RUN
+# Install Deps
 RUN apt-get update
-RUN apt-get install python3-dev python3-pip python3-venv -y
-RUN python3 -m venv --system-site-packages ./venv
-RUN source ./venv/bin/activate
-RUN pip install --upgrade pip
+RUN apt-get install python3-dev python3-pip -y
 
+RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
-# Run unit tests
-CMD [ "python" , "tests/runner.py"]
+# Run the tests
+# CMD [ "python", "tests/runner.py" ]
+CMD ["coverage", "run", "tests/runner.py", "&&", "coverage", "html" ,"--omit=*/venv/*,*/usr/*,*/lib/*,*/tests/*", "-i"]

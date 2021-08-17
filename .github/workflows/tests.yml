@@ -3,8 +3,3 @@ name: "Tests"
 description: "Runs Unit Tests"
 
 on: [push]
-
-jobs:
-  runs:
-    using: "docker"
-    image: "Dockerfile"
