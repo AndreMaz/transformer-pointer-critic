@@ -1,6 +1,9 @@
 # action.yml
 name: "Tests"
 description: "Runs Unit Tests"
+
+on: [push]
+
 runs:
   using: "docker"
   image: "Dockerfile"
