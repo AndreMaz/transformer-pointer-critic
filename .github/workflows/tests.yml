@@ -1,5 +1,14 @@
 # action.yml
-name: "Tests"
+name: "CI"
 description: "Runs Unit Tests"
 
 on: [push]
+
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+
+jobs:
+  test:
+    steps:
+      run: coverage run tests/runner.py && coverage html --omit=*/venv/*,*/usr/*,*/lib/*,*/tests/* -i
