@@ -1,2 +1,4 @@
-media
-results
+media/*
+results/*
+venv/*
+htmlcov/*

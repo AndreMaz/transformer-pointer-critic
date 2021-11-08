@@ -11,7 +11,7 @@
 - [Potential Improvements and Interesting ToDos](#potential-improvements-and-interesting-todos)
 - [References and Useful Links](#useful-links)
 
-**For the rationale behind the architecture please check [Architecture Rationale](./Arch_Rationale.md)**
+<!-- **For the rationale behind the architecture please check [Architecture Rationale](./Arch_Rationale.md)** -->
 
 ## Installation
 
@@ -35,13 +35,13 @@ For more info check Tensorflow's [installation guide](https://www.tensorflow.org
 
 ### Goal
 
-Given a set of tasks (a.k.a. `Rules`, aka web `Resources`), decide for the best `Rule` distribution across a set of devices (each having a random amount of CPU, RAM and storage resources) while taking into account the QoS.
+Given a set of tasks (a.k.a. `Rules`, aka web `Resources`), decide for the best `Rule` distribution across a set of devices a.k.a `Nodes` (each having a random amount of CPU, RAM and storage resources) while taking into account the QoS.
 
 Three QoS are considered:
 
 - **Greedy Distribution** - Place as much `Rules` as possible
-- **Fair Distribution** - Place as much `Rules` as possible but ensure that all node receive a fair amount of `Rules` to process
-- **Cost Distribution** - Place as much `Rules` as possible but minimize the number of nodes while doing it
+- **Fair Distribution** - Place as much `Rules` as possible but ensure that all `Nodes` receive a fair amount of `Rules` to process
+- **Cost Distribution** - Place as much `Rules` as possible but minimize the number of `Nodes` while doing it
 
 ### Input Representation
 
@@ -72,7 +72,7 @@ array([
 │ ├── configs.py - Loader helper method
 │ └── ResourceV3.json - Actual configs file
 ├── environment
-│ ├── env_factory.py - Helper init and load the environment
+│ ├── env_factory.py - Helper method to init and load the environment
 │ ├── custom
 │ │ ├── resource_v3
 │ │ │ ├── attention_plotter.py - Plots attention for potential policy analysis
@@ -87,14 +87,14 @@ array([
 ├── requirements.txt
 ├── results
 ├── test_agent.py
-└── tests
+└── tests - Unit and integrations tests
     ├── runner.py
     └── unit
 ```
 
 ### Configuration
 
-The of the Env., Agent, the training and the testing is centralized and located in `configs/ResourceV3.json`
+The configuration of the Env., Agent, training and testing functions is centralized and located in `configs/ResourceV3.json`
 
 ```js
 {
@@ -267,7 +267,8 @@ The of the Env., Agent, the training and the testing is centralized and located 
 
 ### Training and Testing
 
-After configuring (see [Configuration](#Configuration)) run `main.py`. After the completion you will see a `End... Goodbye!` message.
+After configuring (see [Configuration](#Configuration)) run `main.py`.
+The `main.py` train and test the agent. Also, if configured, it will solve problem instances with "classic" heuristics and store the overall results in  `results` folder. After the completion you will see a `End... Goodbye!` message.
 
 ### Results
 

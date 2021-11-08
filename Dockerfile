@@ -8,10 +8,10 @@ COPY . .
 
 # Install Deps
 RUN apt-get update
-RUN apt-get install python3-dev python3-pip -y
+RUN apt-get install python3 python3-dev python3-pip -y
 
 RUN pip install --upgrade pip
-RUN pip install -r requirements.txt
+RUN pip install -r requirements_docker.txt
 
 # Run the tests
 # CMD [ "python", "tests/runner.py" ]
