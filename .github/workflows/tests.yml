@@ -1,6 +1,6 @@
 # action.yml
 name: "CI"
-description: "Runs Unit Tests"
+description: "Runs unit and integration tests"
 
 on: [push]
 
@@ -11,4 +11,5 @@ runs:
 jobs:
   test:
     steps:
-      run: coverage run tests/runner.py && coverage html --omit=*/venv/*,*/usr/*,*/lib/*,*/tests/* -i
+      - name: Run the tests
+        run: coverage run tests/runner.py && coverage html --omit=*/venv/*,*/usr/*,*/lib/*,*/tests/* -i
