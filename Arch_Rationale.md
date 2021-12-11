@@ -1,5 +1,5 @@
 
-# Contents
+# Contents (Old Stuff - Outdated)
 - [Traveling Salesman Problem](#Traveling-Salesman-Problem)
 - [Knapsack Problem](#Knapsack-Problem)
 - [Multiple Knapsack Problem](#Multiple-Knapsack-Problem)

@@ -1,5 +1,15 @@
 # Transformer Pointer-Critic
 
+This is a repo with the source code for the [Attention-Based Model and Deep Reinforcement Learning for Distribution of Event Processing Tasks](https://arxiv.org/abs/2112.03835). If this code is useful for your work, please cite our paper:
+
+```
+@inproceedings{Mazayev2021AttentionBasedMA,
+  title={Attention-Based Model and Deep Reinforcement Learning for Distribution of Event Processing Tasks},
+  author={Andriy Mazayev and Faroq Al-Tam and No{\'e}lia S. C. Correia},
+  year={2021}
+}
+```
+
 ## Contents
 
 - [Problem Statement](#problem-statement)
@@ -26,7 +36,7 @@ pip install -r requirements.txt
 
 For more info check Tensorflow's [installation guide](https://www.tensorflow.org/install/pip).
 
-## Architecture Details
+## Architecture
 
 **Simple Overview**
 ![simple_arch](./media/paper_arch.png)
@@ -50,12 +60,12 @@ Three QoS are considered:
 ```python
 array([
     [ 0.00, 0.00, 0.00], -> Node EOS. Rejected `Rules` will be "placed" here
-    [ 0.70, 0.80, 0.40], -> Node 1. Remaining CPU: 0.70 | Remaining RAM: 0.80 | Remaining Storage: 0.40
-    [ 0.50, 0.40, 0.20], -> Node 2. Remaining CPU: 0.50 | Remaining RAM: 0.40 | Remaining Storage: 0.20
+    [ 0.70, 0.80, 0.40], -> Node 1. Available CPU: 0.70 | Available RAM: 0.80 | Available Storage: 0.40
+    [ 0.50, 0.40, 0.20], -> Node 2. Available CPU: 0.50 | Available RAM: 0.40 | Available Storage: 0.20
     [ 0.10, 0.12, 0.17]  -> Rule 1. Required CPU: 0.10 | Required RAM: 0.12 | Required Storage: 0.17
     [ 0.18, 0.32, 0.16]  -> Rule 2. Required CPU: 0.18 | Required RAM: 0.32 | Required Storage: 0.16
     ],
-    dtype=float32, shape=(5, 5))
+    dtype=float32, shape=(5, 3))
 ```
 
 ### Repo structure
