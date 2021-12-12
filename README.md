@@ -15,7 +15,7 @@ This is a repo with the source code for the [Attention-Based Model and Deep Rein
 - [Problem Statement](#problem-statement)
 - [Installation](#installation)
 - [Repository Structure](#repo-structure)
-- [Agent, Env, training and testing configuration](#configuration)
+- [Agent, Env, Training and Testing configuration](#configuration)
 - [Training and Testing](#training-and-testing)
 - [Results](#results)
 - [Potential Improvements and Interesting ToDos](#potential-improvements-and-interesting-todos)
@@ -45,7 +45,7 @@ For more info check Tensorflow's [installation guide](https://www.tensorflow.org
 
 ### Goal
 
-Given a set of tasks (a.k.a. `Rules`, aka web `Resources`), decide for the best `Rule` distribution across a set of devices a.k.a `Nodes` (each having a random amount of CPU, RAM and storage resources) while taking into account the QoS.
+Given a set of tasks (a.k.a. `Rules`, and web `Resources`), decide for the best `Rule` distribution across a set of devices a.k.a `Nodes` (each having a random amount of CPU, RAM and storage resources) while taking into account the QoS.
 
 Three QoS are considered:
 
@@ -54,6 +54,9 @@ Three QoS are considered:
 - **Cost Distribution** - Place as much `Rules` as possible but minimize the number of `Nodes` while doing it
 
 ### Input Representation
+The input is has two parts: `Nodes`, and `Rules`.
+Each entry in the `Nodes` parts describes the available resouces in the node, while each entry in the `Rules` part describes the demaned resources.
+The `Nodes` parts has a ***dummy*** node to recieve rejected Rules`.
 
 **Input example with 2 Nodes and 2 `Rules` to distribute**
 
@@ -104,7 +107,7 @@ array([
 
 ### Configuration
 
-The configuration of the Env., Agent, training and testing functions is centralized and located in `configs/ResourceV3.json`
+The configuration of the Env., Agent, Training and Testing functions are centralized and located in `configs/ResourceV3.json`
 
 ```js
 {
@@ -278,7 +281,7 @@ The configuration of the Env., Agent, training and testing functions is centrali
 ### Training and Testing
 
 After configuring (see [Configuration](#Configuration)) run `main.py`.
-The `main.py` train and test the agent. Also, if configured, it will solve problem instances with "classic" heuristics and store the overall results in  `results` folder. After the completion you will see a `End... Goodbye!` message.
+The `main.py` train and test the agent. Also, if configured, it will solve problem instances with "classic" heuristics and store the overall results in `results` folder. After the completion you will see a `End... Goodbye!` message.
 
 ### Results
 
@@ -325,19 +328,19 @@ coverage run tests/runner.py && coverage html --omit=*/venv/*,*/usr/*,*/lib/*,*/
 
 ### Implement Self-Critic
 
-Instead of using a dedicated network (the `Critic`) to estimate the state-values, which are used as a baseline, use [greedy rollout baseline](https://arxiv.org/abs/1612.00563). Greedy rollout baseline in [Attention, Learn to Solve Routing Problems!](https://arxiv.org/abs/1803.08475) shows promising results.
+Instead of using a dedicated network (the `Critic`) to estimate the state-value paris, which are used as a baseline, use [greedy rollout baseline](https://arxiv.org/abs/1612.00563). Greedy rollout baseline in [Attention, Learn to Solve Routing Problems!](https://arxiv.org/abs/1803.08475) shows promising results.
 
 ## How to do it
 
-The easiest (not the cleanest) way to implement it is to create a `agents/baseline_trainer.py` file with a 2 instances (`env` and `env_baseline`) of environment and agents (`agent` and `agent_baseline`).
+The easiest (not the cleanest) way to implement it is to create a `agents/baseline_trainer.py` file with two instances (`env` and `env_baseline`) of environment and agents (`agent` and `agent_baseline`).
 
 Then:
 
-- When we sample a state from `env` we would copy it state into `env_baseline`.
-- Delete the `critic` model from `agent` and `agent_baseline` as it's no longer necessary.
+- When we sample a state from `env` we would copy it's state into `env_baseline`.
+- Delete the `critic` model from `agent` and `agent_baseline` as it is no longer necessary.
 - Copy the network weighs for `agent` actor into `agent_baseline` actor.
 - Set `agent_baseline.stochastic_action_selection` to `False`. This way the agent will select the action in a greedy way.
-- The `agent` would gather rewards from `env` and `agent_baseline` would do the same with `env_baseline`.
+- The `agent` will gather rewards from `env` and `agent_baseline` will do the same with `env_baseline`.
 
 ### Implement Vehicle Routing Problem environment
 
