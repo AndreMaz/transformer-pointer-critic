@@ -54,15 +54,15 @@ Three QoS are considered:
 - **Cost Distribution** - Place as much `Rules` as possible but minimize the number of `Nodes` while doing it
 
 ### Input Representation
-The input is has two parts: `Nodes`, and `Rules`.
-Each entry in the `Nodes` parts describes the available resouces in the node, while each entry in the `Rules` part describes the demaned resources.
-The `Nodes` parts has a ***dummy*** node to recieve rejected Rules`.
+The input has two parts: `Nodes`, and `Rules`.
+Each entry in the `Nodes` parts describes the amount of available resources in the node, while each entry in the `Rules` part describes the demanded resources.
+The `Nodes` part has a ***dummy*** node to receives rejected Rules`.
 
 **Input example with 2 Nodes and 2 `Rules` to distribute**
 
 ```python
 array([
-    [ 0.00, 0.00, 0.00], -> Node EOS. Rejected `Rules` will be "placed" here
+    [ 0.00, 0.00, 0.00], -> Node dummy. Rejected `Rules` will be "placed" here
     [ 0.70, 0.80, 0.40], -> Node 1. Available CPU: 0.70 | Available RAM: 0.80 | Available Storage: 0.40
     [ 0.50, 0.40, 0.20], -> Node 2. Available CPU: 0.50 | Available RAM: 0.40 | Available Storage: 0.20
     [ 0.10, 0.12, 0.17]  -> Rule 1. Required CPU: 0.10 | Required RAM: 0.12 | Required Storage: 0.17
