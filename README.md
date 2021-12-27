@@ -54,9 +54,10 @@ Three QoS are considered:
 - **Cost Distribution** - Place as much `Rules` as possible but minimize the number of `Nodes` while doing it
 
 ### Input Representation
-The input has two parts: `Nodes`, and `Rules`.
-Each entry in the `Nodes` parts describes the amount of available resources in the node, while each entry in the `Rules` part describes the demanded resources.
-The `Nodes` part has a ***dummy*** node to receives rejected Rules`.
+
+The input has two parts: `Nodes` and `Rules`.
+Each entry in the `Nodes` part describes the amount of available resources in the node, while each entry in the `Rules` part describes the demanded resources.
+The `Nodes` part has a **_dummy_** node that receives rejected `Rules`.
 
 **Input example with 2 Nodes and 2 `Rules` to distribute**
 
@@ -81,17 +82,17 @@ array([
 │ │ └── transformer - Contains of the actor and the critic models
 │ ├── plotter.py - Plots the losses and the stats
 │ └── trainer.py - Training function
-├── configs - Centralized location for configuring the Agent, Env., training and testing
+├── configs - Centralized location for configuring the Agent, Env., training and testing function
 │ ├── configs.py - Loader helper method
 │ └── ResourceV3.json - Actual configs file
 ├── environment
 │ ├── env_factory.py - Helper method to init and load the environment
 │ ├── custom
 │ │ ├── resource_v3
-│ │ │ ├── attention_plotter.py - Plots attention for potential policy analysis
+│ │ │ ├── attention_plotter.py - Plots attention (for potential policy analysis)
 │ │ │ ├── env.py - Environment Class implementation
-│ │ │ ├── heuristic - Contains baseline heuristics implementation
-│ │ │ ├── misc - Contains helper function
+│ │ │ ├── heuristic - Contains implementation of baseline heuristics
+│ │ │ ├── misc - Contains helper functions
 │ │ │ ├── node.py - Node Class implementation
 │ │ │ ├── resource.py - Task/`Rule`/`Resource` Class implementation
 │ │ │ ├── reward.py - Contains the implementation of different rewards
@@ -281,7 +282,7 @@ The configuration of the Env., Agent, Training and Testing functions are central
 ### Training and Testing
 
 After configuring (see [Configuration](#Configuration)) run `main.py`.
-The `main.py` train and test the agent. Also, if configured, it will solve problem instances with "classic" heuristics and store the overall results in `results` folder. After the completion you will see a `End... Goodbye!` message.
+The `main.py` will train and test the agent. Also, if configured, it will solve problem instances with "classic" heuristics and store the overall results in `results` folder. After the completion you will see a `End... Goodbye!` message.
 
 ### Results
 
