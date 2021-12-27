@@ -331,7 +331,7 @@ coverage run tests/runner.py && coverage html --omit=*/venv/*,*/usr/*,*/lib/*,*/
 
 Instead of using a dedicated network (the `Critic`) to estimate the state-value paris, which are used as a baseline, use [greedy rollout baseline](https://arxiv.org/abs/1612.00563). Greedy rollout baseline in [Attention, Learn to Solve Routing Problems!](https://arxiv.org/abs/1803.08475) shows promising results.
 
-## How to do it
+#### How to do it
 
 The easiest (not the cleanest) way to implement it is to create a `agents/baseline_trainer.py` file with two instances (`env` and `env_baseline`) of environment and agents (`agent` and `agent_baseline`).
 
@@ -347,7 +347,7 @@ Then:
 
 It would be interesting to see how the network performs in VRP
 
-## How to do it
+#### How to do it
 
 - Look at the `KnapsackV2` and `ResourceV3` environments in `environments/custom` and adapt them to the VRP
 - Add the VRP env to `environments/env_factory.py`
