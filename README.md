@@ -3,10 +3,15 @@
 This is a repo with the source code for the [Attention-Based Model and Deep Reinforcement Learning for Distribution of Event Processing Tasks](https://arxiv.org/abs/2112.03835). If this code is useful for your work, please cite our paper:
 
 ```
-@inproceedings{Mazayev2021AttentionBasedMA,
-  title={Attention-Based Model and Deep Reinforcement Learning for Distribution of Event Processing Tasks},
-  author={Andriy Mazayev and Faroq Al-Tam and No{\'e}lia S. C. Correia},
-  year={2021}
+@article{MAZAYEV2022100563,
+	title = {Attention-based model and deep reinforcement learning for distribution of event processing tasks},
+	journal = {Internet of Things},
+	pages = {100563},
+	year = {2022},
+	issn = {2542-6605},
+	doi = {https://doi.org/10.1016/j.iot.2022.100563},
+	url = {https://www.sciencedirect.com/science/article/pii/S2542660522000580},
+	author = {Andriy Mazayev and Faroq Al-Tam and Noélia Correia}
 }
 ```
 
