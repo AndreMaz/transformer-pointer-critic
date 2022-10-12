@@ -1,6 +1,6 @@
 # Transformer Pointer-Critic
 
-This is a repo with the source code for the [Attention-Based Model and Deep Reinforcement Learning for Distribution of Event Processing Tasks](https://arxiv.org/abs/2112.03835). If this code is useful for your work, please cite our paper:
+This is a repo with the source code for the [Attention-Based Model and Deep Reinforcement Learning for Distribution of Event Processing Tasks](https://doi.org/10.1016/j.iot.2022.100563). If this code is useful for your work, please cite our paper:
 
 ```
 @article{MAZAYEV2022100563,
